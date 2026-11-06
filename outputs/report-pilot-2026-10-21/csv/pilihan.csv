@@ -1,0 +1,3 @@
+﻿ID paket,Jalur,Urutan,Universitas,Program studi,Jenjang,ID event acuan,Label metrik sumber,Nilai acuan,Persentil siswa,Persentil kuota,Jumlah pemilih,Status sumber,ID sumber
+PILOT-001-W40,SNBT,1,Universitas Gadjah Mada,Farmasi,S1,TO-LOCAL-004,Target skor,694,76,96,69,Jumlah pemilih sedikit,SRC-05
+PILOT-001-W40,SNBT,2,Universitas Indonesia,Farmasi,S1,TO-LOCAL-004,Target skor,686,75,95,41,Jumlah pemilih sedikit,SRC-05

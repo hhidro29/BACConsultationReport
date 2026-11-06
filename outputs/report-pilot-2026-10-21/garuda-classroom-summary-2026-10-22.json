@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "input": {
+    "studentAlias": "PILOT-001",
+    "period": {
+      "start": "2026-09-28",
+      "end": "2026-10-04",
+      "week": "2026-W40"
+    },
+    "sessions": [
+      {
+        "id": "HADIR-1",
+        "datetime": "2026-10-01T19:00:00.000",
+        "subject": "PPU",
+        "teacher": "Muhamad Diky Yulianto",
+        "attendance": "Hadir",
+        "attendanceSourceId": "SRC-04",
+        "note": {
+          "id": "CTX-001",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "author": "Muhamad Diky Yulianto",
+          "sourceId": "SRC-07"
+        }
+      },
+      {
+        "id": "HADIR-2",
+        "datetime": "2026-10-01T17:00:00.000",
+        "subject": "Sejarah",
+        "teacher": "Addin Zahran Rahman",
+        "attendance": "Hadir",
+        "attendanceSourceId": "SRC-04",
+        "note": {
+          "id": "CTX-003",
+          "text": null,
+          "author": "Addin Zahran Rahman",
+          "sourceId": "SRC-07"
+        }
+      },
+      {
+        "id": "HADIR-3",
+        "datetime": "2026-09-28T19:00:00.000",
+        "subject": "Matematika Tingkat Lanjut",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Hadir",
+        "attendanceSourceId": "SRC-04",
+        "note": {
+          "id": "CTX-004",
+          "text": null,
+          "author": null,
+          "sourceId": "SRC-07"
+        }
+      },
+      {
+        "id": "HADIR-4",
+        "datetime": "2026-09-28T17:00:00.000",
+        "subject": "Biologi",
+        "teacher": "Allen Nurul Kurniah",
+        "attendance": "Hadir",
+        "attendanceSourceId": "SRC-04",
+        "note": {
+          "id": "CTX-002",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "author": "Allen Nurul Kurniah",
+          "sourceId": "SRC-07"
+        }
+      }
+    ],
+    "sources": [
+      {
+        "id": "SRC-04",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&week=2026-W40&startDate=2026-09-28&endDate=2026-10-04&tab=attendance",
+        "label": "Detail > Kehadiran"
+      },
+      {
+        "id": "SRC-07",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&week=2026-W40&startDate=2026-09-28&endDate=2026-10-04",
+        "label": "Detail > Catatan Siswa"
+      }
+    ],
+    "timestampNote": "Times reflect source display. WIB explicitly shown in Profiling; other tabs require timezone confirmation."
+  },
+  "summary": {
+    "mode": "curated_prototype",
+    "promptVersion": "classroom-summary-v1",
+    "statements": [
+      {
+        "text": "Pada sesi PPU (1 Okt) dan Biologi (28 Sep), pengajar mencatat antusiasme tinggi, keaktifan bertanya, pemahaman materi sangat baik, serta pengerjaan tugas secara mandiri.",
+        "evidence": [
+          {
+            "noteId": "CTX-001",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "CTX-002",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          }
+        ]
+      }
+    ]
+  }
+}

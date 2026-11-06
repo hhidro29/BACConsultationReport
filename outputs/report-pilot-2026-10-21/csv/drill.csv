@@ -1,0 +1,32 @@
+﻿ID paket,ID sesi lokal,Mulai,Kelas sumber,Kurikulum,Subject sumber,Benar,Total soal,Salah,Tidak dijawab,Akurasi sumber,ID materi,Nama materi,ID sumber
+PILOT-001-W40,DRILL-LOCAL-001,2026-10-04T15:23:00.000,Kelas 6,Kurikulum Merdeka,TKA,1,1,0,0,1,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-002,2026-10-04T15:21:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Pengetahuan dan Pemahaman Umum,1,1,0,0,1,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-003,2026-10-04T15:19:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Pengetahuan dan Pemahaman Umum,1,2,1,0,0.5,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-004,2026-10-04T14:59:00.000,Kelas 12,Kurikulum Merdeka,Matematika,4,6,2,0,0.67,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-005,2026-10-04T14:52:00.000,Kelas 12,Kurikulum Merdeka,Biologi,9,10,1,0,0.9,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-006,2026-10-04T14:48:00.000,Kelas 12,Kurikulum Merdeka,Biologi,4,10,2,4,0.4,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-007,2026-10-04T14:42:00.000,Kelas 12,Kurikulum Merdeka,Biologi,2,10,5,3,0.2,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-008,2026-10-04T14:37:00.000,Kelas 12,Kurikulum Merdeka,Kimia,4,5,1,0,0.8,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-009,2026-10-04T14:24:00.000,UTBK & Ujian Mandiri,Tes Literasi,Penalaran Matematika,4,5,1,0,0.8,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-010,2026-10-04T14:17:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Kemampuan Penalaran Umum,5,5,0,0,1,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-011,2026-10-04T14:15:00.000,Kelas 12,Kurikulum Merdeka,Biologi,1,10,3,6,0.1,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-012,2026-10-04T14:10:00.000,Kelas 12,Kurikulum Merdeka,Biologi,1,10,3,6,0.1,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-013,2026-10-02T17:50:00.000,Kelas 12,Kurikulum Merdeka,Biologi,1,5,0,4,0.2,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-014,2026-10-02T17:41:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Kemampuan Penalaran Umum,5,5,0,0,1,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-015,2026-10-02T17:38:00.000,Kelas 12,TKA,TKA Biologi,0,3,1,2,0,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-016,2026-10-01T20:32:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Pengetahuan dan Pemahaman Umum,1,3,2,0,0.33,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-017,2026-10-01T20:31:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Pengetahuan dan Pemahaman Umum,0,3,3,0,0,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-018,2026-10-01T20:30:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Pengetahuan dan Pemahaman Umum,0,3,1,2,0,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-019,2026-10-01T20:27:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Pengetahuan dan Pemahaman Umum,1,3,2,0,0.33,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-020,2026-10-01T20:26:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Pengetahuan dan Pemahaman Umum,0,3,1,2,0,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-021,2026-09-30T19:22:00.000,Kelas 12,Kurikulum Merdeka,Fisika,1,10,0,9,0.1,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-022,2026-09-30T10:45:00.000,Kelas 12,Kurikulum Merdeka,Bahasa Indonesia,2,3,1,0,0.67,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-023,2026-09-30T08:33:00.000,Kelas 12,Kurikulum Merdeka,Biologi,5,5,0,0,1,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-024,2026-09-30T08:30:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Kemampuan Penalaran Umum,0,5,1,4,0,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-025,2026-09-29T09:41:00.000,Kelas 12,TKA,TKA Biologi,0,2,2,0,0,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-026,2026-09-29T09:33:00.000,UTBK & Ujian Mandiri,Tes Literasi,Penalaran Matematika,1,5,4,0,0.2,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-027,2026-09-29T09:27:00.000,Kelas 12,TKA,TKA Matematika,0,5,1,4,0,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-028,2026-09-29T09:20:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Kemampuan Penalaran Umum,2,5,3,0,0.4,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-029,2026-09-29T09:11:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Kemampuan Penalaran Umum,3,5,2,0,0.6,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-030,2026-09-29T09:05:00.000,UTBK & Ujian Mandiri,Tes Potensi Skolastik,Kemampuan Penalaran Umum,4,5,1,0,0.8,,,SRC-03
+PILOT-001-W40,DRILL-LOCAL-031,2026-09-28T12:14:00.000,Kelas 12,Kurikulum Merdeka,TKA,0,5,0,5,0,,,SRC-03

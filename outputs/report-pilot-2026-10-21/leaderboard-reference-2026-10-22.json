@@ -1,0 +1,107 @@
+{
+  "references": [
+    {
+      "studentId": "GARUDAI4LG3ZTNGA",
+      "university": "Universitas Gadjah Mada",
+      "program": "Farmasi",
+      "degree": "S1",
+      "metric": "weighted_score",
+      "highestScore": 713,
+      "sourceType": "user_provided_screenshot",
+      "sourceFile": "Screenshot 2026-10-22 at 11.23.28 AM.png",
+      "sourceProvidedOn": "2026-10-22",
+      "eventName": null,
+      "eventVisibleText": "Reguler Epis…",
+      "highestConfirmedByUser": true,
+      "limitations": [
+        "Nama event lengkap belum terbaca",
+        "Filter program studi menunjukkan dua pilihan; kartu dan baris terlihat menampilkan S1 - FARMASI"
+      ],
+      "subtestScores": {
+        "PU": 734,
+        "PPU": 669,
+        "PB": 685,
+        "PK": 768,
+        "LBI-A": 653,
+        "LBI-S": 780,
+        "LBIN": 574,
+        "PM": 770
+      },
+      "subtestReferenceBasis": "Nilai subtes milik peserta pada baris tertinggi skor total; bukan maksimum terpisah tiap kolom.",
+      "sourceColumnMapping": {
+        "PU": "PU",
+        "PPU": "PPU",
+        "PBM": "PB",
+        "PK": "PK",
+        "LBI Saintek": "LBI-A",
+        "LBI Soshum": "LBI-S",
+        "LBE": "LBIN",
+        "PM": "PM"
+      },
+      "localEvidenceFile": "leaderboard-farmasi-ugm-2026-10-22.png"
+    },
+    {
+      "studentId": "GARUDAI4LG3ZTNGA",
+      "university": "Universitas Indonesia",
+      "program": "Farmasi",
+      "degree": "S1",
+      "metric": "weighted_score",
+      "highestScore": 718,
+      "sourceType": "user_provided_screenshot",
+      "sourceFile": "Screenshot 2026-10-22 at 11.27.47 AM.png",
+      "sourceProvidedOn": "2026-10-22",
+      "eventName": null,
+      "eventVisibleText": "Event",
+      "rowLabel": "S1 - FARMASI",
+      "highestBasedOn": "Baris pertama tabel diurutkan Weighted Score menurun; pengguna mengonfirmasi bahwa baris atas adalah tertinggi pada pesan sebelumnya.",
+      "limitations": [
+        "Kartu program di atas tabel menampilkan S1 - PENDIDIKAN DOKTER GIGI, sementara baris pertama tabel adalah S1 - FARMASI; gunakan label baris.",
+        "Filter program menunjukkan dua pilihan."
+      ],
+      "subtestScores": {
+        "PU": 772,
+        "PPU": 725,
+        "PB": 739,
+        "PK": 734,
+        "LBI-A": 604,
+        "LBI-S": 694,
+        "LBIN": 664,
+        "PM": 731
+      },
+      "subtestReferenceBasis": "Nilai subtes milik peserta pada baris tertinggi skor total; bukan maksimum terpisah tiap kolom.",
+      "sourceColumnMapping": {
+        "PU": "PU",
+        "PPU": "PPU",
+        "PBM": "PB",
+        "PK": "PK",
+        "LBI Saintek": "LBI-A",
+        "LBI Soshum": "LBI-S",
+        "LBE": "LBIN",
+        "PM": "PM"
+      },
+      "localEvidenceFile": "leaderboard-farmasi-ui-2026-10-22.png"
+    }
+  ],
+  "comparisonPolicy": {
+    "requestedBy": "user",
+    "date": "2026-10-22",
+    "displayMetricLabel": false,
+    "formula": "selected_student_score - leaderboard_highest_score",
+    "studentBaselines": [
+      "latest_total_score",
+      "median_total_score"
+    ],
+    "latestScore": 546,
+    "medianScore": 568.5,
+    "expectedGaps": {
+      "ugm": {
+        "latest": -167,
+        "median": -144.5
+      },
+      "ui": {
+        "latest": -172,
+        "median": -149.5
+      }
+    }
+  }
+}

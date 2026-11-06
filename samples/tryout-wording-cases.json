@@ -1,0 +1,1261 @@
+{
+  "dimensions": {
+    "basePatterns": 15,
+    "kinds": [
+      "Reguler",
+      "Premium",
+      "Campuran",
+      "Kosong"
+    ],
+    "qualities": [
+      "Lengkap",
+      "Kosong di tengah",
+      "Kosong di awal",
+      "Kosong terakhir",
+      "Semua kosong",
+      "Nilai tidak valid"
+    ],
+    "tolerances": [
+      0,
+      5,
+      10
+    ],
+    "largeChangePoints": [
+      null,
+      20,
+      50
+    ],
+    "times": [
+      "Normal",
+      "Jeda panjang",
+      "Hasil lama",
+      "Tanggal tidak valid"
+    ],
+    "combinations": 12960,
+    "testedSequences": 3280,
+    "asOf": "2026-10-22",
+    "note": "Nilai ambang dan skenario hanya contoh untuk review, bukan ketetapan akademik. Ini seluruh kombinasi bucket di atas, bukan seluruh angka skor yang mungkin."
+  },
+  "cases": [
+    {
+      "pattern": "no_data",
+      "label": "Belum ada nilai",
+      "values": [],
+      "records": [],
+      "output": {
+        "pattern": "no_data",
+        "patternLabel": "Belum ada nilai",
+        "observation": "Belum ada nilai valid untuk membaca perkembangan skor total.",
+        "student": "Pastikan tryout yang diikuti dan ketersediaan hasilnya.",
+        "parent": "Bahas pengalaman mengikuti tryout dan mengakses hasil, termasuk kendala jika ada.",
+        "nextStep": "Lengkapi hasil yang tersedia sebelum membahas perkembangan nilai.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 0,
+          "validCount": 0,
+          "missingCount": 0,
+          "datesComplete": false,
+          "tolerance": 0,
+          "netDelta": null,
+          "latestDelta": null,
+          "lastObservedDelta": null,
+          "changes": [],
+          "signs": [],
+          "signChanges": 0,
+          "range": null,
+          "kindState": "unknown",
+          "largestStep": null,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": null,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "one_result",
+      "label": "Baru satu nilai",
+      "values": [
+        550
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 550,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "one_result",
+        "patternLabel": "Baru satu nilai",
+        "observation": "Baru satu nilai skor total tersedia, yaitu 550. Perkembangan belum dapat disimpulkan.",
+        "student": "Bahas persiapan dan pengalaman pengerjaan pada tryout yang tercatat.",
+        "parent": "Identifikasi dukungan belajar yang tersedia serta kebutuhan siswa untuk tryout berikutnya.",
+        "nextStep": "Catat pengalaman tryout ini sebagai konteks; perkembangan nilai menunggu hasil pembanding.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 1,
+          "validCount": 1,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": null,
+          "latestDelta": null,
+          "lastObservedDelta": null,
+          "changes": [],
+          "signs": [],
+          "signChanges": 0,
+          "range": 0,
+          "kindState": "single",
+          "largestStep": null,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": null,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "initial_up",
+      "label": "Dua hasil: naik",
+      "values": [
+        500,
+        550
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 500,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 550,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "initial_up",
+        "patternLabel": "Dua hasil: naik",
+        "observation": "Skor total naik dari 500 menjadi 550 (naik 50 poin). Baru dua hasil tersedia.",
+        "student": "Bandingkan persiapan dan pengalaman pengerjaan pada dua tryout yang tercatat.",
+        "parent": "Bahas rutinitas dan dukungan belajar di antara kedua tryout.",
+        "nextStep": "Rangkum perbedaan pengalaman siswa dan hal yang ingin dievaluasi pada tryout berikutnya.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 2,
+          "validCount": 2,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": 50,
+          "latestDelta": 50,
+          "lastObservedDelta": 50,
+          "changes": [
+            50
+          ],
+          "signs": [
+            1
+          ],
+          "signChanges": 0,
+          "range": 50,
+          "kindState": "single",
+          "largestStep": 50,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "initial_down",
+      "label": "Dua hasil: turun",
+      "values": [
+        550,
+        500
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 550,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 500,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "initial_down",
+        "patternLabel": "Dua hasil: turun",
+        "observation": "Skor total turun dari 550 menjadi 500 (turun 50 poin). Baru dua hasil tersedia.",
+        "student": "Bandingkan persiapan, pengalaman pengerjaan, dan pembahasan hasil pada kedua tryout.",
+        "parent": "Bahas rutinitas belajar di antara kedua tryout, termasuk perubahan atau kendala jika ada.",
+        "nextStep": "Catat temuan dari kedua tryout tanpa menyimpulkan penyebab penurunan atau pola berulang.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 2,
+          "validCount": 2,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": -50,
+          "latestDelta": -50,
+          "lastObservedDelta": -50,
+          "changes": [
+            -50
+          ],
+          "signs": [
+            -1
+          ],
+          "signChanges": 0,
+          "range": 50,
+          "kindState": "single",
+          "largestStep": 50,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "initial_flat",
+      "label": "Dua hasil: tetap",
+      "values": [
+        550,
+        550
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 550,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 550,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "initial_flat",
+        "patternLabel": "Dua hasil: tetap",
+        "observation": "Dua nilai skor total sama: 550 → 550.",
+        "student": "Bandingkan jenis soal, cara pengerjaan, dan pengelolaan waktu pada kedua tryout dengan nilai yang sama.",
+        "parent": "Bahas rutinitas dan dukungan belajar di antara kedua tryout.",
+        "nextStep": "Rangkum persamaan dan perbedaan pengalaman siswa meskipun kedua nilai serupa.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 2,
+          "validCount": 2,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": 0,
+          "latestDelta": 0,
+          "lastObservedDelta": 0,
+          "changes": [
+            0
+          ],
+          "signs": [
+            0
+          ],
+          "signChanges": 0,
+          "range": 0,
+          "kindState": "single",
+          "largestStep": 0,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "steady_up",
+      "label": "Naik konsisten",
+      "values": [
+        500,
+        525,
+        550,
+        575
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 500,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 525,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 550,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 575,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "steady_up",
+        "patternLabel": "Naik konsisten",
+        "observation": "Skor total naik 3 kali berturut-turut, dari 500 menjadi 575 (naik 75 poin). Perubahan terakhir: +25 poin.",
+        "student": "Bahas persiapan dan pengerjaan tryout selama periode ini, serta cara siswa membahas hasilnya.",
+        "parent": "Identifikasi rutinitas dan dukungan belajar yang berlangsung selama periode tersebut.",
+        "nextStep": "Rangkum cara belajar yang dinilai membantu oleh siswa serta hal yang ingin dievaluasi.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 4,
+          "validCount": 4,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": 75,
+          "latestDelta": 25,
+          "lastObservedDelta": 25,
+          "changes": [
+            25,
+            25,
+            25
+          ],
+          "signs": [
+            1,
+            1,
+            1
+          ],
+          "signChanges": 0,
+          "range": 75,
+          "kindState": "single",
+          "largestStep": 25,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "steady_down",
+      "label": "Turun konsisten",
+      "values": [
+        601,
+        576,
+        561,
+        546
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 601,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 576,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 561,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 546,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "steady_down",
+        "patternLabel": "Turun konsisten",
+        "observation": "Skor total turun 3 kali berturut-turut, dari 601 menjadi 546 (turun 55 poin). Perubahan terakhir: -15 poin.",
+        "student": "Bahas persiapan dan pengerjaan tryout selama periode ini, serta cara siswa membahas hasilnya.",
+        "parent": "Bahas kondisi dan rutinitas belajar selama periode ini, termasuk perubahan jika ada.",
+        "nextStep": "Sepakati tindak lanjut berdasarkan contoh pengerjaan dan penjelasan siswa, tanpa menetapkan penyebab dari tren nilai saja.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 4,
+          "validCount": 4,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": -55,
+          "latestDelta": -15,
+          "lastObservedDelta": -15,
+          "changes": [
+            -25,
+            -15,
+            -15
+          ],
+          "signs": [
+            -1,
+            -1,
+            -1
+          ],
+          "signChanges": 0,
+          "range": 55,
+          "kindState": "single",
+          "largestStep": 25,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "steady_flat",
+      "label": "Tetap sepanjang riwayat",
+      "values": [
+        550,
+        550,
+        550,
+        550
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 550,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 550,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 550,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 550,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "steady_flat",
+        "patternLabel": "Tetap sepanjang riwayat",
+        "observation": "Skor total sama pada setiap perpindahan hasil yang tersedia. Perubahan terakhir: 0 poin.",
+        "student": "Bandingkan jenis soal dan cara pengerjaan antartryout, termasuk kesulitan atau perubahan yang dirasakan siswa.",
+        "parent": "Identifikasi rutinitas, dukungan yang tersedia, dan kebutuhan belajar menurut siswa serta orang tua.",
+        "nextStep": "Rangkum perkembangan dari contoh pengerjaan; nilai yang tetap belum menjelaskan penguasaan materi.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 4,
+          "validCount": 4,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": 0,
+          "latestDelta": 0,
+          "lastObservedDelta": 0,
+          "changes": [
+            0,
+            0,
+            0
+          ],
+          "signs": [
+            0,
+            0,
+            0
+          ],
+          "signChanges": 0,
+          "range": 0,
+          "kindState": "single",
+          "largestStep": 0,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "up_with_pauses",
+      "label": "Cenderung naik, diselingi tetap",
+      "values": [
+        500,
+        525,
+        525,
+        550
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 500,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 525,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 525,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 550,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "up_with_pauses",
+        "patternLabel": "Cenderung naik, diselingi tetap",
+        "observation": "Skor total cenderung naik, diselingi hasil yang sama. Awal–akhir: 500 → 550. Perubahan terakhir: +25 poin.",
+        "student": "Bandingkan persiapan dan pengalaman pada tryout dengan nilai meningkat dan nilai tetap.",
+        "parent": "Bahas rutinitas dan dukungan belajar selama periode tersebut.",
+        "nextStep": "Catat persamaan dan perbedaan pengalaman serta hal yang ingin ditinjau pada hasil berikutnya.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 4,
+          "validCount": 4,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": 50,
+          "latestDelta": 25,
+          "lastObservedDelta": 25,
+          "changes": [
+            25,
+            0,
+            25
+          ],
+          "signs": [
+            1,
+            0,
+            1
+          ],
+          "signChanges": 0,
+          "range": 50,
+          "kindState": "single",
+          "largestStep": 25,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "down_with_pauses",
+      "label": "Cenderung turun, diselingi tetap",
+      "values": [
+        600,
+        575,
+        575,
+        550
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 600,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 575,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 575,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 550,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "down_with_pauses",
+        "patternLabel": "Cenderung turun, diselingi tetap",
+        "observation": "Skor total cenderung turun, diselingi hasil yang sama. Awal–akhir: 600 → 550. Perubahan terakhir: -25 poin.",
+        "student": "Bandingkan persiapan dan pengalaman pada tryout dengan nilai menurun dan nilai tetap.",
+        "parent": "Bahas rutinitas dan kondisi belajar selama periode tersebut, termasuk kendala jika ada.",
+        "nextStep": "Sepakati fokus pembahasan berdasarkan contoh pengerjaan dan pengalaman siswa.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 4,
+          "validCount": 4,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": -50,
+          "latestDelta": -25,
+          "lastObservedDelta": -25,
+          "changes": [
+            -25,
+            0,
+            -25
+          ],
+          "signs": [
+            -1,
+            0,
+            -1
+          ],
+          "signChanges": 0,
+          "range": 50,
+          "kindState": "single",
+          "largestStep": 25,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "recovery",
+      "label": "Terakhir berbalik naik",
+      "values": [
+        600,
+        550,
+        520,
+        540
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 600,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 550,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 520,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 540,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "recovery",
+        "patternLabel": "Terakhir berbalik naik",
+        "observation": "Skor total pada hasil terakhir yang tersedia kembali naik setelah sempat turun. Awal–akhir: 600 → 540. Perubahan terakhir: +20 poin.",
+        "student": "Bandingkan persiapan dan pengalaman pada tryout terakhir dengan tryout sebelumnya.",
+        "parent": "Bahas kondisi, rutinitas, dan dukungan belajar menjelang tryout terakhir.",
+        "nextStep": "Catat perbedaan pengalaman untuk ditinjau pada hasil berikutnya; satu kenaikan belum menunjukkan konsistensi.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 4,
+          "validCount": 4,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": -60,
+          "latestDelta": 20,
+          "lastObservedDelta": 20,
+          "changes": [
+            -50,
+            -30,
+            20
+          ],
+          "signs": [
+            -1,
+            -1,
+            1
+          ],
+          "signChanges": 1,
+          "range": 80,
+          "kindState": "single",
+          "largestStep": 50,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "reversal_down",
+      "label": "Terakhir berbalik turun",
+      "values": [
+        500,
+        550,
+        580,
+        560
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 500,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 550,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 580,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 560,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "reversal_down",
+        "patternLabel": "Terakhir berbalik turun",
+        "observation": "Skor total pada hasil terakhir yang tersedia kembali turun setelah sempat naik. Awal–akhir: 500 → 560. Perubahan terakhir: -20 poin.",
+        "student": "Bandingkan persiapan dan pengalaman pada tryout terakhir dengan tryout sebelumnya.",
+        "parent": "Bahas kondisi, rutinitas, dan dukungan belajar menjelang tryout terakhir.",
+        "nextStep": "Catat perbedaan pengalaman untuk ditinjau pada hasil berikutnya; satu penurunan belum menunjukkan konsistensi.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 4,
+          "validCount": 4,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": 60,
+          "latestDelta": -20,
+          "lastObservedDelta": -20,
+          "changes": [
+            50,
+            30,
+            -20
+          ],
+          "signs": [
+            1,
+            1,
+            -1
+          ],
+          "signChanges": 1,
+          "range": 80,
+          "kindState": "single",
+          "largestStep": 50,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "fluctuating_up",
+      "label": "Naik-turun, akhir lebih tinggi",
+      "values": [
+        500,
+        560,
+        530,
+        550,
+        570
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 500,
+          "date": "2026-09-10",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 560,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 530,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 550,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-5",
+          "value": 570,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "fluctuating_up",
+        "patternLabel": "Naik-turun, akhir lebih tinggi",
+        "observation": "Skor total naik-turun; nilai akhir lebih tinggi daripada awal: 500 → 570. Perubahan terakhir: +20 poin.",
+        "student": "Bandingkan persiapan dan pengalaman pada tryout dengan nilai lebih tinggi dan lebih rendah.",
+        "parent": "Bahas rutinitas dan dukungan belajar antartryout, termasuk perbedaan jika ada.",
+        "nextStep": "Rangkum persamaan dan perbedaan pengalaman di sepanjang riwayat, termasuk hal yang ingin dievaluasi.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 5,
+          "validCount": 5,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": 70,
+          "latestDelta": 20,
+          "lastObservedDelta": 20,
+          "changes": [
+            60,
+            -30,
+            20,
+            20
+          ],
+          "signs": [
+            1,
+            -1,
+            1,
+            1
+          ],
+          "signChanges": 2,
+          "range": 70,
+          "kindState": "single",
+          "largestStep": 60,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "fluctuating_down",
+      "label": "Naik-turun, akhir lebih rendah",
+      "values": [
+        600,
+        540,
+        570,
+        550,
+        530
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 600,
+          "date": "2026-09-10",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 540,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 570,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 550,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-5",
+          "value": 530,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "fluctuating_down",
+        "patternLabel": "Naik-turun, akhir lebih rendah",
+        "observation": "Skor total naik-turun; nilai akhir lebih rendah daripada awal: 600 → 530. Perubahan terakhir: -20 poin.",
+        "student": "Bandingkan persiapan dan pengalaman pada tryout dengan nilai lebih rendah dan lebih tinggi.",
+        "parent": "Bahas rutinitas dan kondisi belajar antartryout, termasuk kendala jika ada.",
+        "nextStep": "Sepakati fokus tindak lanjut berdasarkan pengalaman siswa dan contoh pengerjaan.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 5,
+          "validCount": 5,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": -70,
+          "latestDelta": -20,
+          "lastObservedDelta": -20,
+          "changes": [
+            -60,
+            30,
+            -20,
+            -20
+          ],
+          "signs": [
+            -1,
+            1,
+            -1,
+            -1
+          ],
+          "signChanges": 2,
+          "range": 70,
+          "kindState": "single",
+          "largestStep": 60,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    },
+    {
+      "pattern": "fluctuating_flat",
+      "label": "Naik-turun, kembali mendekati awal",
+      "values": [
+        550,
+        600,
+        520,
+        530,
+        550,
+        550
+      ],
+      "records": [
+        {
+          "id": "TO-1",
+          "value": 550,
+          "date": "2026-09-03",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-2",
+          "value": 600,
+          "date": "2026-09-10",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-3",
+          "value": 520,
+          "date": "2026-09-17",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-4",
+          "value": 530,
+          "date": "2026-09-24",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-5",
+          "value": 550,
+          "date": "2026-10-01",
+          "kind": "Reguler"
+        },
+        {
+          "id": "TO-6",
+          "value": 550,
+          "date": "2026-10-08",
+          "kind": "Reguler"
+        }
+      ],
+      "output": {
+        "pattern": "fluctuating_flat",
+        "patternLabel": "Naik-turun, kembali mendekati awal",
+        "observation": "Skor total naik-turun, meskipun nilai awal dan akhir sama: 550 → 550. Perubahan terakhir: 0 poin.",
+        "student": "Bandingkan persiapan dan pengalaman pada tryout dengan nilai lebih tinggi dan lebih rendah di sepanjang riwayat.",
+        "parent": "Bahas kondisi, rutinitas, dan dukungan belajar selama periode nilai naik-turun.",
+        "nextStep": "Rangkum perbedaan pengalaman sepanjang riwayat; kesamaan nilai awal dan akhir belum menunjukkan kestabilan.",
+        "notes": [],
+        "additionalQuestions": [],
+        "typeQuestion": "",
+        "parameters": {
+          "count": 6,
+          "validCount": 6,
+          "missingCount": 0,
+          "datesComplete": true,
+          "tolerance": 0,
+          "netDelta": 0,
+          "latestDelta": 0,
+          "lastObservedDelta": 0,
+          "changes": [
+            50,
+            -80,
+            10,
+            20,
+            0
+          ],
+          "signs": [
+            1,
+            -1,
+            1,
+            1,
+            0
+          ],
+          "signChanges": 2,
+          "range": 80,
+          "kindState": "single",
+          "largestStep": 80,
+          "magnitude": {
+            "configured": false,
+            "threshold": null,
+            "latestLarge": false,
+            "anyLarge": false,
+            "netLarge": false
+          },
+          "time": {
+            "maxGapDays": 7,
+            "ageDays": null,
+            "longGap": false,
+            "stale": false,
+            "future": false,
+            "longGapThreshold": null,
+            "staleThreshold": null
+          }
+        }
+      }
+    }
+  ]
+}

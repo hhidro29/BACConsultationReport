@@ -1,0 +1,1028 @@
+{
+  "schemaVersion": 1,
+  "input": {
+    "studentAlias": "PILOT-001",
+    "period": {
+      "start": "2026-07-13",
+      "end": "2026-11-26",
+      "capturedOn": "2026-10-22"
+    },
+    "sessions": [
+      {
+        "id": "REFRESH-CLASS-041",
+        "datetime": "2026-10-19T19:00:00.000",
+        "subject": "Dasar-Dasar Numerasi",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-023",
+        "sourceRow": 1,
+        "attendanceSourceId": "SRC-REFRESH-023",
+        "note": {
+          "id": "REFRESH-NOTE-034",
+          "type": "Sesi",
+          "subject": "Dasar-Dasar Numerasi",
+          "datetime": "2026-10-19T19:00:00.000",
+          "author": "Ristyana Suryanti",
+          "text": null,
+          "sourceId": "SRC-REFRESH-024",
+          "sourceRow": 1
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-042",
+        "datetime": "2026-10-19T17:00:00.000",
+        "subject": "Pemahaman Bacaan dan Menulis",
+        "teacher": "Muhamad Diky Yulianto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-023",
+        "sourceRow": 2,
+        "attendanceSourceId": "SRC-REFRESH-023",
+        "note": {
+          "id": "REFRESH-NOTE-035",
+          "type": "Sesi",
+          "subject": "Pemahaman Bacaan dan Menulis",
+          "datetime": "2026-10-19T17:00:00.000",
+          "author": "Muhamad Diky Yulianto",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-024",
+          "sourceRow": 2
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-043",
+        "datetime": "2026-10-15T19:00:00.000",
+        "subject": "Biologi",
+        "teacher": "Nur Afifah Fitriyanti",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-023",
+        "sourceRow": 3,
+        "attendanceSourceId": "SRC-REFRESH-023",
+        "note": {
+          "id": "REFRESH-NOTE-036",
+          "type": "Sesi",
+          "subject": "Biologi",
+          "datetime": "2026-10-15T19:00:00.000",
+          "author": "Nur Afifah Fitriyanti",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-024",
+          "sourceRow": 3
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-044",
+        "datetime": "2026-10-15T17:00:00.000",
+        "subject": "Fisika",
+        "teacher": "suranto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-023",
+        "sourceRow": 4,
+        "attendanceSourceId": "SRC-REFRESH-023",
+        "note": {
+          "id": "REFRESH-NOTE-037",
+          "type": "Sesi",
+          "subject": "Fisika",
+          "datetime": "2026-10-15T17:00:00.000",
+          "author": "suranto",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-024",
+          "sourceRow": 4
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-023",
+        "datetime": "2026-10-12T19:00:00.000",
+        "subject": "Matematika Tingkat Lanjut",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Sakit",
+        "attendanceNote": "Sakit",
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 1,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "NO-NOTE-REFRESH-CLASS-023",
+          "text": null,
+          "author": null,
+          "sourceId": null
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-024",
+        "datetime": "2026-10-12T17:00:00.000",
+        "subject": "Bahasa Inggris",
+        "teacher": "Tanto Purwanto",
+        "attendance": "Sakit",
+        "attendanceNote": "Sakit",
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 2,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "NO-NOTE-REFRESH-CLASS-024",
+          "text": null,
+          "author": null,
+          "sourceId": null
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-025",
+        "datetime": "2026-10-08T19:00:00.000",
+        "subject": "Kimia",
+        "teacher": "Nadya Kartika Putri N",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 3,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-021",
+          "type": "Sesi",
+          "subject": "Kimia",
+          "datetime": "2026-10-08T19:00:00.000",
+          "author": "Nadya Kartika Putri N",
+          "text": null,
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 1
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-026",
+        "datetime": "2026-10-08T17:00:00.000",
+        "subject": "Fisika",
+        "teacher": "suranto",
+        "attendance": "Terlambat",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 4,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-022",
+          "type": "Sesi",
+          "subject": "Fisika",
+          "datetime": "2026-10-08T17:00:00.000",
+          "author": "suranto",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 2
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-027",
+        "datetime": "2026-10-05T19:00:00.000",
+        "subject": "Matematika",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Sakit",
+        "attendanceNote": "Sakit",
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 5,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "NO-NOTE-REFRESH-CLASS-027",
+          "text": null,
+          "author": null,
+          "sourceId": null
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-028",
+        "datetime": "2026-10-05T17:00:00.000",
+        "subject": "Bahasa Indonesia",
+        "teacher": "Amanda Ayu Lestari",
+        "attendance": "Sakit",
+        "attendanceNote": "Sakit",
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 6,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "NO-NOTE-REFRESH-CLASS-028",
+          "text": null,
+          "author": null,
+          "sourceId": null
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-029",
+        "datetime": "2026-10-01T19:00:00.000",
+        "subject": "Pengetahuan dan Pemahaman Umum",
+        "teacher": "Muhamad Diky Yulianto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 7,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-024",
+          "type": "Sesi",
+          "subject": "Pengetahuan dan Pemahaman Umum",
+          "datetime": "2026-10-01T19:00:00.000",
+          "author": "Muhamad Diky Yulianto",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 4
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-030",
+        "datetime": "2026-10-01T17:00:00.000",
+        "subject": "Sejarah",
+        "teacher": "Addin Zahran Rahman",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 8,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-025",
+          "type": "Sesi",
+          "subject": "Sejarah",
+          "datetime": "2026-10-01T17:00:00.000",
+          "author": "Addin Zahran Rahman",
+          "text": null,
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 5
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-031",
+        "datetime": "2026-09-28T19:00:00.000",
+        "subject": "Matematika Tingkat Lanjut",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 9,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-026",
+          "type": "Sesi",
+          "subject": "Matematika Tingkat Lanjut",
+          "datetime": "2026-09-28T19:00:00.000",
+          "author": null,
+          "text": null,
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 6
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-032",
+        "datetime": "2026-09-28T17:00:00.000",
+        "subject": "Biologi",
+        "teacher": "Allen Nurul Kurniah",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 10,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-027",
+          "type": "Sesi",
+          "subject": "Biologi",
+          "datetime": "2026-09-28T17:00:00.000",
+          "author": "Allen Nurul Kurniah",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 7
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-033",
+        "datetime": "2026-09-24T19:00:00.000",
+        "subject": "Bahasa Indonesia",
+        "teacher": "Amanda Ayu Lestari",
+        "attendance": "Izin",
+        "attendanceNote": "Lainnya: sejarahpersiapan ulangan tengah semester!",
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 11,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "NO-NOTE-REFRESH-CLASS-033",
+          "text": null,
+          "author": null,
+          "sourceId": null
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-034",
+        "datetime": "2026-09-24T17:00:00.000",
+        "subject": "Fisika",
+        "teacher": "suranto",
+        "attendance": "Izin",
+        "attendanceNote": "Lainnya: persiapan ulangan tengah semester: sejarah",
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 12,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "NO-NOTE-REFRESH-CLASS-034",
+          "text": null,
+          "author": null,
+          "sourceId": null
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-035",
+        "datetime": "2026-09-21T19:00:00.000",
+        "subject": "Matematika",
+        "teacher": "arya kusumah sejati",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 13,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-028",
+          "type": "Sesi",
+          "subject": "Matematika",
+          "datetime": "2026-09-21T19:00:00.000",
+          "author": "arya kusumah sejati",
+          "text": null,
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 8
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-036",
+        "datetime": "2026-09-21T17:00:00.000",
+        "subject": "Dasar-Dasar Linguistik",
+        "teacher": "Muhamad Diky Yulianto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 14,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-029",
+          "type": "Sesi",
+          "subject": "Dasar-Dasar Linguistik",
+          "datetime": "2026-09-21T17:00:00.000",
+          "author": "Muhamad Diky Yulianto",
+          "text": null,
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 9
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-037",
+        "datetime": "2026-09-17T19:00:00.000",
+        "subject": "Biologi",
+        "teacher": "Allen Nurul Kurniah",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 15,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-030",
+          "type": "Sesi",
+          "subject": "Biologi",
+          "datetime": "2026-09-17T19:00:00.000",
+          "author": "Allen Nurul Kurniah",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 10
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-038",
+        "datetime": "2026-09-17T17:00:00.000",
+        "subject": "Bahasa Inggris",
+        "teacher": "Tanto Purwanto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 16,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-031",
+          "type": "Sesi",
+          "subject": "Bahasa Inggris",
+          "datetime": "2026-09-17T17:00:00.000",
+          "author": "Tanto Purwanto",
+          "text": null,
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 11
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-039",
+        "datetime": "2026-09-14T19:00:00.000",
+        "subject": "Kimia",
+        "teacher": "Rahmania Tulus S. Pratiwi",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 17,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-032",
+          "type": "Sesi",
+          "subject": "Kimia",
+          "datetime": "2026-09-14T19:00:00.000",
+          "author": "Rahmania Tulus S. Pratiwi",
+          "text": null,
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 12
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-040",
+        "datetime": "2026-09-14T17:00:00.000",
+        "subject": "Matematika Tingkat Lanjut",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-019",
+        "sourceRow": 18,
+        "attendanceSourceId": "SRC-REFRESH-019",
+        "note": {
+          "id": "REFRESH-NOTE-033",
+          "type": "Sesi",
+          "subject": "Matematika Tingkat Lanjut",
+          "datetime": "2026-09-14T17:00:00.000",
+          "author": "Ristyana Suryanti",
+          "text": null,
+          "sourceId": "SRC-REFRESH-020",
+          "sourceRow": 13
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-007",
+        "datetime": "2026-09-10T19:00:00.000",
+        "subject": "Fisika",
+        "teacher": "suranto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 1,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-007",
+          "type": "Sesi",
+          "subject": "Fisika",
+          "datetime": "2026-09-10T19:00:00.000",
+          "author": "suranto",
+          "text": "Pada sesi ini, Ananda cukup aktif di kelas, meskipun sesekali masih perlu ditunjuk. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 1
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-008",
+        "datetime": "2026-09-10T17:00:00.000",
+        "subject": "Bahasa Indonesia",
+        "teacher": "Amanda Ayu Lestari",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 2,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-008",
+          "type": "Sesi",
+          "subject": "Bahasa Indonesia",
+          "datetime": "2026-09-10T17:00:00.000",
+          "author": "Amanda Ayu Lestari",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 2
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-009",
+        "datetime": "2026-09-07T19:00:00.000",
+        "subject": "Matematika",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 3,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-009",
+          "type": "Sesi",
+          "subject": "Matematika",
+          "datetime": "2026-09-07T19:00:00.000",
+          "author": "Ristyana Suryanti",
+          "text": null,
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 3
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-010",
+        "datetime": "2026-09-07T17:00:00.000",
+        "subject": "Dasar-Dasar Linguistik",
+        "teacher": "Muhamad Diky Yulianto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 4,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-010",
+          "type": "Sesi",
+          "subject": "Dasar-Dasar Linguistik",
+          "datetime": "2026-09-07T17:00:00.000",
+          "author": "Muhamad Diky Yulianto",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami sebagian besar materi, meskipun masih membutuhkan bantuan di beberapa bagian.",
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 4
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-011",
+        "datetime": "2026-09-03T19:00:00.000",
+        "subject": "Kimia",
+        "teacher": "Rahmania Tulus S. Pratiwi",
+        "attendance": "Sakit",
+        "attendanceNote": "Sakit",
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 5,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "NO-NOTE-REFRESH-CLASS-011",
+          "text": null,
+          "author": null,
+          "sourceId": null
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-012",
+        "datetime": "2026-09-03T17:00:00.000",
+        "subject": "Sejarah",
+        "teacher": "Addin Zahran Rahman",
+        "attendance": "Sakit",
+        "attendanceNote": "Sakit",
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 6,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "NO-NOTE-REFRESH-CLASS-012",
+          "text": null,
+          "author": null,
+          "sourceId": null
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-013",
+        "datetime": "2026-08-31T19:00:00.000",
+        "subject": "Biologi",
+        "teacher": "Allen Nurul Kurniah",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 7,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-011",
+          "type": "Sesi",
+          "subject": "Biologi",
+          "datetime": "2026-08-31T19:00:00.000",
+          "author": "Allen Nurul Kurniah",
+          "text": null,
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 5
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-014",
+        "datetime": "2026-08-31T17:00:00.000",
+        "subject": "Dasar-Dasar Numerasi",
+        "teacher": "Nadya Kartika Putri N",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 8,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-012",
+          "type": "Sesi",
+          "subject": "Dasar-Dasar Numerasi",
+          "datetime": "2026-08-31T17:00:00.000",
+          "author": "Nadya Kartika Putri N",
+          "text": null,
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 6
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-015",
+        "datetime": "2026-08-27T19:00:00.000",
+        "subject": "Kimia",
+        "teacher": "Rahmania Tulus S. Pratiwi",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 9,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-013",
+          "type": "Sesi",
+          "subject": "Kimia",
+          "datetime": "2026-08-27T19:00:00.000",
+          "author": "Rahmania Tulus S. Pratiwi",
+          "text": null,
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 7
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-016",
+        "datetime": "2026-08-27T17:00:00.000",
+        "subject": "Bahasa Indonesia",
+        "teacher": "Amanda Ayu Lestari",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 10,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-014",
+          "type": "Sesi",
+          "subject": "Bahasa Indonesia",
+          "datetime": "2026-08-27T17:00:00.000",
+          "author": "Amanda Ayu Lestari",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 8
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-017",
+        "datetime": "2026-08-24T19:00:00.000",
+        "subject": "Fisika",
+        "teacher": "suranto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 11,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-015",
+          "type": "Sesi",
+          "subject": "Fisika",
+          "datetime": "2026-08-24T19:00:00.000",
+          "author": "suranto",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 9
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-018",
+        "datetime": "2026-08-24T17:00:00.000",
+        "subject": "Matematika",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 12,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-016",
+          "type": "Sesi",
+          "subject": "Matematika",
+          "datetime": "2026-08-24T17:00:00.000",
+          "author": "Ristyana Suryanti",
+          "text": null,
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 10
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-019",
+        "datetime": "2026-08-20T19:00:00.000",
+        "subject": "Biologi",
+        "teacher": "Allen Nurul Kurniah",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 13,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-017",
+          "type": "Sesi",
+          "subject": "Biologi",
+          "datetime": "2026-08-20T19:00:00.000",
+          "author": "Allen Nurul Kurniah",
+          "text": null,
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 11
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-020",
+        "datetime": "2026-08-20T17:00:00.000",
+        "subject": "Dasar-Dasar Linguistik",
+        "teacher": "Muhamad Diky Yulianto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 14,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-018",
+          "type": "Sesi",
+          "subject": "Dasar-Dasar Linguistik",
+          "datetime": "2026-08-20T17:00:00.000",
+          "author": "Muhamad Diky Yulianto",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 12
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-021",
+        "datetime": "2026-08-13T19:00:00.000",
+        "subject": "Kimia",
+        "teacher": "Rahmania Tulus S. Pratiwi",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 15,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-019",
+          "type": "Sesi",
+          "subject": "Kimia",
+          "datetime": "2026-08-13T19:00:00.000",
+          "author": "Rahmania Tulus S. Pratiwi",
+          "text": null,
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 13
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-022",
+        "datetime": "2026-08-13T17:00:00.000",
+        "subject": "Dasar-Dasar Numerasi",
+        "teacher": "Nadya Kartika Putri N",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-011",
+        "sourceRow": 16,
+        "attendanceSourceId": "SRC-REFRESH-011",
+        "note": {
+          "id": "REFRESH-NOTE-020",
+          "type": "Sesi",
+          "subject": "Dasar-Dasar Numerasi",
+          "datetime": "2026-08-13T17:00:00.000",
+          "author": "Nadya Kartika Putri N",
+          "text": null,
+          "sourceId": "SRC-REFRESH-013",
+          "sourceRow": 14
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-001",
+        "datetime": "2026-08-10T19:00:00.000",
+        "subject": "Sejarah",
+        "teacher": "Regita Hakim",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-002",
+        "sourceRow": 1,
+        "attendanceSourceId": "SRC-REFRESH-002",
+        "note": {
+          "id": "REFRESH-NOTE-001",
+          "type": "Sesi",
+          "subject": "Sejarah",
+          "datetime": "2026-08-10T19:00:00.000",
+          "author": "Regita Hakim",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-003",
+          "sourceRow": 1
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-002",
+        "datetime": "2026-08-10T17:00:00.000",
+        "subject": "Matematika Tingkat Lanjut",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-002",
+        "sourceRow": 2,
+        "attendanceSourceId": "SRC-REFRESH-002",
+        "note": {
+          "id": "REFRESH-NOTE-002",
+          "type": "Sesi",
+          "subject": "Matematika Tingkat Lanjut",
+          "datetime": "2026-08-10T17:00:00.000",
+          "author": "Ristyana Suryanti",
+          "text": null,
+          "sourceId": "SRC-REFRESH-003",
+          "sourceRow": 2
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-003",
+        "datetime": "2026-08-06T19:00:00.000",
+        "subject": "Biologi",
+        "teacher": "Allen Nurul Kurniah",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-002",
+        "sourceRow": 3,
+        "attendanceSourceId": "SRC-REFRESH-002",
+        "note": {
+          "id": "REFRESH-NOTE-003",
+          "type": "Sesi",
+          "subject": "Biologi",
+          "datetime": "2026-08-06T19:00:00.000",
+          "author": "Allen Nurul Kurniah",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-003",
+          "sourceRow": 3
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-004",
+        "datetime": "2026-08-06T17:00:00.000",
+        "subject": "Bahasa Inggris",
+        "teacher": "Tanto Purwanto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-002",
+        "sourceRow": 4,
+        "attendanceSourceId": "SRC-REFRESH-002",
+        "note": {
+          "id": "REFRESH-NOTE-004",
+          "type": "Sesi",
+          "subject": "Bahasa Inggris",
+          "datetime": "2026-08-06T17:00:00.000",
+          "author": "Tanto Purwanto",
+          "text": null,
+          "sourceId": "SRC-REFRESH-003",
+          "sourceRow": 4
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-005",
+        "datetime": "2026-08-03T19:00:00.000",
+        "subject": "Matematika",
+        "teacher": "Ristyana Suryanti",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-002",
+        "sourceRow": 5,
+        "attendanceSourceId": "SRC-REFRESH-002",
+        "note": {
+          "id": "REFRESH-NOTE-005",
+          "type": "Sesi",
+          "subject": "Matematika",
+          "datetime": "2026-08-03T19:00:00.000",
+          "author": "Ristyana Suryanti",
+          "text": null,
+          "sourceId": "SRC-REFRESH-003",
+          "sourceRow": 5
+        }
+      },
+      {
+        "id": "REFRESH-CLASS-006",
+        "datetime": "2026-08-03T17:00:00.000",
+        "subject": "Fisika",
+        "teacher": "suranto",
+        "attendance": "Hadir",
+        "attendanceNote": null,
+        "sourceId": "SRC-REFRESH-002",
+        "sourceRow": 6,
+        "attendanceSourceId": "SRC-REFRESH-002",
+        "note": {
+          "id": "REFRESH-NOTE-006",
+          "type": "Sesi",
+          "subject": "Fisika",
+          "datetime": "2026-08-03T17:00:00.000",
+          "author": "suranto",
+          "text": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.",
+          "sourceId": "SRC-REFRESH-003",
+          "sourceRow": 6
+        }
+      }
+    ],
+    "sources": [
+      {
+        "id": "SRC-REFRESH-002",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&rombel=&week=2026-W40&tab=attendance&page=1&pageSize=100&search=&signal=&sort=priority&startDate=2026-07-13&endDate=2026-08-12",
+        "label": "Kehadiran · 2026-07-13–2026-08-12"
+      },
+      {
+        "id": "SRC-REFRESH-003",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&rombel=&week=2026-W40&tab=teacher-notes&page=1&pageSize=100&search=&signal=&sort=priority&startDate=2026-07-13&endDate=2026-08-12",
+        "label": "Catatan Siswa · 2026-07-13–2026-08-12"
+      },
+      {
+        "id": "SRC-REFRESH-011",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&rombel=&week=2026-W40&tab=attendance&page=1&pageSize=100&search=&signal=&sort=priority&startDate=2026-08-13&endDate=2026-09-12",
+        "label": "Kehadiran · 2026-08-13–2026-09-12"
+      },
+      {
+        "id": "SRC-REFRESH-013",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&rombel=&week=2026-W40&tab=teacher-notes&page=1&pageSize=100&search=&signal=&sort=priority&startDate=2026-08-13&endDate=2026-09-12",
+        "label": "Catatan Siswa · 2026-08-13–2026-09-12"
+      },
+      {
+        "id": "SRC-REFRESH-019",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&rombel=&week=2026-W40&tab=attendance&page=1&pageSize=100&search=&signal=&sort=priority&startDate=2026-09-13&endDate=2026-10-13",
+        "label": "Kehadiran · 2026-09-13–2026-10-13"
+      },
+      {
+        "id": "SRC-REFRESH-020",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&rombel=&week=2026-W40&tab=teacher-notes&page=1&pageSize=100&search=&signal=&sort=priority&startDate=2026-09-13&endDate=2026-10-13",
+        "label": "Catatan Siswa · 2026-09-13–2026-10-13"
+      },
+      {
+        "id": "SRC-REFRESH-023",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&rombel=&week=2026-W40&tab=attendance&page=1&pageSize=100&search=&signal=&sort=priority&startDate=2026-10-14&endDate=2026-11-13",
+        "label": "Kehadiran · 2026-10-14–2026-11-13"
+      },
+      {
+        "id": "SRC-REFRESH-024",
+        "url": "https://super-cms.ruangguru.com/brainacademy/academic-monitoring/bac-student-tower/GARUDAI4LG3ZTNGA?branch=GRP-UDS77NWL&academicYear=2026%2F2027&academicYearSerial=GRP-76RPMVW5&rombel=&week=2026-W40&tab=teacher-notes&page=1&pageSize=100&search=&signal=&sort=priority&startDate=2026-10-14&endDate=2026-11-13",
+        "label": "Catatan Siswa · 2026-10-14–2026-11-13"
+      }
+    ],
+    "timestampNote": "Waktu mengikuti tampilan sumber. Rentang yang diminta berakhir setelah tanggal pengambilan; belum menunjukkan kelengkapan sampai November."
+  },
+  "summary": {
+    "mode": "curated_prototype",
+    "promptVersion": "classroom-summary-v1",
+    "statements": [
+      {
+        "text": "Pada 14 dari 16 sesi yang memiliki catatan, pengajar mencatat siswa aktif bertanya, memahami materi sangat baik, dan mengerjakan tugas secara mandiri.",
+        "evidence": [
+          {
+            "noteId": "REFRESH-NOTE-035",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-036",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-037",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-022",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-024",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-027",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-030",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-008",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-014",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-015",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-018",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-001",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-003",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-006",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          }
+        ]
+      },
+      {
+        "text": "Pada Fisika (10 Sep), siswa sesekali masih perlu ditunjuk. Pada Dasar-Dasar Linguistik (7 Sep), siswa masih membutuhkan bantuan di beberapa bagian materi.",
+        "evidence": [
+          {
+            "noteId": "REFRESH-NOTE-007",
+            "quote": "Pada sesi ini, Ananda cukup aktif di kelas, meskipun sesekali masih perlu ditunjuk. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri."
+          },
+          {
+            "noteId": "REFRESH-NOTE-010",
+            "quote": "Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami sebagian besar materi, meskipun masih membutuhkan bantuan di beberapa bagian."
+          }
+        ]
+      }
+    ]
+  }
+}

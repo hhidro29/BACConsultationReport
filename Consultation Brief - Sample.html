@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Consultation Brief — Nadia Putri</title>
+  <style>
+    :root { --ink:#172033; --muted:#667085; --line:#e6e9ef; --blue:#2e5bff; --blue-soft:#eef3ff; --green:#15803d; --green-soft:#eaf8ef; --amber:#9a6700; --amber-soft:#fff6df; --surface:#fff; --bg:#f6f8fb; --shadow:0 10px 28px rgba(24,39,75,.07); }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--bg); font:15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .shell { max-width:1120px; margin:0 auto; padding:30px 22px 70px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
+    .eyebrow { color:var(--blue); font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    h1,h2,h3,p { margin:0; } h1 { margin-top:5px; font-size:30px; letter-spacing:-.03em; } h2 { font-size:20px; letter-spacing:-.015em; } h3 { font-size:16px; }
+    .muted { color:var(--muted); } .small { font-size:13px; }
+    .button { border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:10px; padding:9px 13px; cursor:pointer; font-weight:700; }
+    .button.primary { background:var(--blue); border-color:var(--blue); color:#fff; }
+    .hero, .section, .summary-card { background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); }
+    .hero { padding:24px; display:flex; justify-content:space-between; gap:24px; align-items:flex-start; }
+    .student-meta { display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:14px; color:var(--muted); font-size:14px; }
+    .student-meta strong { color:var(--ink); }
+    .period { min-width:220px; padding:13px 15px; background:var(--blue-soft); border-radius:12px; }
+    .period strong { display:block; margin-top:3px; }
+    .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:18px 0; }
+    .summary-grid.metrics-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .summary-card { padding:18px; box-shadow:none; }
+    .summary-card .label { color:var(--muted); font-size:13px; margin-bottom:7px; }
+    .summary-card .value { font-size:20px; font-weight:800; letter-spacing:-.02em; }
+    .summary-card .sub { color:var(--muted); margin-top:6px; font-size:13px; }
+    .section { padding:23px; margin-top:18px; }
+    .section-head { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:18px; }
+    .section-head p { margin-top:4px; color:var(--muted); }
+    .source { display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:4px 9px; font-size:12px; font-weight:700; white-space:nowrap; }
+    .source.tower { color:#14532d; background:var(--green-soft); } .source.profile { color:#2541a5; background:var(--blue-soft); } .source.derived { color:#7c4a00; background:var(--amber-soft); } .source.sa { color:#6841a5; background:#f4edff; }
+    .summary-copy { max-width:780px; font-size:17px; }
+    .summary-copy strong { color:var(--blue); }
+    .choice-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .choice { border:1px solid var(--line); border-radius:15px; padding:17px; background:#fff; }
+    .choice.featured { border:2px solid #a9bbff; padding:16px; }
+    .choice-title { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .status { border-radius:999px; padding:4px 8px; font-size:11px; font-weight:800; white-space:nowrap; }
+    .status.high { color:#9a6700; background:var(--amber-soft); } .status.good { color:var(--green); background:var(--green-soft); }
+    .choice p { margin-top:10px; color:var(--muted); font-size:14px; }
+    .choice-block { margin-top:14px; padding-top:13px; border-top:1px solid var(--line); }
+    .choice-block b { display:block; margin-bottom:5px; font-size:13px; }
+    .choice ul, .questions ul { margin:7px 0 0; padding-left:18px; color:var(--muted); }
+    .choice li + li { margin-top:4px; }
+    .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .chip { border:1px solid #cfd8ff; color:#2541a5; background:#f8faff; border-radius:999px; padding:8px 11px; font-weight:700; font-size:13px; cursor:pointer; }
+    .timeline { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .timeline-item { border-left:3px solid #b9c7ff; padding:3px 0 3px 14px; }
+    .timeline-item strong { display:block; }
+    .timeline-item p { margin-top:4px; color:var(--muted); font-size:13px; }
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .subcard { border:1px solid var(--line); border-radius:13px; padding:16px; }
+    .subcard p { margin-top:8px; color:var(--muted); }
+    .questions li { margin-bottom:8px; }
+    .source-list { display:flex; flex-direction:column; gap:10px; }
+    .source-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); }
+    .source-row:last-child { border-bottom:0; padding-bottom:0; }
+    .source-row:first-child { padding-top:0; }
+    .source-row p { color:var(--muted); font-size:13px; }
+    .hidden { display:none; }
+    @media (max-width:800px) { .hero, .section-head { flex-direction:column; } .period { width:100%; } .summary-grid, .choice-grid, .timeline, .two-col { grid-template-columns:1fr; } h1 { font-size:26px; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <div><div class="eyebrow">Consultation brief</div><div class="muted small">Persiapan konsultasi SA</div></div>
+      <button class="button" id="sourceToggle" type="button">Tampilkan sumber</button>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Profil siswa</div>
+        <h1>Nadia Putri</h1>
+        <div class="student-meta">
+          <span><strong>SMA Negeri 5 Bekasi</strong> · Kelas 12 IPA</span>
+          <span>Summarecon Bekasi</span>
+          <span>Kakak Asuh: Rina</span>
+        </div>
+      </div>
+      <div class="period"><span class="muted small">Periode analisis</span><strong>1–16 Oktober 2026</strong><span class="muted small">Diperbarui 16 Oktober 2026</span></div>
+    </section>
+
+    <div class="summary-grid metrics-grid">
+      <article class="summary-card">
+        <div class="label">Skor drill</div>
+        <div class="value">78/100</div>
+        <div class="sub">Rata-rata · 18 dari 24 drill selesai<br>Naik 8 poin dalam 4 minggu</div>
+        <div style="margin-top:10px"><span class="source tower">Student Tower · 1–16 Okt</span></div>
+      </article>
+      <article class="summary-card">
+        <div class="label">Skor tryout</div>
+        <div class="value">625</div>
+        <div class="sub">Skor terakhir · 590 → 625 dari tryout sebelumnya<br>Naik 35 poin</div>
+        <div style="margin-top:10px"><span class="source tower">Student Tower · 1–16 Okt</span></div>
+      </article>
+    </div>
+
+    <section class="section">
+      <div class="section-head"><div><h2>Ringkasan untuk SA</h2><p>Baca bagian ini sebelum membuka detail pilihan.</p></div><span class="source derived">Hasil analisis</span></div>
+      <p class="summary-copy">Nadia menargetkan <strong>Kedokteran UI</strong>. Skor drill rata-rata berada di 78/100 dan skor tryout terakhir mencapai 625, naik 35 poin dari tryout sebelumnya. Konsultasi perlu memvalidasi target utama, kesiapan memilih kampus di luar kota, dan rencana cadangan.</p>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><h2>Pilihan dan kecocokan saat ini</h2><p>Kondisi terbaru dikaitkan langsung dengan setiap pilihan siswa.</p></div><span class="source derived">Profiling + Tower + Knowledge Base</span></div>
+      <div class="choice-grid">
+        <article class="choice featured">
+          <div class="choice-title"><h3>Kedokteran UI</h3><span class="status high">Target tinggi</span></div>
+          <p>Minat siswa sesuai, tetapi kesiapan masuk masih perlu diperkuat.</p>
+          <div class="choice-block"><b>Tujuan siswa</b><span class="source profile">Student Profiling</span><ul><li>Minat pada Biologi</li><li>Ingin menjadi dokter</li></ul></div>
+          <div class="choice-block"><b>Kondisi 1–16 Okt</b><span class="source tower">Student Tower</span><ul><li>Tryout meningkat dalam 2 minggu</li><li>Literasi membaca belum konsisten</li><li>Kehadiran belajar 92%</li></ul></div>
+          <div class="choice-block"><b>Implikasi</b><p>Masih layak diperjuangkan dengan target skor dan strategi belajar yang lebih terarah.</p></div>
+        </article>
+        <article class="choice">
+          <div class="choice-title"><h3>Kedokteran UNDIP</h3><span class="status good">Alternatif realistis</span></div>
+          <p>Sesuai minat, dengan pertanyaan tambahan tentang kesiapan tinggal di luar kota.</p>
+          <div class="choice-block"><b>Bukti pendukung</b><span class="source profile">Student Profiling</span><ul><li>Masih memilih bidang kedokteran</li><li>Bersedia mempertimbangkan pilihan cadangan</li></ul></div>
+          <div class="choice-block"><b>Implikasi</b><p>Perlu dibahas bersama siswa dan orang tua sebelum ditetapkan.</p></div>
+        </article>
+        <article class="choice">
+          <div class="choice-title"><h3>Kedokteran UNPAD</h3><span class="status good">Perlu dibandingkan</span></div>
+          <p>Lokasi cukup dekat dan masih berada di bidang yang diminati.</p>
+          <div class="choice-block"><b>Yang perlu dicek</b><span class="source derived">Analisis</span><ul><li>Bandingkan peluang masuk</li><li>Validasi prioritas siswa</li></ul></div>
+          <div class="choice-block"><b>Referensi</b><span class="source">External resources</span><p>Persyaratan dan data historis penerimaan tersedia saat dibutuhkan.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><h2>Perubahan kondisi dari waktu ke waktu</h2><p>Snapshot laporan akan berubah ketika data Student Tower diperbarui.</p></div><span class="source tower">Student Tower</span></div>
+      <div class="timeline">
+        <div class="timeline-item"><strong>17–30 Sep</strong><p>Skor tryout belum stabil dan aktivitas drill belum rutin.</p></div>
+        <div class="timeline-item"><strong>1–16 Okt</strong><p>Skor tryout mulai naik dan kehadiran belajar mencapai 92%.</p></div>
+        <div class="timeline-item"><strong>Dampak ke pilihan</strong><p>Peluang mengejar target membaik, tetapi literasi tetap menjadi fokus.</p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><h2>Panduan konsultasi</h2><p>Gunakan pertanyaan ini untuk menggali keputusan siswa.</p></div><span class="source derived">Analisis laporan</span></div>
+      <div class="two-col">
+        <div class="subcard questions"><h3>Pertanyaan yang disarankan</h3><ul><li>Dari tiga pilihan ini, mana yang paling ingin kamu perjuangkan?</li><li>Seberapa siap kamu mengejar target skor untuk pilihan utama?</li><li>Apakah kamu dan orang tua siap mempertimbangkan kuliah di luar kota?</li></ul></div>
+        <div class="subcard"><h3>Topik lanjutan</h3><div class="chips"><button class="chip" type="button">Bandingkan peluang masuk</button><button class="chip" type="button">Bahas skor UTBK</button><button class="chip" type="button">Lihat pilihan cadangan</button><button class="chip" type="button">Bahas prospek kerja</button></div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><h2>Keputusan dan tindak lanjut</h2><p>Diisi setelah konsultasi bersama siswa.</p></div><span class="source sa">Input SA</span></div>
+      <div class="two-col">
+        <div class="subcard"><h3>Yang perlu dikonfirmasi</h3><p>Kedokteran UNPAD masih menjadi pilihan siswa atau tidak.</p></div>
+        <div class="subcard"><h3>Tindak lanjut sementara</h3><p>Buat target skor UTBK dan jadwal diskusi bersama orang tua.</p></div>
+      </div>
+    </section>
+
+    <section class="section hidden" id="sources">
+      <div class="section-head"><div><h2>Detail sumber data</h2><p>Sumber ditampilkan untuk membantu SA memeriksa konteks.</p></div></div>
+      <div class="source-list">
+        <div class="source-row"><p><strong>Student Profiling</strong><br>Tujuan, minat, pilihan PTN/prodi, preferensi lokasi, keluarga, kebiasaan belajar.</p><span class="source profile">Profiling</span></div>
+        <div class="source-row"><p><strong>Student Tower</strong><br>Kehadiran, drill, tryout, diagnostic test, tugas, dan perkembangan mingguan.</p><span class="source tower">Tower</span></div>
+        <div class="source-row"><p><strong>Knowledge Base / external resources</strong><br>Persyaratan, kurikulum, prospek kerja, dan data historis penerimaan.</p><span class="source">Referensi</span></div>
+        <div class="source-row"><p><strong>Input SA</strong><br>Keputusan konsultasi, catatan, dan tindak lanjut.</p><span class="source sa">SA</span></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const toggle = document.getElementById('sourceToggle');
+    const sources = document.getElementById('sources');
+    toggle.addEventListener('click', () => {
+      const hidden = sources.classList.toggle('hidden');
+      toggle.textContent = hidden ? 'Tampilkan sumber' : 'Sembunyikan sumber';
+      if (!hidden) sources.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  </script>
+</body>
+</html>

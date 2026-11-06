@@ -1,0 +1,37 @@
+{
+  "basePatterns": 15,
+  "kinds": [
+    "Reguler",
+    "Premium",
+    "Campuran",
+    "Kosong"
+  ],
+  "qualities": [
+    "Lengkap",
+    "Kosong di tengah",
+    "Kosong di awal",
+    "Kosong terakhir",
+    "Semua kosong",
+    "Nilai tidak valid"
+  ],
+  "tolerances": [
+    0,
+    5,
+    10
+  ],
+  "largeChangePoints": [
+    null,
+    20,
+    50
+  ],
+  "times": [
+    "Normal",
+    "Jeda panjang",
+    "Hasil lama",
+    "Tanggal tidak valid"
+  ],
+  "combinations": 12960,
+  "testedSequences": 3280,
+  "asOf": "2026-10-22",
+  "note": "Nilai ambang dan skenario hanya contoh untuk review, bukan ketetapan akademik. Ini seluruh kombinasi bucket di atas, bukan seluruh angka skor yang mungkin."
+}

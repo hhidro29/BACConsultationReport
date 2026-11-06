@@ -1,0 +1,427 @@
+{
+  "date": "2026-10-23",
+  "sourceProject": "TestCenterKnowledgeSA",
+  "repository": "git@github.com:hhidro29/SAKnowledge2.git",
+  "files": [
+    {
+      "path": "Consultation Brief - Academic Flow.html",
+      "sha256": "7b6d5ad7d15d4003fe0a44bcdbdd08bfe03e757e72e94599cc72ab21961b2488",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Choice-Centric.html",
+      "sha256": "0fe22fef23655b0b142259a750669498f0717ae98335942703d7da08522dc053",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Garuda Mahawira Sena - Guided Report - Static Share.html",
+      "sha256": "d2ca1b652b5fe5335f1a82b8c92f8d2098bef09255b5f2e104260690a892f2b7",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Garuda Mahawira Sena - Guided Report.html",
+      "sha256": "c38a94a243b7e2ddba1fb82fd9b71c179e5caa8d85db7807c675afeb2915b426",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Garuda Mahawira Sena - Interactive Share.html",
+      "sha256": "34ac9146531ee20443be3ac15ab81e48c83d8be215f9a926a36e15666978bc58",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Garuda Mahawira Sena - Meeting Interactive Share.html",
+      "sha256": "53a0b08e5ff516c79ca381045b20a4ac9fc28de0afe23316126b599ce66d15a0",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Garuda Mahawira Sena - Meeting Mode - Static Share.html",
+      "sha256": "52c9b7ef2bb8f16cb0dd6a17146a66d314ae48187c32f80f8638643fc4a13425",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Garuda Mahawira Sena - Meeting Mode.html",
+      "sha256": "f8c47661a287ddf03b9151b6bbf0f27c69a4393a3883e57a85e748e40f148a30",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Guided Report.html",
+      "sha256": "46870ec69811c597604e9f84f878ebfa2060ed8b468592f4ef9b9d563538b6fa",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Meeting Mode.html",
+      "sha256": "8ebc88538bd5c665c2ddd5c74ae371ccf684d7dac37dda42e5a062a52f00eeed",
+      "treatment": "report"
+    },
+    {
+      "path": "Consultation Brief - Sample.html",
+      "sha256": "bdffa60d37a0dcab853325a2a9f6ab14d34d3852011fbd38fc4e3d2efec9e878",
+      "treatment": "report"
+    },
+    {
+      "path": "Learning Call 2026-10-19 - Report Findings.md",
+      "sha256": "d799772f3f23a2b225d73fbf9fa793b77b24c84635b35051a25275ec2a72e1c4",
+      "treatment": "report"
+    },
+    {
+      "path": "Learning Call 2026-10-20 - Report Findings.md",
+      "sha256": "412a13656dee6a193314642517de90e9ffefece12f6fc97c19bfb1ea1e353760",
+      "treatment": "report"
+    },
+    {
+      "path": "Report Konsultasi - Audit Copy 2026-10-22.md",
+      "sha256": "a97f8c29487765430b4b3c7d1ac936c93f3f72f2d18203a545baec35c00cd496",
+      "treatment": "report"
+    },
+    {
+      "path": "Report Konsultasi - Audit Fungsi Section.md",
+      "sha256": "8576b33dae41da976885cd05449c060c3ddf12fc10504bfb8b5951b70eadb213",
+      "treatment": "report"
+    },
+    {
+      "path": "Report Konsultasi - Catatan Revisi.md",
+      "sha256": "70a7fcef2055a68b9e3d17cbe9f67632908fd40a49293c9290116bf3464d6538",
+      "treatment": "report"
+    },
+    {
+      "path": "Report Konsultasi - Draft Revisi 2026-10-23.md",
+      "sha256": "87926e227c1f9e06d8ad9b1a9dbab53e70534ad05acc95e295c9c3d8cd167994",
+      "treatment": "report"
+    },
+    {
+      "path": "Report Konsultasi - Matriks Wording Tryout.md",
+      "sha256": "eab39403c42ab78640a959458fbad0da2376eec064da89eb99d77ca4408b9127",
+      "treatment": "report"
+    },
+    {
+      "path": "Report Konsultasi - Panduan Pilot.md",
+      "sha256": "78bf66af06183a44c1f83f3840ddb16a94e4746d5aa88583b00deef76530ee2c",
+      "treatment": "report"
+    },
+    {
+      "path": "Report Konsultasi - Pemetaan Data Garuda.md",
+      "sha256": "d2dcc849c8678b0a9f1fcf4b0fecc88d00ac2df0631b7bfbcfa978e07b3223e9",
+      "treatment": "report"
+    },
+    {
+      "path": "Report Konsultasi - Prioritas Subtes Pilihan.md",
+      "sha256": "77a6d76a02778cdc393aea2af7d9b7332408f5517c55e8b0d279e30a912ddbf5",
+      "treatment": "report"
+    },
+    {
+      "path": "Report Konsultasi - Prompt Ringkasan Kelas.md",
+      "sha256": "8c9568583eafddbb3d16bd4fea3630688c58685d2556342b8bf607bdc828875d",
+      "treatment": "report"
+    },
+    {
+      "path": "Simulasi Wording SA - Tryout.html",
+      "sha256": "4bb13f5136a4e2863af8765ae06c92d6c3ec99a7ab556d29202c931fb38fffae",
+      "treatment": "report"
+    },
+    {
+      "path": "scripts/check-garuda-refresh.cjs",
+      "sha256": "32bc4e94ecdd3e552f0f430efba8a5f89c5b02ec8a4188db9626df8474a3be71",
+      "treatment": "report"
+    },
+    {
+      "path": "scripts/update-garuda-leaderboard-sessions.py",
+      "sha256": "cb1747efc24650e136cca97beea0ebbbafa4ffb25807305ea5b2a4acb6248dd4",
+      "treatment": "report"
+    },
+    {
+      "path": "scripts/build-garuda-refresh.py",
+      "sha256": "0feb9deaee60c98000d5fe41dd945b626d88d20d651765285a3119d592fecafa",
+      "treatment": "report"
+    },
+    {
+      "path": "scripts/update-garuda-layout-2026-10-23.py",
+      "sha256": "c1697cc232d1fa93920562c04a4158dc62579f0c5c486941a3918cae4fa9e1f8",
+      "treatment": "report"
+    },
+    {
+      "path": "scripts/check-report-insights.cjs",
+      "sha256": "a519454a23d575b223513b90619956cc8ff3b12ace3ffc152abd0d34ec04c050",
+      "treatment": "report"
+    },
+    {
+      "path": "scripts/build-tryout-wording.mjs",
+      "sha256": "91e43adb59127155d68aa7f74d3c49a0db96c35c182d5803de23246212e75543",
+      "treatment": "report"
+    },
+    {
+      "path": "scripts/update-garuda-report-period.py",
+      "sha256": "0b0011bb9ae97cef55a6ac6316ad45beec96ddd0705da5def75210db958a8847",
+      "treatment": "report"
+    },
+    {
+      "path": "report-logic/tryout-wording.js",
+      "sha256": "a92c466c36b97be7ce911c1edbd42facb035fa417d25e0d8892ae3d7fc993cc1",
+      "treatment": "report"
+    },
+    {
+      "path": "report-logic/report-insights.js",
+      "sha256": "c1292b56cdb84da0c8441f527551b15e144e2015a3fb937d81ec4669f24d8b8c",
+      "treatment": "report"
+    },
+    {
+      "path": "samples/report-materials-demo.json",
+      "sha256": "b3e32d488843c69f32d7d7587fb2db60fb678cc6b42bb2b455b9f5b5b0cbf782",
+      "treatment": "report"
+    },
+    {
+      "path": "samples/README-materi.md",
+      "sha256": "a79b9df6e5147960cf7ab023d4223259345a14556963989e1f2f5cc79c826220",
+      "treatment": "report"
+    },
+    {
+      "path": "samples/tryout-wording-cases.json",
+      "sha256": "31edb7dbbb9e1a9bc5ec620cc7d5683eb38a3c770e5b147dba295b40cecc0aee",
+      "treatment": "report"
+    },
+    {
+      "path": "Student Tower - Product Knowledge.md",
+      "sha256": "4d4bd71014e12fa7cf890cd0fc3567baf5415644e6686c3f6e76566e35b36227",
+      "treatment": "shared-copy"
+    },
+    {
+      "path": "Student Tower - Source of Truth & Data Gap Map.md",
+      "sha256": "c26ea8bea2d6300d387a219762c0c3f1c8453eed467bfcc98c1e3c38e245d140",
+      "treatment": "shared-copy"
+    },
+    {
+      "path": "Student Tower - Dummy Consultation Data.md",
+      "sha256": "2e6a0937608d2cd017f11fbb488a0e51d2bf3a956a3c1b71837343cb885731fd",
+      "treatment": "shared-copy"
+    },
+    {
+      "path": "Student Profiling - Product Knowledge.md",
+      "sha256": "6455d02290c460f63cfaccb2a8ff36f53a5be44118c99bdf068dc508130c729d",
+      "treatment": "shared-copy"
+    },
+    {
+      "path": "SNBT 2026 - Historical Subtest Analysis.md",
+      "sha256": "1e1665e5ad76ce3b36613f7ced5e7dd1e26d0acf05968c7c74719181ab66c8e4",
+      "treatment": "shared-copy"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/Validasi Data Garuda.md",
+      "sha256": "442279385ccdb2aa0b8cb8c1e9180139aa8af15556fda5ce795f7e084b50e2e1",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/acuan-subtes-farmasi-2026-10-21.png",
+      "sha256": "f7334e0b7f8d3d219fba30deeffec317199a49a98a7b8ecb52785a9c88079128",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/leaderboard-farmasi-ugm-2026-10-22.png",
+      "sha256": "aa862d51f27532e77c590ebf7c950a6d01720e671a8ea7332152564cd7cc84f8",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/Paket Data Pilot - Garuda.xlsx",
+      "sha256": "30d4cc41960e66b1a5fc345c87d340e0e73e0c1aeea20a43502d31cebdca9a6a",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/README.md",
+      "sha256": "782e0e505a1637818791fc0499ba66e3769dbb282f8e23d3c4c4788ffd30b1af",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/leaderboard-farmasi-ui-2026-10-22.png",
+      "sha256": "368f39fb52c9c842e1b7f83cd5a2035d27b7c9b099d1c7971881f24b4e9a15d8",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/garuda-snapshot.json",
+      "sha256": "ff26129d1f18f36827b9b7c707bffc756b67e2fbe809b1d5b6c80a3baa3ff0af",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/Paket Data Pilot - Garuda.xlsx.inspect.ndjson",
+      "sha256": "04355807a8593e4825e75a7442a91d2d34b47a46a64fbbf775a89262ff80529e",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/leaderboard-reference-2026-10-22.json",
+      "sha256": "097068b7652b5de1febd18cf1ef5f475edada718caf9a308e660f76c17d63fd1",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/garuda-classroom-summary-2026-10-22.json",
+      "sha256": "56866e19c84180eadc57b28bd956bbfdc914592a447f80a42d7ee15b34f8e8f7",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/acuan-subtes-farmasi-2026-10-22.json",
+      "sha256": "1cd330a641efd6970ca780e20dfd3180069d14816707d92e9ce3903e545239fd",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Pilihan.png",
+      "sha256": "4aefe4807f06ed441db98e1357f7f5290acac497e84f3fcd2c877fdaebddc5f9",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Konteks.png",
+      "sha256": "36bfe9528a85d6f4329a4f02f4d3da556a088d62acaaf9d3f10b73f6b2ce92b2",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Mulai.png",
+      "sha256": "8c301db5a8db05022e07859302dff9d07d5b3b434ec8032cf44e8dbc29d629be",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Tryout.png",
+      "sha256": "f478c8d701c7fb32923f182cdd61ece60c42665ab1579c7b6fed716bed7defb0",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Materi.png",
+      "sha256": "59d1b5dbb44afc6ee10a769354a3fcd47905f6a76612e7ec276f368a9e52dea7",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Sesi.png",
+      "sha256": "dfd72e6a9e8becd6570b72fadba5ca7a544b0b2ddadd8872498f3cad986825b3",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Drill.png",
+      "sha256": "be509e7a4485455bcb6729e5d5c45d7816f8ff6fd95cdff197819c0b1d22c13e",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Sumber.png",
+      "sha256": "27a75f9598aa63e7691b9b968af60b478010231d0d5f8b25ab46247eb8014105",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Konteks-tail.png",
+      "sha256": "07c6a7f6b12788bc0febd58091d92709ff159b3494066ea69f1a89f44462f19e",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/qa/Sumber-tail.png",
+      "sha256": "9bcf28ed3758cc3b2f901dd55b6b3d998e3d2a4dff2b72eccbb00b19e9914b6b",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/csv/sesi.csv",
+      "sha256": "55de958590f86c15226ad93e1e6015f3c3a0d3a8469bbb61d8495abc5a03d667",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/csv/drill.csv",
+      "sha256": "01d175e6b03d105fd2b8561dfebd1fc39f4009ab9518e5770b92815be7c0b67b",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/csv/sumber.csv",
+      "sha256": "d90bbd1086502359bc8fb7e9256b1a10cb4c2f209be370f4cc2dd118ef9dd43c",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/csv/materi.csv",
+      "sha256": "3dcd3e763acdf0c5f34ab3ec5f512c3ba67c62c8daade33596e130533b5105ab",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/csv/tryout.csv",
+      "sha256": "20a2f11aba632fea1870fe55d91cdb3b782225495c5ab296a2473b5d959f0c36",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/csv/konteks.csv",
+      "sha256": "63c8c7e6e6b5bb762592a831184402511dff05170e7f5d0467bb44019327c72e",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/csv/pilihan.csv",
+      "sha256": "415bf3c4c6411649862797093e71312d035de5954fc06f03597cd36774736718",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-pilot-2026-10-21/csv/paket.csv",
+      "sha256": "9258e1c9eb6b73715a59409aaa3051d86c453c038d04795618ea667363204f62",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/garuda-refresh-2026-10-22/classroom-summary.json",
+      "sha256": "db7db331f9bd15ddbc14ed409e210b7b77c7a8eec933cdd2df58d520c9c3ecc9",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/garuda-refresh-2026-10-22/verification.txt",
+      "sha256": "44a9f4b286fbdf6599bad037002e7d88c820f892f153a9f28686b92880ea1e78",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/garuda-refresh-2026-10-22/README.md",
+      "sha256": "d03a3e5bd37651047064bf14cfa8daba74674b58c6c4a8503cb8c9f3614ac880",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/garuda-refresh-2026-10-22/garuda-snapshot.json",
+      "sha256": "7cc3ea898d5594a926a0990a13789fee5e29af3053d45eb3fe6294f6d4ea5a23",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/garuda-refresh-2026-10-22/source-captures.json",
+      "sha256": "304c99a7642c72b1d088014bd8421a3667f6c77ab198acee79a7880fb2290c1a",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/garuda-refresh-2026-10-22/drill-summary.json",
+      "sha256": "91bd2e1f08353126f5f405b143e7d379ffa56327f9e5548df52f276433270d68",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/garuda-refresh-2026-10-22/report-classroom.png",
+      "sha256": "8c0ac22667b8b1594d1c94262e78438b7941d8ea49124cc1b74f6b1eb10d4783",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/tryout-wording-2026-10-22/semua-kombinasi-wording.jsonl",
+      "sha256": "7a74756c0c578d181478ea79fd2510487943c39f04fa50293bab12a190060ae8",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/tryout-wording-2026-10-22/cakupan-dan-hasil-uji.json",
+      "sha256": "14381e29c674869d0fd61a5caa61dd0266b199b4123dadc5b41c5ea99027e9f0",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-revision-2026-10-23/drill-materials.png",
+      "sha256": "40a1801af9602901e3442dad8db069e3541b70da3f8b54c288b6e5893e4349b8",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-revision-2026-10-23/before-meeting.html",
+      "sha256": "f4c61f4f770022178d734eceafb1e6917929295794874a62c3b24cb18cb94b14",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-revision-2026-10-23/before-guided.html",
+      "sha256": "0fae18eb4b76441b0d883c5958ac348c2d915025beda346c5d4ca9ebf224163d",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-revision-2026-10-23/data-verification.txt",
+      "sha256": "44a9f4b286fbdf6599bad037002e7d88c820f892f153a9f28686b92880ea1e78",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-revision-2026-10-23/summary.png",
+      "sha256": "dcfd63cf188b6800a42ada7911620caaf60ac93229333c2d753883a9ee8d2d08",
+      "treatment": "report"
+    },
+    {
+      "path": "outputs/report-revision-2026-10-23/insights-verification.txt",
+      "sha256": "826019173d397c3c561cd2e5b4344881c06ee56a12fc0ee54e27474f0a7ec569",
+      "treatment": "report"
+    }
+  ]
+}
