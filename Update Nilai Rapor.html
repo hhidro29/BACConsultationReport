@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Super CMS - Update Nilai Rapor Siswa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --page-bg: #f8fafc;
+      --card-bg: #ffffff;
+      --ink: #1d2939;
+      --muted: #64748b;
+      --subtle: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #edf2f7;
+      --primary: #1078ca;
+      --primary-hover: #0c61a4;
+      --primary-light: #eBF8FF;
+      --green: #12b76a;
+      --green-light: #edfcf2;
+      --amber: #f79009;
+      --amber-light: #fffaeb;
+      --red: #f04438;
+      --red-light: #fef3f2;
+      --topbar-bg: #eaf4fb;
+      --font-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: var(--font-base);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: var(--topbar-bg);
+      border-bottom: 1px solid #d5e7f5;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .breadcrumbs a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .breadcrumbs .crumb-sep { color: #94a3b8; }
+    .breadcrumbs .crumb-current { color: var(--ink); font-weight: 600; }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: #334155;
+    }
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0ea5e9;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 32px 80px;
+    }
+
+    .action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0 16px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 18px;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      background: transparent;
+      text-decoration: none;
+    }
+    .btn-back {
+      color: var(--ink);
+      background: #fff;
+      border-color: var(--border);
+    }
+    .btn-back:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .btn-outline {
+      color: var(--primary);
+      background: #fff;
+      border-color: var(--border);
+    }
+    .btn-outline:hover { background: #f0f7fd; border-color: #bae0fd; }
+    .btn-primary {
+      color: #fff;
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      border: none;
+      margin: 20px 0;
+    }
+
+    .student-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 4px 0 14px;
+    }
+    .student-info h1 {
+      margin: 0 0 4px;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .student-info p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .student-tag {
+      padding: 2px 8px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #475467;
+      font-weight: 500;
+    }
+
+    .info-card {
+      background: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid #1078ca;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #1e3a8a;
+      line-height: 1.6;
+    }
+
+    /* Summary Bar */
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .summary-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .summary-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .summary-val {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    /* Table */
+    .table-container {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+    table.data-table th {
+      background: #f8fafc;
+      color: #475467;
+      font-weight: 600;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    table.data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-light);
+      color: #334155;
+    }
+    table.data-table tr:last-child td { border-bottom: none; }
+    table.data-table tbody tr:hover td { background: #fafafa; }
+
+    .table-input {
+      width: 64px;
+      padding: 6px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #fff;
+      color: #0f172a;
+      transition: all 0.15s;
+    }
+    .table-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    .table-input.empty-zero {
+      color: #94a3b8;
+      border-color: #e2e8f0;
+      background: #fdfdfd;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <nav aria-label="breadcrumb" class="breadcrumbs">
+        <a href="#">Home</a>
+        <span class="crumb-sep">›</span>
+        <a href="Consultation%20Checkpoint%201%20-%20Prototype.html">Konsultasi - Checkpoint</a>
+        <span class="crumb-sep">›</span>
+        <a href="Consultation%20Checkpoint%201%20-%20Prototype.html">Detail Checkpoint 1</a>
+        <span class="crumb-sep">›</span>
+        <span class="crumb-current">Update Nilai Rapor</span>
+      </nav>
+      <div class="user-pill">
+        <span>William Candra · william.chandra@ruangguru.com</span>
+        <div class="user-avatar">WC</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <a href="Consultation%20Checkpoint%201%20-%20Prototype.html" class="btn btn-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Kembali ke Report
+      </a>
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn btn-outline" onclick="resetToDefault()">
+          ↻ Reset ke Data Awal
+        </button>
+        <button type="button" class="btn btn-primary" onclick="saveAndReturn()">
+          ✓ Simpan & Kembali ke Report
+        </button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Student Header -->
+    <div class="student-header">
+      <div class="student-info">
+        <h1>Form Update Nilai Rapor Siswa (20 Mata Pelajaran)</h1>
+        <p>
+          <strong>Garuda Mahawira Sena</strong>
+          <span>•</span>
+          <span class="student-tag">SMAN 1 Depok</span>
+          <span class="student-tag">Kelas 12 SMA</span>
+          <span class="student-tag">Depok - Margonda</span>
+        </p>
+      </div>
+      <div>
+        <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 12px; font-weight: 700;">
+          Super CMS Profiling Rapor
+        </span>
+      </div>
+    </div>
+
+    <!-- Guidance Card -->
+    <div class="info-card">
+      <strong>💡 Petunjuk Pengisian Rapor Super CMS:</strong>
+      <ul style="margin: 6px 0 0; padding-left: 18px;">
+        <li>Seluruh 20 mata pelajaran standar Super CMS ditampilkan di bawah ini. Anda dapat mengedit nilai untuk <strong>semua semester (Semester 1 s/d Semester 5)</strong>.</li>
+        <li>Nilai <strong>0</strong> dihitung sebagai <em>belum diisi / tidak diambil di kurikulum sekolah</em> dan <strong>tidak akan mengurangi rata-rata rapor</strong>.</li>
+        <li>Setelah nilai disimpan, seluruh kalkulasi rata-rata umum dan nilai mapel pendukung SNBP di halaman Report akan otomatis ter-update.</li>
+      </ul>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="summary-bar">
+      <div class="summary-card">
+        <div>
+          <div class="summary-label">Mata Pelajaran Terisi</div>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">Nilai > 0 di minimal 1 smt</div>
+        </div>
+        <div class="summary-val" id="summaryFilledCount" style="color: #1078ca;">12 / 20</div>
+      </div>
+      <div class="summary-card">
+        <div>
+          <div class="summary-label">Rata-rata Keseluruhan Rapor</div>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">Rata-rata mapel terisi</div>
+        </div>
+        <div class="summary-val" id="summaryGrandAvg" style="color: #027a48;">88.3 / 100</div>
+      </div>
+      <div class="summary-card">
+        <div>
+          <div class="summary-label">Status Kelayakan SNBP</div>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">Berdasarkan nilai rata-rata</div>
+        </div>
+        <div>
+          <span class="badge" style="background: #edfcf2; color: #027a48; font-size: 12px; font-weight: 700;" id="summaryStatusBadge">Kompetitif Eligible</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 20 Subjects Table -->
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 5%; text-align: center;">No</th>
+            <th style="width: 35%;">Mata Pelajaran</th>
+            <th style="text-align: center; width: 10%;">Smt 1</th>
+            <th style="text-align: center; width: 10%;">Smt 2</th>
+            <th style="text-align: center; width: 10%;">Smt 3</th>
+            <th style="text-align: center; width: 10%;">Smt 4</th>
+            <th style="text-align: center; width: 10%; background: #e0f2fe; color: #0369a1;">Smt 5 (Terbaru)</th>
+            <th style="text-align: center; width: 10%;">Rata-rata</th>
+          </tr>
+        </thead>
+        <tbody id="raporTableBody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bottom Actions -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
+      <a href="Consultation%20Checkpoint%201%20-%20Prototype.html" class="btn btn-back">
+        ← Batal & Kembali ke Report
+      </a>
+      <button type="button" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px;" onclick="saveAndReturn()">
+        ✓ Simpan Perubahan & Kembali ke Report
+      </button>
+    </div>
+  </main>
+
+  <script>
+    // 20 Standard Super CMS Subjects
+    const defaultRaporData = [
+      { id: "antropologi", name: "Antropologi", scores: [0, 0, 0, 0, 0] },
+      { id: "bahasa_asing", name: "Bahasa Asing", scores: [0, 0, 0, 0, 0] },
+      { id: "bahasa_indonesia", name: "Bahasa Indonesia", scores: [86, 87, 90, 90, 89] },
+      { id: "bahasa_inggris", name: "Bahasa Inggris", scores: [87, 88, 89, 90, 91] },
+      { id: "biologi", name: "Biologi", scores: [87, 88, 89, 90, 91] },
+      { id: "ekonomi", name: "Ekonomi", scores: [0, 0, 0, 0, 0] },
+      { id: "fisika", name: "Fisika", scores: [85, 86, 88, 87, 85] },
+      { id: "geografi", name: "Geografi", scores: [0, 0, 0, 0, 0] },
+      { id: "kimia", name: "Kimia", scores: [88, 89, 90, 91, 90] },
+      { id: "matematika", name: "Matematika", scores: [84, 86, 87, 88, 86] },
+      { id: "matematika_lanjut", name: "Matematika Tingkat Lanjut", scores: [83, 85, 86, 87, 86] },
+      { id: "mulok_1", name: "Muatan Lokal 1", scores: [0, 0, 0, 0, 0] },
+      { id: "mulok_2", name: "Muatan Lokal 2", scores: [0, 0, 0, 0, 0] },
+      { id: "mulok_3", name: "Muatan Lokal 3", scores: [0, 0, 0, 0, 0] },
+      { id: "pendidikan_agama", name: "Pendidikan Agama", scores: [90, 90, 92, 92, 93] },
+      { id: "pjok", name: "PJOK/Olahraga", scores: [88, 88, 89, 90, 90] },
+      { id: "ppkn", name: "PPKN/Pendidikan Pancasila", scores: [88, 89, 90, 90, 91] },
+      { id: "sejarah", name: "Sejarah", scores: [86, 87, 88, 89, 89] },
+      { id: "seni_budaya", name: "Seni Budaya", scores: [88, 89, 90, 90, 90] },
+      { id: "sosiologi", name: "Sosiologi", scores: [0, 0, 0, 0, 0] }
+    ];
+
+    let currentRaporData = [];
+
+    function loadRaporData() {
+      const stored = localStorage.getItem("bac_rapor_garuda");
+      if (stored) {
+        try {
+          currentRaporData = JSON.parse(stored);
+        } catch (e) {
+          currentRaporData = JSON.parse(JSON.stringify(defaultRaporData));
+        }
+      } else {
+        currentRaporData = JSON.parse(JSON.stringify(defaultRaporData));
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("raporTableBody");
+      let html = "";
+
+      currentRaporData.forEach((subj, idx) => {
+        const valid = subj.scores.filter(v => Number(v) > 0);
+        const avg = valid.length > 0 ? (valid.reduce((a, b) => a + Number(b), 0) / valid.length).toFixed(1) : "0.0";
+        const isFilled = valid.length > 0;
+
+        let inputsHtml = "";
+        for (let s = 0; s < 5; s++) {
+          const val = subj.scores[s];
+          const isZero = Number(val) === 0;
+          inputsHtml += `
+            <td style="text-align: center; ${s === 4 ? 'background: #f0f9ff;' : ''}">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                class="table-input ${isZero ? 'empty-zero' : ''}"
+                value="${val}"
+                oninput="onScoreChange('${subj.id}', ${s}, this.value)"
+              >
+            </td>
+          `;
+        }
+
+        html += `
+          <tr id="row_${subj.id}" style="${isFilled ? '' : 'color: #94a3b8; background: #fafafa;'}">
+            <td style="text-align: center; color: #64748b; font-weight: 600;">${idx + 1}</td>
+            <td>
+              <strong style="color: ${isFilled ? 'var(--ink)' : '#64748b'};">${subj.name}</strong>
+            </td>
+            ${inputsHtml}
+            <td style="text-align: center; font-weight: 700; color: ${isFilled ? '#1078ca' : '#94a3b8'};" id="avg_${subj.id}">
+              ${avg}
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+      updateSummary();
+    }
+
+    function onScoreChange(subjId, smtIdx, val) {
+      const subj = currentRaporData.find(s => s.id === subjId);
+      if (!subj) return;
+      let num = parseFloat(val);
+      if (isNaN(num) || num < 0) num = 0;
+      if (num > 100) num = 100;
+      subj.scores[smtIdx] = num;
+
+      const valid = subj.scores.filter(v => Number(v) > 0);
+      const avg = valid.length > 0 ? (valid.reduce((a, b) => a + Number(b), 0) / valid.length).toFixed(1) : "0.0";
+      const avgCell = document.getElementById(`avg_${subjId}`);
+      if (avgCell) {
+        avgCell.innerText = avg;
+        avgCell.style.color = valid.length > 0 ? "#1078ca" : "#94a3b8";
+      }
+
+      updateSummary();
+    }
+
+    function updateSummary() {
+      let filledCount = 0;
+      let totalAvgSum = 0;
+
+      currentRaporData.forEach(subj => {
+        const valid = subj.scores.filter(v => Number(v) > 0);
+        if (valid.length > 0) {
+          filledCount++;
+          const avg = valid.reduce((a, b) => a + Number(b), 0) / valid.length;
+          totalAvgSum += avg;
+        }
+      });
+
+      const grandAvg = filledCount > 0 ? (totalAvgSum / filledCount).toFixed(1) : "0.0";
+      document.getElementById("summaryFilledCount").innerText = `${filledCount} / ${currentRaporData.length}`;
+      document.getElementById("summaryGrandAvg").innerText = `${grandAvg} / 100`;
+
+      const badge = document.getElementById("summaryStatusBadge");
+      if (Number(grandAvg) >= 85) {
+        badge.innerText = "Kompetitif Eligible SNBP";
+        badge.style.background = "#edfcf2";
+        badge.style.color = "#027a48";
+      } else if (Number(grandAvg) >= 78) {
+        badge.innerText = "Cukup Berpeluang";
+        badge.style.background = "#fffaeb";
+        badge.style.color = "#b54708";
+      } else {
+        badge.innerText = "Perlu Penguatan SNBT";
+        badge.style.background = "#fef3f2";
+        badge.style.color = "#b42318";
+      }
+    }
+
+    function saveAndReturn() {
+      localStorage.setItem("bac_rapor_garuda", JSON.stringify(currentRaporData));
+      alert("✓ Data Nilai Rapor berhasil disimpan! Halaman akan kembali ke Konsultasi Report.");
+      window.location.href = "Consultation%20Checkpoint%201%20-%20Prototype.html";
+    }
+
+    function resetToDefault() {
+      if (confirm("Kembalikan data nilai rapor ke default awal?")) {
+        currentRaporData = JSON.parse(JSON.stringify(defaultRaporData));
+        localStorage.setItem("bac_rapor_garuda", JSON.stringify(currentRaporData));
+        renderTable();
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadRaporData();
+      renderTable();
+    });
+  </script>
+</body>
+</html>
