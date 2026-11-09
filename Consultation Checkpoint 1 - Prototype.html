@@ -1,0 +1,2767 @@
+<!doctype html>
+<html lang="id" data-theme="light" style="--chakra-ui-color-mode: light;">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Super CMS - Detail Student Checkpoint 1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --page-bg: #f8fafc;
+      --card-bg: #ffffff;
+      --ink: #1d2939;
+      --muted: #64748b;
+      --subtle: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #edf2f7;
+      --primary: #1078ca;
+      --primary-hover: #0c61a4;
+      --primary-light: #eBF8FF;
+      --primary-border: #bee3f8;
+      --blue-banner-bg: #f6f9ff;
+      --blue-banner-border: #cddcfb;
+      --green: #12b76a;
+      --green-light: #edfcf2;
+      --green-border: #a6f4c5;
+      --amber: #f79009;
+      --amber-light: #fffaeb;
+      --amber-border: #fedf89;
+      --red: #f04438;
+      --red-light: #fef3f2;
+      --red-border: #fecdca;
+      --topbar-bg: #eaf4fb;
+      --font-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: var(--font-base);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: var(--topbar-bg);
+      border-bottom: 1px solid #d5e7f5;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .breadcrumbs a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .breadcrumbs .crumb-sep {
+      color: #94a3b8;
+      display: inline-flex;
+      align-items: center;
+    }
+    .breadcrumbs .crumb-current {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: #334155;
+    }
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0ea5e9;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Container Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 32px 80px;
+    }
+
+    /* Action Bar */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0 16px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 18px;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      background: transparent;
+      text-decoration: none;
+    }
+    .btn-back {
+      color: var(--ink);
+      background: #fff;
+      border-color: var(--border);
+    }
+    .btn-back:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .btn-outline {
+      color: var(--primary);
+      background: #fff;
+      border-color: var(--border);
+    }
+    .btn-outline:hover { background: #f0f7fd; border-color: #bae0fd; }
+    .btn-primary {
+      color: #fff;
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success {
+      color: #fff;
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .btn-success:hover { background: #0e9f5d; }
+    .btn-amber {
+      color: #b54708;
+      background: var(--amber-light);
+      border-color: var(--amber-border);
+    }
+    .btn-amber:hover { background: #fef0c7; }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      border: none;
+      margin: 20px 0;
+    }
+
+    /* Student Header */
+    .student-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 4px 0 8px;
+    }
+    .student-info h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .student-info p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .student-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #475467;
+      font-weight: 500;
+    }
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-draft { background: var(--amber-light); color: #b54708; border: 1px solid var(--amber-border); }
+    .badge-locked { background: #f1f5f9; color: #475467; border: 1px solid var(--border); }
+    .badge-blue { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+
+    /* Interactive Stepper Navigation (Scaffolding Guideline) */
+    .stepper-container {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin: 20px 0 24px;
+    }
+    .stepper-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .stepper-title {
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stepper-badge {
+      background: #0284c7;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .stepper-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toggle-all-btn {
+      font-size: 12px;
+      color: var(--primary);
+      background: transparent;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .stepper-nav {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+    .step-tab {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .step-tab:hover {
+      border-color: #cbd5e1;
+      background: #fdfdfd;
+    }
+    .step-tab.active {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      box-shadow: 0 1px 3px rgba(59, 130, 246, 0.15);
+    }
+    .step-tab.completed {
+      border-color: #a6f4c5;
+      background: #f6fef9;
+    }
+    .step-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .step-tab.active .step-num { color: #2563eb; }
+    .step-tab.completed .step-num { color: #059669; }
+    .step-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Guideline Callout Box (Talking Points Script for SA) */
+    .sa-prompt-card {
+      background: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid #2563eb;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 22px;
+    }
+    .sa-prompt-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .sa-prompt-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e40af;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sa-prompt-list {
+      margin: 0;
+      padding-left: 20px;
+      color: #1e3a8a;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .sa-prompt-list li { margin-bottom: 4px; }
+    .sa-prompt-list li strong { color: #0f172a; }
+
+    /* Sticky Quick-Jump Anchor Bar */
+    .jump-nav-container {
+      position: sticky;
+      top: 60px;
+      z-index: 30;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin: 16px 0 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .jump-nav-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .jump-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      flex: 1;
+      scrollbar-width: none;
+    }
+    .jump-nav-links::-webkit-scrollbar { display: none; }
+    .jump-pill {
+      font-size: 12px;
+      font-weight: 600;
+      color: #475467;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .jump-pill:hover {
+      background: #edf2f7;
+      color: var(--ink);
+    }
+    .jump-pill.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+      box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3);
+    }
+
+    /* Section Styles: Continuous top-to-bottom scroll */
+    .section-block {
+      padding: 28px 0 32px;
+      display: block !important;
+      border-top: 1px solid var(--border);
+      scroll-margin-top: 120px;
+    }
+    .section-block:first-of-type {
+      border-top: none;
+      padding-top: 8px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .section-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-tag {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    /* Grids */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .field-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .field-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      margin: 0;
+    }
+    .field-value {
+      font-size: 14px;
+      color: var(--ink);
+      font-weight: 600;
+      margin: 0;
+    }
+    .field-subvalue {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Metric Cards */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .metric-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .metric-card-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .metric-card-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.1;
+      margin: 6px 0 2px;
+    }
+    .metric-card-hint {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .metric-trend-down { color: var(--red); font-weight: 600; }
+    .metric-trend-up { color: var(--green); font-weight: 600; }
+
+    /* Tables */
+    .table-container {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      margin-top: 14px;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+    table.data-table th {
+      background: #f8fafc;
+      color: #475467;
+      font-weight: 600;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    table.data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: #334155;
+    }
+    table.data-table tr:last-child td { border-bottom: none; }
+    table.data-table tbody tr:hover td { background: #fdfdfd; }
+    .table-input {
+      width: 68px;
+      padding: 6px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #fff;
+      color: #0f172a;
+    }
+    .table-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    .pill-smt5 {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* Subtest Diagnostic Cards */
+    .diagnostic-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .diag-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .diag-card.critical {
+      border-left: 4px solid var(--red);
+      background: #fffdfd;
+    }
+    .diag-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .diag-score-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .diag-score {
+      font-size: 22px;
+      font-weight: 800;
+      color: #b42318;
+    }
+    .diag-target {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .weak-topics-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .weak-topics-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 12.5px;
+      color: #334155;
+      line-height: 1.5;
+    }
+
+    /* Drill Warning Banner */
+    .audit-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 13px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+    .audit-box-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+    .audit-box-content p {
+      margin: 0;
+    }
+
+    /* Collapsible Super Accordion */
+    details.super-accordion {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+      margin-top: 16px;
+      transition: all 0.2s ease;
+    }
+    details.super-accordion[open] {
+      border-color: #93c5fd;
+      box-shadow: 0 2px 8px rgba(16, 120, 202, 0.08);
+    }
+    summary.accordion-summary {
+      padding: 12px 16px;
+      background: #f8fafc;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      list-style: none;
+      user-select: none;
+    }
+    summary.accordion-summary::-webkit-details-marker {
+      display: none;
+    }
+    summary.accordion-summary:hover {
+      background: #f1f5f9;
+    }
+    .accordion-content {
+      padding: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Choice Detail Cards */
+    .choice-detail-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-top: 16px;
+      position: relative;
+    }
+    .choice-detail-card.pilihan-1 {
+      border-left: 4px solid #1078ca;
+    }
+    .choice-detail-card.pilihan-2 {
+      border-left: 4px solid #0284c7;
+    }
+    .choice-detail-card.pilihan-3 {
+      border-left: 4px solid #d97706;
+    }
+    .choice-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .choice-title-group h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .choice-meta-text {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .choice-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .choice-stat-item {
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .choice-stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-bottom: 2px;
+    }
+    .choice-stat-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .choice-stat-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .choice-subtests-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .choice-subtest-pill {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      background: #fafafa;
+    }
+    .choice-subtest-pill-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475467;
+      margin-bottom: 4px;
+    }
+    .choice-subtest-score-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 12px;
+    }
+    .choice-subtest-gap-neg {
+      color: #b42318;
+      font-weight: 700;
+      font-size: 11.5px;
+    }
+    .choice-sa-note {
+      background: #f8fafc;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-top: 14px;
+      font-size: 12.5px;
+      color: #334155;
+      line-height: 1.5;
+      border-left: 3px solid #94a3b8;
+    }
+
+    /* Fill-in-the-blank Structured Form (7 Points) */
+    .structured-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 14px;
+    }
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .form-row-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .form-row-label {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .form-row-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #475467;
+    }
+    .form-row-badge.autofill { background: #e0f2fe; color: #0369a1; }
+    .form-textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: var(--font-base);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--ink);
+      background: #fff;
+      resize: vertical;
+      min-height: 64px;
+    }
+    .form-textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    .form-helper-text {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* Cheat Sheet Drawer / Popover */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      z-index: 100;
+      display: none;
+    }
+    .drawer-overlay.open { display: block; }
+    .drawer-sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 440px;
+      height: 100vh;
+      background: #fff;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+      z-index: 101;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .drawer-sidebar.open { transform: translateX(0); }
+    .drawer-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-header h3 { margin: 0; font-size: 16px; font-weight: 700; }
+    .drawer-close {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .drawer-body {
+      padding: 20px 24px;
+      overflow-y: auto;
+      flex: 1;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .cheat-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .cheat-box h4 {
+      margin: 0 0 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .cheat-box p { margin: 0; color: #475467; font-size: 12.5px; }
+
+    /* 3-Party Agreement Signoff Block */
+    .signoff-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+    .signoff-statement {
+      font-size: 13.5px;
+      color: #334155;
+      font-style: italic;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      border-left: 3px solid #64748b;
+      padding-left: 14px;
+    }
+    .signoff-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      text-align: center;
+    }
+    .signoff-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .signoff-avatar-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #475467;
+    }
+    .signoff-role {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .signoff-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .signoff-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: #059669;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Stepper Navigation Footer Buttons */
+    .step-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Print Template Integration (@media print) */
+    #student-profiling-print-report {
+      display: block;
+      height: 1px;
+      left: -100000px;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      width: 210mm;
+    }
+    @media print {
+      @page { size: A4 portrait; margin: 0; }
+      html, body { background: #ffffff !important; margin: 0 !important; }
+      body > *:not(#student-profiling-print-report) { height: 0 !important; overflow: hidden !important; position: fixed !important; visibility: hidden !important; width: 0 !important; }
+      #student-profiling-print-report {
+        color: #1d2939; display: block !important; font-family: Arial, Helvetica, sans-serif; font-size: 10px; line-height: 1.4; margin: 0; padding: 0; print-color-adjust: exact; -webkit-print-color-adjust: exact; height: auto; left: 0; overflow: visible; position: absolute; top: 0; visibility: visible !important; width: 210mm;
+      }
+      #student-profiling-print-report * { visibility: visible !important; }
+      .profiling-print-page { background: #ffffff; box-sizing: border-box; height: 297mm; overflow: hidden; padding: 8mm 15mm 16mm; page-break-after: always; position: relative; width: 210mm; }
+      .profiling-print-page:last-child { page-break-after: auto; }
+      .profiling-print-header { align-items: center; background: #3b85c8; border-radius: 4px; display: flex; justify-content: space-between; min-height: 12mm; padding: 2mm 4mm; }
+      .profiling-print-title { color: #ffffff; font-size: 15px; font-weight: 700; margin: 0; }
+      .profiling-print-subtitle { color: #edf5f9; font-size: 9px; margin: 1mm 0 0; }
+      .profiling-print-pathway { background: rgba(255, 255, 255, 0.25); border-radius: 999px; color: #ffffff; font-size: 8.5px; font-weight: 700; padding: 1mm 2.5mm; }
+      .profiling-print-section { break-inside: avoid; margin-bottom: 3mm; }
+      .profiling-print-section-title { align-items: center; background: #edf5f9; border-left: 3px solid #3b85c8; color: #4d545d; display: flex; font-size: 11px; font-weight: 700; margin: 0 0 2mm; min-height: 7mm; padding: 1.5mm 2.5mm; text-transform: uppercase; }
+      .profiling-print-table { border-collapse: collapse; table-layout: fixed; width: 100%; font-size: 9.5px; }
+      .profiling-print-table th, .profiling-print-table td { border: 1px solid #c7d2e0; padding: 1.5mm 2mm; text-align: left; vertical-align: middle; }
+      .profiling-print-table th { background: #3b85c8; color: #ffffff; font-weight: 700; }
+      .profiling-print-table tbody tr:nth-of-type(even) td { background: #f4f7fa; }
+      .profiling-print-emphasis { color: #3b85c8; font-weight: 700; }
+      .profiling-print-number { text-align: right; }
+      .profiling-print-action-list { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; margin: 0; padding: 2mm 3mm 2mm 6mm; font-size: 9.5px; }
+      .profiling-print-action-list li { margin-bottom: 1.5mm; }
+      .profiling-print-agreement { color: #475467; font-style: italic; margin-top: 3mm; font-size: 9px; }
+      .profiling-print-signatures { display: grid; gap: 4mm; grid-template-columns: repeat(3, 1fr); padding-top: 24mm; text-align: center; }
+      .profiling-print-signature-name { border-top: 1px solid #64748b; font-weight: 700; padding-top: 1mm; font-size: 10px; }
+      .profiling-print-signature-role { color: #52616b; font-size: 9px; margin-top: 1mm; }
+      .profiling-print-footer { border-top: 1px solid #9bc7e8; bottom: 6mm; color: #4d545d; display: flex; font-size: 8px; justify-content: space-between; left: 15mm; padding-top: 1.5mm; position: absolute; right: 15mm; }
+    }
+  </style>
+</head>
+<body class="chakra-ui-light">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <nav aria-label="breadcrumb" class="breadcrumbs">
+        <a href="#">Home</a>
+        <span class="crumb-sep">›</span>
+        <a href="#">Konsultasi - Checkpoint</a>
+        <span class="crumb-sep">›</span>
+        <span class="crumb-current">Detail Checkpoint 1</span>
+      </nav>
+      <div class="user-pill">
+        <span>William Candra · william.chandra@ruangguru.com</span>
+        <div class="user-avatar">WC</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <button type="button" class="btn btn-back" onclick="history.back()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Kembali
+      </button>
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn btn-outline" onclick="openSimulationModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+          Simulasi Peluang
+        </button>
+        <button type="button" class="btn btn-outline" onclick="window.print()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Download PDF
+        </button>
+        <button type="button" class="btn btn-primary" id="btnLockToggle" onclick="toggleLockState()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span id="lockButtonLabel">Finalisasi & Kunci Data</span>
+        </button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Student Header -->
+    <div class="student-header">
+      <div class="student-info">
+        <h1>Garuda Mahawira Sena</h1>
+        <p>
+          <span>garuda.msena@gmail.com</span>
+          <span>•</span>
+          <span class="student-tag">SMAN 1 Depok</span>
+          <span class="student-tag">Kelas 12 SMA</span>
+          <span class="student-tag">Depok - Margonda</span>
+        </p>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-draft" id="statusBadge">Draft Checkpoint 1</span>
+        <span class="badge badge-blue">Pasca TO Reguler 4</span>
+      </div>
+    </div>
+
+    <!-- Interactive Stepper Navigation (Guideline Alur Konsultasi SA) -->
+    <!-- Sticky Quick-Jump Anchor Bar (Daftar Isi Alur Konsultasi Checkpoint 1) -->
+    <nav class="jump-nav-container" aria-label="Navigasi Tahapan Konsultasi">
+      <div class="jump-nav-label">
+        <span>🎯 Alur Konsultasi:</span>
+      </div>
+      <div class="jump-nav-links" id="jumpNavLinks">
+        <a href="#step1" class="jump-pill active" data-target="step1"><span>01</span> Evaluasi Pilihan</a>
+        <a href="#step2" class="jump-pill" data-target="step2"><span>02</span> Skor TO & Rapor Smt 5</a>
+        <a href="#step3" class="jump-pill" data-target="step3"><span>03</span> Diagnostik Subtes & Drill</a>
+        <a href="#step4" class="jump-pill" data-target="step4"><span>04</span> Simulasi Alternatif</a>
+        <a href="#step5" class="jump-pill" data-target="step5"><span>05</span> Catatan 7 Poin</a>
+        <a href="#step6" class="jump-pill" data-target="step6"><span>06</span> Kesepakatan & PDF</a>
+      </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- TAHAP 1: Evaluasi Pilihan & Preferensi     -->
+    <!-- ========================================== -->
+    <section class="section-block" id="step1">
+      <div class="sa-prompt-card">
+        <div class="sa-prompt-header">
+          <span class="sa-prompt-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            Panduan SA: Apa yang Perlu Dibahas di Tahap 1
+          </span>
+          <span style="font-size: 11px; font-weight: 600; color: #1e40af;">Fokus: Validasi Aspirasi & Batasan Ortu</span>
+        </div>
+        <ul class="sa-prompt-list">
+          <li><strong>Probing ke Siswa:</strong> Konfirmasi apakah pilihan <em>S1 Farmasi UGM / UI</em> masih menjadi impian utama, atau mulai ragu setelah melihat tantangan materi TO?</li>
+          <li><strong>Probing ke Orang Tua (Kritis):</strong> Tanyakan batasan wilayah domisili kampus — apakah diizinkan ke luar Jabodetabek/Jawa Barat? Diskusikan juga harapan orang tua yang sempat mengusulkan <em>Teknik Mesin ITB</em>.</li>
+          <li><strong>Tujuan Akhir Tahap 1:</strong> Memastikan kedua belah pihak sepakat apakah tetap berjuang di Farmasi sebagai Pilihan 1 atau mulai memformulasikan pilihan cadangan yang aman.</li>
+        </ul>
+      </div>
+
+      <div class="section-header">
+        <h2 class="section-title">1. Evaluasi Pilihan Kampus & Preferensi Keluarga</h2>
+        <span class="section-tag">Jalur Utama: UTBK-SNBT & SNBP</span>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 8%;">Prioritas</th>
+              <th>Program Studi & Perguruan Tinggi</th>
+              <th style="text-align: center;">Jenjang</th>
+              <th>Status Aspirasi</th>
+              <th style="text-align: center;">Passing Grade</th>
+              <th style="text-align: center;">Daya Tampung : Peminat</th>
+              <th style="text-align: center;">Keketatan</th>
+              <th style="text-align: center;">Top Leaderboard</th>
+              <th style="text-align: center; width: 14%;">Aksi Analisis</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span style="font-weight: 700; color: #1078ca;">Pilihan 1</span></td>
+              <td><strong>Farmasi — Universitas Gadjah Mada (UGM)</strong></td>
+              <td style="text-align: center;">S1</td>
+              <td>Pilihan Utama Siswa</td>
+              <td style="text-align: center;"><strong>672</strong></td>
+              <td style="text-align: center; font-weight: 600;">44 : 2.412</td>
+              <td style="text-align: center;"><span class="badge" style="background: #fef3f2; color: #b42318; font-weight: 700;">1.82%</span></td>
+              <td style="text-align: center; font-weight: 700; color: #027a48;">718</td>
+              <td style="text-align: center;">
+                <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 4px 10px; color: #1078ca; border-color: #93c5fd; font-weight: 600; background: #eff8ff;" onclick="openChoiceModal('ugm')">Detail Analisis ➔</button>
+              </td>
+            </tr>
+            <tr>
+              <td><span style="font-weight: 700; color: #1078ca;">Pilihan 2</span></td>
+              <td><strong>Farmasi — Universitas Indonesia (UI)</strong></td>
+              <td style="text-align: center;">S1</td>
+              <td>Pilihan Alternatif Siswa</td>
+              <td style="text-align: center;"><strong>665</strong></td>
+              <td style="text-align: center; font-weight: 600;">32 : 1.984</td>
+              <td style="text-align: center;"><span class="badge" style="background: #fef3f2; color: #b42318; font-weight: 700;">1.61%</span></td>
+              <td style="text-align: center; font-weight: 700; color: #027a48;">712</td>
+              <td style="text-align: center;">
+                <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 4px 10px; color: #1078ca; border-color: #93c5fd; font-weight: 600; background: #eff8ff;" onclick="openChoiceModal('ui')">Detail Analisis ➔</button>
+              </td>
+            </tr>
+            <tr>
+              <td><span style="font-weight: 700; color: #b54708;">Pilihan 3</span></td>
+              <td><strong>Teknik Mesin — Institut Teknologi Bandung (ITB)</strong></td>
+              <td style="text-align: center;">S1</td>
+              <td>Aspirasi Orang Tua (Cadangan)</td>
+              <td style="text-align: center;"><strong>650</strong></td>
+              <td style="text-align: center; font-weight: 600;">75 : 1.620</td>
+              <td style="text-align: center;"><span class="badge" style="background: #fffcf5; color: #b54708; font-weight: 700;">4.63%</span></td>
+              <td style="text-align: center; font-weight: 700; color: #027a48;">698</td>
+              <td style="text-align: center;">
+                <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 4px 10px; color: #b54708; border-color: #fedf89; font-weight: 600; background: #fffcf5;" onclick="openChoiceModal('itb')">Detail Analisis ➔</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <h3 style="font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 12px;">Preferensi dan Batasan Keluarga</h3>
+        <div class="grid-3">
+          <div class="field-item">
+            <p class="field-label">Batasan Lokasi Orang Tua</p>
+            <p class="field-value">Jabodetabek, Jawa Barat, & D.I. Yogyakarta</p>
+            <p class="field-subvalue">Orang tua memberi izin khusus untuk UGM di Yogyakarta</p>
+          </div>
+          <div class="field-item">
+            <p class="field-label">Keselarasan Target Siswa vs Ortu</p>
+            <p class="field-value">Sebagian Selaras</p>
+            <p class="field-subvalue">Orang tua mendukung Farmasi asalkan ada opsi cadangan realistis</p>
+          </div>
+          <div class="field-item">
+            <p class="field-label">Pengambil Keputusan Akhir</p>
+            <p class="field-value">Siswa bersama Orang Tua</p>
+            <p class="field-subvalue">Disepakati lewat sesi Checkpoint 1</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3 style="font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 12px;">Baseline Kesiapan Belajar Siswa (Hasil Profiling Awal)</h3>
+        <div class="grid-3">
+          <div class="field-item">
+            <p class="field-label">Rutinitas Belajar Mandiri</p>
+            <p class="field-value">1–2 kali / minggu (30–60 mnt)</p>
+            <p class="field-subvalue" style="color: #b42318; font-weight: 600;">⚠️ Di bawah anjuran persiapan UTBK (1.5–2 jam/hari)</p>
+          </div>
+          <div class="field-item">
+            <p class="field-label">Tantangan Utama Belajar</p>
+            <p class="field-value">Prokrastinasi & Sulit Konsisten</p>
+            <p class="field-subvalue">Sering menunda belajar saat menghadapi tipe soal rumit</p>
+          </div>
+          <div class="field-item">
+            <p class="field-label">Bantuan yang Diharapkan ke SA</p>
+            <p class="field-value">Jadwal Terstruktur & Motivasi</p>
+            <p class="field-subvalue">Butuh pendampingan ritme belajar & reminder drill berkala</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <a href="#step2" class="btn btn-outline" style="font-size: 12.5px; padding: 6px 16px;">
+          Lanjut ke Tahap 2: Skor TO & Rapor Smt 5 ↓
+        </a>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAHAP 2: Skor TO & Input Rapor Smt 5       -->
+    <!-- ========================================== -->
+    <section class="section-block" id="step2">
+      <div class="sa-prompt-card">
+        <div class="sa-prompt-header">
+          <span class="sa-prompt-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            Panduan SA: Cara Membimbing Skor TO & Input Rapor
+          </span>
+          <span style="font-size: 11px; font-weight: 600; color: #1e40af;">Fokus: Reframing Positif & SNBP Check</span>
+        </div>
+        <ul class="sa-prompt-list">
+          <li><strong>Membingkai Skor Turun (601 → 546):</strong> Jangan membuat orang tua cemas. Jelaskan bahwa penurunan skor di Episode 3 & 4 disebabkan oleh materi baru dan soal Higher Order Thinking (HOTS). Katakan: <em>"Penurunan ini bukan kemunduran, tapi deteksi dini bagian mana yang harus kita tambal sebelum semester genap."</em></li>
+          <li><strong>Input Nilai Rapor Semester 5 (Kewajiban Baru):</strong> Tanyakan nilai rapor semester 5 yang baru saja dibagikan pihak sekolah. Input langsung pada kolom <strong>Smt 5</strong> di bawah untuk evaluasi kuota eligible SNBP.</li>
+        </ul>
+      </div>
+
+      <div class="section-header">
+        <h2 class="section-title">2. Evaluasi Skor Tryout & Input Rapor Semester 5</h2>
+        <span class="section-tag">Data 4 TO Reguler UTBK</span>
+      </div>
+
+      <!-- Metric Cards -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-card-label">Rata-rata 4 TO Reguler</div>
+          <div class="metric-card-val">571</div>
+          <div class="metric-card-hint">Rentang: 546 – 601 poin</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-label">Skor TO Terakhir (Episode 4)</div>
+          <div class="metric-card-val" style="color: #b42318;">546</div>
+          <div class="metric-card-hint metric-trend-down">↓ Turun 15 poin dari Ep 3</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-label">Target Skor Farmasi UGM</div>
+          <div class="metric-card-val" style="color: #1078ca;">672</div>
+          <div class="metric-card-hint">Gap saat ini: <strong>-126 poin</strong></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-label">Kehadiran Kelas & Klinik</div>
+          <div class="metric-card-val" style="color: #027a48;">100%</div>
+          <div class="metric-card-hint metric-trend-up">✓ Sangat konsisten hadir</div>
+        </div>
+      </div>
+
+      <!-- Trend Tryout Visualization with Interactive SVG Chart -->
+      <div style="background: #ffffff; border: 1px solid var(--border); border-radius: 10px; padding: 22px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px;">
+              <span>📈 Grafik Tren Skor Tryout Reguler (Episode 1 – 4)</span>
+              <span id="chartTrendBadge" class="badge" style="background: #fef3f2; color: #b42318; font-size: 11px; border: 1px solid #fedf89;">Tren Menurun (-55 Poin)</span>
+            </h3>
+            <p style="margin: 3px 0 0; font-size: 12.5px; color: var(--muted);">Visualisasi perkembangan skor 4 TO wajib untuk evaluasi kesiapan materi dan gap terhadap target prodi.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="chartFilterSelect" style="font-size: 12px; color: var(--muted); font-weight: 600;">Pilih Subtes:</label>
+            <select id="chartFilterSelect" class="table-input" style="width: auto; text-align: left; padding: 6px 12px; font-weight: 600; background: #f8fafc;" onchange="updateChartSeries(this.value)">
+              <option value="total">Skor Total UTBK (601 → 546)</option>
+              <option value="pu">Penalaran Umum - PU (580 → 465)</option>
+              <option value="pk">Pengetahuan Kuantitatif - PK (560 → 488)</option>
+              <option value="lbi">Literasi B. Indonesia - LBI (550 → 505)</option>
+              <option value="ppu">Pemahaman Umum - PPU (610 → 642)</option>
+              <option value="lbe">Literasi B. Inggris - LBE (590 → 610)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Chart Legend -->
+        <div style="display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--muted); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-light); flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 12px; height: 12px; border-radius: 50%; background: #0284c7; display: inline-block;"></span>
+            <strong style="color: var(--ink);">Skor Siswa</strong>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 16px; height: 0; border-top: 2px dashed #b42318; display: inline-block;"></span>
+            <span style="color: #b42318; font-weight: 600;" id="chartTargetLegend">Target Passing Grade: 672</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 16px; height: 0; border-top: 2px dashed #94a3b8; display: inline-block;"></span>
+            <span id="chartMeanLegend">Rata-rata 4 TO: 571</span>
+          </div>
+        </div>
+
+        <!-- SVG Line Chart Canvas -->
+        <div style="width: 100%; overflow-x: auto; background: #fafafa; border-radius: 8px; border: 1px solid var(--border-light); padding: 10px 0;">
+          <svg id="trendSvgChart" viewBox="0 0 860 250" style="width: 100%; height: auto; min-height: 220px; display: block; overflow: visible;">
+            <defs>
+              <linearGradient id="scoreAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.22"/>
+                <stop offset="100%" stop-color="#0284c7" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid Lines & Y-Labels -->
+            <g id="svgGridLines"></g>
+            <!-- Target Line -->
+            <g id="svgTargetLine"></g>
+            <!-- Mean Line -->
+            <g id="svgMeanLine"></g>
+            <!-- Area Fill -->
+            <polygon id="svgAreaPolygon" points="" fill="url(#scoreAreaGrad)"/>
+            <!-- Line Stroke -->
+            <polyline id="svgPolyline" points="" fill="none" stroke="#0284c7" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Points and Values -->
+            <g id="svgPointsGroup"></g>
+            <!-- X-Axis Labels -->
+            <g id="svgXLabels"></g>
+          </svg>
+        </div>
+
+        <!-- Episode Stat Boxes -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; text-align: center; margin-top: 16px;" id="chartStatBoxes">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Tabel Nilai Rapor Semester 1 - 5 (Interactive Input) -->
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div>
+            <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--ink);">
+              Nilai Rapor Sekolah (Semester 1 s/d 5)
+              <span class="pill-smt5">Smt 5 Aktif Diedit</span>
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">Data semester 1–4 otomatis dari Profiling. Masukkan nilai semester 5 untuk kalkulasi kelayakan SNBP.</p>
+          </div>
+          <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;" onclick="calculateRaporAverage()">Hitung Rata-rata</button>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mata Pelajaran</th>
+                <th style="text-align: center;">Smt 1</th>
+                <th style="text-align: center;">Smt 2</th>
+                <th style="text-align: center;">Smt 3</th>
+                <th style="text-align: center;">Smt 4</th>
+                <th style="text-align: center; background: #e0f2fe; color: #0369a1;">Smt 5 (Input SA)</th>
+                <th style="text-align: center;">Rata-rata</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Bahasa Indonesia</strong></td>
+                <td style="text-align: center;">86</td>
+                <td style="text-align: center;">87</td>
+                <td style="text-align: center;">90</td>
+                <td style="text-align: center;">90</td>
+                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="89" id="rapor_bindo"></td>
+                <td style="text-align: center; font-weight: 700;" id="avg_bindo">88.4</td>
+              </tr>
+              <tr>
+                <td><strong>Bahasa Inggris</strong></td>
+                <td style="text-align: center;">87</td>
+                <td style="text-align: center;">88</td>
+                <td style="text-align: center;">89</td>
+                <td style="text-align: center;">90</td>
+                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="91" id="rapor_bing"></td>
+                <td style="text-align: center; font-weight: 700;" id="avg_bing">89.0</td>
+              </tr>
+              <tr>
+                <td><strong>Matematika</strong></td>
+                <td style="text-align: center;">84</td>
+                <td style="text-align: center;">86</td>
+                <td style="text-align: center;">87</td>
+                <td style="text-align: center;">88</td>
+                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="86" id="rapor_mat"></td>
+                <td style="text-align: center; font-weight: 700;" id="avg_mat">86.2</td>
+              </tr>
+              <tr>
+                <td><strong>Fisika</strong></td>
+                <td style="text-align: center;">85</td>
+                <td style="text-align: center;">86</td>
+                <td style="text-align: center;">88</td>
+                <td style="text-align: center;">87</td>
+                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="85" id="rapor_fis"></td>
+                <td style="text-align: center; font-weight: 700;" id="avg_fis">86.2</td>
+              </tr>
+              <tr>
+                <td><strong>Kimia</strong> (Mapel Pendukung Farmasi)</td>
+                <td style="text-align: center;">88</td>
+                <td style="text-align: center;">89</td>
+                <td style="text-align: center;">90</td>
+                <td style="text-align: center;">91</td>
+                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="90" id="rapor_kim"></td>
+                <td style="text-align: center; font-weight: 700; color: #1078ca;" id="avg_kim">89.6</td>
+              </tr>
+              <tr>
+                <td><strong>Biologi</strong> (Mapel Pendukung Farmasi)</td>
+                <td style="text-align: center;">87</td>
+                <td style="text-align: center;">88</td>
+                <td style="text-align: center;">89</td>
+                <td style="text-align: center;">90</td>
+                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="91" id="rapor_bio"></td>
+                <td style="text-align: center; font-weight: 700; color: #1078ca;" id="avg_bio">89.0</td>
+              </tr>
+              <tr style="background: #f8fafc; font-weight: 700;">
+                <td colspan="5">Rata-rata Keseluruhan Rapor (6 Mapel Utama)</td>
+                <td colspan="2" style="text-align: center; font-size: 15px; color: #1078ca;" id="grand_rapor_avg">88.1 / 100</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <a href="#step3" class="btn btn-outline" style="font-size: 12.5px; padding: 6px 16px;">
+          Lanjut ke Tahap 3: Diagnostik Subtes & Drill ↓
+        </a>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAHAP 3: Diagnostik Subtes & Drill         -->
+    <!-- ========================================== -->
+    <section class="section-block" id="step3">
+      <div class="sa-prompt-card">
+        <div class="sa-prompt-header">
+          <span class="sa-prompt-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            Panduan SA: Menemukan Sumber Masalah Akademik Siswa
+          </span>
+          <span style="font-size: 11px; font-weight: 600; color: #1e40af;">Fokus: 3 Subtes Terendah & Evaluasi Drill</span>
+        </div>
+        <ul class="sa-prompt-list">
+          <li><strong>Batasi ke 3 Subtes Terendah:</strong> Jangan bahas semua subtes agar siswa tidak patah semangat. Fokuskan ke <strong>PU (465)</strong>, <strong>PK (488)</strong>, dan <strong>LBI (505)</strong>.</li>
+          <li><strong>Sorot Temuan Audit Drill (Kritis):</strong> Tunjukkan data riil bahwa Garuda sudah rajin drill (31 sesi / 74 soal), tetapi hampir semuanya di subtes yang nilainya sudah aman (PPU & LBE). Drill di PU dan PK masih 0! Arahkan komitmen siswa: <em>"Mulai minggu ini, semua latihan wajib diarahkan ke materi Penalaran Induktif & Aljabar Dasar."</em></li>
+        </ul>
+      </div>
+
+      <div class="section-header">
+        <h2 class="section-title">3. Diagnostik 3 Subtes Terendah & Korelasi Drill Soal</h2>
+        <span class="section-tag">Hasil Evaluasi TO Episode 4</span>
+      </div>
+
+      <!-- 3 Lowest Subtests Breakdown -->
+      <div class="diagnostic-cards">
+        <div class="diag-card critical">
+          <div>
+            <div class="diag-card-title">
+              <span>Penalaran Umum (PU)</span>
+              <span class="badge" style="background: #fef3f2; color: #b42318; font-size: 11px;">Paling Kritis</span>
+            </div>
+            <div class="diag-score-row">
+              <span class="diag-score">465</span>
+              <span class="diag-target">Target: 680 (Gap: -215)</span>
+            </div>
+            <div class="weak-topics-title">3 Topik Paling Banyak Salah:</div>
+            <ul class="weak-topics-list">
+              <li>Penalaran Induktif (32% benar)</li>
+              <li>Penalaran Deduktif & Silogisme (41%)</li>
+              <li>Penalaran Kuantitatif Simbolik (45%)</li>
+            </ul>
+          </div>
+          <div style="margin-top: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-light); padding-top: 8px;">
+            Target kenaikan: <strong>+100 poin</strong> di TO 5
+          </div>
+        </div>
+
+        <div class="diag-card critical">
+          <div>
+            <div class="diag-card-title">
+              <span>Pengetahuan Kuantitatif (PK)</span>
+              <span class="badge" style="background: #fef3f2; color: #b42318; font-size: 11px;">Kritis</span>
+            </div>
+            <div class="diag-score-row">
+              <span class="diag-score">488</span>
+              <span class="diag-target">Target: 670 (Gap: -182)</span>
+            </div>
+            <div class="weak-topics-title">3 Topik Paling Banyak Salah:</div>
+            <ul class="weak-topics-list">
+              <li>Aljabar dan Fungsi Pecahan (28% benar)</li>
+              <li>Statistika dan Peluang Dasar (38%)</li>
+              <li>Geometri Sudut & Bidang (42%)</li>
+            </ul>
+          </div>
+          <div style="margin-top: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-light); padding-top: 8px;">
+            Target kenaikan: <strong>+80 poin</strong> di TO 5
+          </div>
+        </div>
+
+        <div class="diag-card critical">
+          <div>
+            <div class="diag-card-title">
+              <span>Literasi Bahasa Indonesia (LBI)</span>
+              <span class="badge" style="background: #fffcf5; color: #b54708; font-size: 11px;">Perlu Penguatan</span>
+            </div>
+            <div class="diag-score-row">
+              <span class="diag-score" style="color: #b54708;">505</span>
+              <span class="diag-target">Target: 660 (Gap: -155)</span>
+            </div>
+            <div class="weak-topics-title">3 Topik Paling Banyak Salah:</div>
+            <ul class="weak-topics-list">
+              <li>Mengevaluasi Bias Penulis (35% benar)</li>
+              <li>Memahami Makna Tersirat Kalimat (40%)</li>
+              <li>Hubungan Logika Antarparagraf (44%)</li>
+            </ul>
+          </div>
+          <div style="margin-top: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-light); padding-top: 8px;">
+            Target kenaikan: <strong>+60 poin</strong> di TO 5
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsible Full 7 Subtests UTBK Table -->
+      <details class="super-accordion">
+        <summary class="accordion-summary">
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            <span>Tampilkan Tabel Lengkap Seluruh 7 Subtes UTBK (TO 1 s.d. TO 4)</span>
+          </span>
+          <span class="badge" style="background: #eff8ff; color: #175cd3; font-weight: 600; font-size: 11.5px;">Buka / Tutup Tabel ↓</span>
+        </summary>
+        <div class="accordion-content">
+          <div class="table-container" style="margin-top: 0; border: none; border-radius: 0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Subtes UTBK</th>
+                  <th style="text-align: center;">TO 1</th>
+                  <th style="text-align: center;">TO 2</th>
+                  <th style="text-align: center;">TO 3</th>
+                  <th style="text-align: center;">TO 4 (Terbaru)</th>
+                  <th style="text-align: center;">Rata-rata</th>
+                  <th style="text-align: center;">Target Farmasi UGM</th>
+                  <th style="text-align: center;">Gap Nilai</th>
+                  <th style="text-align: center;">Status Kesiapan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background: #fffbfa;">
+                  <td><strong>Penalaran Umum (PU)</strong></td>
+                  <td style="text-align: center;">510</td>
+                  <td style="text-align: center;">490</td>
+                  <td style="text-align: center;">475</td>
+                  <td style="text-align: center; font-weight: 700; color: #b42318;">465</td>
+                  <td style="text-align: center; font-weight: 600;">485</td>
+                  <td style="text-align: center;">680</td>
+                  <td style="text-align: center; color: #b42318; font-weight: 700;">-215</td>
+                  <td style="text-align: center;"><span class="badge" style="background: #fef3f2; color: #b42318;">Sangat Kritis</span></td>
+                </tr>
+                <tr style="background: #fffbfa;">
+                  <td><strong>Pengetahuan Kuantitatif (PK)</strong></td>
+                  <td style="text-align: center;">520</td>
+                  <td style="text-align: center;">505</td>
+                  <td style="text-align: center;">495</td>
+                  <td style="text-align: center; font-weight: 700; color: #b42318;">488</td>
+                  <td style="text-align: center; font-weight: 600;">502</td>
+                  <td style="text-align: center;">670</td>
+                  <td style="text-align: center; color: #b42318; font-weight: 700;">-182</td>
+                  <td style="text-align: center;"><span class="badge" style="background: #fef3f2; color: #b42318;">Kritis</span></td>
+                </tr>
+                <tr style="background: #fffdf5;">
+                  <td><strong>Literasi Bahasa Indonesia (LBI)</strong></td>
+                  <td style="text-align: center;">540</td>
+                  <td style="text-align: center;">525</td>
+                  <td style="text-align: center;">515</td>
+                  <td style="text-align: center; font-weight: 700; color: #b54708;">505</td>
+                  <td style="text-align: center; font-weight: 600;">521</td>
+                  <td style="text-align: center;">660</td>
+                  <td style="text-align: center; color: #b54708; font-weight: 700;">-155</td>
+                  <td style="text-align: center;"><span class="badge" style="background: #fffcf5; color: #b54708;">Perlu Penguatan</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Pemahaman Bacaan & Menulis (PBM)</strong></td>
+                  <td style="text-align: center;">620</td>
+                  <td style="text-align: center;">580</td>
+                  <td style="text-align: center;">570</td>
+                  <td style="text-align: center; font-weight: 700;">550</td>
+                  <td style="text-align: center; font-weight: 600;">580</td>
+                  <td style="text-align: center;">665</td>
+                  <td style="text-align: center; color: #475467; font-weight: 600;">-115</td>
+                  <td style="text-align: center;"><span class="badge" style="background: #f8fafc; color: #475467;">Sedang</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Penalaran Matematika (PM)</strong></td>
+                  <td style="text-align: center;">590</td>
+                  <td style="text-align: center;">570</td>
+                  <td style="text-align: center;">560</td>
+                  <td style="text-align: center; font-weight: 700;">565</td>
+                  <td style="text-align: center; font-weight: 600;">571</td>
+                  <td style="text-align: center;">675</td>
+                  <td style="text-align: center; color: #475467; font-weight: 600;">-110</td>
+                  <td style="text-align: center;"><span class="badge" style="background: #f8fafc; color: #475467;">Sedang</span></td>
+                </tr>
+                <tr style="background: #f6fef9;">
+                  <td><strong>Literasi Bahasa Inggris (LBE)</strong></td>
+                  <td style="text-align: center;">640</td>
+                  <td style="text-align: center;">625</td>
+                  <td style="text-align: center;">620</td>
+                  <td style="text-align: center; font-weight: 700; color: #027a48;">610</td>
+                  <td style="text-align: center; font-weight: 600;">624</td>
+                  <td style="text-align: center;">650</td>
+                  <td style="text-align: center; color: #027a48; font-weight: 700;">-40</td>
+                  <td style="text-align: center;"><span class="badge" style="background: #edfcf2; color: #027a48;">Aman</span></td>
+                </tr>
+                <tr style="background: #f6fef9;">
+                  <td><strong>Pengetahuan & Pemahaman Umum (PPU)</strong></td>
+                  <td style="text-align: center;">685</td>
+                  <td style="text-align: center;">660</td>
+                  <td style="text-align: center;">650</td>
+                  <td style="text-align: center; font-weight: 700; color: #027a48;">642</td>
+                  <td style="text-align: center; font-weight: 600;">659</td>
+                  <td style="text-align: center;">655</td>
+                  <td style="text-align: center; color: #027a48; font-weight: 700;">-13</td>
+                  <td style="text-align: center;"><span class="badge" style="background: #edfcf2; color: #027a48;">Aman</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+
+      <!-- Audit Drill Gap Analysis Warning Box -->
+      <div class="audit-box">
+        <div class="audit-box-icon">⚠️</div>
+        <div class="audit-box-content">
+          <p><strong>Temuan Audit Aktivitas Belajar (Student Tower):</strong> Siswa telah menyelesaikan <strong>31 sesi drill soal (74 butir soal)</strong>, namun <strong>82% pengerjaan terkonsentrasi pada PPU dan Literasi Bahasa Inggris</strong> (di mana nilai siswa sudah tinggi, yaitu 642 dan 610). Siswa <strong>hampir belum pernah drill di subtes Penalaran Umum (PU) dan Pengetahuan Kuantitatif (PK)</strong>.</p>
+          <p style="margin-top: 6px;"><strong>Arahan Tindak Lanjut SA:</strong> Minta siswa stop mengulang latihan materi yang sudah dikuasai dan wajib mengalokasikan 15 soal/hari khusus untuk paket latihan PU dan PK di aplikasi Ruangguru.</p>
+        </div>
+      </div>
+
+      <!-- Teacher Notes and Classroom Sessions from Student Tower -->
+      <div style="margin-top: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div>
+            <h3 style="font-size: 14px; font-weight: 700; color: var(--ink); margin: 0;">Aktivitas Kelas & Ulasan Pengajar (Student Tower)</h3>
+            <p style="font-size: 12px; color: var(--muted); margin: 2px 0 0;">Riwayat sesi tatap muka & catatan langsung dari Master Teacher Brain Academy Margonda</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <span class="badge" style="background: #ecfdf3; color: #027a48; font-weight: 600;">14 Hadir</span>
+            <span class="badge" style="background: #fffcf5; color: #b54708; font-weight: 600;">1 Terlambat</span>
+            <span class="badge" style="background: #fef3f2; color: #b42318; font-weight: 600;">2 Izin Sakit</span>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 14%;">Tanggal & Sesi</th>
+                <th style="width: 18%;">Mata Pelajaran</th>
+                <th style="width: 18%;">Master Teacher</th>
+                <th style="width: 12%; text-align: center;">Status</th>
+                <th>Catatan & Evaluasi Pengajar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>10 Sep 2026</strong><br><span style="font-size: 11.5px; color: var(--muted);">16.00 - 17.30 WIB</span></td>
+                <td><strong>Fisika UTBK</strong><br><span style="font-size: 11.5px; color: var(--muted);">Dinamika Gerak</span></td>
+                <td>Suranto, M.Pd.</td>
+                <td style="text-align: center;"><span class="badge" style="background: #ecfdf3; color: #027a48;">Hadir</span></td>
+                <td><span style="font-size: 12.5px;">Garuda aktif menyimak rumus dasar, namun butuh dorongan probing saat analisis kasus gaya gesek pada bidang miring bertingkat. Cenderung pasif jika tidak ditunjuk.</span></td>
+              </tr>
+              <tr>
+                <td><strong>07 Sep 2026</strong><br><span style="font-size: 11.5px; color: var(--muted);">18.30 - 20.00 WIB</span></td>
+                <td><strong>Penalaran Kuantitatif</strong><br><span style="font-size: 11.5px; color: var(--muted);">Aljabar & Fungsi</span></td>
+                <td>Muhamad Diky, S.Si.</td>
+                <td style="text-align: center;"><span class="badge" style="background: #ecfdf3; color: #027a48;">Hadir</span></td>
+                <td><span style="font-size: 12.5px; color: #b42318; font-weight: 500;">Perlu penguatan konsep dasar substitusi & eliminasi fungsi pecahan. Masih sering bingung pada soal model HOTS UTBK. Disarankan drill mandiri minimal 15 soal/hari.</span></td>
+              </tr>
+              <tr>
+                <td><strong>28 Agu 2026</strong><br><span style="font-size: 11.5px; color: var(--muted);">16.00 - 17.30 WIB</span></td>
+                <td><strong>Literasi B. Indonesia</strong><br><span style="font-size: 11.5px; color: var(--muted);">Analisis Wacana</span></td>
+                <td>Nur Afifah, S.Hum.</td>
+                <td style="text-align: center;"><span class="badge" style="background: #fffcf5; color: #b54708;">Terlambat 10m</span></td>
+                <td><span style="font-size: 12.5px;">Kosakata dan kecepatan membaca bagus, namun sering terburu-buru mengambil simpulan wacana tanpa memverifikasi kalimat penjelas paragraf.</span></td>
+              </tr>
+              <tr>
+                <td><strong>18 Agu 2026</strong><br><span style="font-size: 11.5px; color: var(--muted);">16.00 - 17.30 WIB</span></td>
+                <td><strong>Literasi B. Inggris</strong><br><span style="font-size: 11.5px; color: var(--muted);">Reading Comprehension</span></td>
+                <td>Ristyana Suryanti, S.Pd.</td>
+                <td style="text-align: center;"><span class="badge" style="background: #ecfdf3; color: #027a48;">Hadir</span></td>
+                <td><span style="font-size: 12.5px; color: #027a48;">Sangat percaya diri dan tanggap menjawab pertanyaan reading. Pemahaman kosakata akademik di atas rata-rata teman sekelas.</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <a href="#step4" class="btn btn-outline" style="font-size: 12.5px; padding: 6px 16px;">
+          Lanjut ke Tahap 4: Simulasi Alternatif ↓
+        </a>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAHAP 4: Simulasi & Alternatif Realistis   -->
+    <!-- ========================================== -->
+    <section class="section-block" id="step4">
+      <div class="sa-prompt-card">
+        <div class="sa-prompt-header">
+          <span class="sa-prompt-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            Panduan SA: Menawarkan Pilihan Alternatif yang Realistis
+          </span>
+          <span style="font-size: 11px; font-weight: 600; color: #1e40af;">Fokus: Rekomendasi Cadangan & Disclaimer</span>
+        </div>
+        <ul class="sa-prompt-list">
+          <li><strong>Pilihan Cadangan yang Aman:</strong> Jika gap nilai Farmasi UGM (-126 poin) terasa berat ditutup sebelum pendaftaran, gunakan fitur simulasi untuk menawarkan alternatif di rumpun sains/kesehatan yang passing grade-nya di kisaran skor Garuda saat ini (570 – 615).</li>
+          <li><strong>Sampaikan Disclaimer Wajib:</strong> Ingatkan orang tua bahwa angka passing grade dan persentase peluang adalah estimasi target belajar internal Ruangguru berdasarkan data historis ribuan alumni, bukan kepastian kelulusan resmi SNPMB.</li>
+        </ul>
+      </div>
+
+      <div class="section-header">
+        <h2 class="section-title">4. Simulasi Peluang & Rekomendasi Pilihan Realistis</h2>
+        <span class="section-tag">Rumpun: Sains & Farmasi / Kimia</span>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--ink);">Buka Mesin Simulasi SNBT Super CMS</h3>
+            <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">Pre-filter aktif: Nilai rata-rata 571 • Rumpun Kesehatan/Saintek • Wilayah Jawa & DIY</p>
+          </div>
+          <button type="button" class="btn btn-outline" style="background: #fff;" onclick="openSimulationModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Jalankan Simulasi Lengkap
+          </button>
+        </div>
+      </div>
+
+      <!-- Rekomendasi Opsi Kampus Komparatif -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Status Strategi</th>
+              <th>Program Studi & Perguruan Tinggi</th>
+              <th>Passing Grade</th>
+              <th>Gap Skor (vs 546)</th>
+              <th>Tingkat Keketatan</th>
+              <th>Rekomendasi SA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge" style="background: #fef3f2; color: #b42318;">Ambisius</span></td>
+              <td><strong>S1 Farmasi — Universitas Gadjah Mada (UGM)</strong></td>
+              <td>672</td>
+              <td style="color: #b42318; font-weight: 700;">-126</td>
+              <td>1.8%</td>
+              <td>Pertahankan di Opsi 1 jika komitmen drill naik 2x lipat</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background: #fffcf5; color: #b54708;">Menengah</span></td>
+              <td><strong>S1 Farmasi — Universitas Padjadjaran (UNPAD)</strong></td>
+              <td>615</td>
+              <td style="color: #b54708; font-weight: 700;">-69</td>
+              <td>2.4%</td>
+              <td>Alternatif Farmasi di Jawa Barat (disukai orang tua)</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background: #edfcf2; color: #027a48;">Realistis</span></td>
+              <td><strong>S1 Kimia — Universitas Indonesia (UI)</strong></td>
+              <td>585</td>
+              <td style="color: #027a48; font-weight: 700;">-39</td>
+              <td>3.9%</td>
+              <td>Rumpun serumpun Farmasi, lokasi Depok (sangat ideal)</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background: #edfcf2; color: #027a48;">Sangat Aman</span></td>
+              <td><strong>S1 Teknologi Pangan — Institut Pertanian Bogor (IPB)</strong></td>
+              <td>575</td>
+              <td style="color: #027a48; font-weight: 700;">-29</td>
+              <td>4.8%</td>
+              <td>Pilihan cadangan aman yang didukung penuh keluarga</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <a href="#step5" class="btn btn-outline" style="font-size: 12.5px; padding: 6px 16px;">
+          Lanjut ke Tahap 5: Catatan Konsultasi 7 Poin ↓
+        </a>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAHAP 5: Catatan Konsultasi Terstruktur   -->
+    <!-- ========================================== -->
+    <section class="section-block" id="step5">
+      <div class="sa-prompt-card">
+        <div class="sa-prompt-header">
+          <span class="sa-prompt-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            Panduan SA: Mengisi Catatan Terstruktur (7 Komponen)
+          </span>
+          <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 2px 10px; background: #fff;" onclick="toggleDrawer(true)">
+            📖 Buka Contoh Kalimat Isian SA
+          </button>
+        </div>
+        <p style="margin: 0; font-size: 12.5px; color: #1e3a8a;">Format ini menggantikan teks bebas lama. Data akademik dasar sudah terisi otomatis (autofill). SA cukup melengkapi cerita kendala non-akademik siswa dan komitmen tindakan.</p>
+      </div>
+
+      <div class="section-header">
+        <h2 class="section-title">5. Catatan Konsultasi Kakak Asuh (Model Terstruktur)</h2>
+        <span class="section-tag">Log Checkpoint 1 & Bulanan</span>
+      </div>
+
+      <div class="structured-form">
+        <!-- 1. Target PTN & Prodi -->
+        <div class="form-row">
+          <div class="form-row-header">
+            <span class="form-row-label">1. Target PTN dan Program Studi</span>
+            <span class="form-row-badge autofill">Autofill • Editable</span>
+          </div>
+          <textarea class="form-textarea" rows="2" id="note_target">Pilihan 1: S1 Farmasi - UGM (Passing Grade ~672)
+Pilihan 2: S1 Farmasi - UI (Passing Grade ~665)
+Pilihan Cadangan: S1 Kimia - UI / S1 Teknik Mesin - ITB (Aspirasi Orang Tua)</textarea>
+          <p class="form-helper-text">Cantumkan prodi utama dan pilihan cadangan yang telah disetujui bersama orang tua.</p>
+        </div>
+
+        <!-- 2. Jalur Masuk Prioritas -->
+        <div class="form-row">
+          <div class="form-row-header">
+            <span class="form-row-label">2. Jalur Masuk yang Diprioritaskan</span>
+            <span class="form-row-badge">Pilihan Jalur</span>
+          </div>
+          <div style="display: flex; gap: 16px; margin: 4px 0;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;"><input type="checkbox" checked> SNBP (Jika Eligible)</label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;"><input type="checkbox" checked> UTBK-SNBT (Prioritas Utama)</label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;"><input type="checkbox" checked> Seleksi Mandiri (UM UGM / SIMAK UI)</label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;"><input type="checkbox"> Sekolah Kedinasan</label>
+          </div>
+          <p class="form-helper-text">Centang jalur yang menjadi fokus pendampingan siswa semester depan.</p>
+        </div>
+
+        <!-- 3. Kebiasaan Belajar -->
+        <div class="form-row">
+          <div class="form-row-header">
+            <span class="form-row-label">3. Kebiasaan Belajar & Kehadiran (Student Tower)</span>
+            <span class="form-row-badge autofill">Autofill • Editable</span>
+          </div>
+          <textarea class="form-textarea" rows="2" id="note_kebiasaan">Kehadiran TMB di cabang 100%. Telah menyelesaikan 31 sesi drill (74 soal). Belajar mandiri di rumah rata-rata 45 menit/hari, namun cenderung menunda jika materi terasa rumit.</textarea>
+          <p class="form-helper-text">Data kehadiran & pengerjaan drill ditarik otomatis dari riwayat 1 bulan terakhir.</p>
+        </div>
+
+        <!-- 4. Motivasi Belajar -->
+        <div class="form-row">
+          <div class="form-row-header">
+            <span class="form-row-label">4. Motivasi & Keaktifan Belajar di Cabang</span>
+            <span class="form-row-badge">Isian SA</span>
+          </div>
+          <textarea class="form-textarea" rows="2" id="note_motivasi">Siswa sopan dan kooperatif. Selama sesi Tatap Muka Belajar aktif mencatat, namun masih malu bertanya di kelas besar. Belum rutin memanfaatkan Klinik PR untuk konsultasi kesulitan soal secara tatap muka.</textarea>
+          <p class="form-helper-text">Uraikan keaktifan di kelas, partisipasi Klinik PR, atau kesibukan les luar sekolah.</p>
+        </div>
+
+        <!-- 5. Kekuatan & Kelemahan Belajar -->
+        <div class="form-row">
+          <div class="form-row-header">
+            <span class="form-row-label">5. Kekuatan dan Kelemahan Belajar (Hasil TO 4)</span>
+            <span class="form-row-badge autofill">Autofill • Editable</span>
+          </div>
+          <textarea class="form-textarea" rows="2" id="note_kekuatan">Kekuatan: PPU (642) dan Literasi Bahasa Inggris (610) sudah berada di atas target rata-rata prodi.
+Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih jauh di bawah target passing grade.</textarea>
+          <p class="form-helper-text">Sistem membatasi evaluasi pada subtes terkuat dan 3 subtes terendah.</p>
+        </div>
+
+        <!-- 6. Tantangan Belajar Siswa -->
+        <div class="form-row">
+          <div class="form-row-header">
+            <span class="form-row-label">6. Tantangan dan Hambatan Belajar</span>
+            <span class="form-row-badge">Isian SA</span>
+          </div>
+          <textarea class="form-textarea" rows="2" id="note_tantangan">Siswa mengalami kelelahan karena jadwal sekolah padat menjelang ujian akhir semester 5. Terdapat sedikit kekhawatiran dari siswa terkait ekspektasi orang tua yang menginginkan jurusan teknik, sementara minat terdalam siswa ada pada farmasi.</textarea>
+          <p class="form-helper-text">Ceritakan kondisi riil siswa: hambatan manajemen waktu, kejenuhan, atau dinamika keluarga.</p>
+        </div>
+
+        <!-- 7. Rancangan Tindak Lanjut -->
+        <div class="form-row">
+          <div class="form-row-header">
+            <span class="form-row-label">7. Rancangan Tindak Lanjut (Action Plan)</span>
+            <span class="form-row-badge">Kesepakatan Sesi</span>
+          </div>
+          <textarea class="form-textarea" rows="3" id="note_action">1. Alihkan 80% kuota drill aplikasi Ruangguru harian ke paket latihan Penalaran Umum & Pengetahuan Kuantitatif (target 15 butir/hari).
+2. Siswa wajib mendaftar sesi Klinik PR minimal 2x seminggu untuk membedah materi Silogisme & Aljabar.
+3. Menetapkan target rebound skor TO Reguler Episode 5 ke angka minimal 585 poin.</textarea>
+          <p class="form-helper-text">Rencana aksi spesifik yang akan dipantau oleh Kakak Asuh hingga Checkpoint berikutnya.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <a href="#step6" class="btn btn-outline" style="font-size: 12.5px; padding: 6px 16px;">
+          Lanjut ke Tahap 6: Kesepakatan & PDF ↓
+        </a>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAHAP 6: Kesepakatan 3 Pihak & Finalisasi  -->
+    <!-- ========================================== -->
+    <section class="section-block" id="step6">
+      <div class="sa-prompt-card">
+        <div class="sa-prompt-header">
+          <span class="sa-prompt-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            Panduan SA: Penutupan & Komitmen 3 Pihak
+          </span>
+          <span style="font-size: 11px; font-weight: 600; color: #1e40af;">Fokus: Penandatanganan & Kunci Dokumen</span>
+        </div>
+        <ul class="sa-prompt-list">
+          <li><strong>Konfirmasi 3 Pihak:</strong> Bacakan ringkasan action plan kepada siswa dan orang tua. Pastikan orang tua merasa didengar dan siswa merasa didukung.</li>
+          <li><strong>Checklist Persetujuan:</strong> Centang konfirmasi persetujuan dari Siswa, Orang Tua, dan SA di bawah.</li>
+          <li><strong>Cetak & Kunci:</strong> Unduh atau cetak dokumen PDF sebagai "oleh-oleh" resmi konsultasi untuk keluarga, lalu klik tombol <em>Finalisasi & Kunci Data</em>.</li>
+        </ul>
+      </div>
+
+      <div class="section-header">
+        <h2 class="section-title">6. Lembar Kesepakatan & Rencana Lanjutan Checkpoint 1</h2>
+        <span class="section-tag">Status: Siap Ditandatangani</span>
+      </div>
+
+      <!-- Action Plan Summary -->
+      <div class="table-container" style="margin-bottom: 24px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 15%;">Bidang Aksi</th>
+              <th>Target Komitmen Belajar</th>
+              <th style="width: 25%;">Jadwal / Frekuensi</th>
+              <th style="width: 20%;">Penanggung Jawab</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Drill Terarah</strong></td>
+              <td>Mengerjakan 15 butir soal/hari khusus subtes PU dan PK</td>
+              <td>Setiap hari (Senin–Jumat)</td>
+              <td>Siswa (Mandiri di App)</td>
+            </tr>
+            <tr>
+              <td><strong>Klinik PR</strong></td>
+              <td>Konsultasi tatap muka materi Silogisme & Aljabar Dasar</td>
+              <td>Minimal 2x per minggu</td>
+              <td>Siswa & Master Teacher</td>
+            </tr>
+            <tr>
+              <td><strong>Tryout Wajib</strong></td>
+              <td>Mengikuti TO Reguler Episode 5 dengan target skor minimal 585</td>
+              <td>Jadwal TO Desember</td>
+              <td>Siswa & Kakak Asuh</td>
+            </tr>
+            <tr>
+              <td><strong>Review Pilihan</strong></td>
+              <td>Evaluasi ulang peluang SNBP berdasarkan rilis kuota eligible sekolah</td>
+              <td>Minggu ke-4 Desember 2026</td>
+              <td>Kakak Asuh & Orang Tua</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 3-Party Signoff Block -->
+      <div class="signoff-card">
+        <p class="signoff-statement">
+          "Dengan mengonfirmasi dan menandatangani dokumen ini, Siswa, Orang Tua / Wali, dan Kakak Asuh Brain Academy menyatakan telah berdiskusi, memahami posisi capaian akademik hasil 4 Tryout, dan bersepakat mengenai target program studi serta rencana aksi belajar Checkpoint 1."
+        </p>
+
+        <div class="signoff-grid">
+          <!-- Siswa -->
+          <div class="signoff-box">
+            <div class="signoff-avatar-icon">🎓</div>
+            <div class="signoff-role">Siswa</div>
+            <div class="signoff-name">Garuda Mahawira Sena</div>
+            <label class="signoff-checkbox-label">
+              <input type="checkbox" checked id="signSiswa">
+              <span>✓ Terverifikasi Setuju</span>
+            </label>
+          </div>
+
+          <!-- Orang Tua -->
+          <div class="signoff-box">
+            <div class="signoff-avatar-icon">👨‍👩‍👦</div>
+            <div class="signoff-role">Orang Tua / Wali</div>
+            <div class="signoff-name">Bambang Sena</div>
+            <label class="signoff-checkbox-label">
+              <input type="checkbox" checked id="signOrtu">
+              <span>✓ Terverifikasi Setuju</span>
+            </label>
+          </div>
+
+          <!-- Kakak Asuh -->
+          <div class="signoff-box">
+            <div class="signoff-avatar-icon">📋</div>
+            <div class="signoff-role">Kakak Asuh / SA</div>
+            <div class="signoff-name">Nita Ayu Dwiyanti</div>
+            <label class="signoff-checkbox-label">
+              <input type="checkbox" checked id="signSA">
+              <span>✓ Terverifikasi Final</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button type="button" class="btn btn-back" onclick="goToStep(5)">← Kembali ke Tahap 5</button>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn btn-outline" onclick="window.print()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download PDF
+          </button>
+          <button type="button" class="btn btn-success" onclick="toggleLockState(true)">
+            ✓ Selesai & Kunci Konsultasi Checkpoint 1
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Side Drawer (Cheat Sheet & Contoh Kalimat Bantuan SA) -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer(false)"></div>
+  <aside class="drawer-sidebar" id="drawerSidebar">
+    <div class="drawer-header">
+      <h3>📖 Panduan & Contoh Isian SA</h3>
+      <button type="button" class="drawer-close" onclick="toggleDrawer(false)">✕</button>
+    </div>
+    <div class="drawer-body">
+      <p style="color: var(--muted); margin-top: 0;">Gunakan contekan kalimat profesional ini jika SA bingung merangkai kata saat mengisi catatan konsultasi:</p>
+
+      <div class="cheat-box">
+        <h4>1. Menjelaskan Skor Turun</h4>
+        <p><em>"Skor tryout anjlok bukan berarti anak malas, melainkan paket soal TO episode 3 dan 4 mulai menguji variasi konsep HOTS. Kita gunakan hasil ini sebagai kompas materi mana yang wajib diulang di klinik."</em></p>
+      </div>
+
+      <div class="cheat-box">
+        <h4>2. Mengatasi Beda Pilihan Ortu vs Anak</h4>
+        <p><em>"Aspirasi Ayah di Teknik Mesin dan cita-cita Garuda di Farmasi dua-duanya sangat baik. Kita jadikan Farmasi sebagai target utama di Opsi 1, dan kita pasang Teknik/Kimia sebagai jaring pengaman di Opsi 2 dan 3."</em></p>
+      </div>
+
+      <div class="cheat-box">
+        <h4>3. Mengarahkan Kebiasaan Drill Soal</h4>
+        <p><em>"Aktivitas drill ananda sudah 31 sesi, ini bukti ananda punya disiplin. Namun agar nilainya melonjak di TO berikutnya, kita wajib mengalihkan latihan ke materi kuantitatif yang persentase benarnya masih di bawah 40%."</em></p>
+      </div>
+
+      <div class="cheat-box">
+        <h4>4. Contoh Kalimat Rencana Aksi (Action Plan)</h4>
+        <p><em>"1. Menyelesaikan 15 soal drill PU & PK setiap hari.<br>2. Hadir klinik PR minimal 2x seminggu untuk asistensi guru.<br>3. Target peningkatan skor minimal +40 poin pada TO Reguler Episode 5."</em></p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================== -->
+  <!-- EXACT PRINT TEMPLATE (#student-profiling-print-report)       -->
+  <!-- Renders seamlessly on Cmd+P / window.print() (2 Pages A4)     -->
+  <!-- ============================================================== -->
+  <main id="student-profiling-print-report" aria-hidden="true">
+    <!-- PAGE 1: Evaluasi Pilihan, Tren TO & Target Subtes -->
+    <section class="profiling-print-page">
+      <header class="profiling-print-document-header" style="margin-bottom: 3mm;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2mm;">
+          <span style="font-size: 11px; font-weight: 700; color: #1078ca;">BRAIN ACADEMY BY RUANGGURU</span>
+          <span style="font-size: 9px; color: #64748b;">Dokumen Resmi Konsultasi Siswa</span>
+        </div>
+        <div class="profiling-print-header">
+          <div>
+            <h1 class="profiling-print-title">LAPORAN KONSULTASI CHECKPOINT 1</h1>
+            <p class="profiling-print-subtitle">Evaluasi Progres 4 Tryout, Diagnostik Subtes, dan Target SNBP/SNBT</p>
+          </div>
+          <div class="profiling-print-pathway">JALUR UTBK-SNBT 2026/2027</div>
+        </div>
+      </header>
+
+      <!-- Identitas Siswa -->
+      <div class="profiling-print-section">
+        <table class="profiling-print-table" style="margin-bottom: 3mm;">
+          <tbody>
+            <tr>
+              <td style="width: 18%; background: #edf5f9; font-weight: 700;">Nama Siswa</td>
+              <td style="width: 32%;">Garuda Mahawira Sena</td>
+              <td style="width: 18%; background: #edf5f9; font-weight: 700;">Asal Sekolah</td>
+              <td style="width: 32%;">SMAN 1 Depok (Jawa Barat)</td>
+            </tr>
+            <tr>
+              <td style="background: #edf5f9; font-weight: 700;">Cabang / Kelas</td>
+              <td>Depok - Margonda (12 SMA)</td>
+              <td style="background: #edf5f9; font-weight: 700;">Kakak Asuh / SA</td>
+              <td>Nita Ayu Dwiyanti</td>
+            </tr>
+            <tr>
+              <td style="background: #edf5f9; font-weight: 700;">Rata-rata 4 TO</td>
+              <td><strong>571 Poin</strong> (Trend: 601 → 546)</td>
+              <td style="background: #edf5f9; font-weight: 700;">Rata-rata Rapor Smt 1-5</td>
+              <td><strong>88.1 / 100</strong> (Eligible SNBP)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 1. Formulasi Pilihan PTN -->
+      <div class="profiling-print-section">
+        <h2 class="profiling-print-section-title"><span style="margin-right: 2mm;">1.</span>Formulasi & Kesepakatan Pilihan PTN / Jurusan</h2>
+        <table class="profiling-print-table">
+          <thead>
+            <tr>
+              <th style="width: 12%;">Pilihan</th>
+              <th>Program Studi & Perguruan Tinggi</th>
+              <th style="width: 20%;">Passing Grade Target</th>
+              <th style="width: 20%;">Gap Skor Terkini</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="profiling-print-emphasis">Pilihan 1</td>
+              <td>S1 Farmasi — Universitas Gadjah Mada (UGM)</td>
+              <td class="profiling-print-number">672</td>
+              <td class="profiling-print-number" style="color: #b42318; font-weight: 700;">-126</td>
+            </tr>
+            <tr>
+              <td class="profiling-print-emphasis">Pilihan 2</td>
+              <td>S1 Farmasi — Universitas Indonesia (UI)</td>
+              <td class="profiling-print-number">665</td>
+              <td class="profiling-print-number" style="color: #b42318; font-weight: 700;">-119</td>
+            </tr>
+            <tr>
+              <td class="profiling-print-emphasis">Cadangan</td>
+              <td>S1 Kimia — Universitas Indonesia (UI)</td>
+              <td class="profiling-print-number">585</td>
+              <td class="profiling-print-number" style="color: #027a48; font-weight: 700;">-39 (Realistis)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 2. Diagnostik Subtes Lemah & Topik Perbaikan -->
+      <div class="profiling-print-section">
+        <h2 class="profiling-print-section-title"><span style="margin-right: 2mm;">2.</span>Diagnostik 3 Subtes Terendah dan Topik Perlu Dibenahi</h2>
+        <table class="profiling-print-table">
+          <thead>
+            <tr>
+              <th style="width: 32%;">Subtes UTBK</th>
+              <th style="width: 14%; text-align: center;">Skor TO 4</th>
+              <th style="width: 14%; text-align: center;">Target Skor</th>
+              <th>Topik Materi Prioritas Perbaikan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight: 700; color: #b42318;">Penalaran Umum (PU)</td>
+              <td style="text-align: center; font-weight: 700; color: #b42318;">465</td>
+              <td style="text-align: center;">680</td>
+              <td>Penalaran Induktif (32% benar), Silogisme & Logika Deduktif</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 700; color: #b42318;">Pengetahuan Kuantitatif (PK)</td>
+              <td style="text-align: center; font-weight: 700; color: #b42318;">488</td>
+              <td style="text-align: center;">670</td>
+              <td>Aljabar Dasar & Fungsi Pecahan, Peluang, Geometri Dasar</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 700; color: #b54708;">Literasi B. Indonesia (LBI)</td>
+              <td style="text-align: center; font-weight: 700; color: #b54708;">505</td>
+              <td style="text-align: center;">660</td>
+              <td>Mengevaluasi Bias Wacana, Menemukan Makna Tersirat Kalimat</td>
+            </tr>
+            <tr>
+              <td style="color: #027a48;">Pemahaman Umum & B. Inggris</td>
+              <td style="text-align: center; font-weight: 700; color: #027a48;">642 / 610</td>
+              <td style="text-align: center;">600+</td>
+              <td>Kategori aman. Pertahankan ritme latihan saat ini.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="profiling-print-footer">
+        <div><strong>Copyright © 2026 - PT Ruang Raya Indonesia.</strong> Seluruh hak cipta dilindungi.</div>
+        <div>Halaman 1 dari 2</div>
+      </footer>
+    </section>
+
+    <!-- PAGE 2: Action Plan & Lembar Tanda Tangan 3 Pihak -->
+    <section class="profiling-print-page">
+      <header class="profiling-print-document-header" style="margin-bottom: 3mm;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2mm;">
+          <span style="font-size: 11px; font-weight: 700; color: #1078ca;">BRAIN ACADEMY BY RUANGGURU</span>
+          <span style="font-size: 9px; color: #64748b;">Dokumen Resmi Konsultasi Siswa</span>
+        </div>
+        <div class="profiling-print-header">
+          <div>
+            <h1 class="profiling-print-title">LAPORAN KONSULTASI CHECKPOINT 1</h1>
+            <p class="profiling-print-subtitle">Rencana Tindak Lanjut Akademik dan Lembar Kesepakatan Bersama</p>
+          </div>
+          <div class="profiling-print-pathway">HALAMAN FINAL</div>
+        </div>
+      </header>
+
+      <!-- 3. Rencana Tindak Lanjut -->
+      <div class="profiling-print-section">
+        <h2 class="profiling-print-section-title"><span style="margin-right: 2mm;">3.</span>Rencana Aksi & Jadwal Tindak Lanjut Belajar</h2>
+        <ol class="profiling-print-action-list">
+          <li><strong>Realokasi Latihan Drill Soal:</strong> Mengalihkan 80% kuota drill aplikasi harian khusus ke subtes Penalaran Umum (PU) dan Pengetahuan Kuantitatif (PK), dengan target 15 butir soal setiap hari (Senin–Jumat).</li>
+          <li><strong>Klinik PR Pendalaman Konsep:</strong> Siswa berkomitmen hadir sesi Klinik PR minimal 2x seminggu di cabang Depok Margonda bersama Master Teacher Matematika & Penalaran.</li>
+          <li><strong>Target Rebound Skor TO 5:</strong> Memasang target peningkatan skor Tryout Reguler Episode 5 menjadi minimal 585 poin (+39 poin dari skor saat ini).</li>
+          <li><strong>Sinkronisasi Kuota SNBP:</strong> Meninjau kembali eligibilitas sekolah pada akhir Desember 2026 bersama orang tua untuk menentukan finalisasi pendaftaran jalur prestasi.</li>
+        </ol>
+      </div>
+
+      <!-- 4. Lembar Kesepakatan 3 Pihak -->
+      <div class="profiling-print-section" style="margin-top: 6mm;">
+        <h2 class="profiling-print-section-title"><span style="margin-right: 2mm;">4.</span>Lembar Kesepakatan Bersama</h2>
+        <p class="profiling-print-agreement">
+          "Dengan menandatangani lembar ini, Siswa, Orang Tua / Wali, dan Kakak Asuh menyatakan telah berdiskusi, memahami hasil evaluasi belajar 4 Tryout, dan bersepakat mengenai target pilihan program studi serta rencana tindak lanjut belajar Checkpoint 1."
+        </p>
+
+        <div class="profiling-print-signatures">
+          <div>
+            <div class="profiling-print-signature-name">Garuda Mahawira Sena</div>
+            <div class="profiling-print-signature-role">Siswa</div>
+          </div>
+          <div>
+            <div class="profiling-print-signature-name">Bambang Sena</div>
+            <div class="profiling-print-signature-role">Orang Tua / Wali Siswa</div>
+          </div>
+          <div>
+            <div class="profiling-print-signature-name">Nita Ayu Dwiyanti</div>
+            <div class="profiling-print-signature-role">Kakak Asuh Brain Academy</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="profiling-print-footer">
+        <div><strong>Copyright © 2026 - PT Ruang Raya Indonesia.</strong> Dokumen hasil sesi konsultasi terdaftar resmi.</div>
+        <div>Halaman 2 dari 2</div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    // State Management
+    let isLocked = false;
+
+
+    // ==========================================
+    // Interactive SVG Chart Data & Engine
+    // ==========================================
+    const chartDatasets = {
+      total: {
+        name: "Skor Total UTBK",
+        scores: [601, 576, 561, 546],
+        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
+        target: 672,
+        targetName: "Target Farmasi UGM",
+        minY: 450,
+        maxY: 700,
+        trendNote: "Tren Menurun (-55 Poin)",
+        trendBad: true
+      },
+      pu: {
+        name: "Penalaran Umum (PU)",
+        scores: [580, 520, 490, 465],
+        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
+        target: 680,
+        targetName: "Target Subtes PU",
+        minY: 400,
+        maxY: 700,
+        trendNote: "Penurunan Kritis (-115 Poin)",
+        trendBad: true
+      },
+      pk: {
+        name: "Pengetahuan Kuantitatif (PK)",
+        scores: [560, 530, 505, 488],
+        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
+        target: 670,
+        targetName: "Target Subtes PK",
+        minY: 400,
+        maxY: 700,
+        trendNote: "Perlu Penguatan (-72 Poin)",
+        trendBad: true
+      },
+      lbi: {
+        name: "Literasi B. Indonesia (LBI)",
+        scores: [550, 540, 520, 505],
+        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
+        target: 660,
+        targetName: "Target Subtes LBI",
+        minY: 400,
+        maxY: 700,
+        trendNote: "Tren Menurun (-45 Poin)",
+        trendBad: true
+      },
+      ppu: {
+        name: "Pemahaman Umum (PPU)",
+        scores: [610, 630, 635, 642],
+        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
+        target: 620,
+        targetName: "Target Subtes PPU",
+        minY: 550,
+        maxY: 700,
+        trendNote: "Tren Naik / Aman (+32 Poin)",
+        trendBad: false
+      },
+      lbe: {
+        name: "Literasi B. Inggris (LBE)",
+        scores: [590, 605, 600, 610],
+        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
+        target: 600,
+        targetName: "Target Subtes LBE",
+        minY: 550,
+        maxY: 700,
+        trendNote: "Stabil Aman (+20 Poin)",
+        trendBad: false
+      }
+    };
+
+    function updateChartSeries(key) {
+      const data = chartDatasets[key] || chartDatasets.total;
+
+      // Update badge
+      const badge = document.getElementById("chartTrendBadge");
+      badge.innerText = data.trendNote;
+      if (data.trendBad) {
+        badge.style.background = "#fef3f2";
+        badge.style.color = "#b42318";
+      } else {
+        badge.style.background = "#edfcf2";
+        badge.style.color = "#027a48";
+      }
+
+      // Update legends
+      document.getElementById("chartTargetLegend").innerText = `${data.targetName}: ${data.target}`;
+      const mean = Math.round(data.scores.reduce((a,b) => a+b, 0) / data.scores.length);
+      document.getElementById("chartMeanLegend").innerText = `Rata-rata 4 TO: ${mean}`;
+
+      // Coordinate mapping
+      // Chart canvas: width 860, height 250
+      // Left 60, Right 820, Top 30, Bottom 200
+      const leftX = 80;
+      const rightX = 810;
+      const topY = 30;
+      const botY = 200;
+      const minY = data.minY;
+      const maxY = data.maxY;
+
+      function getY(val) {
+        return botY - ((val - minY) / (maxY - minY)) * (botY - topY);
+      }
+
+      function getX(idx) {
+        return leftX + (idx * ((rightX - leftX) / (data.scores.length - 1)));
+      }
+
+      // Draw Grid Lines & Y labels (step 50)
+      let gridHtml = "";
+      for (let v = minY; v <= maxY; v += 50) {
+        const y = getY(v);
+        gridHtml += `<line x1="${leftX}" y1="${y}" x2="${rightX}" y2="${y}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,2"/>`;
+        gridHtml += `<text x="${leftX - 10}" y="${y + 4}" fill="#64748b" font-size="11" font-weight="600" text-anchor="end">${v}</text>`;
+      }
+      document.getElementById("svgGridLines").innerHTML = gridHtml;
+
+      // Draw Target Line (Red Dashed)
+      const targetY = getY(data.target);
+      let targetHtml = `<line x1="${leftX}" y1="${targetY}" x2="${rightX}" y2="${targetY}" stroke="#b42318" stroke-width="1.8" stroke-dasharray="5,4"/>`;
+      targetHtml += `<text x="${rightX}" y="${targetY - 6}" fill="#b42318" font-size="11" font-weight="700" text-anchor="end">Target: ${data.target}</text>`;
+      document.getElementById("svgTargetLine").innerHTML = targetHtml;
+
+      // Draw Mean Line (Gray Dashed)
+      const meanY = getY(mean);
+      let meanHtml = `<line x1="${leftX}" y1="${meanY}" x2="${rightX}" y2="${meanY}" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+      meanHtml += `<text x="${leftX + 8}" y="${meanY - 6}" fill="#64748b" font-size="10.5" font-weight="600">Rata-rata: ${mean}</text>`;
+      document.getElementById("svgMeanLine").innerHTML = meanHtml;
+
+      // Calculate Points
+      const points = data.scores.map((s, idx) => ({
+        x: getX(idx),
+        y: getY(s),
+        score: s,
+        date: data.dates[idx]
+      }));
+
+      // Polyline & Area
+      const polyPts = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+      document.getElementById("svgPolyline").setAttribute("points", polyPts);
+      const areaPts = `${points[0].x.toFixed(1)},${botY} ` + polyPts + ` ${points[points.length-1].x.toFixed(1)},${botY}`;
+      document.getElementById("svgAreaPolygon").setAttribute("points", areaPts);
+
+      // Points Group
+      let pointsHtml = "";
+      points.forEach((p, idx) => {
+        const isLatest = idx === points.length - 1;
+        const circleColor = isLatest && data.trendBad ? "#b42318" : "#0284c7";
+        const badgeBg = isLatest && data.trendBad ? "#fef3f2" : "#ffffff";
+        const badgeBorder = isLatest && data.trendBad ? "#fecdca" : "#0284c7";
+        const badgeText = isLatest && data.trendBad ? "#b42318" : "#0284c7";
+
+        // Dot
+        pointsHtml += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#ffffff" stroke="${circleColor}" stroke-width="3"/>`;
+        if (isLatest) {
+          pointsHtml += `<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="${circleColor}"/>`;
+        }
+
+        // Score Badge above dot
+        pointsHtml += `<g transform="translate(${p.x}, ${p.y - 14})">
+          <rect x="-24" y="-18" width="48" height="20" rx="4" fill="${badgeBg}" stroke="${badgeBorder}" stroke-width="1.2"/>
+          <text x="0" y="-4" fill="${badgeText}" font-size="12" font-weight="700" text-anchor="middle">${p.score}</text>
+        </g>`;
+      });
+      document.getElementById("svgPointsGroup").innerHTML = pointsHtml;
+
+      // X-Axis Labels
+      let xLabelsHtml = "";
+      points.forEach(p => {
+        xLabelsHtml += `<text x="${p.x}" y="${botY + 22}" fill="#334155" font-size="11.5" font-weight="600" text-anchor="middle">${p.date}</text>`;
+      });
+      document.getElementById("svgXLabels").innerHTML = xLabelsHtml;
+
+      // Stat Boxes
+      let statBoxesHtml = "";
+      data.scores.forEach((s, idx) => {
+        const delta = idx === 0 ? "Baseline" : (s - data.scores[idx-1] >= 0 ? `+${s - data.scores[idx-1]} poin` : `${s - data.scores[idx-1]} poin`);
+        const deltaColor = idx === 0 ? "#059669" : (s - data.scores[idx-1] >= 0 ? "#059669" : "#b42318");
+        const isLatest = idx === data.scores.length - 1;
+        const boxBorder = isLatest && data.trendBad ? "#fedf89" : "var(--border)";
+        const boxBg = isLatest && data.trendBad ? "#fffcf5" : "#ffffff";
+
+        statBoxesHtml += `
+          <div style="background: ${boxBg}; border: 1px solid ${boxBorder}; border-radius: 8px; padding: 12px 8px;">
+            <div style="font-size: 11.5px; color: var(--muted); font-weight: 600;">${data.dates[idx]}</div>
+            <div style="font-size: 22px; font-weight: 800; color: ${isLatest && data.trendBad ? "#b42318" : "#1e293b"}; margin: 4px 0 2px;">${s}</div>
+            <div style="font-size: 11px; color: ${deltaColor}; font-weight: 700;">${delta}</div>
+          </div>
+        `;
+      });
+      document.getElementById("chartStatBoxes").innerHTML = statBoxesHtml;
+    }
+
+    // Initialize chart on page load
+    window.addEventListener("DOMContentLoaded", () => {
+      const initialSubtest = urlParams.get("subtest") || "total";
+      updateChartSeries(initialSubtest);
+      const sel = document.getElementById("chartFilterSelect");
+      if (sel) sel.value = initialSubtest;
+    });
+
+    // Scroll-Spy for Quick-Jump Nav
+    const stepSections = document.querySelectorAll('.section-block');
+    const navPills = document.querySelectorAll('.jump-pill');
+
+    function onScrollSpy() {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      const offsetMargin = 160;
+
+      let currentId = 'step1';
+      stepSections.forEach(section => {
+        const top = section.offsetTop - offsetMargin;
+        if (scrollY >= top) {
+          currentId = section.getAttribute('id');
+        }
+      });
+
+      navPills.forEach(pill => {
+        if (pill.getAttribute('data-target') === currentId) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', onScrollSpy);
+    window.addEventListener('DOMContentLoaded', onScrollSpy);
+
+    // Side Drawer for SA Cheat Sheet
+    function toggleDrawer(open) {
+      const overlay = document.getElementById('drawerOverlay');
+      const sidebar = document.getElementById('drawerSidebar');
+      if (open) {
+        overlay.classList.add('open');
+        sidebar.classList.add('open');
+      } else {
+        overlay.classList.remove('open');
+        sidebar.classList.remove('open');
+      }
+    }
+
+    // Lock State Toggle
+    function toggleLockState(forceLock) {
+      if (typeof forceLock === 'boolean') {
+        isLocked = forceLock;
+      } else {
+        isLocked = !isLocked;
+      }
+
+      const badge = document.getElementById('statusBadge');
+      const btn = document.getElementById('btnLockToggle');
+      const btnLabel = document.getElementById('lockButtonLabel');
+
+      if (isLocked) {
+        badge.className = 'badge badge-locked';
+        badge.innerText = 'Terkunci (Final)';
+        btn.className = 'btn btn-outline';
+        btnLabel.innerText = 'Buka Kunci Data';
+        alert('Konsultasi Checkpoint 1 telah difinalisasi dan dikunci! Lembar PDF siap dicetak untuk orang tua.');
+      } else {
+        badge.className = 'badge badge-draft';
+        badge.innerText = 'Draft Checkpoint 1';
+        btn.className = 'btn btn-primary';
+        btnLabel.innerText = 'Finalisasi & Kunci Data';
+      }
+    }
+
+    // Rapor Average Calculation
+    function calculateRaporAverage() {
+      const bindo = parseFloat(document.getElementById('rapor_bindo').value) || 0;
+      const bing = parseFloat(document.getElementById('rapor_bing').value) || 0;
+      const mat = parseFloat(document.getElementById('rapor_mat').value) || 0;
+      const fis = parseFloat(document.getElementById('rapor_fis').value) || 0;
+      const kim = parseFloat(document.getElementById('rapor_kim').value) || 0;
+      const bio = parseFloat(document.getElementById('rapor_bio').value) || 0;
+
+      // historical sums (smt 1-4)
+      // bindo: 86+87+90+90 = 353
+      document.getElementById('avg_bindo').innerText = ((353 + bindo) / 5).toFixed(1);
+      // bing: 87+88+89+90 = 354
+      document.getElementById('avg_bing').innerText = ((354 + bing) / 5).toFixed(1);
+      // mat: 84+86+87+88 = 345
+      document.getElementById('avg_mat').innerText = ((345 + mat) / 5).toFixed(1);
+      // fis: 85+86+88+87 = 346
+      document.getElementById('avg_fis').innerText = ((346 + fis) / 5).toFixed(1);
+      // kim: 88+89+90+91 = 358
+      document.getElementById('avg_kim').innerText = ((358 + kim) / 5).toFixed(1);
+      // bio: 87+88+89+90 = 354
+      document.getElementById('avg_bio').innerText = ((354 + bio) / 5).toFixed(1);
+
+      const totalAvg = ((353 + bindo + 354 + bing + 345 + mat + 346 + fis + 358 + kim + 354 + bio) / 30).toFixed(1);
+      document.getElementById('grand_rapor_avg').innerText = totalAvg + ' / 100';
+    }
+
+    // Simulation Modal Placeholder
+    function openSimulationModal() {
+      alert('Membuka Fitur Simulasi Super CMS:\n\n• Profil: Garuda Mahawira Sena\n• Rata-rata Skor TO: 571\n• Pilihan 1: S1 Farmasi UGM (Passing Grade 672)\n• Pilihan 2: S1 Farmasi UI (Passing Grade 665)\n• Cadangan: S1 Kimia UI (Passing Grade 585)\n\nDisclaimer: Hasil simulasi merupakan acuan target belajar internal Ruangguru.');
+    }
+  
+    // Choice Detail Modal Data & Logic
+    const choiceDetailsData = {
+      ugm: {
+        orderBadge: 'Pilihan 1 · Impian Siswa',
+        orderBadgeStyle: 'background: #eff8ff; color: #175cd3;',
+        degree: 'S1',
+        title: 'S1 Farmasi — Universitas Gadjah Mada (UGM)',
+        meta: 'Sleman, D.I. Yogyakarta • Daya Tampung SNBT 2026: 44 kursi • Peminat SNBT 2025: 2.412 • Keketatan: 1.82%',
+        rank: '17 dari 69 pemilih (Persentil 76% di Ruangguru)',
+        highest: '713 (Selisih dari tertinggi: -167 poin)',
+        pg: '672 (Rata-rata Garuda: 571, Gap: -101)',
+        weighted: '668.41 (Acuan bobot internal Ruangguru)',
+        subtests: [
+          { name: 'Penalaran Umum (PU)', garuda: 465, target: 734, gap: -269 },
+          { name: 'Pengetahuan Kuantitatif (PK)', garuda: 488, target: 768, gap: -280 },
+          { name: 'Literasi B. Indonesia (LBI)', garuda: 505, target: 653, gap: -148 },
+          { name: 'Penalaran Matematika (PM)', garuda: 565, target: 770, gap: -205 }
+        ],
+        saNote: 'Garuda sangat termotivasi di Farmasi UGM dan orang tua memberi izin lokasi di Yogyakarta. Posisi 17 dari 69 menunjukkan potensi kelompok atas, namun gap di PU & PK masih sangat lebar. Arahkan siswa mengejar target bertahap (+50 s.d. +70 poin/TO) dengan disiplin drill harian di 2 subtes ini.'
+      },
+      ui: {
+        orderBadge: 'Pilihan 2 · Alternatif Siswa',
+        orderBadgeStyle: 'background: #e0f2fe; color: #0369a1;',
+        degree: 'S1',
+        title: 'S1 Farmasi — Universitas Indonesia (UI)',
+        meta: 'Depok, Jawa Barat • Daya Tampung SNBT 2026: 32 kursi • Peminat SNBT 2025: 1.984 • Keketatan: 1.61%',
+        rank: '10 dari 41 pemilih (Persentil 75% di Ruangguru)',
+        highest: '718 (Selisih dari tertinggi: -172 poin)',
+        pg: '665 (Rata-rata Garuda: 571, Gap: -94)',
+        weighted: '655.56 (Acuan bobot internal Ruangguru)',
+        subtests: [
+          { name: 'Penalaran Umum (PU)', garuda: 465, target: 772, gap: -307 },
+          { name: 'Pengetahuan Kuantitatif (PK)', garuda: 488, target: 734, gap: -246 },
+          { name: 'Literasi B. Indonesia (LBI)', garuda: 505, target: 604, gap: -99 },
+          { name: 'Penalaran Matematika (PM)', garuda: 565, target: 731, gap: -166 }
+        ],
+        saNote: 'Passing grade Farmasi UI (665) hanya terpaut 7 poin di bawah UGM (672). Menjadikan Farmasi UI sebagai Pilihan 2 tidak memberikan bantalan pengaman yang cukup. SA wajib mengusulkan opsi cadangan rasional di kisaran 580–615.'
+      },
+      itb: {
+        orderBadge: 'Pilihan 3 · Aspirasi Orang Tua',
+        orderBadgeStyle: 'background: #fffcf5; color: #b54708;',
+        degree: 'S1',
+        title: 'S1 Teknik Mesin — Institut Teknologi Bandung (ITB)',
+        meta: 'Bandung, Jawa Barat • Daya Tampung SNBT 2026: 75 kursi • Peminat SNBT 2025: 1.620 • Keketatan: 4.63%',
+        rank: '22 dari 85 pemilih (Persentil 74% di Ruangguru)',
+        highest: '698 (Selisih dari tertinggi: -152 poin)',
+        pg: '650 (Rata-rata Garuda: 571, Gap: -79)',
+        weighted: '642.50 (Acuan bobot internal Ruangguru)',
+        subtests: [
+          { name: 'Penalaran Matematika (PM)', garuda: 565, target: 755, gap: -190 },
+          { name: 'Pengetahuan Kuantitatif (PK)', garuda: 488, target: 742, gap: -254 },
+          { name: 'Penalaran Umum (PU)', garuda: 465, target: 715, gap: -250 },
+          { name: 'Literasi B. Inggris (LBE)', garuda: 610, target: 668, gap: -58 }
+        ],
+        saNote: 'Jurusan usulan ayah Garuda. Kuota relatif lebih banyak (75 kursi). Cocok sebagai bahan kompromi keluarga bila Garuda bersedia membuka peluang di bidang rekayasa/teknik.'
+      }
+    };
+
+    function openChoiceModal(choiceId) {
+      const data = choiceDetailsData[choiceId];
+      if (!data) return;
+      document.getElementById('modalChoiceOrderBadge').innerText = data.orderBadge;
+      document.getElementById('modalChoiceOrderBadge').style = data.orderBadgeStyle + '; font-weight: 700;';
+      document.getElementById('modalChoiceDegreeBadge').innerText = data.degree;
+      document.getElementById('modalChoiceTitle').innerText = data.title;
+      document.getElementById('modalChoiceMeta').innerText = data.meta;
+
+      let subtestsHtml = data.subtests.map(s => `
+        <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; background: #fafafa;">
+          <div style="display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 700; color: #475467; margin-bottom: 6px;">
+            <span>${s.name}</span>
+            <span style="color: ${s.gap < -200 ? '#b42318' : '#b54708'}; font-weight: 700;">Gap ${s.gap}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+            <span>Skor Garuda: <strong>${s.garuda}</strong></span>
+            <span style="color: var(--muted);">Acuan Pesaing: <strong>${s.target}</strong></span>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('modalChoiceBody').innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 18px;">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">Posisi Peringkat Leaderboard</div>
+            <div style="font-size: 17px; font-weight: 700; color: #1078ca; margin-top: 2px;">${data.rank}</div>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">Nilai Tertinggi Peserta Leaderboard</div>
+            <div style="font-size: 17px; font-weight: 700; color: var(--ink); margin-top: 2px;">${data.highest}</div>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">Passing Grade SNBT Resmi</div>
+            <div style="font-size: 17px; font-weight: 700; color: var(--ink); margin-top: 2px;">${data.pg}</div>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">PG Weighted Score (Ruangguru)</div>
+            <div style="font-size: 17px; font-weight: 700; color: #027a48; margin-top: 2px;">${data.weighted}</div>
+          </div>
+        </div>
+
+        <h4 style="font-size: 13px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.02em; margin: 16px 0 10px;">
+          Subtes Penentu & Gap Nilai Tertinggi Pesaing:
+        </h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px;">
+          ${subtestsHtml}
+        </div>
+
+        <div style="background: #f8fafc; border-left: 4px solid #1078ca; border-radius: 6px; padding: 12px 16px; font-size: 13px; color: #334155; line-height: 1.5;">
+          <strong>Panduan Diskusi Kakak Asuh:</strong> ${data.saNote}
+        </div>
+      `;
+
+      const modal = document.getElementById('choiceModal');
+      if (typeof modal.showModal === 'function') {
+        modal.showModal();
+      } else {
+        modal.style.display = 'block';
+      }
+    }
+
+    function closeChoiceModal() {
+      const modal = document.getElementById('choiceModal');
+      if (typeof modal.close === 'function') {
+        modal.close();
+      } else {
+        modal.style.display = 'none';
+      }
+    }
+
+    // Check URL parameters for step or view
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("view") === "all") {
+      toggleViewMode(true);
+    } else if (urlParams.get("step")) {
+      goToStep(parseInt(urlParams.get("step")));
+    }
+    if (urlParams.get("drawer") === "open") {
+      toggleDrawer(true);
+    }
+    if (urlParams.get("choice")) {
+      openChoiceModal(urlParams.get("choice"));
+    }
+  </script>
+
+  <!-- Modal Dialog: Detail Analisis Pilihan Jurusan -->
+  <dialog id="choiceModal" style="border: 1px solid var(--border); border-radius: 12px; padding: 0; max-width: 720px; width: 90vw; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); background: #fff; margin: auto;">
+    <div style="padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+      <div>
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+          <span id="modalChoiceOrderBadge" class="badge" style="background: #eff8ff; color: #175cd3; font-weight: 700;">Pilihan 1</span>
+          <span id="modalChoiceDegreeBadge" class="badge" style="background: #f1f5f9; color: #475467;">S1</span>
+        </div>
+        <h2 id="modalChoiceTitle" style="font-size: 17px; font-weight: 700; color: var(--ink); margin: 0;">S1 Farmasi — Universitas Gadjah Mada</h2>
+        <p id="modalChoiceMeta" style="font-size: 12.5px; color: var(--muted); margin: 4px 0 0;">Daya Tampung SNBT 2026: 44 · Peminat: 2.412 · Keketatan: 1.82%</p>
+      </div>
+      <button type="button" onclick="closeChoiceModal()" style="border: none; background: transparent; font-size: 22px; cursor: pointer; color: #64748b;">✕</button>
+    </div>
+    <div id="modalChoiceBody" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+      <!-- Content populated dynamically via JS -->
+    </div>
+    <div style="padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+      <span style="font-size: 12px; color: var(--muted);">Data Sesi Leaderboard Episode 4 • Ruangguru Super CMS</span>
+      <button type="button" class="btn btn-outline" onclick="closeChoiceModal()">Tutup</button>
+    </div>
+  </dialog>
+</body>
+</html>
