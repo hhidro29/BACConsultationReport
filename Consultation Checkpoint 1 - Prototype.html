@@ -1144,68 +1144,59 @@
         </ul>
       </div>
 
-      <div class="section-header">
-        <h2 class="section-title">1. Evaluasi Pilihan Kampus & Preferensi Keluarga</h2>
+      <div class="section-header" style="flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h2 class="section-title">1. Evaluasi Pilihan Kampus & Preferensi Keluarga</h2>
+          <p style="margin: 3px 0 0; font-size: 12.5px; color: var(--muted);">Pilih atau ubah jurusan & universitas pada tabel di bawah — seluruh analisis kesiapan, target skor, rapor pendukung, dan diagnostik subtes otomatis menyesuaikan.</p>
+        </div>
         <span class="section-tag">Jalur Utama: UTBK-SNBT & SNBP</span>
       </div>
 
       <div class="table-container">
-        <table class="data-table">
+        <table class="data-table" id="choicesTable">
           <thead>
             <tr>
-              <th style="width: 8%;">Prioritas</th>
-              <th>Program Studi & Perguruan Tinggi</th>
+              <th style="width: 9%;">Prioritas</th>
+              <th style="width: 34%;">Program Studi & Perguruan Tinggi (Bisa Diubah)</th>
               <th style="text-align: center;">Jenjang</th>
               <th>Status Aspirasi</th>
-              <th style="text-align: center;">Passing Grade</th>
+              <th style="text-align: center;">Acuan Skor RG</th>
               <th style="text-align: center;">Daya Tampung : Peminat</th>
               <th style="text-align: center;">Keketatan</th>
               <th style="text-align: center;">Top Leaderboard</th>
-              <th style="text-align: center; width: 14%;">Aksi Analisis</th>
+              <th style="text-align: center; width: 15%;">Tampilkan Analisis</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td><span style="font-weight: 700; color: #1078ca;">Pilihan 1</span></td>
-              <td><strong>Farmasi — Universitas Gadjah Mada (UGM)</strong></td>
-              <td style="text-align: center;">S1</td>
-              <td>Pilihan Utama Siswa</td>
-              <td style="text-align: center;"><strong>672</strong></td>
-              <td style="text-align: center; font-weight: 600;">44 : 2.412</td>
-              <td style="text-align: center;"><span class="badge" style="background: #fef3f2; color: #b42318; font-weight: 700;">1.82%</span></td>
-              <td style="text-align: center; font-weight: 700; color: #027a48;">718</td>
-              <td style="text-align: center;">
-                <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 4px 10px; color: #1078ca; border-color: #93c5fd; font-weight: 600; background: #eff8ff;" onclick="openChoiceModal('ugm')">Detail Analisis ➔</button>
-              </td>
-            </tr>
-            <tr>
-              <td><span style="font-weight: 700; color: #1078ca;">Pilihan 2</span></td>
-              <td><strong>Farmasi — Universitas Indonesia (UI)</strong></td>
-              <td style="text-align: center;">S1</td>
-              <td>Pilihan Alternatif Siswa</td>
-              <td style="text-align: center;"><strong>665</strong></td>
-              <td style="text-align: center; font-weight: 600;">32 : 1.984</td>
-              <td style="text-align: center;"><span class="badge" style="background: #fef3f2; color: #b42318; font-weight: 700;">1.61%</span></td>
-              <td style="text-align: center; font-weight: 700; color: #027a48;">712</td>
-              <td style="text-align: center;">
-                <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 4px 10px; color: #1078ca; border-color: #93c5fd; font-weight: 600; background: #eff8ff;" onclick="openChoiceModal('ui')">Detail Analisis ➔</button>
-              </td>
-            </tr>
-            <tr>
-              <td><span style="font-weight: 700; color: #b54708;">Pilihan 3</span></td>
-              <td><strong>Teknik Mesin — Institut Teknologi Bandung (ITB)</strong></td>
-              <td style="text-align: center;">S1</td>
-              <td>Aspirasi Orang Tua (Cadangan)</td>
-              <td style="text-align: center;"><strong>650</strong></td>
-              <td style="text-align: center; font-weight: 600;">75 : 1.620</td>
-              <td style="text-align: center;"><span class="badge" style="background: #fffcf5; color: #b54708; font-weight: 700;">4.63%</span></td>
-              <td style="text-align: center; font-weight: 700; color: #027a48;">698</td>
-              <td style="text-align: center;">
-                <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 4px 10px; color: #b54708; border-color: #fedf89; font-weight: 600; background: #fffcf5;" onclick="openChoiceModal('itb')">Detail Analisis ➔</button>
-              </td>
-            </tr>
+          <tbody id="choicesTableBody">
+            <!-- Dynamically rendered by renderChoicesTable() -->
           </tbody>
         </table>
+      </div>
+
+      <!-- Dynamic Choice-Driven Analysis Panel (Single Adaptive View) -->
+      <div id="dynamicChoiceAnalysisContainer" style="margin-top: 18px; border: 2px solid #93c5fd; border-radius: 10px; background: #ffffff; overflow: hidden; box-shadow: 0 4px 14px rgba(16, 120, 202, 0.08);">
+        <!-- Top Switcher Bar -->
+        <div style="background: #f0f7ff; padding: 12px 18px; border-bottom: 1px solid #bfdbfe; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 12px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.03em;">🎯 Tampilan Analisis Aktif:</span>
+            <div id="choiceSwitcherButtons" style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <!-- Buttons for Pilihan 1, Pilihan 2, Pilihan 3 -->
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="scoreBaselineSelect" style="font-size: 12px; font-weight: 600; color: #1e3a8a;">Acuan Skor Siswa:</label>
+            <select id="scoreBaselineSelect" class="table-input" style="width: auto; padding: 5px 10px; font-size: 12px; text-align: left; background: #fff; border-color: #93c5fd;" onchange="setScoreBaseline(this.value)">
+              <option value="latest">Nilai TO Terakhir (546)</option>
+              <option value="median">Nilai Tengah / Median 4 TO (568.5)</option>
+              <option value="mean">Rata-rata 4 TO (571)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dynamic Analysis Body -->
+        <div id="dynamicChoiceAnalysisBody" style="padding: 20px;">
+          <!-- Populated dynamically by renderActiveChoiceAnalysis() -->
+        </div>
       </div>
 
       <div style="margin-top: 24px;">
@@ -1285,17 +1276,17 @@
         <div class="metric-card">
           <div class="metric-card-label">Rata-rata 4 TO Reguler</div>
           <div class="metric-card-val">571</div>
-          <div class="metric-card-hint">Rentang: 546 – 601 poin</div>
+          <div class="metric-card-hint">Median 4 TO: <strong>568.5</strong> (546 – 601)</div>
         </div>
         <div class="metric-card">
           <div class="metric-card-label">Skor TO Terakhir (Episode 4)</div>
           <div class="metric-card-val" style="color: #b42318;">546</div>
           <div class="metric-card-hint metric-trend-down">↓ Turun 15 poin dari Ep 3</div>
         </div>
-        <div class="metric-card">
-          <div class="metric-card-label">Target Skor Farmasi UGM</div>
-          <div class="metric-card-val" style="color: #1078ca;">672</div>
-          <div class="metric-card-hint">Gap saat ini: <strong>-126 poin</strong></div>
+        <div class="metric-card" style="border-color: #93c5fd; background: #f0f9ff;">
+          <div class="metric-card-label" id="step2TargetCardLabel">Acuan Skor S1 Farmasi - UGM</div>
+          <div class="metric-card-val" style="color: #1078ca;" id="step2TargetCardVal">668.41</div>
+          <div class="metric-card-hint" id="step2TargetCardHint">Gap saat ini: <strong style="color: #b42318;">-122.41 poin</strong></div>
         </div>
         <div class="metric-card">
           <div class="metric-card-label">Kehadiran Kelas & Klinik</div>
@@ -1308,21 +1299,24 @@
       <div style="background: #ffffff; border: 1px solid var(--border); border-radius: 10px; padding: 22px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px;">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <span>📈 Grafik Tren Skor Tryout Reguler (Episode 1 – 4)</span>
               <span id="chartTrendBadge" class="badge" style="background: #fef3f2; color: #b42318; font-size: 11px; border: 1px solid #fedf89;">Tren Menurun (-55 Poin)</span>
+              <span id="chartActiveChoiceBadge" class="badge" style="background: #eff8ff; color: #175cd3; font-size: 11px;">Acuan: S1 Farmasi - UGM</span>
             </h3>
-            <p style="margin: 3px 0 0; font-size: 12.5px; color: var(--muted);">Visualisasi perkembangan skor 4 TO wajib untuk evaluasi kesiapan materi dan gap terhadap target prodi.</p>
+            <p style="margin: 3px 0 0; font-size: 12.5px; color: var(--muted);">Garis merah putus-putus otomatis menyesuaikan target acuan jurusan & universitas yang sedang dipilih.</p>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
             <label for="chartFilterSelect" style="font-size: 12px; color: var(--muted); font-weight: 600;">Pilih Subtes:</label>
             <select id="chartFilterSelect" class="table-input" style="width: auto; text-align: left; padding: 6px 12px; font-weight: 600; background: #f8fafc;" onchange="updateChartSeries(this.value)">
               <option value="total">Skor Total UTBK (601 → 546)</option>
-              <option value="pu">Penalaran Umum - PU (580 → 465)</option>
-              <option value="pk">Pengetahuan Kuantitatif - PK (560 → 488)</option>
-              <option value="lbi">Literasi B. Indonesia - LBI (550 → 505)</option>
-              <option value="ppu">Pemahaman Umum - PPU (610 → 642)</option>
-              <option value="lbe">Literasi B. Inggris - LBE (590 → 610)</option>
+              <option value="pu">Penalaran Umum - PU (567 → 465)</option>
+              <option value="pk">Pengetahuan Kuantitatif - PK (668 → 488)</option>
+              <option value="pm">Penalaran Matematika - PM (597 → 597)</option>
+              <option value="lbi">Literasi B. Indonesia - LBI (626 → 505)</option>
+              <option value="pbm">Pemahaman Bacaan & Menulis - PBM (553 → 554)</option>
+              <option value="lbe">Literasi B. Inggris - LBE (572 → 543)</option>
+              <option value="ppu">Pengetahuan & Pemahaman Umum - PPU (595 → 640)</option>
             </select>
           </div>
         </div>
@@ -1335,7 +1329,7 @@
           </div>
           <div style="display: flex; align-items: center; gap: 6px;">
             <span style="width: 16px; height: 0; border-top: 2px dashed #b42318; display: inline-block;"></span>
-            <span style="color: #b42318; font-weight: 600;" id="chartTargetLegend">Target Passing Grade: 672</span>
+            <span style="color: #b42318; font-weight: 600;" id="chartTargetLegend">Target Acuan Pilihan: 668.41</span>
           </div>
           <div style="display: flex; align-items: center; gap: 6px;">
             <span style="width: 16px; height: 0; border-top: 2px dashed #94a3b8; display: inline-block;"></span>
@@ -1375,91 +1369,64 @@
         </div>
       </div>
 
-      <!-- Tabel Nilai Rapor Semester 1 - 5 (Interactive Input) -->
+      <!-- Tabel Nilai Rapor Semester 1 - 5 (All 20 Subjects, All 5 Semesters Editable) -->
       <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
           <div>
-            <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--ink);">
-              Nilai Rapor Sekolah (Semester 1 s/d 5)
-              <span class="pill-smt5">Smt 5 Aktif Diedit</span>
+            <h3 style="margin: 0; font-size: 14.5px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span>Nilai Rapor Sekolah Lengkap (20 Mata Pelajaran • Semester 1 s/d 5)</span>
+              <span class="pill-smt5">Semua Semester (Smt 1–5) Bisa Diedit</span>
             </h3>
-            <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">Data semester 1–4 otomatis dari Profiling. Masukkan nilai semester 5 untuk kalkulasi kelayakan SNBP.</p>
+            <p style="margin: 3px 0 0; font-size: 12px; color: var(--muted);">
+              Seluruh semester 1–5 dapat diedit langsung jika saat Profiling awal siswa belum sempat mengisi. Nilai <code>0</code> dihitung sebagai <em>belum diisi</em> dan tidak menurunkan rata-rata. Mapel pendukung otomatis disorot sesuai pilihan aktif (<strong id="raporActiveProdiLabel" style="color: #1078ca;">S1 Farmasi — UGM: Kimia & Biologi</strong>).
+            </p>
           </div>
-          <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;" onclick="calculateRaporAverage()">Hitung Rata-rata</button>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 5px 12px;" onclick="calculateRaporAverage()">↻ Hitung Ulang Rata-rata</button>
+          </div>
         </div>
 
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
+        <!-- Summary Strip for Rapor -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px;">
+          <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase;">Rata-rata Rapor (Mapel Terisi)</div>
+              <div style="font-size: 11.5px; color: var(--muted);" id="raporFilledCountLabel">9 dari 20 mata pelajaran terisi</div>
+            </div>
+            <div style="font-size: 20px; font-weight: 800; color: #1078ca;" id="grand_rapor_avg">88.3 / 100</div>
+          </div>
+          <div style="background: #eff8ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase;" id="raporSupportCardTitle">Rata-rata Mapel Pendukung Pilihan</div>
+              <div style="font-size: 11.5px; color: #175cd3; font-weight: 600;" id="raporSupportSubjectsList">Kimia & Biologi</div>
+            </div>
+            <div style="font-size: 20px; font-weight: 800; color: #175cd3;" id="support_rapor_avg">89.3 / 100</div>
+          </div>
+          <div style="background: #ecfdf3; border: 1px solid #a6f4c5; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 11px; color: #027a48; font-weight: 700; text-transform: uppercase;">Indikasi Kesiapan Rapor SNBP</div>
+              <div style="font-size: 11.5px; color: #027a48;">Tren nilai stabil di atas 85</div>
+            </div>
+            <span class="badge" style="background: #d1fadf; color: #027a48; font-weight: 700;" id="raporSnbpStatusBadge">Kompetitif Eligible</span>
+          </div>
+        </div>
+
+        <div class="table-container" style="max-height: 540px; overflow-y: auto;">
+          <table class="data-table" id="raporTable">
+            <thead style="position: sticky; top: 0; z-index: 5; box-shadow: 0 1px 0 var(--border);">
               <tr>
-                <th>Mata Pelajaran</th>
+                <th style="width: 4%; text-align: center;">No</th>
+                <th style="width: 32%;">Mata Pelajaran (20 Mapel Super CMS)</th>
                 <th style="text-align: center;">Smt 1</th>
                 <th style="text-align: center;">Smt 2</th>
                 <th style="text-align: center;">Smt 3</th>
                 <th style="text-align: center;">Smt 4</th>
-                <th style="text-align: center; background: #e0f2fe; color: #0369a1;">Smt 5 (Input SA)</th>
-                <th style="text-align: center;">Rata-rata</th>
+                <th style="text-align: center; background: #e0f2fe; color: #0369a1;">Smt 5</th>
+                <th style="text-align: center;">Rata-rata Mapel</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><strong>Bahasa Indonesia</strong></td>
-                <td style="text-align: center;">86</td>
-                <td style="text-align: center;">87</td>
-                <td style="text-align: center;">90</td>
-                <td style="text-align: center;">90</td>
-                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="89" id="rapor_bindo"></td>
-                <td style="text-align: center; font-weight: 700;" id="avg_bindo">88.4</td>
-              </tr>
-              <tr>
-                <td><strong>Bahasa Inggris</strong></td>
-                <td style="text-align: center;">87</td>
-                <td style="text-align: center;">88</td>
-                <td style="text-align: center;">89</td>
-                <td style="text-align: center;">90</td>
-                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="91" id="rapor_bing"></td>
-                <td style="text-align: center; font-weight: 700;" id="avg_bing">89.0</td>
-              </tr>
-              <tr>
-                <td><strong>Matematika</strong></td>
-                <td style="text-align: center;">84</td>
-                <td style="text-align: center;">86</td>
-                <td style="text-align: center;">87</td>
-                <td style="text-align: center;">88</td>
-                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="86" id="rapor_mat"></td>
-                <td style="text-align: center; font-weight: 700;" id="avg_mat">86.2</td>
-              </tr>
-              <tr>
-                <td><strong>Fisika</strong></td>
-                <td style="text-align: center;">85</td>
-                <td style="text-align: center;">86</td>
-                <td style="text-align: center;">88</td>
-                <td style="text-align: center;">87</td>
-                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="85" id="rapor_fis"></td>
-                <td style="text-align: center; font-weight: 700;" id="avg_fis">86.2</td>
-              </tr>
-              <tr>
-                <td><strong>Kimia</strong> (Mapel Pendukung Farmasi)</td>
-                <td style="text-align: center;">88</td>
-                <td style="text-align: center;">89</td>
-                <td style="text-align: center;">90</td>
-                <td style="text-align: center;">91</td>
-                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="90" id="rapor_kim"></td>
-                <td style="text-align: center; font-weight: 700; color: #1078ca;" id="avg_kim">89.6</td>
-              </tr>
-              <tr>
-                <td><strong>Biologi</strong> (Mapel Pendukung Farmasi)</td>
-                <td style="text-align: center;">87</td>
-                <td style="text-align: center;">88</td>
-                <td style="text-align: center;">89</td>
-                <td style="text-align: center;">90</td>
-                <td style="text-align: center; background: #f0f9ff;"><input type="number" class="table-input" value="91" id="rapor_bio"></td>
-                <td style="text-align: center; font-weight: 700; color: #1078ca;" id="avg_bio">89.0</td>
-              </tr>
-              <tr style="background: #f8fafc; font-weight: 700;">
-                <td colspan="5">Rata-rata Keseluruhan Rapor (6 Mapel Utama)</td>
-                <td colspan="2" style="text-align: center; font-size: 15px; color: #1078ca;" id="grand_rapor_avg">88.1 / 100</td>
-              </tr>
+            <tbody id="raporTableBody">
+              <!-- Populated dynamically with all 20 subjects & editable Smt 1-5 inputs -->
             </tbody>
           </table>
         </div>
@@ -1480,96 +1447,37 @@
         <div class="sa-prompt-header">
           <span class="sa-prompt-title">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
-            Panduan SA: Menemukan Sumber Masalah Akademik Siswa
+            Panduan SA: Menemukan Sumber Masalah Akademik Siswa Sesuai Pilihan
           </span>
-          <span style="font-size: 11px; font-weight: 600; color: #1e40af;">Fokus: 3 Subtes Terendah & Evaluasi Drill</span>
+          <span style="font-size: 11px; font-weight: 600; color: #1e40af;" id="step3SaHeaderTag">Fokus: 3 Subtes Prioritas Pilihan & Evaluasi Drill</span>
         </div>
-        <ul class="sa-prompt-list">
-          <li><strong>Batasi ke 3 Subtes Terendah:</strong> Jangan bahas semua subtes agar siswa tidak patah semangat. Fokuskan ke <strong>PU (465)</strong>, <strong>PK (488)</strong>, dan <strong>LBI (505)</strong>.</li>
+        <ul class="sa-prompt-list" id="step3SaPromptList">
+          <li><strong>Batasi ke 3 Subtes Prioritas Pilihan:</strong> Jangan bahas semua subtes agar siswa tidak patah semangat. Fokuskan pada 3 subtes pembobot tertinggi pada jurusan & universitas yang sedang dipilih.</li>
           <li><strong>Sorot Temuan Audit Drill (Kritis):</strong> Tunjukkan data riil bahwa Garuda sudah rajin drill (31 sesi / 74 soal), tetapi hampir semuanya di subtes yang nilainya sudah aman (PPU & LBE). Drill di PU dan PK masih 0! Arahkan komitmen siswa: <em>"Mulai minggu ini, semua latihan wajib diarahkan ke materi Penalaran Induktif & Aljabar Dasar."</em></li>
         </ul>
       </div>
 
-      <div class="section-header">
-        <h2 class="section-title">3. Diagnostik 3 Subtes Terendah & Korelasi Drill Soal</h2>
-        <span class="section-tag">Hasil Evaluasi TO Episode 4</span>
+      <div class="section-header" style="flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h2 class="section-title">3. Diagnostik Subtes Prioritas & Korelasi Drill Soal</h2>
+          <p style="margin: 3px 0 0; font-size: 12.5px; color: var(--muted);">Target acuan subtes dan prioritas perbaikan di bawah ini otomatis menyesuaikan dengan pilihan jurusan & universitas yang aktif.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;" id="step3ChoiceMiniSwitcher">
+          <!-- Synced quick switcher buttons -->
+        </div>
       </div>
 
-      <!-- 3 Lowest Subtests Breakdown -->
-      <div class="diagnostic-cards">
-        <div class="diag-card critical">
-          <div>
-            <div class="diag-card-title">
-              <span>Penalaran Umum (PU)</span>
-              <span class="badge" style="background: #fef3f2; color: #b42318; font-size: 11px;">Paling Kritis</span>
-            </div>
-            <div class="diag-score-row">
-              <span class="diag-score">465</span>
-              <span class="diag-target">Target: 680 (Gap: -215)</span>
-            </div>
-            <div class="weak-topics-title">3 Topik Paling Banyak Salah:</div>
-            <ul class="weak-topics-list">
-              <li>Penalaran Induktif (32% benar)</li>
-              <li>Penalaran Deduktif & Silogisme (41%)</li>
-              <li>Penalaran Kuantitatif Simbolik (45%)</li>
-            </ul>
-          </div>
-          <div style="margin-top: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-light); padding-top: 8px;">
-            Target kenaikan: <strong>+100 poin</strong> di TO 5
-          </div>
-        </div>
-
-        <div class="diag-card critical">
-          <div>
-            <div class="diag-card-title">
-              <span>Pengetahuan Kuantitatif (PK)</span>
-              <span class="badge" style="background: #fef3f2; color: #b42318; font-size: 11px;">Kritis</span>
-            </div>
-            <div class="diag-score-row">
-              <span class="diag-score">488</span>
-              <span class="diag-target">Target: 670 (Gap: -182)</span>
-            </div>
-            <div class="weak-topics-title">3 Topik Paling Banyak Salah:</div>
-            <ul class="weak-topics-list">
-              <li>Aljabar dan Fungsi Pecahan (28% benar)</li>
-              <li>Statistika dan Peluang Dasar (38%)</li>
-              <li>Geometri Sudut & Bidang (42%)</li>
-            </ul>
-          </div>
-          <div style="margin-top: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-light); padding-top: 8px;">
-            Target kenaikan: <strong>+80 poin</strong> di TO 5
-          </div>
-        </div>
-
-        <div class="diag-card critical">
-          <div>
-            <div class="diag-card-title">
-              <span>Literasi Bahasa Indonesia (LBI)</span>
-              <span class="badge" style="background: #fffcf5; color: #b54708; font-size: 11px;">Perlu Penguatan</span>
-            </div>
-            <div class="diag-score-row">
-              <span class="diag-score" style="color: #b54708;">505</span>
-              <span class="diag-target">Target: 660 (Gap: -155)</span>
-            </div>
-            <div class="weak-topics-title">3 Topik Paling Banyak Salah:</div>
-            <ul class="weak-topics-list">
-              <li>Mengevaluasi Bias Penulis (35% benar)</li>
-              <li>Memahami Makna Tersirat Kalimat (40%)</li>
-              <li>Hubungan Logika Antarparagraf (44%)</li>
-            </ul>
-          </div>
-          <div style="margin-top: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-light); padding-top: 8px;">
-            Target kenaikan: <strong>+60 poin</strong> di TO 5
-          </div>
-        </div>
+      <!-- 3 Priority Subtests Breakdown (Dynamic per Selected Choice) -->
+      <div class="diagnostic-cards" id="step3DiagnosticCards">
+        <!-- Populated dynamically by renderStep3Diagnostics() -->
       </div>
 
       <!-- Collapsible Full 7 Subtests UTBK Table -->
-      <details class="super-accordion">
+      <details class="super-accordion" open>
         <summary class="accordion-summary">
           <span style="display: flex; align-items: center; gap: 8px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-            <span>Tampilkan Tabel Lengkap Seluruh 7 Subtes UTBK (TO 1 s.d. TO 4)</span>
+            <span id="step3TableAccordionTitle">Tabel Lengkap Seluruh 7 Subtes UTBK vs Acuan S1 Farmasi — UGM</span>
           </span>
           <span class="badge" style="background: #eff8ff; color: #175cd3; font-weight: 600; font-size: 11.5px;">Buka / Tutup Tabel ↓</span>
         </summary>
@@ -1584,89 +1492,14 @@
                   <th style="text-align: center;">TO 3</th>
                   <th style="text-align: center;">TO 4 (Terbaru)</th>
                   <th style="text-align: center;">Rata-rata</th>
-                  <th style="text-align: center;">Target Farmasi UGM</th>
-                  <th style="text-align: center;">Gap Nilai</th>
-                  <th style="text-align: center;">Status Kesiapan</th>
+                  <th style="text-align: center;" id="step3TableColAcuan">Acuan RG (Farmasi UGM)</th>
+                  <th style="text-align: center;" id="step3TableColTop">Top Leaderboard</th>
+                  <th style="text-align: center;">Gap vs Acuan</th>
+                  <th style="text-align: center;">Status Prioritas</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr style="background: #fffbfa;">
-                  <td><strong>Penalaran Umum (PU)</strong></td>
-                  <td style="text-align: center;">510</td>
-                  <td style="text-align: center;">490</td>
-                  <td style="text-align: center;">475</td>
-                  <td style="text-align: center; font-weight: 700; color: #b42318;">465</td>
-                  <td style="text-align: center; font-weight: 600;">485</td>
-                  <td style="text-align: center;">680</td>
-                  <td style="text-align: center; color: #b42318; font-weight: 700;">-215</td>
-                  <td style="text-align: center;"><span class="badge" style="background: #fef3f2; color: #b42318;">Sangat Kritis</span></td>
-                </tr>
-                <tr style="background: #fffbfa;">
-                  <td><strong>Pengetahuan Kuantitatif (PK)</strong></td>
-                  <td style="text-align: center;">520</td>
-                  <td style="text-align: center;">505</td>
-                  <td style="text-align: center;">495</td>
-                  <td style="text-align: center; font-weight: 700; color: #b42318;">488</td>
-                  <td style="text-align: center; font-weight: 600;">502</td>
-                  <td style="text-align: center;">670</td>
-                  <td style="text-align: center; color: #b42318; font-weight: 700;">-182</td>
-                  <td style="text-align: center;"><span class="badge" style="background: #fef3f2; color: #b42318;">Kritis</span></td>
-                </tr>
-                <tr style="background: #fffdf5;">
-                  <td><strong>Literasi Bahasa Indonesia (LBI)</strong></td>
-                  <td style="text-align: center;">540</td>
-                  <td style="text-align: center;">525</td>
-                  <td style="text-align: center;">515</td>
-                  <td style="text-align: center; font-weight: 700; color: #b54708;">505</td>
-                  <td style="text-align: center; font-weight: 600;">521</td>
-                  <td style="text-align: center;">660</td>
-                  <td style="text-align: center; color: #b54708; font-weight: 700;">-155</td>
-                  <td style="text-align: center;"><span class="badge" style="background: #fffcf5; color: #b54708;">Perlu Penguatan</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Pemahaman Bacaan & Menulis (PBM)</strong></td>
-                  <td style="text-align: center;">620</td>
-                  <td style="text-align: center;">580</td>
-                  <td style="text-align: center;">570</td>
-                  <td style="text-align: center; font-weight: 700;">550</td>
-                  <td style="text-align: center; font-weight: 600;">580</td>
-                  <td style="text-align: center;">665</td>
-                  <td style="text-align: center; color: #475467; font-weight: 600;">-115</td>
-                  <td style="text-align: center;"><span class="badge" style="background: #f8fafc; color: #475467;">Sedang</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Penalaran Matematika (PM)</strong></td>
-                  <td style="text-align: center;">590</td>
-                  <td style="text-align: center;">570</td>
-                  <td style="text-align: center;">560</td>
-                  <td style="text-align: center; font-weight: 700;">565</td>
-                  <td style="text-align: center; font-weight: 600;">571</td>
-                  <td style="text-align: center;">675</td>
-                  <td style="text-align: center; color: #475467; font-weight: 600;">-110</td>
-                  <td style="text-align: center;"><span class="badge" style="background: #f8fafc; color: #475467;">Sedang</span></td>
-                </tr>
-                <tr style="background: #f6fef9;">
-                  <td><strong>Literasi Bahasa Inggris (LBE)</strong></td>
-                  <td style="text-align: center;">640</td>
-                  <td style="text-align: center;">625</td>
-                  <td style="text-align: center;">620</td>
-                  <td style="text-align: center; font-weight: 700; color: #027a48;">610</td>
-                  <td style="text-align: center; font-weight: 600;">624</td>
-                  <td style="text-align: center;">650</td>
-                  <td style="text-align: center; color: #027a48; font-weight: 700;">-40</td>
-                  <td style="text-align: center;"><span class="badge" style="background: #edfcf2; color: #027a48;">Aman</span></td>
-                </tr>
-                <tr style="background: #f6fef9;">
-                  <td><strong>Pengetahuan & Pemahaman Umum (PPU)</strong></td>
-                  <td style="text-align: center;">685</td>
-                  <td style="text-align: center;">660</td>
-                  <td style="text-align: center;">650</td>
-                  <td style="text-align: center; font-weight: 700; color: #027a48;">642</td>
-                  <td style="text-align: center; font-weight: 600;">659</td>
-                  <td style="text-align: center;">655</td>
-                  <td style="text-align: center; color: #027a48; font-weight: 700;">-13</td>
-                  <td style="text-align: center;"><span class="badge" style="background: #edfcf2; color: #027a48;">Aman</span></td>
-                </tr>
+              <tbody id="step3SubtestTableBody">
+                <!-- Populated dynamically by renderStep3Diagnostics() -->
               </tbody>
             </table>
           </div>
@@ -1677,8 +1510,8 @@
       <div class="audit-box">
         <div class="audit-box-icon">⚠️</div>
         <div class="audit-box-content">
-          <p><strong>Temuan Audit Aktivitas Belajar (Student Tower):</strong> Siswa telah menyelesaikan <strong>31 sesi drill soal (74 butir soal)</strong>, namun <strong>82% pengerjaan terkonsentrasi pada PPU dan Literasi Bahasa Inggris</strong> (di mana nilai siswa sudah tinggi, yaitu 642 dan 610). Siswa <strong>hampir belum pernah drill di subtes Penalaran Umum (PU) dan Pengetahuan Kuantitatif (PK)</strong>.</p>
-          <p style="margin-top: 6px;"><strong>Arahan Tindak Lanjut SA:</strong> Minta siswa stop mengulang latihan materi yang sudah dikuasai dan wajib mengalokasikan 15 soal/hari khusus untuk paket latihan PU dan PK di aplikasi Ruangguru.</p>
+          <p><strong>Temuan Audit Aktivitas Belajar (Student Tower):</strong> Siswa telah menyelesaikan <strong>31 sesi drill soal (74 butir soal)</strong>, namun <strong>82% pengerjaan terkonsentrasi pada PPU dan Literasi Bahasa Inggris</strong> (di mana nilai siswa sudah tinggi, yaitu 640 dan 543–607). Siswa <strong>hampir belum pernah drill di subtes Penalaran Umum (PU) dan Pengetahuan Kuantitatif (PK)</strong>.</p>
+          <p style="margin-top: 6px;"><strong>Arahan Tindak Lanjut SA:</strong> Minta siswa stop mengulang latihan materi yang sudah dikuasai dan wajib mengalokasikan 15 soal/hari khusus untuk paket latihan subtes prioritas jurusan pilihannya di aplikasi Ruangguru.</p>
         </div>
       </div>
 
@@ -1756,80 +1589,37 @@
         <div class="sa-prompt-header">
           <span class="sa-prompt-title">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
-            Panduan SA: Menawarkan Pilihan Alternatif yang Realistis
+            Panduan SA: Menawarkan Pilihan Alternatif yang Realistis Sesuai Pilihan Aktif
           </span>
           <span style="font-size: 11px; font-weight: 600; color: #1e40af;">Fokus: Rekomendasi Cadangan & Disclaimer</span>
         </div>
         <ul class="sa-prompt-list">
-          <li><strong>Pilihan Cadangan yang Aman:</strong> Jika gap nilai Farmasi UGM (-126 poin) terasa berat ditutup sebelum pendaftaran, gunakan fitur simulasi untuk menawarkan alternatif di rumpun sains/kesehatan yang passing grade-nya di kisaran skor Garuda saat ini (570 – 615).</li>
-          <li><strong>Sampaikan Disclaimer Wajib:</strong> Ingatkan orang tua bahwa angka passing grade dan persentase peluang adalah estimasi target belajar internal Ruangguru berdasarkan data historis ribuan alumni, bukan kepastian kelulusan resmi SNPMB.</li>
+          <li><strong>Pilihan Cadangan yang Aman:</strong> Bandingkan pilihan aktif siswa saat ini dengan kampus serumpun yang memiliki acuan skor lebih dekat dengan baseline Garuda (546 – 571). Klik tombol <strong>"Jadikan Pilihan"</strong> pada tabel simulasi di bawah jika siswa/orang tua ingin langsung mencoba mengganti Pilihan 2 atau Pilihan 3.</li>
+          <li><strong>Sampaikan Disclaimer Wajib:</strong> Ingatkan orang tua bahwa angka acuan skor dan persentase peluang adalah estimasi target belajar internal Ruangguru berdasarkan data historis ribuan alumni, bukan kepastian kelulusan resmi SNPMB.</li>
         </ul>
       </div>
 
       <div class="section-header">
-        <h2 class="section-title">4. Simulasi Peluang & Rekomendasi Pilihan Realistis</h2>
-        <span class="section-tag">Rumpun: Sains & Farmasi / Kimia</span>
+        <h2 class="section-title">4. Simulasi Peluang & Perbandingan Kampus Serumpun</h2>
+        <span class="section-tag" id="step4RumpunBadge">Perbandingan Terhadap Pilihan Aktif</span>
       </div>
 
-      <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--ink);">Buka Mesin Simulasi SNBT Super CMS</h3>
-            <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">Pre-filter aktif: Nilai rata-rata 571 • Rumpun Kesehatan/Saintek • Wilayah Jawa & DIY</p>
-          </div>
-          <button type="button" class="btn btn-outline" style="background: #fff;" onclick="openSimulationModal()">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            Jalankan Simulasi Lengkap
-          </button>
-        </div>
-      </div>
-
-      <!-- Rekomendasi Opsi Kampus Komparatif -->
+      <!-- Rekomendasi Opsi Kampus Komparatif (Dynamic) -->
       <div class="table-container">
         <table class="data-table">
           <thead>
             <tr>
               <th>Status Strategi</th>
               <th>Program Studi & Perguruan Tinggi</th>
-              <th>Passing Grade</th>
-              <th>Gap Skor (vs 546)</th>
-              <th>Tingkat Keketatan</th>
+              <th style="text-align: center;">Acuan Skor RG</th>
+              <th style="text-align: center;" id="step4GapColHeader">Gap Skor (vs 546)</th>
+              <th style="text-align: center;">Keketatan SNBT</th>
               <th>Rekomendasi SA</th>
+              <th style="text-align: center;">Simulasikan di Pilihan</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td><span class="badge" style="background: #fef3f2; color: #b42318;">Ambisius</span></td>
-              <td><strong>S1 Farmasi — Universitas Gadjah Mada (UGM)</strong></td>
-              <td>672</td>
-              <td style="color: #b42318; font-weight: 700;">-126</td>
-              <td>1.8%</td>
-              <td>Pertahankan di Opsi 1 jika komitmen drill naik 2x lipat</td>
-            </tr>
-            <tr>
-              <td><span class="badge" style="background: #fffcf5; color: #b54708;">Menengah</span></td>
-              <td><strong>S1 Farmasi — Universitas Padjadjaran (UNPAD)</strong></td>
-              <td>615</td>
-              <td style="color: #b54708; font-weight: 700;">-69</td>
-              <td>2.4%</td>
-              <td>Alternatif Farmasi di Jawa Barat (disukai orang tua)</td>
-            </tr>
-            <tr>
-              <td><span class="badge" style="background: #edfcf2; color: #027a48;">Realistis</span></td>
-              <td><strong>S1 Kimia — Universitas Indonesia (UI)</strong></td>
-              <td>585</td>
-              <td style="color: #027a48; font-weight: 700;">-39</td>
-              <td>3.9%</td>
-              <td>Rumpun serumpun Farmasi, lokasi Depok (sangat ideal)</td>
-            </tr>
-            <tr>
-              <td><span class="badge" style="background: #edfcf2; color: #027a48;">Sangat Aman</span></td>
-              <td><strong>S1 Teknologi Pangan — Institut Pertanian Bogor (IPB)</strong></td>
-              <td>575</td>
-              <td style="color: #027a48; font-weight: 700;">-29</td>
-              <td>4.8%</td>
-              <td>Pilihan cadangan aman yang didukung penuh keluarga</td>
-            </tr>
+          <tbody id="step4RecommendationTableBody">
+            <!-- Populated dynamically by renderStep4Recommendations() -->
           </tbody>
         </table>
       </div>
@@ -2293,170 +2083,944 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih j
   </main>
 
   <script>
-    // State Management
+    // =========================================================================
+    // 1. GLOBAL STATE & AUTHENTIC PILOT STUDENT DATA (GARUDA MAHAWIRA SENA)
+    // =========================================================================
     let isLocked = false;
+    let activeSlotIndex = 0; // 0 = Pilihan 1, 1 = Pilihan 2, 2 = Pilihan 3
+    let scoreBaselineMode = "latest"; // "latest" (546) | "median" (568.5) | "mean" (571)
+    let currentChartSubtestKey = "total";
 
+    const urlParams = new URLSearchParams(window.location.search);
 
-    // ==========================================
-    // Interactive SVG Chart Data & Engine
-    // ==========================================
-    const chartDatasets = {
-      total: {
-        name: "Skor Total UTBK",
-        scores: [601, 576, 561, 546],
-        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
-        target: 672,
-        targetName: "Target Farmasi UGM",
-        minY: 450,
-        maxY: 700,
-        trendNote: "Tren Menurun (-55 Poin)",
-        trendBad: true
+    // Authentic 4-Tryout Series for Garuda Mahawira Sena
+    const studentToSeries = {
+      total: { code: "TOTAL", name: "Skor Total UTBK", scores: [601, 576, 561, 546], minY: 450, maxY: 750 },
+      pu:    { code: "PU",    name: "Penalaran Umum (PU)", scores: [567, 583, 514, 465], minY: 400, maxY: 900, topics: ["Penalaran Induktif (32% benar)", "Penalaran Deduktif & Silogisme (41%)", "Penalaran Kuantitatif Simbolik (45%)"] },
+      pk:    { code: "PK",    name: "Pengetahuan Kuantitatif (PK)", scores: [668, 620, 539, 488], minY: 400, maxY: 950, topics: ["Aljabar dan Fungsi Pecahan (28% benar)", "Statistika dan Peluang Dasar (38%)", "Geometri Sudut & Bidang (42%)"] },
+      pm:    { code: "PM",    name: "Penalaran Matematika (PM)", scores: [597, 639, 588, 597], minY: 450, maxY: 900, topics: ["Pemodelan Persamaan Linear (40% benar)", "Aritmatika Sosial & Rasio (46%)", "Barisan dan Deret Kontekstual (50%)"] },
+      lbi:   { code: "LBI",   name: "Literasi Bahasa Indonesia (LBI)", scores: [626, 637, 590, 505], minY: 400, maxY: 750, topics: ["Mengevaluasi Bias Penulis (35% benar)", "Memahami Makna Tersirat Kalimat (40%)", "Hubungan Logika Antarparagraf (44%)"] },
+      pbm:   { code: "PBM",   name: "Pemahaman Bacaan & Menulis (PBM)", scores: [553, 562, 612, 554], minY: 450, maxY: 750, topics: ["Kepaduan Paragraf & Konjungsi (48% benar)", "Kalimat Efektif & EYD (52%)", "Inti Kalimat Kompleks (55%)"] },
+      lbe:   { code: "LBE",   name: "Literasi Bahasa Inggris (LBE)", scores: [572, 538, 607, 543], minY: 450, maxY: 750, topics: ["Inference & Implied Detail (50% benar)", "Author's Tone & Attitude (54%)", "Main Idea Synthesis (60%)"] },
+      ppu:   { code: "PPU",   name: "Pengetahuan & Pemahaman Umum (PPU)", scores: [595, 536, 546, 640], minY: 450, maxY: 750, topics: ["Makna Kata Kontekstual (65% benar)", "Sinonim & Antonim Akademik (68%)", "Gagasan Utama Wacana Singkat (72%)"] }
+    };
+
+    const toDates = ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"];
+
+    function calcMedian(arr) {
+      const s = [...arr].sort((a, b) => a - b);
+      const mid = Math.floor(s.length / 2);
+      return s.length % 2 !== 0 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+    }
+
+    function calcMean(arr) {
+      return Number((arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1));
+    }
+
+    function getStudentBaselineScore(subtestKey = "total") {
+      const series = studentToSeries[subtestKey] || studentToSeries.total;
+      if (scoreBaselineMode === "median") return calcMedian(series.scores);
+      if (scoreBaselineMode === "mean") return Math.round(calcMean(series.scores));
+      return series.scores[series.scores.length - 1];
+    }
+
+    function getBaselineLabelText() {
+      if (scoreBaselineMode === "median") return "Nilai Tengah 4 TO (568.5)";
+      if (scoreBaselineMode === "mean") return "Rata-rata 4 TO (571)";
+      return "Nilai TO Terakhir (546)";
+    }
+
+    // =========================================================================
+    // 2. CATALOG JURUSAN & UNIVERSITAS (AUTHENTIC RG & SNBT DATA)
+    // =========================================================================
+    const programCatalog = {
+      ugm_farmasi: {
+        id: "ugm_farmasi",
+        prodi: "Farmasi",
+        univ: "Universitas Gadjah Mada (UGM)",
+        shortTitle: "S1 Farmasi — UGM",
+        fullTitle: "S1 Farmasi — Universitas Gadjah Mada (UGM)",
+        degree: "S1",
+        city: "Sleman, D.I. Yogyakarta",
+        rumpun: "Sains & Kesehatan (Farmasi)",
+        quota2026: 72,
+        applicants2025: 1868,
+        tightness: "3.85%",
+        pgWeighted: 668.41,
+        targetScore: 694,
+        leaderboardRank: "17 dari 69 peserta",
+        leaderboardPercentile: "Persentil 76% di Ruangguru",
+        leaderboardTop: 713,
+        supportSubjects: ["Kimia", "Biologi"],
+        prioritySubtests: ["pk", "pu", "pm"],
+        pgSubtests: { pk: 937, pu: 844, pm: 750, pbm: 562, lbe: 516, ppu: 500, lbi: 500 },
+        leaderboardSubtests: { pu: 734, ppu: 669, pbm: 685, pk: 768, lbi: 653, lbe: 574, pm: 770 },
+        saGuidance: "Garuda berada di peringkat 17 dari 69 pemilih Farmasi UGM (kelompok 25% teratas), dan orang tua memberi izin khusus kuliah di Yogyakarta. Namun selisih terhadap acuan PG Weighted Score (668,41) masih -122,41 poin karena 3 subtes pembobot tertinggi Farmasi UGM adalah PK (acuan 937), PU (844), dan PM (750). Fokuskan 80% latihan mandiri ke PK & PU.",
+        peerComparisonIds: ["ugm_farmasi", "ui_farmasi", "unpad_farmasi", "ub_farmasi", "ui_kimia", "ipb_tekpang"]
       },
-      pu: {
-        name: "Penalaran Umum (PU)",
-        scores: [580, 520, 490, 465],
-        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
-        target: 680,
-        targetName: "Target Subtes PU",
-        minY: 400,
-        maxY: 700,
-        trendNote: "Penurunan Kritis (-115 Poin)",
-        trendBad: true
+      ui_farmasi: {
+        id: "ui_farmasi",
+        prodi: "Farmasi",
+        univ: "Universitas Indonesia (UI)",
+        shortTitle: "S1 Farmasi — UI",
+        fullTitle: "S1 Farmasi — Universitas Indonesia (UI)",
+        degree: "S1",
+        city: "Depok, Jawa Barat",
+        rumpun: "Sains & Kesehatan (Farmasi)",
+        quota2026: 59,
+        applicants2025: 1154,
+        tightness: "5.11%",
+        pgWeighted: 655.56,
+        targetScore: 686,
+        leaderboardRank: "10 dari 41 peserta",
+        leaderboardPercentile: "Persentil 75% di Ruangguru",
+        leaderboardTop: 718,
+        supportSubjects: ["Kimia", "Biologi"],
+        prioritySubtests: ["pk", "pu", "pm"],
+        pgSubtests: { pk: 919, pu: 827, pm: 736, pbm: 552, lbe: 506, ppu: 500, lbi: 500 },
+        leaderboardSubtests: { pu: 772, ppu: 725, pbm: 739, pk: 734, lbi: 604, lbe: 664, pm: 731 },
+        saGuidance: "Lokasi UI di Depok sangat dekat dengan domisili keluarga, dan Garuda berada di posisi 10 dari 41 pemilih. Namun PG Weighted Score Farmasi UI (655,56) hanya terpaut ~13 poin di bawah UGM (668,41). Menempatkan Farmasi UI sebagai Pilihan 2 setelah Farmasi UGM belum memberi bantalan aman — sarankan menggeser Pilihan 2 ke prodi dengan acuan 575–635.",
+        peerComparisonIds: ["ui_farmasi", "ugm_farmasi", "unpad_farmasi", "ub_farmasi", "ui_kimia", "ipb_tekpang"]
       },
-      pk: {
-        name: "Pengetahuan Kuantitatif (PK)",
-        scores: [560, 530, 505, 488],
-        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
-        target: 670,
-        targetName: "Target Subtes PK",
-        minY: 400,
-        maxY: 700,
-        trendNote: "Perlu Penguatan (-72 Poin)",
-        trendBad: true
+      itb_mesin: {
+        id: "itb_mesin",
+        prodi: "Teknik Mesin (FTMD)",
+        univ: "Institut Teknologi Bandung (ITB)",
+        shortTitle: "S1 Teknik Mesin — ITB",
+        fullTitle: "S1 Teknik Mesin (FTMD) — Institut Teknologi Bandung (ITB)",
+        degree: "S1",
+        city: "Bandung, Jawa Barat",
+        rumpun: "Sains & Rekayasa Teknik",
+        quota2026: 75,
+        applicants2025: 1620,
+        tightness: "4.63%",
+        pgWeighted: 642.50,
+        targetScore: 660,
+        leaderboardRank: "22 dari 85 peserta",
+        leaderboardPercentile: "Persentil 74% di Ruangguru",
+        leaderboardTop: 698,
+        supportSubjects: ["Fisika", "Matematika Tingkat Lanjut"],
+        prioritySubtests: ["pm", "pk", "pu"],
+        pgSubtests: { pm: 890, pk: 865, pu: 810, pbm: 540, lbe: 530, ppu: 500, lbi: 500 },
+        leaderboardSubtests: { pu: 715, ppu: 640, pbm: 650, pk: 742, lbi: 610, lbe: 668, pm: 755 },
+        saGuidance: "Pilihan ini merupakan aspirasi orang tua (ayah Garuda). Perhatikan bahwa jika memilih Teknik Mesin ITB, mapel pendukung rapor SNBP bergeser ke Fisika & Matematika Tingkat Lanjut, dan subtes prioritas #1 di UTBK adalah Penalaran Matematika (PM acuan 890) diikuti PK (865). Gunakan data ini untuk mendiskusikan apakah Garuda siap secara minat & fondasi Fisika/Matematika.",
+        peerComparisonIds: ["itb_mesin", "ugm_farmasi", "unpad_farmasi", "ui_kimia", "ipb_tekpang"]
       },
-      lbi: {
-        name: "Literasi B. Indonesia (LBI)",
-        scores: [550, 540, 520, 505],
-        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
-        target: 660,
-        targetName: "Target Subtes LBI",
-        minY: 400,
-        maxY: 700,
-        trendNote: "Tren Menurun (-45 Poin)",
-        trendBad: true
+      unpad_farmasi: {
+        id: "unpad_farmasi",
+        prodi: "Farmasi",
+        univ: "Universitas Padjadjaran (UNPAD)",
+        shortTitle: "S1 Farmasi — UNPAD",
+        fullTitle: "S1 Farmasi — Universitas Padjadjaran (UNPAD)",
+        degree: "S1",
+        city: "Sumedang / Bandung, Jawa Barat",
+        rumpun: "Sains & Kesehatan (Farmasi)",
+        quota2026: 66,
+        applicants2025: 2140,
+        tightness: "3.08%",
+        pgWeighted: 659.67,
+        targetScore: 675,
+        leaderboardRank: "14 dari 62 peserta",
+        leaderboardPercentile: "Persentil 77% di Ruangguru",
+        leaderboardTop: 705,
+        supportSubjects: ["Kimia", "Biologi"],
+        prioritySubtests: ["pk", "pu", "pm"],
+        pgSubtests: { pk: 925, pu: 833, pm: 741, pbm: 555, lbe: 510, ppu: 500, lbi: 500 },
+        leaderboardSubtests: { pu: 720, ppu: 660, pbm: 670, pk: 745, lbi: 635, lbe: 610, pm: 740 },
+        saGuidance: "Farmasi UNPAD berada di Jawa Barat (sesuai preferensi lokasi orang tua) dengan PG Weighted Score 659,67. Struktur pembobot subtes tetap didominasi PK (925), PU (833), dan PM (741).",
+        peerComparisonIds: ["unpad_farmasi", "ugm_farmasi", "ui_farmasi", "ub_farmasi", "ui_kimia", "ipb_tekpang"]
       },
-      ppu: {
-        name: "Pemahaman Umum (PPU)",
-        scores: [610, 630, 635, 642],
-        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
-        target: 620,
-        targetName: "Target Subtes PPU",
-        minY: 550,
-        maxY: 700,
-        trendNote: "Tren Naik / Aman (+32 Poin)",
-        trendBad: false
+      ub_farmasi: {
+        id: "ub_farmasi",
+        prodi: "Farmasi",
+        univ: "Universitas Brawijaya (UB)",
+        shortTitle: "S1 Farmasi — UB",
+        fullTitle: "S1 Farmasi — Universitas Brawijaya (UB)",
+        degree: "S1",
+        city: "Malang, Jawa Timur",
+        rumpun: "Sains & Kesehatan (Farmasi)",
+        quota2026: 54,
+        applicants2025: 1490,
+        tightness: "3.62%",
+        pgWeighted: 634.97,
+        targetScore: 650,
+        leaderboardRank: "9 dari 48 peserta",
+        leaderboardPercentile: "Persentil 81% di Ruangguru",
+        leaderboardTop: 688,
+        supportSubjects: ["Kimia", "Biologi"],
+        prioritySubtests: ["pk", "pu", "pm"],
+        pgSubtests: { pk: 890, pu: 801, pm: 712, pbm: 534, lbe: 500, ppu: 500, lbi: 500 },
+        leaderboardSubtests: { pu: 695, ppu: 650, pbm: 645, pk: 715, lbi: 620, lbe: 605, pm: 710 },
+        saGuidance: "Farmasi UB memiliki PG Weighted Score paling moderat di antara PTN klaster utama (634,97, selisih -88,97 dari TO terakhir Garuda). Sangat cocok dijadikan pembanding jika keluarga mengizinkan lokasi Jawa Timur.",
+        peerComparisonIds: ["ub_farmasi", "ugm_farmasi", "ui_farmasi", "unpad_farmasi", "ui_kimia", "ipb_tekpang"]
       },
-      lbe: {
-        name: "Literasi B. Inggris (LBE)",
-        scores: [590, 605, 600, 610],
-        dates: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"],
-        target: 600,
-        targetName: "Target Subtes LBE",
-        minY: 550,
-        maxY: 700,
-        trendNote: "Stabil Aman (+20 Poin)",
-        trendBad: false
+      ui_kimia: {
+        id: "ui_kimia",
+        prodi: "Kimia",
+        univ: "Universitas Indonesia (UI)",
+        shortTitle: "S1 Kimia — UI",
+        fullTitle: "S1 Kimia — Universitas Indonesia (UI)",
+        degree: "S1",
+        city: "Depok, Jawa Barat",
+        rumpun: "Sains Murni (Serumpun Farmasi)",
+        quota2026: 48,
+        applicants2025: 820,
+        tightness: "5.85%",
+        pgWeighted: 585.00,
+        targetScore: 605,
+        leaderboardRank: "4 dari 29 peserta",
+        leaderboardPercentile: "Persentil 86% di Ruangguru",
+        leaderboardTop: 654,
+        supportSubjects: ["Kimia", "Matematika Tingkat Lanjut"],
+        prioritySubtests: ["pk", "pm", "pu"],
+        pgSubtests: { pk: 680, pm: 660, pu: 640, lbi: 560, pbm: 550, lbe: 540, ppu: 520 },
+        leaderboardSubtests: { pu: 645, ppu: 650, pbm: 630, pk: 675, lbi: 620, lbe: 635, pm: 665 },
+        saGuidance: "Opsi cadangan paling strategis untuk Garuda! Berada di kampus UI Depok (sangat disukai orang tua), mempelajari kimia analisis & sintesis yang serumpun dengan industri farmasi, dan acuan skornya (585,00) hanya berjarak -39 poin dari TO terakhir Garuda (atau -14 poin dari rata-rata 4 TO).",
+        peerComparisonIds: ["ui_kimia", "ugm_farmasi", "ui_farmasi", "unpad_farmasi", "ipb_tekpang"]
+      },
+      ipb_tekpang: {
+        id: "ipb_tekpang",
+        prodi: "Teknologi Pangan",
+        univ: "Institut Pertanian Bogor (IPB)",
+        shortTitle: "S1 Teknologi Pangan — IPB",
+        fullTitle: "S1 Teknologi Pangan — Institut Pertanian Bogor (IPB)",
+        degree: "S1",
+        city: "Bogor, Jawa Barat",
+        rumpun: "Sains Hayati & Pangan",
+        quota2026: 68,
+        applicants2025: 1380,
+        tightness: "4.93%",
+        pgWeighted: 575.00,
+        targetScore: 595,
+        leaderboardRank: "3 dari 34 peserta",
+        leaderboardPercentile: "Persentil 91% di Ruangguru",
+        leaderboardTop: 642,
+        supportSubjects: ["Kimia", "Biologi"],
+        prioritySubtests: ["pu", "pk", "lbi"],
+        pgSubtests: { pu: 650, pk: 645, lbi: 610, pm: 605, pbm: 550, lbe: 540, ppu: 525 },
+        leaderboardSubtests: { pu: 640, ppu: 645, pbm: 625, pk: 655, lbi: 615, lbe: 620, pm: 640 },
+        saGuidance: "Pilihan realistis yang sangat aman di koridor Jabodetabek/Bogor. Mapel pendukung SNBP sama persis dengan Farmasi (Kimia & Biologi), dan rata-rata 4 TO Garuda (571) hampir menyentuh PG Weighted Score prodi ini (575,00).",
+        peerComparisonIds: ["ipb_tekpang", "ui_kimia", "ugm_farmasi", "ui_farmasi", "unpad_farmasi"]
       }
     };
 
-    function updateChartSeries(key) {
-      const data = chartDatasets[key] || chartDatasets.total;
+    // 3 Student Choice Slots (Pilihan 1, Pilihan 2, Pilihan 3) - Editable by SA
+    const studentChoiceSlots = [
+      { slotLabel: "Pilihan 1", statusAspirasi: "Pilihan Utama Siswa", programId: "ugm_farmasi", badgeColor: "#1078ca" },
+      { slotLabel: "Pilihan 2", statusAspirasi: "Pilihan Alternatif Siswa", programId: "ui_farmasi", badgeColor: "#0284c7" },
+      { slotLabel: "Pilihan 3", statusAspirasi: "Aspirasi Orang Tua / Cadangan", programId: "itb_mesin", badgeColor: "#b54708" }
+    ];
 
-      // Update badge
-      const badge = document.getElementById("chartTrendBadge");
-      badge.innerText = data.trendNote;
-      if (data.trendBad) {
-        badge.style.background = "#fef3f2";
-        badge.style.color = "#b42318";
-      } else {
-        badge.style.background = "#edfcf2";
-        badge.style.color = "#027a48";
+    // =========================================================================
+    // 3. FULL 20 SUBJECTS RAPOR DATA (ALL 5 SEMESTERS EDITABLE)
+    // =========================================================================
+    // Extracted from Super CMS Rapor Schema (20 subjects, Smt 1 to Smt 5)
+    const raporSubjectsData = [
+      { id: "antropologi", name: "Antropologi", scores: [0, 0, 0, 0, 0] },
+      { id: "bahasa_asing", name: "Bahasa Asing", scores: [0, 0, 0, 0, 0] },
+      { id: "bahasa_indonesia", name: "Bahasa Indonesia", scores: [86, 87, 90, 90, 89] },
+      { id: "bahasa_inggris", name: "Bahasa Inggris", scores: [87, 88, 89, 90, 91] },
+      { id: "biologi", name: "Biologi", scores: [87, 88, 89, 90, 91] },
+      { id: "ekonomi", name: "Ekonomi", scores: [0, 0, 0, 0, 0] },
+      { id: "fisika", name: "Fisika", scores: [85, 86, 88, 87, 85] },
+      { id: "geografi", name: "Geografi", scores: [0, 0, 0, 0, 0] },
+      { id: "kimia", name: "Kimia", scores: [88, 89, 90, 91, 90] },
+      { id: "matematika", name: "Matematika", scores: [84, 86, 87, 88, 86] },
+      { id: "matematika_lanjut", name: "Matematika Tingkat Lanjut", scores: [83, 85, 86, 87, 86] },
+      { id: "mulok_1", name: "Muatan Lokal 1", scores: [0, 0, 0, 0, 0] },
+      { id: "mulok_2", name: "Muatan Lokal 2", scores: [0, 0, 0, 0, 0] },
+      { id: "mulok_3", name: "Muatan Lokal 3", scores: [0, 0, 0, 0, 0] },
+      { id: "pendidikan_agama", name: "Pendidikan Agama", scores: [90, 90, 92, 92, 93] },
+      { id: "pjok", name: "PJOK/Olahraga", scores: [88, 88, 89, 90, 90] },
+      { id: "ppkn", name: "PPKN/Pendidikan Pancasila", scores: [88, 89, 90, 90, 91] },
+      { id: "sejarah", name: "Sejarah", scores: [86, 87, 88, 89, 89] },
+      { id: "seni_budaya", name: "Seni Budaya", scores: [88, 89, 90, 90, 90] },
+      { id: "sosiologi", name: "Sosiologi", scores: [0, 0, 0, 0, 0] }
+    ];
+
+    function getActiveProgram() {
+      const slot = studentChoiceSlots[activeSlotIndex] || studentChoiceSlots[0];
+      return programCatalog[slot.programId] || programCatalog.ugm_farmasi;
+    }
+
+    // =========================================================================
+    // 4. RENDER RAPOR TABLE (ALL 20 SUBJECTS, ALL 5 SEMESTERS EDITABLE)
+    // =========================================================================
+    function renderRaporTable() {
+      const tbody = document.getElementById("raporTableBody");
+      if (!tbody) return;
+      const activeProg = getActiveProgram();
+      const supportSet = new Set(activeProg.supportSubjects);
+
+      let html = "";
+      raporSubjectsData.forEach((subj, idx) => {
+        const isSupport = supportSet.has(subj.name);
+        const validScores = subj.scores.filter(v => Number(v) > 0);
+        const subjAvg = validScores.length > 0
+          ? (validScores.reduce((a, b) => a + Number(b), 0) / validScores.length).toFixed(1)
+          : "0.0";
+
+        const rowBg = isSupport ? "background: #f0f9ff;" : (validScores.length === 0 ? "background: #fcfcfd; color: #94a3b8;" : "");
+        const supportBadge = isSupport
+          ? `<span class="badge" style="background: #dbeafe; color: #1d4ed8; font-size: 10.5px; margin-left: 6px; font-weight: 700;">★ Mapel Pendukung ${activeProg.prodi}</span>`
+          : "";
+
+        let inputsHtml = "";
+        for (let smt = 0; smt < 5; smt++) {
+          const val = subj.scores[smt];
+          const isSmt5 = smt === 4;
+          const cellBg = isSupport ? "#e0f2fe" : (isSmt5 ? "#f8fafc" : "transparent");
+          const inputBorder = val > 0 ? "#cbd5e1" : "#e2e8f0";
+          const inputColor = val > 0 ? "#0f172a" : "#94a3b8";
+          inputsHtml += `
+            <td style="text-align: center; background: ${cellBg}; padding: 8px 6px;">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                class="table-input"
+                style="width: 60px; padding: 5px 6px; border-color: ${inputBorder}; color: ${inputColor};"
+                value="${val}"
+                onchange="onRaporInputChange('${subj.id}', ${smt}, this.value)"
+                oninput="onRaporInputChange('${subj.id}', ${smt}, this.value, true)"
+              >
+            </td>
+          `;
+        }
+
+        html += `
+          <tr id="rapor_row_${subj.id}" style="${rowBg}">
+            <td style="text-align: center; font-weight: 600; color: #64748b;">${idx + 1}</td>
+            <td>
+              <strong style="color: ${validScores.length > 0 ? 'var(--ink)' : '#64748b'};">${subj.name}</strong>
+              ${supportBadge}
+            </td>
+            ${inputsHtml}
+            <td style="text-align: center; font-weight: 700; color: ${isSupport ? '#1078ca' : (validScores.length > 0 ? 'var(--ink)' : '#94a3b8')};" id="avg_${subj.id}">
+              ${subjAvg}
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+      updateRaporSummaryMetrics();
+    }
+
+    function onRaporInputChange(subjId, smtIdx, rawVal, silentRowOnly) {
+      const subj = raporSubjectsData.find(s => s.id === subjId);
+      if (!subj) return;
+      let num = parseFloat(rawVal);
+      if (isNaN(num) || num < 0) num = 0;
+      if (num > 100) num = 100;
+      subj.scores[smtIdx] = num;
+
+      const validScores = subj.scores.filter(v => Number(v) > 0);
+      const subjAvg = validScores.length > 0
+        ? (validScores.reduce((a, b) => a + Number(b), 0) / validScores.length).toFixed(1)
+        : "0.0";
+
+      const avgCell = document.getElementById(`avg_${subjId}`);
+      if (avgCell) avgCell.innerText = subjAvg;
+
+      updateRaporSummaryMetrics();
+      if (!silentRowOnly) {
+        renderRaporTable();
+      }
+    }
+
+    function updateRaporSummaryMetrics() {
+      const activeProg = getActiveProgram();
+      const supportSet = new Set(activeProg.supportSubjects);
+
+      let filledSubjectsCount = 0;
+      let sumSubjectAverages = 0;
+      let supportSum = 0;
+      let supportCount = 0;
+
+      raporSubjectsData.forEach(subj => {
+        const valid = subj.scores.filter(v => Number(v) > 0);
+        if (valid.length > 0) {
+          const avg = valid.reduce((a, b) => a + Number(b), 0) / valid.length;
+          filledSubjectsCount++;
+          sumSubjectAverages += avg;
+          if (supportSet.has(subj.name)) {
+            supportSum += avg;
+            supportCount++;
+          }
+        }
+      });
+
+      const grandAvg = filledSubjectsCount > 0 ? (sumSubjectAverages / filledSubjectsCount).toFixed(1) : "0.0";
+      const supportAvg = supportCount > 0 ? (supportSum / supportCount).toFixed(1) : "0.0";
+
+      const grandEl = document.getElementById("grand_rapor_avg");
+      if (grandEl) grandEl.innerText = `${grandAvg} / 100`;
+
+      const countEl = document.getElementById("raporFilledCountLabel");
+      if (countEl) countEl.innerText = `${filledSubjectsCount} dari ${raporSubjectsData.length} mata pelajaran terisi (> 0)`;
+
+      const supportTitleEl = document.getElementById("raporSupportCardTitle");
+      if (supportTitleEl) supportTitleEl.innerText = `Rata-rata Mapel Pendukung (${activeProg.prodi})`;
+
+      const supportListEl = document.getElementById("raporSupportSubjectsList");
+      if (supportListEl) supportListEl.innerText = activeProg.supportSubjects.join(" & ");
+
+      const supportAvgEl = document.getElementById("support_rapor_avg");
+      if (supportAvgEl) supportAvgEl.innerText = `${supportAvg} / 100`;
+
+      const prodiLabelEl = document.getElementById("raporActiveProdiLabel");
+      if (prodiLabelEl) prodiLabelEl.innerText = `${activeProg.shortTitle}: ${activeProg.supportSubjects.join(" & ")}`;
+    }
+
+    function calculateRaporAverage() {
+      renderRaporTable();
+    }
+
+    // =========================================================================
+    // 5. CHOICE-DRIVEN DYNAMIC ANALYSIS ENGINE (TAHAP 1, 2, 3, 4)
+    // =========================================================================
+    function selectChoiceSlot(slotIdx) {
+      activeSlotIndex = slotIdx;
+      renderAllChoiceDrivenViews();
+    }
+
+    function changeSlotProgram(slotIdx, newProgramId) {
+      if (!programCatalog[newProgramId]) return;
+      studentChoiceSlots[slotIdx].programId = newProgramId;
+      activeSlotIndex = slotIdx;
+      renderAllChoiceDrivenViews();
+    }
+
+    function setScoreBaseline(mode) {
+      scoreBaselineMode = mode;
+      const sel = document.getElementById("scoreBaselineSelect");
+      if (sel && sel.value !== mode) sel.value = mode;
+      renderAllChoiceDrivenViews();
+    }
+
+    function applySimulatedProgramToSlot(slotIdx, programId) {
+      if (!programCatalog[programId]) return;
+      studentChoiceSlots[slotIdx].programId = programId;
+      activeSlotIndex = slotIdx;
+      renderAllChoiceDrivenViews();
+      const targetEl = document.getElementById("step1");
+      if (targetEl) targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function renderChoicesTable() {
+      const tbody = document.getElementById("choicesTableBody");
+      if (!tbody) return;
+
+      const programOptions = Object.values(programCatalog);
+
+      tbody.innerHTML = studentChoiceSlots.map((slot, idx) => {
+        const prog = programCatalog[slot.programId];
+        const isActive = idx === activeSlotIndex;
+        const rowStyle = isActive
+          ? "background: #f0f9ff; outline: 2px solid #93c5fd; outline-offset: -2px;"
+          : "";
+
+        const optionsHtml = programOptions.map(p =>
+          `<option value="${p.id}" ${p.id === slot.programId ? "selected" : ""}>${p.fullTitle}</option>`
+        ).join("");
+
+        return `
+          <tr style="${rowStyle}">
+            <td>
+              <span style="font-weight: 700; color: ${slot.badgeColor}; display: inline-flex; align-items: center; gap: 4px;">
+                ${isActive ? "● " : ""}${slot.slotLabel}
+              </span>
+            </td>
+            <td>
+              <select
+                class="table-input"
+                style="width: 100%; text-align: left; padding: 6px 10px; font-weight: 700; font-size: 13px; background: #fff; border-color: ${isActive ? '#3b82f6' : '#cbd5e1'};"
+                onchange="changeSlotProgram(${idx}, this.value)"
+              >
+                ${optionsHtml}
+              </select>
+            </td>
+            <td style="text-align: center; font-weight: 600;">${prog.degree}</td>
+            <td><span style="font-size: 12.5px; color: #475467;">${slot.statusAspirasi}</span></td>
+            <td style="text-align: center;"><strong>${prog.pgWeighted.toFixed(2)}</strong></td>
+            <td style="text-align: center; font-weight: 600;">${prog.quota2026} : ${prog.applicants2025.toLocaleString("id-ID")}</td>
+            <td style="text-align: center;">
+              <span class="badge" style="background: #fef3f2; color: #b42318; font-weight: 700;">${prog.tightness}</span>
+            </td>
+            <td style="text-align: center; font-weight: 700; color: #027a48;">${prog.leaderboardTop}</td>
+            <td style="text-align: center;">
+              <button
+                type="button"
+                class="btn ${isActive ? 'btn-primary' : 'btn-outline'}"
+                style="font-size: 11.5px; padding: 5px 12px; width: 100%; justify-content: center; ${isActive ? '' : 'color: #1078ca; border-color: #93c5fd; background: #fff;'}"
+                onclick="selectChoiceSlot(${idx})"
+              >
+                ${isActive ? "✓ Sedang Dianalisis" : "Analisis Pilihan Ini"}
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderChoiceSwitchers() {
+      const switcherEl = document.getElementById("choiceSwitcherButtons");
+      const miniSwitcherEl = document.getElementById("step3ChoiceMiniSwitcher");
+
+      const buttonsHtml = studentChoiceSlots.map((slot, idx) => {
+        const prog = programCatalog[slot.programId];
+        const isActive = idx === activeSlotIndex;
+        return `
+          <button
+            type="button"
+            onclick="selectChoiceSlot(${idx})"
+            style="border: 1px solid ${isActive ? '#1078ca' : '#cbd5e1'}; background: ${isActive ? '#1078ca' : '#ffffff'}; color: ${isActive ? '#ffffff' : '#334155'}; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; cursor: pointer; transition: all 0.15s;"
+          >
+            ${slot.slotLabel}: ${prog.shortTitle}
+          </button>
+        `;
+      }).join("");
+
+      if (switcherEl) switcherEl.innerHTML = buttonsHtml;
+      if (miniSwitcherEl) miniSwitcherEl.innerHTML = buttonsHtml;
+    }
+
+    function renderActiveChoiceAnalysis() {
+      const container = document.getElementById("dynamicChoiceAnalysisBody");
+      if (!container) return;
+
+      const slot = studentChoiceSlots[activeSlotIndex];
+      const prog = programCatalog[slot.programId];
+      const baselineScore = getStudentBaselineScore("total");
+      const baselineLabel = getBaselineLabelText();
+
+      const gapPg = (baselineScore - prog.pgWeighted).toFixed(2);
+      const gapTop = (baselineScore - prog.leaderboardTop).toFixed(1).replace(".0", "");
+
+      // Build 3 Priority Subtests Cards for this specific choice
+      const prioritySubtestCardsHtml = prog.prioritySubtests.map((subKey, i) => {
+        const subSeries = studentToSeries[subKey];
+        const studentSubScore = getStudentBaselineScore(subKey);
+        const pgSubTarget = prog.pgSubtests[subKey];
+        const topSubScore = prog.leaderboardSubtests[subKey];
+        const gapVsPg = (studentSubScore - pgSubTarget).toFixed(0);
+        const gapVsTop = (studentSubScore - topSubScore).toFixed(0);
+
+        return `
+          <div style="border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 8px; padding: 12px 14px; background: #fffbfa;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; color: #b42318; text-transform: uppercase;">Prioritas #${i + 1} ${prog.prodi}</span>
+              <span class="badge" style="background: #fef3f2; color: #b42318; font-size: 10.5px; font-weight: 700;">Selisih Acuan: ${gapVsPg}</span>
+            </div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 8px;">${subSeries.name}</div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: #ffffff; border: 1px solid #f1f5f9; border-radius: 6px; padding: 8px; text-align: center;">
+              <div>
+                <div style="font-size: 10px; color: var(--muted); font-weight: 600;">Skor Garuda</div>
+                <div style="font-size: 15px; font-weight: 800; color: #b42318;">${studentSubScore}</div>
+              </div>
+              <div style="border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+                <div style="font-size: 10px; color: var(--muted); font-weight: 600;">Acuan RG</div>
+                <div style="font-size: 15px; font-weight: 800; color: #1078ca;">${pgSubTarget}</div>
+              </div>
+              <div>
+                <div style="font-size: 10px; color: var(--muted); font-weight: 600;">Top Pesaing</div>
+                <div style="font-size: 15px; font-weight: 800; color: #027a48;">${topSubScore}</div>
+              </div>
+            </div>
+            <div style="margin-top: 6px; font-size: 11px; color: #64748b;">
+              Selisih vs Top Leaderboard: <strong style="color: #b42318;">${gapVsTop} poin</strong>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Peer campuses comparison pills
+      const peerCompareHtml = prog.peerComparisonIds.map(pid => {
+        const peer = programCatalog[pid];
+        if (!peer) return "";
+        const isCurrent = pid === prog.id;
+        const diff = (baselineScore - peer.pgWeighted).toFixed(1);
+        return `
+          <div
+            onclick="changeSlotProgram(${activeSlotIndex}, '${peer.id}')"
+            style="cursor: pointer; border: 1px solid ${isCurrent ? '#1078ca' : '#e2e8f0'}; background: ${isCurrent ? '#eff8ff' : '#f8fafc'}; border-radius: 8px; padding: 10px 12px; transition: all 0.15s;"
+            title="Klik untuk mengganti ${slot.slotLabel} ke ${peer.fullTitle}"
+          >
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+              <span style="font-size: 12px; font-weight: 700; color: ${isCurrent ? '#175cd3' : 'var(--ink)'};">${peer.shortTitle}</span>
+              ${isCurrent ? '<span class="badge" style="background:#1078ca;color:#fff;font-size:9.5px;">Aktif</span>' : '<span style="font-size:10.5px;color:#1078ca;font-weight:600;">Pilih ➔</span>'}
+            </div>
+            <div style="font-size: 11.5px; color: var(--muted); margin-top: 4px;">
+              Acuan RG: <strong>${peer.pgWeighted.toFixed(2)}</strong> • Selisih: <strong style="color: ${diff >= -45 ? '#027a48' : '#b42318'};">${diff}</strong>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <!-- Header Row -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--border-light);">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+              <span class="badge" style="background: #eff8ff; color: #175cd3; font-weight: 700;">${slot.slotLabel} • ${slot.statusAspirasi}</span>
+              <span class="badge" style="background: #f1f5f9; color: #334155; font-weight: 600;">${prog.rumpun}</span>
+              <span class="badge" style="background: #ecfdf3; color: #027a48; font-weight: 600;">Mapel Pendukung SNBP: ${prog.supportSubjects.join(" & ")}</span>
+            </div>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--ink);">${prog.fullTitle}</h3>
+            <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--muted);">
+              📍 ${prog.city} • Daya Tampung SNBT 2026: <strong>${prog.quota2026} kursi</strong> • Peminat SNBT 2025: <strong>${prog.applicants2025.toLocaleString("id-ID")} peserta</strong> • Rasio Keketatan: <strong>${prog.tightness}</strong>
+            </p>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase;">Acuan Skor Siswa Saat Ini</div>
+            <div style="font-size: 15px; font-weight: 800; color: var(--ink);">${baselineLabel}</div>
+          </div>
+        </div>
+
+        <!-- 4 Competitive Position Cards -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px;">
+          <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Peringkat Leaderboard RG</div>
+            <div style="font-size: 18px; font-weight: 800; color: #1078ca; margin: 4px 0 2px;">${prog.leaderboardRank}</div>
+            <div style="font-size: 11.5px; color: #027a48; font-weight: 600;">✓ ${prog.leaderboardPercentile}</div>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;">PG Weighted Score (Acuan RG)</div>
+            <div style="font-size: 18px; font-weight: 800; color: var(--ink); margin: 4px 0 2px;">${prog.pgWeighted.toFixed(2)}</div>
+            <div style="font-size: 11.5px; color: #b42318; font-weight: 700;">Selisih: ${gapPg} poin (vs ${baselineScore})</div>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Nilai Tertinggi Leaderboard</div>
+            <div style="font-size: 18px; font-weight: 800; color: #027a48; margin: 4px 0 2px;">${prog.leaderboardTop}</div>
+            <div style="font-size: 11.5px; color: #b42318; font-weight: 700;">Selisih: ${gapTop} poin (vs ${baselineScore})</div>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Target Skor Aman UTBK</div>
+            <div style="font-size: 18px; font-weight: 800; color: #175cd3; margin: 4px 0 2px;">${prog.targetScore}</div>
+            <div style="font-size: 11.5px; color: var(--muted);">Target bertahap TO 5: <strong>585+</strong></div>
+          </div>
+        </div>
+
+        <!-- 3 Priority Subtests Specific to This Choice -->
+        <div style="margin-top: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.02em;">
+              🔥 3 Subtes Prioritas Utama Pembobot ${prog.fullTitle}:
+            </h4>
+            <span style="font-size: 11.5px; color: var(--muted);">Berdasarkan bobot subtes internal RG & capaian peserta tertinggi di prodi ini</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            ${prioritySubtestCardsHtml}
+          </div>
+        </div>
+
+        <!-- Quick Comparison Across Peer Campuses -->
+        <div style="margin-top: 18px;">
+          <div style="font-size: 12px; font-weight: 700; color: #475467; margin-bottom: 8px;">
+            🔄 Bandingkan atau Ganti ${slot.slotLabel} dengan Jurusan/Universitas Lain (Klik untuk Simulasi):
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            ${peerCompareHtml}
+          </div>
+        </div>
+
+        <!-- SA Specific Discussion Guidance -->
+        <div class="choice-sa-note" style="border-left-color: #1078ca; background: #f0f9ff; margin-top: 16px;">
+          <strong style="color: #1e40af;">💡 Panduan Diskusi SA untuk ${prog.shortTitle}:</strong> ${prog.saNote || prog.saGuidance}
+        </div>
+      `;
+    }
+
+    function renderStep2TargetAndChart() {
+      const prog = getActiveProgram();
+      const baselineScore = getStudentBaselineScore("total");
+      const gapPg = (baselineScore - prog.pgWeighted).toFixed(2);
+
+      const labelEl = document.getElementById("step2TargetCardLabel");
+      if (labelEl) labelEl.innerText = `Acuan Skor ${prog.shortTitle}`;
+
+      const valEl = document.getElementById("step2TargetCardVal");
+      if (valEl) valEl.innerText = prog.pgWeighted.toFixed(2);
+
+      const hintEl = document.getElementById("step2TargetCardHint");
+      if (hintEl) hintEl.innerHTML = `Selisih saat ini: <strong style="color: #b42318;">${gapPg} poin</strong>`;
+
+      const chartBadgeEl = document.getElementById("chartActiveChoiceBadge");
+      if (chartBadgeEl) chartBadgeEl.innerText = `Acuan Aktif: ${prog.shortTitle}`;
+
+      updateChartSeries(currentChartSubtestKey);
+      renderRaporTable();
+    }
+
+    function renderStep3Diagnostics() {
+      const prog = getActiveProgram();
+      const cardsContainer = document.getElementById("step3DiagnosticCards");
+      const tableBody = document.getElementById("step3SubtestTableBody");
+
+      const accordionTitle = document.getElementById("step3TableAccordionTitle");
+      if (accordionTitle) accordionTitle.innerText = `Tabel Lengkap Seluruh 7 Subtes UTBK vs Acuan ${prog.fullTitle}`;
+
+      const colAcuan = document.getElementById("step3TableColAcuan");
+      if (colAcuan) colAcuan.innerText = `Acuan RG (${prog.shortTitle})`;
+
+      const colTop = document.getElementById("step3TableColTop");
+      if (colTop) colTop.innerText = `Top Leaderboard (${prog.shortTitle})`;
+
+      // Render 3 Priority Subtest Diagnostic Cards for active choice
+      if (cardsContainer) {
+        cardsContainer.innerHTML = prog.prioritySubtests.map((subKey, idx) => {
+          const s = studentToSeries[subKey];
+          const currentScore = getStudentBaselineScore(subKey);
+          const acuanTarget = prog.pgSubtests[subKey];
+          const topTarget = prog.leaderboardSubtests[subKey];
+          const gap = (currentScore - acuanTarget).toFixed(0);
+          const topicsHtml = (s.topics || []).map(t => `<li>${t}</li>`).join("");
+
+          return `
+            <div class="diag-card critical">
+              <div>
+                <div class="diag-card-title">
+                  <span>${s.name}</span>
+                  <span class="badge" style="background: #fef3f2; color: #b42318; font-size: 11px;">Prioritas #${idx + 1} ${prog.prodi}</span>
+                </div>
+                <div class="diag-score-row">
+                  <span class="diag-score">${currentScore}</span>
+                  <span class="diag-target">Acuan RG: <strong>${acuanTarget}</strong> (Gap: <strong style="color:#b42318;">${gap}</strong>) • Top: ${topTarget}</span>
+                </div>
+                <div class="weak-topics-title">3 Topik Prioritas Perbaikan:</div>
+                <ul class="weak-topics-list">
+                  ${topicsHtml}
+                </ul>
+              </div>
+              <div style="margin-top: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-light); padding-top: 8px;">
+                Target kenaikan di TO 5: <strong>+${idx === 0 ? 90 : (idx === 1 ? 75 : 60)} poin</strong>
+              </div>
+            </div>
+          `;
+        }).join("");
       }
 
-      // Update legends
-      document.getElementById("chartTargetLegend").innerText = `${data.targetName}: ${data.target}`;
-      const mean = Math.round(data.scores.reduce((a,b) => a+b, 0) / data.scores.length);
-      document.getElementById("chartMeanLegend").innerText = `Rata-rata 4 TO: ${mean}`;
+      // Render Full 7 Subtests Table ordered by gap vs active choice's Acuan RG
+      if (tableBody) {
+        const subtestKeys = ["pk", "pu", "pm", "lbi", "pbm", "lbe", "ppu"];
+        const rows = subtestKeys.map(k => {
+          const s = studentToSeries[k];
+          const avg = calcMean(s.scores);
+          const currentVal = getStudentBaselineScore(k);
+          const acuan = prog.pgSubtests[k];
+          const topLb = prog.leaderboardSubtests[k];
+          const gap = Math.round(currentVal - acuan);
+          const isPriority = prog.prioritySubtests.includes(k);
+          return { key: k, s, avg, currentVal, acuan, topLb, gap, isPriority };
+        }).sort((a, b) => a.gap - b.gap);
 
-      // Coordinate mapping
-      // Chart canvas: width 860, height 250
-      // Left 60, Right 820, Top 30, Bottom 200
+        tableBody.innerHTML = rows.map(r => {
+          let badgeHtml = `<span class="badge" style="background: #edfcf2; color: #027a48;">Aman / Kompetitif</span>`;
+          let rowBg = "background: #f6fef9;";
+          let gapColor = "#027a48";
+
+          if (r.isPriority || r.gap < -150) {
+            badgeHtml = `<span class="badge" style="background: #fef3f2; color: #b42318;">Prioritas Utama ${prog.prodi}</span>`;
+            rowBg = "background: #fffbfa;";
+            gapColor = "#b42318";
+          } else if (r.gap < -30) {
+            badgeHtml = `<span class="badge" style="background: #fffcf5; color: #b54708;">Perlu Penguatan</span>`;
+            rowBg = "background: #fffdf5;";
+            gapColor = "#b54708";
+          }
+
+          return `
+            <tr style="${rowBg}">
+              <td><strong>${r.s.name}</strong></td>
+              <td style="text-align: center;">${r.s.scores[0]}</td>
+              <td style="text-align: center;">${r.s.scores[1]}</td>
+              <td style="text-align: center;">${r.s.scores[2]}</td>
+              <td style="text-align: center; font-weight: 700; color: ${gapColor};">${r.s.scores[3]}</td>
+              <td style="text-align: center; font-weight: 600;">${r.avg}</td>
+              <td style="text-align: center; font-weight: 700; color: #1078ca;">${r.acuan}</td>
+              <td style="text-align: center; font-weight: 600; color: #027a48;">${r.topLb}</td>
+              <td style="text-align: center; color: ${gapColor}; font-weight: 700;">${r.gap > 0 ? `+${r.gap}` : r.gap}</td>
+              <td style="text-align: center;">${badgeHtml}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+    }
+
+    function renderStep4Recommendations() {
+      const prog = getActiveProgram();
+      const baselineScore = getStudentBaselineScore("total");
+      const tbody = document.getElementById("step4RecommendationTableBody");
+      const gapHeader = document.getElementById("step4GapColHeader");
+      const badgeEl = document.getElementById("step4RumpunBadge");
+
+      if (gapHeader) gapHeader.innerText = `Selisih (vs ${baselineScore})`;
+      if (badgeEl) badgeEl.innerText = `Perbandingan Terhadap: ${prog.shortTitle}`;
+      if (!tbody) return;
+
+      const allPrograms = Object.values(programCatalog).sort((a, b) => b.pgWeighted - a.pgWeighted);
+
+      tbody.innerHTML = allPrograms.map(p => {
+        const gap = (baselineScore - p.pgWeighted).toFixed(2);
+        const isCurrentActive = p.id === prog.id;
+
+        let strategyBadge = `<span class="badge" style="background: #fef3f2; color: #b42318;">Target Tinggi / Ambisius</span>`;
+        let gapColor = "#b42318";
+        let recText = "Pertahankan di Pilihan 1 dengan syarat disiplin drill subtes prioritas 15 soal/hari.";
+
+        if (p.pgWeighted <= 590) {
+          strategyBadge = `<span class="badge" style="background: #edfcf2; color: #027a48;">Realistis & Aman</span>`;
+          gapColor = "#027a48";
+          recText = "Sangat disarankan sebagai Pilihan 2 / Cadangan pengaman di koridor Jawa Barat & Depok.";
+        } else if (p.pgWeighted <= 645) {
+          strategyBadge = `<span class="badge" style="background: #fffcf5; color: #b54708;">Menengah / Moderasi</span>`;
+          gapColor = "#b54708";
+          recText = "Opsi kompromi yang lebih terjangkau dibanding UGM/UI.";
+        }
+
+        return `
+          <tr style="${isCurrentActive ? 'background: #f0f9ff; font-weight: 600;' : ''}">
+            <td>${strategyBadge}</td>
+            <td>
+              <strong>${p.fullTitle}</strong>
+              ${isCurrentActive ? '<span class="badge" style="background:#1078ca;color:#fff;font-size:10px;margin-left:6px;">Pilihan Aktif</span>' : ''}
+              <div style="font-size: 11.5px; color: var(--muted);">Mapel Pendukung SNBP: ${p.supportSubjects.join(" & ")}</div>
+            </td>
+            <td style="text-align: center; font-weight: 700;">${p.pgWeighted.toFixed(2)}</td>
+            <td style="text-align: center; color: ${gapColor}; font-weight: 700;">${gap}</td>
+            <td style="text-align: center;">${p.tightness} (${p.quota2026} kursi)</td>
+            <td style="font-size: 12.5px;">${recText}</td>
+            <td style="text-align: center;">
+              <div style="display: flex; gap: 4px; justify-content: center;">
+                <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="applySimulatedProgramToSlot(0, '${p.id}')">Set Pilihan 1</button>
+                <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="applySimulatedProgramToSlot(1, '${p.id}')">Set Pilihan 2</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function syncStep5NotesWithChoices() {
+      const p1 = programCatalog[studentChoiceSlots[0].programId];
+      const p2 = programCatalog[studentChoiceSlots[1].programId];
+      const p3 = programCatalog[studentChoiceSlots[2].programId];
+      const noteTarget = document.getElementById("note_target");
+      if (noteTarget) {
+        noteTarget.value =
+          `Pilihan 1: ${p1.fullTitle} (Acuan Skor RG ~${p1.pgWeighted.toFixed(2)})\n` +
+          `Pilihan 2: ${p2.fullTitle} (Acuan Skor RG ~${p2.pgWeighted.toFixed(2)})\n` +
+          `Pilihan 3 / Cadangan: ${p3.fullTitle} (Acuan Skor RG ~${p3.pgWeighted.toFixed(2)})`;
+      }
+    }
+
+    function renderAllChoiceDrivenViews() {
+      renderChoicesTable();
+      renderChoiceSwitchers();
+      renderActiveChoiceAnalysis();
+      renderStep2TargetAndChart();
+      renderStep3Diagnostics();
+      renderStep4Recommendations();
+      syncStep5NotesWithChoices();
+    }
+
+    // =========================================================================
+    // 6. INTERACTIVE SVG CHART ENGINE (DYNAMIC TARGET FROM ACTIVE CHOICE)
+    // =========================================================================
+    function updateChartSeries(key) {
+      currentChartSubtestKey = key || "total";
+      const series = studentToSeries[currentChartSubtestKey] || studentToSeries.total;
+      const activeProg = getActiveProgram();
+
+      const targetVal = currentChartSubtestKey === "total"
+        ? Number(activeProg.pgWeighted.toFixed(0))
+        : (activeProg.pgSubtests[currentChartSubtestKey] || 650);
+
+      const targetLabel = currentChartSubtestKey === "total"
+        ? `Acuan ${activeProg.shortTitle}`
+        : `Acuan ${series.code} (${activeProg.shortTitle})`;
+
+      const deltaTotal = series.scores[series.scores.length - 1] - series.scores[0];
+      const trendBad = deltaTotal < 0;
+      const trendNote = deltaTotal < 0
+        ? `Tren Menurun (${deltaTotal} Poin)`
+        : (deltaTotal > 0 ? `Tren Naik (+${deltaTotal} Poin)` : `Stabil (0 Poin)`);
+
+      const badge = document.getElementById("chartTrendBadge");
+      if (badge) {
+        badge.innerText = trendNote;
+        badge.style.background = trendBad ? "#fef3f2" : "#edfcf2";
+        badge.style.color = trendBad ? "#b42318" : "#027a48";
+      }
+
+      const targetLegend = document.getElementById("chartTargetLegend");
+      if (targetLegend) targetLegend.innerText = `${targetLabel}: ${targetVal}`;
+
+      const mean = Math.round(calcMean(series.scores));
+      const meanLegend = document.getElementById("chartMeanLegend");
+      if (meanLegend) meanLegend.innerText = `Rata-rata 4 TO: ${mean}`;
+
       const leftX = 80;
       const rightX = 810;
       const topY = 30;
       const botY = 200;
-      const minY = data.minY;
-      const maxY = data.maxY;
+      const allVals = [...series.scores, targetVal];
+      const minY = Math.min(series.minY, Math.floor((Math.min(...allVals) - 30) / 50) * 50);
+      const maxY = Math.max(series.maxY, Math.ceil((Math.max(...allVals) + 30) / 50) * 50);
 
       function getY(val) {
         return botY - ((val - minY) / (maxY - minY)) * (botY - topY);
       }
 
       function getX(idx) {
-        return leftX + (idx * ((rightX - leftX) / (data.scores.length - 1)));
+        return leftX + (idx * ((rightX - leftX) / (series.scores.length - 1)));
       }
 
-      // Draw Grid Lines & Y labels (step 50)
+      const stepSize = (maxY - minY) > 350 ? 100 : 50;
       let gridHtml = "";
-      for (let v = minY; v <= maxY; v += 50) {
+      for (let v = minY; v <= maxY; v += stepSize) {
         const y = getY(v);
         gridHtml += `<line x1="${leftX}" y1="${y}" x2="${rightX}" y2="${y}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,2"/>`;
         gridHtml += `<text x="${leftX - 10}" y="${y + 4}" fill="#64748b" font-size="11" font-weight="600" text-anchor="end">${v}</text>`;
       }
       document.getElementById("svgGridLines").innerHTML = gridHtml;
 
-      // Draw Target Line (Red Dashed)
-      const targetY = getY(data.target);
+      const targetY = getY(targetVal);
       let targetHtml = `<line x1="${leftX}" y1="${targetY}" x2="${rightX}" y2="${targetY}" stroke="#b42318" stroke-width="1.8" stroke-dasharray="5,4"/>`;
-      targetHtml += `<text x="${rightX}" y="${targetY - 6}" fill="#b42318" font-size="11" font-weight="700" text-anchor="end">Target: ${data.target}</text>`;
+      targetHtml += `<text x="${rightX}" y="${targetY - 6}" fill="#b42318" font-size="11" font-weight="700" text-anchor="end">${targetLabel}: ${targetVal}</text>`;
       document.getElementById("svgTargetLine").innerHTML = targetHtml;
 
-      // Draw Mean Line (Gray Dashed)
       const meanY = getY(mean);
       let meanHtml = `<line x1="${leftX}" y1="${meanY}" x2="${rightX}" y2="${meanY}" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>`;
       meanHtml += `<text x="${leftX + 8}" y="${meanY - 6}" fill="#64748b" font-size="10.5" font-weight="600">Rata-rata: ${mean}</text>`;
       document.getElementById("svgMeanLine").innerHTML = meanHtml;
 
-      // Calculate Points
-      const points = data.scores.map((s, idx) => ({
+      const points = series.scores.map((s, idx) => ({
         x: getX(idx),
         y: getY(s),
         score: s,
-        date: data.dates[idx]
+        date: toDates[idx]
       }));
 
-      // Polyline & Area
       const polyPts = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
       document.getElementById("svgPolyline").setAttribute("points", polyPts);
-      const areaPts = `${points[0].x.toFixed(1)},${botY} ` + polyPts + ` ${points[points.length-1].x.toFixed(1)},${botY}`;
+      const areaPts = `${points[0].x.toFixed(1)},${botY} ` + polyPts + ` ${points[points.length - 1].x.toFixed(1)},${botY}`;
       document.getElementById("svgAreaPolygon").setAttribute("points", areaPts);
 
-      // Points Group
       let pointsHtml = "";
       points.forEach((p, idx) => {
         const isLatest = idx === points.length - 1;
-        const circleColor = isLatest && data.trendBad ? "#b42318" : "#0284c7";
-        const badgeBg = isLatest && data.trendBad ? "#fef3f2" : "#ffffff";
-        const badgeBorder = isLatest && data.trendBad ? "#fecdca" : "#0284c7";
-        const badgeText = isLatest && data.trendBad ? "#b42318" : "#0284c7";
+        const circleColor = isLatest && trendBad ? "#b42318" : "#0284c7";
+        const badgeBg = isLatest && trendBad ? "#fef3f2" : "#ffffff";
+        const badgeBorder = isLatest && trendBad ? "#fecdca" : "#0284c7";
+        const badgeText = isLatest && trendBad ? "#b42318" : "#0284c7";
 
-        // Dot
         pointsHtml += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#ffffff" stroke="${circleColor}" stroke-width="3"/>`;
         if (isLatest) {
           pointsHtml += `<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="${circleColor}"/>`;
         }
-
-        // Score Badge above dot
         pointsHtml += `<g transform="translate(${p.x}, ${p.y - 14})">
           <rect x="-24" y="-18" width="48" height="20" rx="4" fill="${badgeBg}" stroke="${badgeBorder}" stroke-width="1.2"/>
           <text x="0" y="-4" fill="${badgeText}" font-size="12" font-weight="700" text-anchor="middle">${p.score}</text>
@@ -2464,26 +3028,25 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih j
       });
       document.getElementById("svgPointsGroup").innerHTML = pointsHtml;
 
-      // X-Axis Labels
       let xLabelsHtml = "";
       points.forEach(p => {
         xLabelsHtml += `<text x="${p.x}" y="${botY + 22}" fill="#334155" font-size="11.5" font-weight="600" text-anchor="middle">${p.date}</text>`;
       });
       document.getElementById("svgXLabels").innerHTML = xLabelsHtml;
 
-      // Stat Boxes
       let statBoxesHtml = "";
-      data.scores.forEach((s, idx) => {
-        const delta = idx === 0 ? "Baseline" : (s - data.scores[idx-1] >= 0 ? `+${s - data.scores[idx-1]} poin` : `${s - data.scores[idx-1]} poin`);
-        const deltaColor = idx === 0 ? "#059669" : (s - data.scores[idx-1] >= 0 ? "#059669" : "#b42318");
-        const isLatest = idx === data.scores.length - 1;
-        const boxBorder = isLatest && data.trendBad ? "#fedf89" : "var(--border)";
-        const boxBg = isLatest && data.trendBad ? "#fffcf5" : "#ffffff";
+      series.scores.forEach((s, idx) => {
+        const diff = idx === 0 ? 0 : s - series.scores[idx - 1];
+        const delta = idx === 0 ? "Baseline TO 1" : (diff >= 0 ? `+${diff} poin` : `${diff} poin`);
+        const deltaColor = idx === 0 ? "#059669" : (diff >= 0 ? "#059669" : "#b42318");
+        const isLatest = idx === series.scores.length - 1;
+        const boxBorder = isLatest && trendBad ? "#fedf89" : "var(--border)";
+        const boxBg = isLatest && trendBad ? "#fffcf5" : "#ffffff";
 
         statBoxesHtml += `
           <div style="background: ${boxBg}; border: 1px solid ${boxBorder}; border-radius: 8px; padding: 12px 8px;">
-            <div style="font-size: 11.5px; color: var(--muted); font-weight: 600;">${data.dates[idx]}</div>
-            <div style="font-size: 22px; font-weight: 800; color: ${isLatest && data.trendBad ? "#b42318" : "#1e293b"}; margin: 4px 0 2px;">${s}</div>
+            <div style="font-size: 11.5px; color: var(--muted); font-weight: 600;">${toDates[idx]}</div>
+            <div style="font-size: 22px; font-weight: 800; color: ${isLatest && trendBad ? "#b42318" : "#1e293b"}; margin: 4px 0 2px;">${s}</div>
             <div style="font-size: 11px; color: ${deltaColor}; font-weight: 700;">${delta}</div>
           </div>
         `;
@@ -2491,277 +3054,92 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih j
       document.getElementById("chartStatBoxes").innerHTML = statBoxesHtml;
     }
 
-    // Initialize chart on page load
-    window.addEventListener("DOMContentLoaded", () => {
-      const initialSubtest = urlParams.get("subtest") || "total";
-      updateChartSeries(initialSubtest);
-      const sel = document.getElementById("chartFilterSelect");
-      if (sel) sel.value = initialSubtest;
-    });
-
-    // Scroll-Spy for Quick-Jump Nav
-    const stepSections = document.querySelectorAll('.section-block');
-    const navPills = document.querySelectorAll('.jump-pill');
+    // =========================================================================
+    // 7. NAVIGATION, SCROLL-SPY, DRAWER & LOCK STATE
+    // =========================================================================
+    const stepSections = document.querySelectorAll(".section-block");
+    const navPills = document.querySelectorAll(".jump-pill");
 
     function onScrollSpy() {
       const scrollY = window.pageYOffset || document.documentElement.scrollTop;
       const offsetMargin = 160;
 
-      let currentId = 'step1';
+      let currentId = "step1";
       stepSections.forEach(section => {
         const top = section.offsetTop - offsetMargin;
         if (scrollY >= top) {
-          currentId = section.getAttribute('id');
+          currentId = section.getAttribute("id");
         }
       });
 
       navPills.forEach(pill => {
-        if (pill.getAttribute('data-target') === currentId) {
-          pill.classList.add('active');
+        if (pill.getAttribute("data-target") === currentId) {
+          pill.classList.add("active");
         } else {
-          pill.classList.remove('active');
+          pill.classList.remove("active");
         }
       });
     }
 
-    window.addEventListener('scroll', onScrollSpy);
-    window.addEventListener('DOMContentLoaded', onScrollSpy);
+    window.addEventListener("scroll", onScrollSpy);
 
-    // Side Drawer for SA Cheat Sheet
     function toggleDrawer(open) {
-      const overlay = document.getElementById('drawerOverlay');
-      const sidebar = document.getElementById('drawerSidebar');
+      const overlay = document.getElementById("drawerOverlay");
+      const sidebar = document.getElementById("drawerSidebar");
       if (open) {
-        overlay.classList.add('open');
-        sidebar.classList.add('open');
+        overlay.classList.add("open");
+        sidebar.classList.add("open");
       } else {
-        overlay.classList.remove('open');
-        sidebar.classList.remove('open');
+        overlay.classList.remove("open");
+        sidebar.classList.remove("open");
       }
     }
 
-    // Lock State Toggle
     function toggleLockState(forceLock) {
-      if (typeof forceLock === 'boolean') {
-        isLocked = forceLock;
-      } else {
-        isLocked = !isLocked;
-      }
-
-      const badge = document.getElementById('statusBadge');
-      const btn = document.getElementById('btnLockToggle');
-      const btnLabel = document.getElementById('lockButtonLabel');
+      isLocked = typeof forceLock === "boolean" ? forceLock : !isLocked;
+      const badge = document.getElementById("statusBadge");
+      const btn = document.getElementById("btnLockToggle");
+      const btnLabel = document.getElementById("lockButtonLabel");
 
       if (isLocked) {
-        badge.className = 'badge badge-locked';
-        badge.innerText = 'Terkunci (Final)';
-        btn.className = 'btn btn-outline';
-        btnLabel.innerText = 'Buka Kunci Data';
-        alert('Konsultasi Checkpoint 1 telah difinalisasi dan dikunci! Lembar PDF siap dicetak untuk orang tua.');
+        badge.className = "badge badge-locked";
+        badge.innerText = "Terkunci (Final)";
+        btn.className = "btn btn-outline";
+        btnLabel.innerText = "Buka Kunci Data";
+        alert("Konsultasi Checkpoint 1 telah difinalisasi dan dikunci! Lembar PDF siap dicetak untuk orang tua.");
       } else {
-        badge.className = 'badge badge-draft';
-        badge.innerText = 'Draft Checkpoint 1';
-        btn.className = 'btn btn-primary';
-        btnLabel.innerText = 'Finalisasi & Kunci Data';
+        badge.className = "badge badge-draft";
+        badge.innerText = "Draft Checkpoint 1";
+        btn.className = "btn btn-primary";
+        btnLabel.innerText = "Finalisasi & Kunci Data";
       }
     }
 
-    // Rapor Average Calculation
-    function calculateRaporAverage() {
-      const bindo = parseFloat(document.getElementById('rapor_bindo').value) || 0;
-      const bing = parseFloat(document.getElementById('rapor_bing').value) || 0;
-      const mat = parseFloat(document.getElementById('rapor_mat').value) || 0;
-      const fis = parseFloat(document.getElementById('rapor_fis').value) || 0;
-      const kim = parseFloat(document.getElementById('rapor_kim').value) || 0;
-      const bio = parseFloat(document.getElementById('rapor_bio').value) || 0;
-
-      // historical sums (smt 1-4)
-      // bindo: 86+87+90+90 = 353
-      document.getElementById('avg_bindo').innerText = ((353 + bindo) / 5).toFixed(1);
-      // bing: 87+88+89+90 = 354
-      document.getElementById('avg_bing').innerText = ((354 + bing) / 5).toFixed(1);
-      // mat: 84+86+87+88 = 345
-      document.getElementById('avg_mat').innerText = ((345 + mat) / 5).toFixed(1);
-      // fis: 85+86+88+87 = 346
-      document.getElementById('avg_fis').innerText = ((346 + fis) / 5).toFixed(1);
-      // kim: 88+89+90+91 = 358
-      document.getElementById('avg_kim').innerText = ((358 + kim) / 5).toFixed(1);
-      // bio: 87+88+89+90 = 354
-      document.getElementById('avg_bio').innerText = ((354 + bio) / 5).toFixed(1);
-
-      const totalAvg = ((353 + bindo + 354 + bing + 345 + mat + 346 + fis + 358 + kim + 354 + bio) / 30).toFixed(1);
-      document.getElementById('grand_rapor_avg').innerText = totalAvg + ' / 100';
-    }
-
-    // Simulation Modal Placeholder
     function openSimulationModal() {
-      alert('Membuka Fitur Simulasi Super CMS:\n\n• Profil: Garuda Mahawira Sena\n• Rata-rata Skor TO: 571\n• Pilihan 1: S1 Farmasi UGM (Passing Grade 672)\n• Pilihan 2: S1 Farmasi UI (Passing Grade 665)\n• Cadangan: S1 Kimia UI (Passing Grade 585)\n\nDisclaimer: Hasil simulasi merupakan acuan target belajar internal Ruangguru.');
+      const el = document.getElementById("step4");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  
-    // Choice Detail Modal Data & Logic
-    const choiceDetailsData = {
-      ugm: {
-        orderBadge: 'Pilihan 1 · Impian Siswa',
-        orderBadgeStyle: 'background: #eff8ff; color: #175cd3;',
-        degree: 'S1',
-        title: 'S1 Farmasi — Universitas Gadjah Mada (UGM)',
-        meta: 'Sleman, D.I. Yogyakarta • Daya Tampung SNBT 2026: 44 kursi • Peminat SNBT 2025: 2.412 • Keketatan: 1.82%',
-        rank: '17 dari 69 pemilih (Persentil 76% di Ruangguru)',
-        highest: '713 (Selisih dari tertinggi: -167 poin)',
-        pg: '672 (Rata-rata Garuda: 571, Gap: -101)',
-        weighted: '668.41 (Acuan bobot internal Ruangguru)',
-        subtests: [
-          { name: 'Penalaran Umum (PU)', garuda: 465, target: 734, gap: -269 },
-          { name: 'Pengetahuan Kuantitatif (PK)', garuda: 488, target: 768, gap: -280 },
-          { name: 'Literasi B. Indonesia (LBI)', garuda: 505, target: 653, gap: -148 },
-          { name: 'Penalaran Matematika (PM)', garuda: 565, target: 770, gap: -205 }
-        ],
-        saNote: 'Garuda sangat termotivasi di Farmasi UGM dan orang tua memberi izin lokasi di Yogyakarta. Posisi 17 dari 69 menunjukkan potensi kelompok atas, namun gap di PU & PK masih sangat lebar. Arahkan siswa mengejar target bertahap (+50 s.d. +70 poin/TO) dengan disiplin drill harian di 2 subtes ini.'
-      },
-      ui: {
-        orderBadge: 'Pilihan 2 · Alternatif Siswa',
-        orderBadgeStyle: 'background: #e0f2fe; color: #0369a1;',
-        degree: 'S1',
-        title: 'S1 Farmasi — Universitas Indonesia (UI)',
-        meta: 'Depok, Jawa Barat • Daya Tampung SNBT 2026: 32 kursi • Peminat SNBT 2025: 1.984 • Keketatan: 1.61%',
-        rank: '10 dari 41 pemilih (Persentil 75% di Ruangguru)',
-        highest: '718 (Selisih dari tertinggi: -172 poin)',
-        pg: '665 (Rata-rata Garuda: 571, Gap: -94)',
-        weighted: '655.56 (Acuan bobot internal Ruangguru)',
-        subtests: [
-          { name: 'Penalaran Umum (PU)', garuda: 465, target: 772, gap: -307 },
-          { name: 'Pengetahuan Kuantitatif (PK)', garuda: 488, target: 734, gap: -246 },
-          { name: 'Literasi B. Indonesia (LBI)', garuda: 505, target: 604, gap: -99 },
-          { name: 'Penalaran Matematika (PM)', garuda: 565, target: 731, gap: -166 }
-        ],
-        saNote: 'Passing grade Farmasi UI (665) hanya terpaut 7 poin di bawah UGM (672). Menjadikan Farmasi UI sebagai Pilihan 2 tidak memberikan bantalan pengaman yang cukup. SA wajib mengusulkan opsi cadangan rasional di kisaran 580–615.'
-      },
-      itb: {
-        orderBadge: 'Pilihan 3 · Aspirasi Orang Tua',
-        orderBadgeStyle: 'background: #fffcf5; color: #b54708;',
-        degree: 'S1',
-        title: 'S1 Teknik Mesin — Institut Teknologi Bandung (ITB)',
-        meta: 'Bandung, Jawa Barat • Daya Tampung SNBT 2026: 75 kursi • Peminat SNBT 2025: 1.620 • Keketatan: 4.63%',
-        rank: '22 dari 85 pemilih (Persentil 74% di Ruangguru)',
-        highest: '698 (Selisih dari tertinggi: -152 poin)',
-        pg: '650 (Rata-rata Garuda: 571, Gap: -79)',
-        weighted: '642.50 (Acuan bobot internal Ruangguru)',
-        subtests: [
-          { name: 'Penalaran Matematika (PM)', garuda: 565, target: 755, gap: -190 },
-          { name: 'Pengetahuan Kuantitatif (PK)', garuda: 488, target: 742, gap: -254 },
-          { name: 'Penalaran Umum (PU)', garuda: 465, target: 715, gap: -250 },
-          { name: 'Literasi B. Inggris (LBE)', garuda: 610, target: 668, gap: -58 }
-        ],
-        saNote: 'Jurusan usulan ayah Garuda. Kuota relatif lebih banyak (75 kursi). Cocok sebagai bahan kompromi keluarga bila Garuda bersedia membuka peluang di bidang rekayasa/teknik.'
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (urlParams.get("slot")) {
+        const sIdx = parseInt(urlParams.get("slot"), 10) - 1;
+        if (sIdx >= 0 && sIdx < studentChoiceSlots.length) activeSlotIndex = sIdx;
       }
-    };
-
-    function openChoiceModal(choiceId) {
-      const data = choiceDetailsData[choiceId];
-      if (!data) return;
-      document.getElementById('modalChoiceOrderBadge').innerText = data.orderBadge;
-      document.getElementById('modalChoiceOrderBadge').style = data.orderBadgeStyle + '; font-weight: 700;';
-      document.getElementById('modalChoiceDegreeBadge').innerText = data.degree;
-      document.getElementById('modalChoiceTitle').innerText = data.title;
-      document.getElementById('modalChoiceMeta').innerText = data.meta;
-
-      let subtestsHtml = data.subtests.map(s => `
-        <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; background: #fafafa;">
-          <div style="display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 700; color: #475467; margin-bottom: 6px;">
-            <span>${s.name}</span>
-            <span style="color: ${s.gap < -200 ? '#b42318' : '#b54708'}; font-weight: 700;">Gap ${s.gap}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
-            <span>Skor Garuda: <strong>${s.garuda}</strong></span>
-            <span style="color: var(--muted);">Acuan Pesaing: <strong>${s.target}</strong></span>
-          </div>
-        </div>
-      `).join('');
-
-      document.getElementById('modalChoiceBody').innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 18px;">
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
-            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">Posisi Peringkat Leaderboard</div>
-            <div style="font-size: 17px; font-weight: 700; color: #1078ca; margin-top: 2px;">${data.rank}</div>
-          </div>
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
-            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">Nilai Tertinggi Peserta Leaderboard</div>
-            <div style="font-size: 17px; font-weight: 700; color: var(--ink); margin-top: 2px;">${data.highest}</div>
-          </div>
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
-            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">Passing Grade SNBT Resmi</div>
-            <div style="font-size: 17px; font-weight: 700; color: var(--ink); margin-top: 2px;">${data.pg}</div>
-          </div>
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
-            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">PG Weighted Score (Ruangguru)</div>
-            <div style="font-size: 17px; font-weight: 700; color: #027a48; margin-top: 2px;">${data.weighted}</div>
-          </div>
-        </div>
-
-        <h4 style="font-size: 13px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.02em; margin: 16px 0 10px;">
-          Subtes Penentu & Gap Nilai Tertinggi Pesaing:
-        </h4>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px;">
-          ${subtestsHtml}
-        </div>
-
-        <div style="background: #f8fafc; border-left: 4px solid #1078ca; border-radius: 6px; padding: 12px 16px; font-size: 13px; color: #334155; line-height: 1.5;">
-          <strong>Panduan Diskusi Kakak Asuh:</strong> ${data.saNote}
-        </div>
-      `;
-
-      const modal = document.getElementById('choiceModal');
-      if (typeof modal.showModal === 'function') {
-        modal.showModal();
-      } else {
-        modal.style.display = 'block';
+      if (urlParams.get("prodi") && programCatalog[urlParams.get("prodi")]) {
+        studentChoiceSlots[activeSlotIndex].programId = urlParams.get("prodi");
       }
-    }
+      const initialSubtest = urlParams.get("subtest") || "total";
+      currentChartSubtestKey = initialSubtest;
+      const sel = document.getElementById("chartFilterSelect");
+      if (sel) sel.value = initialSubtest;
 
-    function closeChoiceModal() {
-      const modal = document.getElementById('choiceModal');
-      if (typeof modal.close === 'function') {
-        modal.close();
-      } else {
-        modal.style.display = 'none';
+      renderAllChoiceDrivenViews();
+      onScrollSpy();
+
+      if (urlParams.get("drawer") === "open") {
+        toggleDrawer(true);
       }
-    }
-
-    // Check URL parameters for step or view
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("view") === "all") {
-      toggleViewMode(true);
-    } else if (urlParams.get("step")) {
-      goToStep(parseInt(urlParams.get("step")));
-    }
-    if (urlParams.get("drawer") === "open") {
-      toggleDrawer(true);
-    }
-    if (urlParams.get("choice")) {
-      openChoiceModal(urlParams.get("choice"));
-    }
+    });
   </script>
-
-  <!-- Modal Dialog: Detail Analisis Pilihan Jurusan -->
-  <dialog id="choiceModal" style="border: 1px solid var(--border); border-radius: 12px; padding: 0; max-width: 720px; width: 90vw; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); background: #fff; margin: auto;">
-    <div style="padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
-      <div>
-        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
-          <span id="modalChoiceOrderBadge" class="badge" style="background: #eff8ff; color: #175cd3; font-weight: 700;">Pilihan 1</span>
-          <span id="modalChoiceDegreeBadge" class="badge" style="background: #f1f5f9; color: #475467;">S1</span>
-        </div>
-        <h2 id="modalChoiceTitle" style="font-size: 17px; font-weight: 700; color: var(--ink); margin: 0;">S1 Farmasi — Universitas Gadjah Mada</h2>
-        <p id="modalChoiceMeta" style="font-size: 12.5px; color: var(--muted); margin: 4px 0 0;">Daya Tampung SNBT 2026: 44 · Peminat: 2.412 · Keketatan: 1.82%</p>
-      </div>
-      <button type="button" onclick="closeChoiceModal()" style="border: none; background: transparent; font-size: 22px; cursor: pointer; color: #64748b;">✕</button>
-    </div>
-    <div id="modalChoiceBody" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
-      <!-- Content populated dynamically via JS -->
-    </div>
-    <div style="padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
-      <span style="font-size: 12px; color: var(--muted);">Data Sesi Leaderboard Episode 4 • Ruangguru Super CMS</span>
-      <button type="button" class="btn btn-outline" onclick="closeChoiceModal()">Tutup</button>
-    </div>
-  </dialog>
 </body>
 </html>
