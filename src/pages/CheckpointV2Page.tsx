@@ -134,6 +134,58 @@ export const CheckpointV2Page: React.FC = () => {
   const aboveTooltip = aboveTargetSubtests.map(formatSubtestItem).join(' · ');
   const belowTooltip = belowTargetSubtests.map(formatSubtestItem).join(' · ');
 
+  // Render helper for TO score trends
+  const renderTrend = (curr: number, prev: number) => {
+    if (curr > prev) return <span style={{ color: '#027a48', fontSize: 10 }}> ▲</span>;
+    if (curr < prev) return <span style={{ color: '#b42318', fontSize: 10 }}> ▼</span>;
+    return null;
+  };
+
+  // Helper for computing median of an array of numbers
+  const computeMedian = (arr: number[]) => {
+    if (!arr.length) return 0;
+    const sorted = [...arr].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  };
+
+  const formatNumIndo = (num: number) => {
+    return Number.isInteger(num) ? num.toString() : num.toFixed(1).replace('.', ',');
+  };
+
+  const getSubtestStatus = (gap: number) => {
+    if (gap >= 0) return { label: 'TERCAPAI', badgeClass: 'badge badge-success', color: '#12b76a' };
+    if (gap >= -30) return { label: 'MENDEKATI 600', badgeClass: 'badge badge-info', color: '#2e90fa' };
+    if (gap >= -90) return { label: 'PERLU DITINGKATKAN', badgeClass: 'badge badge-warn', color: '#f79009' };
+    return { label: 'PRIORITAS UTAMA', badgeClass: 'badge badge-danger', color: '#d92d20' };
+  };
+
+  // Dynamic Ringkasan 8 Subtes calculations
+  const avgTO1 = subtestsV2Data.length ? Math.round(subtestsV2Data.reduce((s, x) => s + x.to1, 0) / subtestsV2Data.length) : 0;
+  const avgTO2 = subtestsV2Data.length ? Math.round(subtestsV2Data.reduce((s, x) => s + x.to2, 0) / subtestsV2Data.length) : 0;
+  const avgTO3 = subtestsV2Data.length ? Math.round(subtestsV2Data.reduce((s, x) => s + x.to3, 0) / subtestsV2Data.length) : 0;
+  const avgTO4 = subtestsV2Data.length ? Math.round(subtestsV2Data.reduce((s, x) => s + x.to4, 0) / subtestsV2Data.length) : 0;
+  const avgOverall = Math.round((avgTO1 + avgTO2 + avgTO3 + avgTO4) / 4);
+  const avgGap = avgTO4 - 600;
+  const avgFillPct = Math.max(0, Math.min(100, ((avgTO4 - 400) / 300) * 100));
+  const avgStatus = getSubtestStatus(avgGap);
+
+  const medTO1 = computeMedian(subtestsV2Data.map((s) => s.to1));
+  const medTO2 = computeMedian(subtestsV2Data.map((s) => s.to2));
+  const medTO3 = computeMedian(subtestsV2Data.map((s) => s.to3));
+  const medTO4 = computeMedian(subtestsV2Data.map((s) => s.to4));
+  const medOverall = (medTO1 + medTO2 + medTO3 + medTO4) / 4;
+  const medGap = medTO4 - 600;
+  const medFillPct = Math.max(0, Math.min(100, ((medTO4 - 400) / 300) * 100));
+  const medStatus = getSubtestStatus(medGap);
+
+  // Subtest with largest fluctuation for dynamic educational callout
+  const maxFluctSub = [...subtestsV2Data].sort((a, b) => {
+    const rangeB = Math.max(b.to1, b.to2, b.to3, b.to4) - Math.min(b.to1, b.to2, b.to3, b.to4);
+    const rangeA = Math.max(a.to1, a.to2, a.to3, a.to4) - Math.min(a.to1, a.to2, a.to3, a.to4);
+    return rangeB - rangeA;
+  })[0] || subtestsV2Data[0];
+
   // Deterministic, White-Box SA Guideline Engine (Controllable via /engine)
   const attendanceNumeric = parseFloat(studentIdentity.attendanceRate.replace('%', '')) || 0;
   const stage1Out = analyzeStage1(
@@ -607,11 +659,6 @@ export const CheckpointV2Page: React.FC = () => {
                   {subtestsV2Data.map((sub) => {
                     const isHigh = sub.status === 'PRIORITAS UTAMA';
                     const isDone = sub.gap >= 0;
-                    const renderTrend = (curr: number, prev: number) => {
-                      if (curr > prev) return <span style={{ color: '#027a48', fontSize: 10 }}> ▲</span>;
-                      if (curr < prev) return <span style={{ color: '#b42318', fontSize: 10 }}> ▼</span>;
-                      return null;
-                    };
                     return (
                       <tr key={sub.id} style={isHigh ? { background: '#fffbfa' } : undefined}>
                         <td><strong>{sub.name}</strong></td>
@@ -662,38 +709,42 @@ export const CheckpointV2Page: React.FC = () => {
                 <tbody>
                   <tr>
                     <td><strong>Rata-rata 8 subtes</strong></td>
-                    <td style={{ textAlign: 'center', fontWeight: 600 }}>601</td>
-                    <td style={{ textAlign: 'center', fontWeight: 600 }}>576 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
-                    <td style={{ textAlign: 'center', fontWeight: 600 }}>561 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#b54708' }}>546 <span style={{ fontSize: 10 }}>▼</span></td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#1078ca' }}>571</td>
+                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{avgTO1}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{avgTO2}{renderTrend(avgTO2, avgTO1)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{avgTO3}{renderTrend(avgTO3, avgTO2)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 700, color: avgStatus.color }}>{avgTO4}{renderTrend(avgTO4, avgTO3)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#1078ca' }}>{avgOverall}</td>
                     <td>
                       <div className="v2-progress-track">
-                        <div className="v2-progress-fill" style={{ width: '48.7%', background: '#f79009' }} />
+                        <div className="v2-progress-fill" style={{ width: `${avgFillPct.toFixed(1)}%`, background: avgStatus.color }} />
                         <div className="v2-progress-target-line" title="Target 600" />
                       </div>
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#b54708' }}>-54</td>
+                    <td style={{ textAlign: 'center', fontWeight: 700, color: avgStatus.color }}>
+                      {avgGap > 0 ? `+${avgGap}` : avgGap}
+                    </td>
                     <td style={{ textAlign: 'center' }}>
-                      <span className="badge badge-warn">PERLU DITINGKATKAN</span>
+                      <span className={avgStatus.badgeClass}>{avgStatus.label}</span>
                     </td>
                   </tr>
                   <tr>
                     <td><strong>Median 8 subtes</strong></td>
-                    <td style={{ textAlign: 'center', color: '#475467' }}>596</td>
-                    <td style={{ textAlign: 'center', color: '#475467' }}>572,5 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
-                    <td style={{ textAlign: 'center', color: '#475467' }}>567 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#b54708' }}>548,5 <span style={{ fontSize: 10 }}>▼</span></td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#475467' }}>569,8</td>
+                    <td style={{ textAlign: 'center', color: '#475467' }}>{formatNumIndo(medTO1)}</td>
+                    <td style={{ textAlign: 'center', color: '#475467' }}>{formatNumIndo(medTO2)}{renderTrend(medTO2, medTO1)}</td>
+                    <td style={{ textAlign: 'center', color: '#475467' }}>{formatNumIndo(medTO3)}{renderTrend(medTO3, medTO2)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 700, color: medStatus.color }}>{formatNumIndo(medTO4)}{renderTrend(medTO4, medTO3)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#475467' }}>{formatNumIndo(medOverall)}</td>
                     <td>
                       <div className="v2-progress-track">
-                        <div className="v2-progress-fill" style={{ width: '49.5%', background: '#f79009' }} />
+                        <div className="v2-progress-fill" style={{ width: `${medFillPct.toFixed(1)}%`, background: medStatus.color }} />
                         <div className="v2-progress-target-line" title="Target 600" />
                       </div>
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#b54708' }}>-51,5</td>
+                    <td style={{ textAlign: 'center', fontWeight: 700, color: medStatus.color }}>
+                      {medGap > 0 ? `+${formatNumIndo(medGap)}` : formatNumIndo(medGap)}
+                    </td>
                     <td style={{ textAlign: 'center' }}>
-                      <span className="badge badge-warn">PERLU DITINGKATKAN</span>
+                      <span className={medStatus.badgeClass}>{medStatus.label}</span>
                     </td>
                   </tr>
                 </tbody>
@@ -773,7 +824,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#eff8ff', padding: '10px 12px', borderRadius: 6, border: '1px solid #b2ddff', fontSize: 11.5, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#175cd3', marginBottom: 4 }}>📊 KONTEKS DATA (RERATA VS MEDIAN):</div>
                   <p style={{ margin: 0, color: '#334155' }}>
-                    Median (contoh LBI Soshum <code>628→494→488→573</code> = <strong>533,5</strong>) berasal dari <strong>riwayat pribadi siswa</strong> untuk melihat skor tipikal saat hasil berfluktuasi, bukan ranking nasional.
+                    Median (contoh {maxFluctSub.name} <code>{maxFluctSub.to1}→{maxFluctSub.to2}→{maxFluctSub.to3}→{maxFluctSub.to4}</code> = <strong>{maxFluctSub.median}</strong>) berasal dari <strong>riwayat pribadi siswa</strong> untuk melihat skor tipikal saat hasil berfluktuasi, bukan ranking nasional.
                   </p>
                 </div>
               </div>
