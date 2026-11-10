@@ -1,3 +1,0 @@
-Guided Report: median ranking and material priorities agree; no classroom popup or summary footnote; rules embedded consistently.
-Meeting Mode: median ranking and material priorities agree; no classroom popup or summary footnote; rules embedded consistently.
-PASS: weighted accuracy, 75% boundary, configurable quantity/score bands, three ranking keys, missing values, per-session/per-choice references.

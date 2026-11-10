@@ -1,3 +1,0 @@
-Guided Report: valid JS; embedded data matches; 4 tryout matrices match source; 16 exact note citations.
-Meeting Mode: valid JS; embedded data matches; 4 tryout matrices match source; 16 exact note citations.
-PASS: 114 drill sessions, UTBK 19 sessions / 36 correct of 74; attendance 36/44 including late; 16 teacher notes.
