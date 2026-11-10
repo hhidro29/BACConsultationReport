@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, BookOpen, ChevronDown, Compass, FileText } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
 import { SimulasiModal } from '../components/SimulasiModal';
 import {
@@ -526,20 +526,6 @@ export const CheckpointV2Page: React.FC = () => {
               </div>
             </div>
           </div>
-
-
-            {/* Next Stage Jump Link */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
-              <a
-                href="#tahap2"
-                onClick={(e) => scrollTo(e, '#tahap2')}
-                className="btn btn-outline"
-                style={{ fontWeight: 700, color: '#0284c7', borderColor: '#b9e6fe', background: '#f0f9ff', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                Lanjut ke Tahap 2: Skor Terbobot &amp; Jurusan <ChevronDown size={15} />
-              </a>
-            </div>
-
         </section>
 
         {/* ========================================================= */}
@@ -653,20 +639,6 @@ export const CheckpointV2Page: React.FC = () => {
               </div>
             </div>
           </div>
-
-
-            {/* Next Stage Jump Link */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
-              <a
-                href="#tahap3"
-                onClick={(e) => scrollTo(e, '#tahap3')}
-                className="btn btn-outline"
-                style={{ fontWeight: 700, color: '#b54708', borderColor: '#fedf89', background: '#fffbeb', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                Lanjut ke Tahap 3: Subtes Prioritas &amp; Drill Aplikasi <ChevronDown size={15} />
-              </a>
-            </div>
-
         </section>
 
         {/* ========================================================= */}
@@ -801,20 +773,6 @@ export const CheckpointV2Page: React.FC = () => {
               </div>
             </div>
           </div>
-
-
-            {/* Next Stage Jump Link */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
-              <a
-                href="#tahap4"
-                onClick={(e) => scrollTo(e, '#tahap4')}
-                className="btn btn-outline"
-                style={{ fontWeight: 700, color: '#027a48', borderColor: '#a6f4c5', background: '#ecfdf3', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                Lanjut ke Tahap 4: Rencana Aksi &amp; Catatan SA <ChevronDown size={15} />
-              </a>
-            </div>
-
         </section>
 
         {/* ========================================================= */}
@@ -1013,21 +971,6 @@ export const CheckpointV2Page: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Subtle Return-to-Top Footer (Keeps All Primary CTAs Unified at Profiling-Style Top Action Bar) */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 18px', borderRadius: 8, flexWrap: 'wrap', gap: 10 }}>
-            <div style={{ fontSize: 12, color: '#475467' }}>
-              ✓ Seluruh tahap konsultasi selesai ditinjau. Gunakan bar aksi di bagian atas halaman untuk <strong>Simulasi</strong>, <strong>Simpan Draft</strong>, <strong>Preview &amp; Download PDF</strong>, atau <strong>Kunci</strong>.
-            </div>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              style={{ padding: '6px 14px', fontSize: 12, whiteSpace: 'nowrap' }}
-            >
-              ↑ Kembali ke Bar Aksi Atas
-            </button>
           </div>
         </section>
       </main>
