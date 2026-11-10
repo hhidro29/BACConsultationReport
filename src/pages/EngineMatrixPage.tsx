@@ -51,16 +51,16 @@ interface PresetConfig {
 const PRESETS: PresetConfig[] = [
   {
     id: 'garuda',
-    label: 'Garuda (Kasus Saat Ini)',
-    desc: 'Skor turun konsisten 4 TO, konflik rumpun prodi (Farmasi vs Teknik Mesin), PK drill 5 soal & Literasi 0 soal.',
+    label: 'Garuda (Saintek: Beda Rumpun & Lokasi · Tren Turun)',
+    desc: 'Farmasi UGM/UI vs Teknik Mesin ITB, skor TO turun (601→546), PU drill 35 soal tapi PK 5 soal.',
     toScores: ['601', '576', '561', '546'],
     attendanceRatePct: 81.8,
     hasLargeSubtestSwing: true,
     hasMixedRumpun: true,
     familyAlignment: 'different_major',
-    minGapToTarget: -146,
-    maxGapToTarget: -69,
-    minParticipantsCount: 642,
+    minGapToTarget: -156,
+    maxGapToTarget: -95,
+    minParticipantsCount: 520,
     subtestName: 'Pengetahuan Kuantitatif (PK)',
     toLatest: 488,
     drillQuestions: 5,
@@ -68,58 +68,58 @@ const PRESETS: PresetConfig[] = [
     drillAccuracyPct: 40
   },
   {
-    id: 'four_above',
-    label: '4 Subtes ≥ 600 + Absensi < 80%',
-    desc: 'Tren naik konsisten, 4 subtes sudah mencapai ≥ 600, prodi selaras, tetapi kehadiran kelas di bawah 80%.',
-    toScores: ['542', '568', '591', '614'],
-    attendanceRatePct: 74,
+    id: 'nadira',
+    label: 'Nadira (Soshum: Pilihan Selaras · Tren Naik · Drill Aktif)',
+    desc: 'Hukum UI / HI UGM / Ilkom Unpad, skor TO naik (520→608), 3 subtes ≥ 600, drill aktif di semua subtes.',
+    toScores: ['520', '548', '575', '608'],
+    attendanceRatePct: 93.2,
     hasLargeSubtestSwing: false,
     hasMixedRumpun: false,
     familyAlignment: 'aligned',
-    minGapToTarget: -18,
-    maxGapToTarget: 24,
-    minParticipantsCount: 820,
-    subtestName: 'Penalaran Matematika (PM)',
-    toLatest: 618,
-    drillQuestions: 32,
-    drillSessions: 5,
-    drillAccuracyPct: 72
+    minGapToTarget: -84,
+    maxGapToTarget: -37,
+    minParticipantsCount: 620,
+    subtestName: 'Penalaran Umum (PU)',
+    toLatest: 582,
+    drillQuestions: 55,
+    drillSessions: 11,
+    drillAccuracyPct: 78
   },
   {
-    id: 'recovery_zero',
-    label: 'Recovery + Drill 0 Soal + Izin Lokasi',
-    desc: 'Skor sempat turun lalu naik di TO terakhir, keluarga ragu soal merantau, dan drill aplikasi masih 0 soal.',
-    toScores: ['590', '552', '540', '586'],
-    attendanceRatePct: 88,
+    id: 'rizky',
+    label: 'Rizky (Saintek: Semua Subtes < 500 · Drill 0 Soal · Absensi 72.5%)',
+    desc: 'Informatika ITS / SI Unair / RPL PENS, semua subtes < 500 (fondasi awal), drill 0 soal, kehadiran < 80%.',
+    toScores: ['465', '452', '445', '430'],
+    attendanceRatePct: 72.5,
     hasLargeSubtestSwing: false,
     hasMixedRumpun: false,
-    familyAlignment: 'location_limit',
-    minGapToTarget: -65,
-    maxGapToTarget: 12,
-    minParticipantsCount: 540,
-    subtestName: 'Literasi B. Indo & Inggris',
-    toLatest: 505,
+    familyAlignment: 'unconfirmed',
+    minGapToTarget: -277,
+    maxGapToTarget: -173,
+    minParticipantsCount: 480,
+    subtestName: 'Pengetahuan Kuantitatif (PK)',
+    toLatest: 420,
     drillQuestions: 0,
     drillSessions: 0,
     drillAccuracyPct: 0
   },
   {
-    id: 'one_to_low_sample',
-    label: 'Baru 1 TO + Pembanding < 500',
-    desc: 'Baru mengikuti 1 kali tryout, pilihan jurusan belum terkonfirmasi keluarga, dan jumlah pembanding prodi < 500 peserta.',
-    toScores: ['518', '', '', ''],
-    attendanceRatePct: 91,
+    id: 'high_acc_edge',
+    label: 'Akurasi Drill Tinggi (71%) Tapi Gap TO -65 Poin',
+    desc: 'Drill sudah 42 soal dan akurasi 71%, namun skor TO masih 535 (evaluasi manajemen waktu ujian & transfer soal).',
+    toScores: ['530', '545', '540', '535'],
+    attendanceRatePct: 90,
     hasLargeSubtestSwing: false,
     hasMixedRumpun: false,
-    familyAlignment: 'unconfirmed',
-    minGapToTarget: -120,
-    maxGapToTarget: -95,
-    minParticipantsCount: 310,
-    subtestName: 'Penalaran Umum (PU)',
-    toLatest: 495,
-    drillQuestions: 28,
-    drillSessions: 6,
-    drillAccuracyPct: 64
+    familyAlignment: 'aligned',
+    minGapToTarget: -65,
+    maxGapToTarget: -25,
+    minParticipantsCount: 450,
+    subtestName: 'Pengetahuan Kuantitatif (PK)',
+    toLatest: 535,
+    drillQuestions: 42,
+    drillSessions: 8,
+    drillAccuracyPct: 71
   }
 ];
 
@@ -267,8 +267,23 @@ export const EngineMatrixPage: React.FC = () => {
   );
 
   const stage4Out = analyzeStage4(
-    hasMixedRumpun || familyAlignment === 'location_limit' || familyAlignment === 'unconfirmed',
-    drillQuestions <= activeEvalConfig.thresholds.drillMismatchLowQ,
+    {
+      hasConflictOrLocationCheck:
+        hasMixedRumpun || familyAlignment === 'location_limit' || familyAlignment === 'unconfirmed',
+      hasMissingDrill: drillQuestions <= activeEvalConfig.thresholds.drillMismatchLowQ,
+      prioritySubtests: [
+        {
+          id: 'sim_1',
+          name: subtestName,
+          gapNum: toLatest - activeEvalConfig.thresholds.foundationScoreTarget,
+          rgQuestionsDone: drillQuestions,
+          lowestTopics: ['Materi Dasar #1', 'Materi Dasar #2']
+        }
+      ],
+      studentName: 'Siswa Contoh',
+      saName: 'Kakak Asuh',
+      parentName: 'Orang Tua Siswa'
+    },
     activeEvalConfig
   );
 
@@ -1064,8 +1079,10 @@ export const EngineMatrixPage: React.FC = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   {(
                     [
+                      { id: 'mastered_above', desc: 'Skor sudah mencapai target 600+' },
                       { id: 'no_drill', desc: 'Drill aplikasi = 0 soal' },
                       { id: 'low_vol_low_acc', desc: 'Soal < batas & akurasi < batas' },
+                      { id: 'high_acc_low_to', desc: 'Akurasi drill tinggi (≥ 70%) tapi skor TO masih drop' },
                       { id: 'active_drill_low_to', desc: 'Drill aktif tapi gap TO masih lebar' },
                       { id: 'near_target', desc: 'Gap ke target sudah dekat' },
                       { id: 'general_gap', desc: 'Kondisi umum lainnya' }

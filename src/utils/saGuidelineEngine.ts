@@ -1,9 +1,11 @@
 /**
- * Deterministic, White-Box SA Guideline Engine (Non-AI-Centered)
+ * Deterministic, Holistic Checkpoint 1 SA Guideline Engine (Non-AI-Centered)
  *
- * Every threshold and output wording template lives in `EngineRuleConfig` so
- * academic teams can inspect why rules trigger (`traces: RuleTrace[]`) and
- * directly override thresholds or output templates without touching code.
+ * Evaluates any student profile for Checkpoint 1:
+ * - Stage 1: 15 TO trend patterns, foundation scores (including all < 500), swings, attendance
+ * - Stage 2: Generic major rumpun (Saintek/Soshum), location check, weighted gap bands, sample size
+ * - Stage 3: 7 drill/score subtest conditions (including high accuracy but low TO, and mastered 600+)
+ * - Stage 4: Dynamic 4-item Action Plans auto-generated from student's priority subtests & weak topics
  */
 
 export type TryoutPattern =
@@ -27,7 +29,9 @@ export type Stage3ConditionId =
   | 'no_drill'
   | 'low_vol_low_acc'
   | 'active_drill_low_to'
+  | 'high_acc_low_to'
   | 'near_target'
+  | 'mastered_above'
   | 'general_gap';
 
 export interface RuleTrace {
@@ -86,7 +90,7 @@ export interface EngineRuleConfig {
 }
 
 export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
-  version: 1,
+  version: 2,
   thresholds: {
     toTolerancePts: 5,
     foundationScoreTarget: 600,
@@ -229,10 +233,20 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
       saTask:
         'Bandingkan cara siswa mengerjakan latihan vs saat tryout (manajemen waktu, ketelitian premis, atau variasi soal).'
     },
-    near_target: {
-      label: 'Mendekati Batas 600',
+    high_acc_low_to: {
+      label: 'Akurasi Drill Tinggi · Gap TO Masih Ada',
       saTask:
-        'Pertahankan ritme latihan pada topik yang masih salah agar stabil melampaui 600.'
+        'Konsep dasar latihan sudah baik di aplikasi; evaluasi simulasi pengerjaan saat tryout (manajemen waktu, ketelitian membaca jebakan, atau mental ujian).'
+    },
+    near_target: {
+      label: 'Mendekati Batas Target',
+      saTask:
+        'Pertahankan ritme latihan pada topik yang masih salah agar stabil melampaui batas target acuan.'
+    },
+    mastered_above: {
+      label: 'Target 600+ Tercapai',
+      saTask:
+        'Pertahankan ritme pemeliharaan skor dan alokasikan porsi jam latihan lebih banyak ke subtes prioritas yang masih di bawah target acuan.'
     },
     general_gap: {
       label: 'Perlu Penguatan Terarah',
@@ -329,8 +343,13 @@ export function analyzeStage1(
   const extraNotes: string[] = [];
   const aboveCount = input.subtestRows.filter((s) => s.toLatest >= th.foundationScoreTarget).length;
   const totalSub = input.subtestRows.length;
+  const allBelow500 = totalSub > 0 && input.subtestRows.every((s) => s.toLatest < 500);
 
-  if (totalSub > 0 && aboveCount === totalSub) {
+  if (allBelow500) {
+    extraNotes.push(
+      'Seluruh subtes saat ini masih berada di bawah 500 (tahap fondasi awal). Fokuskan target jangka pendek pada 2–3 subtes terdekat sebelum membidik 600 di semua subtes.'
+    );
+  } else if (totalSub > 0 && aboveCount === totalSub) {
     extraNotes.push(
       `Seluruh subtes telah mencapai batas acuan ≥ ${th.foundationScoreTarget}. Fokus pembahasan dapat diarahkan ke pemantapan subtes berbobot prodi.`
     );
@@ -375,14 +394,15 @@ export function analyzeStage1(
     {
       ruleId: 's1_foundation',
       ruleName: `Capaian Fondasi ≥ ${th.foundationScoreTarget}`,
-      expression: `subtes ≥ ${th.foundationScoreTarget} = ${aboveCount} dari ${totalSub}`,
+      expression: `subtes ≥ ${th.foundationScoreTarget} = ${aboveCount} dari ${totalSub}${allBelow500 ? ' (semua < 500)' : ''}`,
       matched: totalSub > 0,
-      effect:
-        aboveCount === totalSub && totalSub > 0
-          ? 'Semua subtes di atas target → fokus bobot prodi'
-          : aboveCount > 0
-          ? `Apresiasi ${aboveCount} subtes kuat sebelum bahas gap`
-          : 'Mulai dengan penguatan bertahap dari gap terdekat'
+      effect: allBelow500
+        ? 'Tahap fondasi awal (semua < 500) → target bertahap'
+        : aboveCount === totalSub && totalSub > 0
+        ? 'Semua subtes di atas target → fokus bobot prodi'
+        : aboveCount > 0
+        ? `Apresiasi ${aboveCount} subtes kuat sebelum bahas gap`
+        : 'Mulai dengan penguatan bertahap dari gap terdekat'
     },
     {
       ruleId: 's1_swing',
@@ -417,12 +437,26 @@ export function analyzeStage1(
   };
 }
 
+export interface Stage2ProgramItem {
+  priority: string;
+  prodi: string;
+  univ: string;
+  rumpun?: 'saintek' | 'soshum' | 'campuran';
+  city?: string;
+  isOutOfTown?: boolean;
+  gap?: number;
+  participantsCount?: number;
+}
+
 export interface Stage2Input {
-  hasMixedRumpun: boolean;
+  programs?: Stage2ProgramItem[];
   familyAlignment: 'aligned' | 'different_major' | 'location_limit' | 'unconfirmed';
-  minGapToTarget: number;
-  maxGapToTarget: number;
-  minParticipantsCount: number;
+  studentHomeCity?: string;
+  // Fallbacks if programs array is omitted
+  hasMixedRumpun?: boolean;
+  minGapToTarget?: number;
+  maxGapToTarget?: number;
+  minParticipantsCount?: number;
 }
 
 export interface Stage2Output {
@@ -443,7 +477,33 @@ export function analyzeStage2(
   const flags: string[] = [];
   const traces: RuleTrace[] = [];
 
-  const isConflict = input.hasMixedRumpun || input.familyAlignment === 'different_major';
+  // Dynamic generic calculation from programs if present
+  let hasMixed = input.hasMixedRumpun ?? false;
+  let hasOutOfTown = false;
+  let minGap = input.minGapToTarget ?? 0;
+  let maxGap = input.maxGapToTarget ?? 0;
+  let minParticipants = input.minParticipantsCount ?? 999;
+
+  if (input.programs && input.programs.length > 0) {
+    const rumpuns = input.programs.map((p) => p.rumpun).filter(Boolean);
+    const distinctRumpuns = Array.from(new Set(rumpuns));
+    hasMixed = distinctRumpuns.length > 1;
+
+    hasOutOfTown = input.programs.some(
+      (p) =>
+        p.isOutOfTown ||
+        (input.studentHomeCity && p.city && p.city.toLowerCase() !== input.studentHomeCity.toLowerCase())
+    );
+
+    const gaps = input.programs.map((p) => p.gap ?? 0);
+    minGap = Math.min(...gaps);
+    maxGap = Math.max(...gaps);
+
+    const counts = input.programs.map((p) => p.participantsCount ?? 999);
+    minParticipants = Math.min(...counts);
+  }
+
+  const isConflict = hasMixed || input.familyAlignment === 'different_major';
   if (isConflict) {
     flags.push('Rumpun Campuran / Perbedaan Pilihan');
     saTasks.push(tpl.mixedOrDifferent);
@@ -454,10 +514,11 @@ export function analyzeStage2(
     flags.push('Perlu Konfirmasi Keluarga');
     saTasks.push(tpl.unconfirmed);
   }
+
   traces.push({
     ruleId: 's2_alignment',
     ruleName: 'Keselarasan Pilihan & Rumpun',
-    expression: `mixedRumpun=${input.hasMixedRumpun}, status="${input.familyAlignment}"`,
+    expression: `mixedRumpun=${hasMixed}, status="${input.familyAlignment}"`,
     matched: true,
     effect: isConflict
       ? 'Pakai panduan konflik/perbedaan rumpun'
@@ -466,23 +527,23 @@ export function analyzeStage2(
       : 'Pakai panduan konfirmasi kesepakatan keluarga'
   });
 
-  const needsLocation = input.familyAlignment === 'location_limit' || input.hasMixedRumpun;
+  const needsLocation = input.familyAlignment === 'location_limit' || hasOutOfTown || hasMixed;
   if (needsLocation) {
     saTasks.push(tpl.locationCheck);
   }
   traces.push({
     ruleId: 's2_location',
     ruleName: 'Pengecekan Izin Lokasi Kuliah',
-    expression: `status="${input.familyAlignment}" || mixedRumpun=${input.hasMixedRumpun}`,
+    expression: `outOfTown=${hasOutOfTown} || status="${input.familyAlignment}"`,
     matched: needsLocation,
     effect: needsLocation ? 'Tambahkan tugas konfirmasi izin lokasi/merantau' : 'Tidak perlu tugas khusus lokasi'
   });
 
-  const isWideGap = input.minGapToTarget <= th.wideWeightedGapPts;
+  const isWideGap = minGap <= th.wideWeightedGapPts;
   if (isWideGap) {
     flags.push('Gap Masih Lebar');
     saTasks.push(tpl.wideGap);
-  } else if (input.minGapToTarget < 0) {
+  } else if (minGap < 0) {
     saTasks.push(tpl.remainingGap);
   } else {
     flags.push('Melampaui Target Acuan');
@@ -491,26 +552,26 @@ export function analyzeStage2(
   traces.push({
     ruleId: 's2_gap',
     ruleName: `Band Gap Skor Terbobot (Batas ≤ ${th.wideWeightedGapPts})`,
-    expression: `minGap (${input.minGapToTarget}) vs batas (${th.wideWeightedGapPts})`,
+    expression: `minGap (${minGap}) vs batas (${th.wideWeightedGapPts})`,
     matched: true,
     effect: isWideGap
       ? 'Gap lebar → fokus bangun komitmen tanpa memaksa turun prodi di CP1'
-      : input.minGapToTarget < 0
+      : minGap < 0
       ? 'Gap moderat → bandingkan progres subtes bobot utama'
       : 'Sudah melampaui target → tawarkan eksplorasi Simulasi jika minat'
   });
 
-  const lowSample = input.minParticipantsCount < th.minBenchmarkParticipants;
+  const lowSample = minParticipants < th.minBenchmarkParticipants;
   const guardrailNote = lowSample
     ? tpl.lowParticipantsWarning
-        .replace('{count}', String(input.minParticipantsCount))
+        .replace('{count}', String(minParticipants))
         .replace('{limit}', String(th.minBenchmarkParticipants))
     : tpl.defaultBenchmarkNote;
 
   traces.push({
     ruleId: 's2_sample',
     ruleName: `Kecukupan Pembanding (< ${th.minBenchmarkParticipants})`,
-    expression: `minParticipants (${input.minParticipantsCount}) < ${th.minBenchmarkParticipants}`,
+    expression: `minParticipants (${minParticipants}) < ${th.minBenchmarkParticipants}`,
     matched: lowSample,
     effect: lowSample
       ? 'Aktifkan peringatan jumlah pembanding terlalu kecil'
@@ -519,7 +580,7 @@ export function analyzeStage2(
 
   return {
     conditionLabel: flags.join(' · '),
-    observation: `Jarak skor terbobot terhadap target acuan berada pada rentang ${input.maxGapToTarget} s.d. ${input.minGapToTarget} poin.`,
+    observation: `Jarak skor terbobot terhadap target acuan berada pada rentang ${maxGap} s.d. ${minGap} poin.`,
     saTasks,
     guardrailNote,
     traces
@@ -551,42 +612,60 @@ export function analyzeStage3Subtest(
   const th = config.thresholds;
   const tpl = config.stage3SubtestTemplates;
 
-  const isNoDrill = sub.drillQuestions === 0;
-  const isLowVolLowAcc = !isNoDrill && sub.drillQuestions < th.drillLowQuestions && sub.drillAccuracyPct < th.drillLowAccuracyPct;
-  const isActiveLowTo = !isNoDrill && !isLowVolLowAcc && sub.drillQuestions >= th.drillLowQuestions && sub.gapTo600 <= th.drillActiveHighGap;
-  const isNearTarget = !isNoDrill && !isLowVolLowAcc && !isActiveLowTo && sub.gapTo600 >= th.nearTargetGapPts;
+  const isMastered = sub.gapTo600 >= 0;
+  const isNoDrill = !isMastered && sub.drillQuestions === 0;
+  const isLowVolLowAcc = !isMastered && !isNoDrill && sub.drillQuestions < th.drillLowQuestions && sub.drillAccuracyPct < th.drillLowAccuracyPct;
+  const isHighAccLowTo = !isMastered && !isNoDrill && !isLowVolLowAcc && sub.drillQuestions >= 25 && sub.drillAccuracyPct >= 70 && sub.gapTo600 <= -35;
+  const isActiveLowTo = !isMastered && !isNoDrill && !isLowVolLowAcc && !isHighAccLowTo && sub.drillQuestions >= th.drillLowQuestions && sub.gapTo600 <= th.drillActiveHighGap;
+  const isNearTarget = !isMastered && !isNoDrill && !isLowVolLowAcc && !isHighAccLowTo && !isActiveLowTo && sub.gapTo600 >= th.nearTargetGapPts;
 
   let conditionId: Stage3ConditionId = 'general_gap';
-  if (isNoDrill) conditionId = 'no_drill';
+  if (isMastered) conditionId = 'mastered_above';
+  else if (isNoDrill) conditionId = 'no_drill';
   else if (isLowVolLowAcc) conditionId = 'low_vol_low_acc';
+  else if (isHighAccLowTo) conditionId = 'high_acc_low_to';
   else if (isActiveLowTo) conditionId = 'active_drill_low_to';
   else if (isNearTarget) conditionId = 'near_target';
 
   const traces: RuleTrace[] = [
     {
+      ruleId: 's3_r0_mastered',
+      ruleName: '0. Skor Telah Mencapai Target 600+',
+      expression: `gapTo600 (${sub.gapTo600}) ≥ 0`,
+      matched: isMastered,
+      effect: isMastered ? 'Terpilih: mode pemeliharaan skor & fokus ke subtes lain' : 'Lanjut cek aturan berikutnya'
+    },
+    {
       ruleId: 's3_r1_nodrill',
       ruleName: '1. Belum Ada Drill',
       expression: `drillQuestions (${sub.drillQuestions}) === 0`,
       matched: isNoDrill,
-      effect: isNoDrill ? 'Terpilih: konfirmasi sumber luar tanpa label malas' : 'Lanjut cek aturan ke-2'
+      effect: isNoDrill ? 'Terpilih: konfirmasi sumber luar tanpa label malas' : 'Lanjut cek aturan berikutnya'
     },
     {
       ruleId: 's3_r2_lowvol',
       ruleName: '2. Volume & Akurasi Rendah',
       expression: `questions (${sub.drillQuestions}) < ${th.drillLowQuestions} && akurasi (${sub.drillAccuracyPct}%) < ${th.drillLowAccuracyPct}%`,
       matched: isLowVolLowAcc,
-      effect: isLowVolLowAcc ? 'Terpilih: tinjau topik terendah & Klinik PR' : 'Lanjut cek aturan ke-3'
+      effect: isLowVolLowAcc ? 'Terpilih: tinjau topik terendah & Klinik PR' : 'Lanjut cek aturan berikutnya'
+    },
+    {
+      ruleId: 's3_r2b_highacc_lowto',
+      ruleName: '3. Akurasi Drill Tinggi Tapi Skor TO Masih Jauh',
+      expression: `questions (${sub.drillQuestions}) ≥ 25 && akurasi (${sub.drillAccuracyPct}%) ≥ 70% && gap (${sub.gapTo600}) ≤ -35`,
+      matched: isHighAccLowTo,
+      effect: isHighAccLowTo ? 'Terpilih: cek simulasi waktu & jebakan ujian' : 'Lanjut cek aturan berikutnya'
     },
     {
       ruleId: 's3_r3_active_gap',
-      ruleName: '3. Drill Aktif Tapi Gap TO Lebar',
+      ruleName: '4. Drill Aktif Tapi Gap TO Lebar',
       expression: `questions (${sub.drillQuestions}) ≥ ${th.drillLowQuestions} && gap (${sub.gapTo600}) ≤ ${th.drillActiveHighGap}`,
       matched: isActiveLowTo,
-      effect: isActiveLowTo ? 'Terpilih: evaluasi cara mengerjakan latihan vs TO' : 'Lanjut cek aturan ke-4'
+      effect: isActiveLowTo ? 'Terpilih: evaluasi cara mengerjakan latihan vs TO' : 'Lanjut cek aturan berikutnya'
     },
     {
       ruleId: 's3_r4_near',
-      ruleName: '4. Mendekati Batas Target',
+      ruleName: '5. Mendekati Batas Target',
       expression: `gap (${sub.gapTo600}) ≥ ${th.nearTargetGapPts}`,
       matched: isNearTarget,
       effect: isNearTarget ? 'Terpilih: jaga ritme latihan stabilkan ≥ 600' : 'Fallback ke Penguatan Terarah'
@@ -594,18 +673,20 @@ export function analyzeStage3Subtest(
   ];
 
   const obsMap: Record<Stage3ConditionId, string> = {
+    mastered_above: `Skor ${sub.toLatest} (melampaui target +${sub.gapTo600}); tercatat ${sub.drillQuestions} soal (${sub.drillAccuracyPct}% benar).`,
     no_drill: `Skor ${sub.toLatest} (jarak ${sub.gapTo600}), aktivitas drill di aplikasi tercatat 0 soal.`,
     low_vol_low_acc: `Skor ${sub.toLatest} (jarak ${sub.gapTo600}); tercatat ${sub.drillQuestions} soal (${sub.drillSessions} sesi, ${sub.drillAccuracyPct}% benar).`,
+    high_acc_low_to: `Akurasi drill tinggi di aplikasi (${sub.drillAccuracyPct}% benar dari ${sub.drillQuestions} soal), namun skor TO ${sub.toLatest} (jarak ${sub.gapTo600}).`,
     active_drill_low_to: `Tercatat ${sub.drillQuestions} soal (${sub.drillSessions} sesi, ${sub.drillAccuracyPct}% benar), namun skor TO ${sub.toLatest} (jarak ${sub.gapTo600}).`,
-    near_target: `Skor ${sub.toLatest} (jarak ${sub.gapTo600} ke 600); tercatat ${sub.drillQuestions} soal (${sub.drillAccuracyPct}% benar).`,
+    near_target: `Skor ${sub.toLatest} (jarak ${sub.gapTo600} ke target); tercatat ${sub.drillQuestions} soal (${sub.drillAccuracyPct}% benar).`,
     general_gap: `Skor ${sub.toLatest} (jarak ${sub.gapTo600}); tercatat ${sub.drillQuestions} soal (${sub.drillSessions} sesi, ${sub.drillAccuracyPct}% benar).`
   };
 
   return {
     conditionId,
-    conditionLabel: tpl[conditionId].label,
+    conditionLabel: tpl[conditionId]?.label || 'Penguatan Terarah',
     observation: obsMap[conditionId],
-    saTask: tpl[conditionId].saTask,
+    saTask: tpl[conditionId]?.saTask || 'Bahas topik lemah serta kecocokan pola latihan.',
     traces
   };
 }
@@ -667,24 +748,65 @@ export function analyzeStage3Overall(
   };
 }
 
+export interface ActionPlanItem {
+  num: number;
+  title: string;
+  desc: string;
+  pic: string;
+  accentColor: string;
+}
+
+export interface Stage4Input {
+  hasConflictOrLocationCheck?: boolean;
+  hasMissingDrill?: boolean;
+  prioritySubtests?: {
+    id: string;
+    name: string;
+    gapNum: number;
+    rgQuestionsDone: number;
+    lowestTopics: string[];
+  }[];
+  studentName?: string;
+  saName?: string;
+  parentName?: string;
+  targetToScore?: number;
+}
+
 export interface Stage4Output {
   saTasks: string[];
   checklist: string[];
+  actionPlans: ActionPlanItem[];
   traces: RuleTrace[];
 }
 
 export function analyzeStage4(
-  hasConflictOrLocationCheck: boolean,
-  hasMissingDrill: boolean,
-  config: EngineRuleConfig = DEFAULT_ENGINE_CONFIG
+  inputOrConflict: boolean | Stage4Input,
+  hasMissingDrillOrConfig?: boolean | EngineRuleConfig,
+  maybeConfig?: EngineRuleConfig
 ): Stage4Output {
-  const tpl = config.stage4Templates;
+  let isConflict = false;
+  let isMissingDrill = false;
+  let cfg = DEFAULT_ENGINE_CONFIG;
+  let studentInput: Stage4Input | undefined;
+
+  if (typeof inputOrConflict === 'boolean') {
+    isConflict = inputOrConflict;
+    isMissingDrill = typeof hasMissingDrillOrConfig === 'boolean' ? hasMissingDrillOrConfig : false;
+    cfg = maybeConfig || DEFAULT_ENGINE_CONFIG;
+  } else {
+    studentInput = inputOrConflict;
+    isConflict = studentInput.hasConflictOrLocationCheck ?? false;
+    isMissingDrill = studentInput.hasMissingDrill ?? false;
+    cfg = (hasMissingDrillOrConfig as EngineRuleConfig) || DEFAULT_ENGINE_CONFIG;
+  }
+
+  const tpl = cfg.stage4Templates;
   const saTasks = [tpl.scheduleTask, tpl.parentSupportTask];
 
-  if (hasMissingDrill) {
+  if (isMissingDrill) {
     saTasks.push(tpl.missingDrillTask);
   }
-  if (hasConflictOrLocationCheck) {
+  if (isConflict) {
     saTasks.push(tpl.conflictOrLocationTask);
   }
 
@@ -694,22 +816,62 @@ export function analyzeStage4(
     'Buka Preview & Download PDF di bar atas (tombol Download PDF ada di dalam modal) untuk diserahkan ke keluarga.'
   ];
 
+  // Dynamic Holistic Action Plans for Checkpoint 1
+  const pSub = studentInput?.prioritySubtests || [];
+  const largestGapSub = pSub[0]?.name || 'Subtes Prioritas #1';
+  const lowestDrillSub = [...pSub].sort((a, b) => a.rgQuestionsDone - b.rgQuestionsDone)[0]?.name || 'Subtes Minim Latihan';
+  const weakTopics = pSub.flatMap((s) => s.lowestTopics || []).slice(0, 3);
+  const topicsSummary = weakTopics.length ? weakTopics.map((t) => t.split('(')[0].trim()).join(', ') : 'materi dasar subtes prioritas';
+
+  const actionPlans: ActionPlanItem[] = [
+    {
+      num: 1,
+      title: 'Kesepakatan Drill Mandiri Subtes Prioritas',
+      desc: `Sepakati target jumlah soal & jadwal latihan mandiri di aplikasi untuk ${largestGapSub} dan ${lowestDrillSub} yang memiliki gap terbesar atau riwayat latihan terendah.`,
+      pic: `${studentInput?.studentName || 'Siswa'} (dipantau bersama ${studentInput?.saName || 'Kakak Asuh'})`,
+      accentColor: '#1078ca'
+    },
+    {
+      num: 2,
+      title: 'Sesi Klinik Belajar Tatap Muka di Cabang',
+      desc: `Jadwalkan sesi klinik tatap muka bersama Master Teacher / SA untuk membedah topik akurasi terendah di TO: ${topicsSummary} sesuai ketersediaan waktu siswa.`,
+      pic: `${studentInput?.saName || 'Kakak Asuh'} & Siswa`,
+      accentColor: '#0284c7'
+    },
+    {
+      num: 3,
+      title: 'Fokus Target Evaluasi Tryout Berikutnya (TO 5)',
+      desc: `Prioritaskan penahanan tren turun atau penguatan subtes penentu kelulusan, dengan target peningkatan bertahap menuju batas aman Semester 1.`,
+      pic: 'Siswa & Tim Akademik Cabang',
+      accentColor: '#f79009'
+    },
+    {
+      num: 4,
+      title: 'Dukungan Kebiasaan & Lingkungan Belajar di Rumah',
+      desc: isConflict
+        ? `Konfirmasikan dukungan jam belajar tenang di rumah serta ruang dialog keluarga mengenai kesepakatan pilihan jurusan dan perizinan kampus.`
+        : `Orang tua mendampingi konsistensi jam belajar mandiri tanpa distraksi serta memastikan istirahat dan nutrisi cukup menjelang TO 5.`,
+      pic: studentInput?.parentName || 'Orang Tua / Wali Siswa',
+      accentColor: '#027a48'
+    }
+  ];
+
   const traces: RuleTrace[] = [
     {
       ruleId: 's4_drill',
       ruleName: 'Tindak Lanjut Drill Minim',
-      expression: `hasMissingDrill = ${hasMissingDrill}`,
-      matched: hasMissingDrill,
-      effect: hasMissingDrill ? 'Tambahkan penguncian jadwal Klinik PR subtes minim drill' : 'Tidak dipicu'
+      expression: `isMissingDrill = ${isMissingDrill}`,
+      matched: isMissingDrill,
+      effect: isMissingDrill ? 'Tambahkan penguncian jadwal Klinik PR subtes minim drill' : 'Tidak dipicu'
     },
     {
       ruleId: 's4_prodi',
       ruleName: 'Pencatatan Konflik Prodi / Lokasi',
-      expression: `hasConflictOrLocationCheck = ${hasConflictOrLocationCheck}`,
-      matched: hasConflictOrLocationCheck,
-      effect: hasConflictOrLocationCheck ? 'Tambahkan tugas pencatatan status prodi/lokasi untuk review berikut' : 'Tidak dipicu'
+      expression: `isConflict = ${isConflict}`,
+      matched: isConflict,
+      effect: isConflict ? 'Tambahkan tugas pencatatan status prodi/lokasi untuk review berikut' : 'Tidak dipicu'
     }
   ];
 
-  return { saTasks, checklist, traces };
+  return { saTasks, checklist, actionPlans, traces };
 }

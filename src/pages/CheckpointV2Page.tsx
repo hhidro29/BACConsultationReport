@@ -4,11 +4,7 @@ import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, Bo
 import { V2PdfModal } from '../components/V2PdfModal';
 import { SimulasiModal } from '../components/SimulasiModal';
 import {
-  studentIdentity,
-  subtestsV2Data,
-  prioritySubtestsV2,
-  actionPlansV2,
-  targetPrograms
+  CHECKPOINT1_STUDENTS
 } from '../data/garudaData';
 import { useRapor } from '../context/RaporContext';
 import { useRuleConfig } from '../utils/saRuleStore';
@@ -25,6 +21,13 @@ export const CheckpointV2Page: React.FC = () => {
   const { getMetrics } = useRapor();
   const { config: ruleConfig, isCustomized: isRuleCustomized } = useRuleConfig();
   const raporMetrics = getMetrics();
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('garuda');
+  const activeStudent = CHECKPOINT1_STUDENTS.find((s) => s.id === selectedStudentId) || CHECKPOINT1_STUDENTS[0];
+  const studentIdentity = activeStudent.identity;
+  const subtestsV2Data = activeStudent.subtests;
+  const targetPrograms = activeStudent.targetPrograms;
+  const prioritySubtestsV2 = activeStudent.prioritySubtests;
+
   const [isPdfOpen, setIsPdfOpen] = useState<boolean>(
     searchParams.get('preview') === '1' || searchParams.get('preview') === 'true'
   );
@@ -128,11 +131,9 @@ export const CheckpointV2Page: React.FC = () => {
 
   const stage2Out = analyzeStage2(
     {
-      hasMixedRumpun: targetPrograms.some((p) => p.prodi.includes('Teknik')) && targetPrograms.some((p) => p.prodi.includes('Farmasi')),
-      familyAlignment: 'different_major',
-      minGapToTarget: Math.min(...targetPrograms.map((p) => p.gap)),
-      maxGapToTarget: Math.max(...targetPrograms.map((p) => p.gap)),
-      minParticipantsCount: 642
+      programs: activeStudent.targetPrograms,
+      familyAlignment: activeStudent.familyAlignment,
+      studentHomeCity: activeStudent.identity.branch.split('-')[0].trim()
     },
     ruleConfig
   );
@@ -148,8 +149,19 @@ export const CheckpointV2Page: React.FC = () => {
   }));
   const stage3OverallOut = analyzeStage3Overall(stage3SubtestInputs, ruleConfig);
   const stage4Out = analyzeStage4(
-    true,
-    prioritySubtestsV2.some((s) => s.rgQuestionsDone <= ruleConfig.thresholds.drillMismatchLowQ),
+    {
+      hasConflictOrLocationCheck:
+        activeStudent.familyAlignment === 'different_major' ||
+        activeStudent.familyAlignment === 'location_limit' ||
+        stage2Out.conditionLabel.includes('Campuran'),
+      hasMissingDrill: activeStudent.prioritySubtests.some(
+        (s) => s.rgQuestionsDone <= ruleConfig.thresholds.drillMismatchLowQ
+      ),
+      prioritySubtests: activeStudent.prioritySubtests,
+      studentName: activeStudent.identity.name,
+      saName: activeStudent.identity.saName,
+      parentName: activeStudent.identity.parentName
+    },
     ruleConfig
   );
 
@@ -285,12 +297,37 @@ export const CheckpointV2Page: React.FC = () => {
                 {isLocked ? 'Terkunci' : 'Draft Aktif'}
               </span>
             </div>
-            <p style={{ marginTop: 6 }}>
+            <p style={{ marginTop: 6, marginBottom: 8 }}>
               <span>NISN: <strong>{studentIdentity.nisn}</strong></span>
               <span className="student-tag">{studentIdentity.school}</span>
               <span className="student-tag">Kelas 12 SMA</span>
               <span className="student-tag">{studentIdentity.branch}</span>
             </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.3 }}>
+                Kasus Siswa Checkpoint 1:
+              </span>
+              <select
+                value={selectedStudentId}
+                onChange={(e) => setSelectedStudentId(e.target.value)}
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#0f172a',
+                  background: '#ffffff',
+                  border: '1.5px solid #cbd5e1',
+                  borderRadius: 6,
+                  padding: '3px 10px',
+                  cursor: 'pointer'
+                }}
+              >
+                {CHECKPOINT1_STUDENTS.map((st) => (
+                  <option key={st.id} value={st.id}>
+                    {st.name} — {st.tagline}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <div style={{ textAlign: 'right', fontSize: 12.5, color: 'var(--muted)' }}>
             <div>Sesi: <strong>Konsultasi Checkpoint 1 (Pasca 4 TO)</strong></div>
@@ -955,7 +992,7 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              {actionPlansV2.map((plan) => (
+              {stage4Out.actionPlans.map((plan) => (
                 <div
                   key={plan.num}
                   style={{
