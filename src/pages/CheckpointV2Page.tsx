@@ -75,31 +75,49 @@ export const CheckpointV2Page: React.FC = () => {
   const openPdf = () => setIsPdfOpen(true);
   const closePdf = () => setIsPdfOpen(false);
 
-  // Dynamic KPI Metrics (computed strictly from data, auto-updates if student data changes)
+  // Dynamic KPI Metrics (computed strictly from data, handles 0, 1, 2..8 subtests cleanly)
   const toScoresList = studentIdentity.toScores;
   const toAverageComputed = toScoresList.length
     ? Math.round(toScoresList.reduce((acc, v) => acc + v, 0) / toScoresList.length)
     : 0;
   const totalSubtestsCount = subtestsV2Data.length;
+  const shortSubtestMap: Record<string, string> = {
+    pu: 'PU',
+    pk: 'PK',
+    lbi_a: 'LBI Saintek',
+    lbi_s: 'LBI Soshum',
+    lbe: 'LBING',
+    pbm: 'PBM',
+    pm: 'PM',
+    ppu: 'PPU'
+  };
+  const formatSubtestItem = (s: typeof subtestsV2Data[number]) => {
+    const code = shortSubtestMap[s.id] || s.id.toUpperCase();
+    const diff = s.to4 - 600;
+    return `${code}: ${s.to4} (${diff >= 0 ? `+${diff}` : diff})`;
+  };
+
   const aboveTargetSubtests = subtestsV2Data.filter((s) => s.to4 >= 600);
   const belowTargetSubtests = subtestsV2Data.filter((s) => s.to4 < 600);
+
+  const aboveTooltip = aboveTargetSubtests.map(formatSubtestItem).join(' · ');
+  const belowTooltip = belowTargetSubtests.map(formatSubtestItem).join(' · ');
+
+  const aboveSurpluses = aboveTargetSubtests.map((s) => s.to4 - 600);
   const aboveSublabel =
-    aboveTargetSubtests.length > 0
-      ? aboveTargetSubtests
-          .slice(0, 2)
-          .map((s) => {
-            const m = s.name.match(/\(([^)]+)\)/);
-            const code = m ? m[1] : s.name;
-            const diff = s.to4 - 600;
-            return `${code}: ${s.to4} (${diff >= 0 ? `+${diff}` : diff})`;
-          })
-          .join(' · ')
-      : 'Belum ada subtes ≥ 600';
+    aboveTargetSubtests.length === 0
+      ? 'Belum ada subtes ≥ 600'
+      : aboveTargetSubtests.length === 1
+        ? formatSubtestItem(aboveTargetSubtests[0])
+        : `Surplus: +${Math.min(...aboveSurpluses)} s.d. +${Math.max(...aboveSurpluses)}`;
+
   const belowGaps = belowTargetSubtests.map((s) => s.to4 - 600);
   const belowSublabel =
-    belowGaps.length > 0
-      ? `Gap: ${Math.min(...belowGaps)} s.d. ${Math.max(...belowGaps)}`
-      : 'Semua subtes ≥ 600';
+    belowTargetSubtests.length === 0
+      ? 'Semua subtes ≥ 600'
+      : belowTargetSubtests.length === 1
+        ? formatSubtestItem(belowTargetSubtests[0])
+        : `Gap: ${Math.min(...belowGaps)} s.d. ${Math.max(...belowGaps)}`;
 
   return (
     <div>
@@ -327,7 +345,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#027a48', lineHeight: 1.2, margin: '4px 0 3px' }}>
                   {aboveTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ {totalSubtestsCount} subtes</span>
                 </div>
-                <div style={{ fontSize: 11.5, color: '#027a48', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                <div title={aboveTooltip} style={{ fontSize: 11.5, color: '#027a48', fontWeight: 600, whiteSpace: 'nowrap', cursor: aboveTooltip ? 'help' : 'default' }}>
                   {aboveSublabel}
                 </div>
               </div>
@@ -340,7 +358,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#b42318', lineHeight: 1.2, margin: '4px 0 3px' }}>
                   {belowTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ {totalSubtestsCount} subtes</span>
                 </div>
-                <div style={{ fontSize: 11.5, color: '#b42318', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                <div title={belowTooltip} style={{ fontSize: 11.5, color: '#b42318', fontWeight: 600, whiteSpace: 'nowrap', cursor: belowTooltip ? 'help' : 'default' }}>
                   {belowSublabel}
                 </div>
               </div>
