@@ -293,11 +293,6 @@ export const CheckpointV2Page: React.FC = () => {
           </button>
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            {draftSavedToast && (
-              <span style={{ fontSize: 11.5, fontWeight: 700, color: '#027a48', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '4px 10px', borderRadius: 9999, whiteSpace: 'nowrap' }}>
-                ✓ Draft tersimpan!
-              </span>
-            )}
             <button
               type="button"
               className="btn btn-outline"
@@ -315,15 +310,6 @@ export const CheckpointV2Page: React.FC = () => {
             >
               📝 Rapor ({raporMetrics.overallAvg})
             </Link>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={handleSaveNotes}
-              disabled={isLocked}
-              style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap', opacity: isLocked ? 0.5 : 1 }}
-            >
-              <Save size={14} /> Simpan Draft
-            </button>
             <button
               type="button"
               className="btn btn-outline"
@@ -1176,11 +1162,11 @@ export const CheckpointV2Page: React.FC = () => {
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                       <button
                         type="button"
-                        onClick={() =>
-                          setSaNotes(
-                            '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill harian 15 soal (PU/PK) + Klinik PR cabang setiap hari [... jam ...]\n3) Cek Ulang Sesi Berikutnya: [progres drill PK & akurasi TO 5]'
-                          )
-                        }
+                        onClick={() => {
+                          const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill harian 15 soal (PU/PK) + Klinik PR cabang setiap hari [... jam ...]\n3) Cek Ulang Sesi Berikutnya: [progres drill PK & akurasi TO 5]';
+                          setSaNotes(val);
+                          localStorage.setItem('bac_v2_sa_notes', val);
+                        }}
                         style={{
                           fontSize: 11,
                           fontWeight: 600,
@@ -1196,13 +1182,13 @@ export const CheckpointV2Page: React.FC = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() =>
-                          setSaNotes((prev) =>
-                            prev.includes('[Cek Ulang Sesi Berikutnya]')
-                              ? prev
-                              : `${prev.trim()}\n• [Cek Ulang Sesi Berikutnya]: Verifikasi izin lokasi/merantau & progres drill PK.`
-                          )
-                        }
+                        onClick={() => {
+                          const val = saNotes.includes('[Cek Ulang Sesi Berikutnya]')
+                            ? saNotes
+                            : `${saNotes.trim()}\n• [Cek Ulang Sesi Berikutnya]: Verifikasi izin lokasi/merantau & progres drill PK.`;
+                          setSaNotes(val);
+                          localStorage.setItem('bac_v2_sa_notes', val);
+                        }}
                         style={{
                           fontSize: 11,
                           fontWeight: 600,
@@ -1223,7 +1209,10 @@ export const CheckpointV2Page: React.FC = () => {
                   rows={4}
                   disabled={isLocked}
                   value={saNotes}
-                  onChange={(e) => setSaNotes(e.target.value)}
+                  onChange={(e) => {
+                    setSaNotes(e.target.value);
+                    localStorage.setItem('bac_v2_sa_notes', e.target.value);
+                  }}
                   style={{
                     width: '100%',
                     border: '1px solid var(--border)',

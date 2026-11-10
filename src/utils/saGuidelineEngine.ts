@@ -812,7 +812,7 @@ export function analyzeStage4(
 
   const checklist = [
     'Jadwal hadir Klinik PR cabang minggu ini sudah disepakati bersama siswa.',
-    'Ringkasan keputusan dan pengingat sesi berikutnya sudah ditulis di Catatan SA & diklik Simpan Draft.',
+    'Ringkasan keputusan dan pengingat sesi berikutnya sudah ditulis di Catatan SA.',
     'Buka tombol Download PDF di bar atas untuk diserahkan ke keluarga.'
   ];
 
