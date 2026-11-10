@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch, ChevronDown } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
-import { SimulasiModal } from '../components/SimulasiModal';
 import {
   CHECKPOINT1_STUDENTS,
   ProgramChoice
 } from '../data/garudaData';
-import { useRapor } from '../context/RaporContext';
 import { useRuleConfig } from '../utils/saRuleStore';
 import {
   analyzeStage1,
@@ -18,17 +16,28 @@ import {
 } from '../utils/saGuidelineEngine';
 
 export const CheckpointV2Page: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const { getMetrics } = useRapor();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { config: ruleConfig, isCustomized: isRuleCustomized } = useRuleConfig();
-  const raporMetrics = getMetrics();
   const [selectedStudentId, setSelectedStudentId] = useState<string>(() => {
     const fromParam = searchParams.get('student');
     if (fromParam && CHECKPOINT1_STUDENTS.some((s) => s.id === fromParam)) {
       return fromParam;
     }
+    const saved = localStorage.getItem('bac_v2_active_student_v1');
+    if (saved && CHECKPOINT1_STUDENTS.some((s) => s.id === saved)) {
+      return saved;
+    }
     return 'garuda';
   });
+
+  useEffect(() => {
+    const fromParam = searchParams.get('student');
+    if (fromParam && CHECKPOINT1_STUDENTS.some((s) => s.id === fromParam)) {
+      setSelectedStudentId(fromParam);
+      localStorage.setItem('bac_v2_active_student_v1', fromParam);
+    }
+  }, [searchParams]);
+
   const [isStudentMenuOpen, setIsStudentMenuOpen] = useState<boolean>(false);
   const studentMenuRef = useRef<HTMLDivElement>(null);
 
@@ -61,14 +70,6 @@ export const CheckpointV2Page: React.FC = () => {
   const targetPrograms = customPrograms || activeStudent.targetPrograms;
   const isProgramsCustomized = Boolean(customPrograms);
 
-  const handleApplyPrograms = (newPrograms: ProgramChoice[]) => {
-    setCustomProgramsByStudent((prev) => {
-      const next = { ...prev, [activeStudent.id]: newPrograms };
-      localStorage.setItem('bac_v2_custom_programs_v1', JSON.stringify(next));
-      return next;
-    });
-  };
-
   const handleResetPrograms = () => {
     setCustomProgramsByStudent((prev) => {
       const next = { ...prev };
@@ -83,7 +84,6 @@ export const CheckpointV2Page: React.FC = () => {
   const [isPdfOpen, setIsPdfOpen] = useState<boolean>(
     searchParams.get('preview') === '1' || searchParams.get('preview') === 'true'
   );
-  const [isSimulasiOpen, setIsSimulasiOpen] = useState<boolean>(false);
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [draftSavedToast, setDraftSavedToast] = useState<boolean>(false);
   const [activeStage, setActiveStage] = useState<string>('tahap1');
@@ -374,15 +374,14 @@ export const CheckpointV2Page: React.FC = () => {
           </button>
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <button
-              type="button"
+            <Link
+              to={`/simulasi?student=${activeStudent.id}`}
               className="btn btn-outline"
-              onClick={() => setIsSimulasiOpen(true)}
               style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap' }}
-              title="Buka Simulasi Peluang & Alternatif Prodi PTN"
+              title="Buka Halaman Simulasi Peluang & Komparasi Prodi PTN"
             >
               <Compass size={14} /> Simulasi
-            </button>
+            </Link>
             <Link
               to="/rapor"
               className="btn btn-outline"
@@ -483,6 +482,8 @@ export const CheckpointV2Page: React.FC = () => {
                           type="button"
                           onClick={() => {
                             setSelectedStudentId(st.id);
+                            localStorage.setItem('bac_v2_active_student_v1', st.id);
+                            setSearchParams({ student: st.id });
                             setIsStudentMenuOpen(false);
                           }}
                           style={{
@@ -956,15 +957,14 @@ export const CheckpointV2Page: React.FC = () => {
                     ↺ Reset Awal
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={() => setIsSimulasiOpen(true)}
+                <Link
+                  to={`/simulasi?student=${activeStudent.id}`}
                   className="btn btn-outline"
                   style={{ fontSize: 11.5, padding: '4px 10px', display: 'inline-flex', alignItems: 'center', gap: 5 }}
                 >
                   <Compass size={13} color="#1078ca" />
                   Bandingkan / Ubah via Simulasi
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -1449,15 +1449,6 @@ export const CheckpointV2Page: React.FC = () => {
       </main>
 
       <V2PdfModal isOpen={isPdfOpen} onClose={closePdf} />
-      <SimulasiModal
-        isOpen={isSimulasiOpen}
-        onClose={() => setIsSimulasiOpen(false)}
-        student={activeStudent}
-        activePrograms={targetPrograms}
-        onApplyPrograms={handleApplyPrograms}
-        onResetPrograms={handleResetPrograms}
-        isCustomized={isProgramsCustomized}
-      />
     </div>
   );
 };
