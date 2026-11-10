@@ -6,6 +6,7 @@ import {
   CHECKPOINT1_STUDENTS,
   ProgramChoice
 } from '../data/garudaData';
+import { validateSnbtChoices } from '../data/programCatalog';
 import { useRuleConfig } from '../utils/saRuleStore';
 import {
   analyzeStage1,
@@ -921,15 +922,36 @@ export const CheckpointV2Page: React.FC = () => {
           <div className="section-block" id="sec_tahap2_table">
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <h3 className="section-title" style={{ fontSize: 15, margin: 0 }}>1. Evaluasi Peluang 3 Pilihan Jurusan PTN</h3>
+                <h3 className="section-title" style={{ fontSize: 15, margin: 0 }}>
+                  1. Evaluasi Peluang {targetPrograms.length} Pilihan Jurusan PTN
+                </h3>
+                {(() => {
+                  const snbtCheck = validateSnbtChoices(targetPrograms);
+                  return (
+                    <span
+                      title={snbtCheck.message}
+                      style={{
+                        fontSize: 10.5,
+                        fontWeight: 700,
+                        color: snbtCheck.isValid ? '#027a48' : '#b54708',
+                        background: snbtCheck.isValid ? '#ecfdf3' : '#fff7ed',
+                        border: `1px solid ${snbtCheck.isValid ? '#a6f4c5' : '#fed7aa'}`,
+                        padding: '2px 8px',
+                        borderRadius: 9999
+                      }}
+                    >
+                      {snbtCheck.isValid ? `✓ Sah SNBT (${snbtCheck.patternLabel})` : `⚠ Cek Kombinasi SNBT (${snbtCheck.patternLabel})`}
+                    </span>
+                  );
+                })()}
                 {isProgramsCustomized && (
                   <span
                     style={{
                       fontSize: 10.5,
                       fontWeight: 700,
-                      color: '#027a48',
-                      background: '#ecfdf3',
-                      border: '1px solid #a6f4c5',
+                      color: '#175cd3',
+                      background: '#eff8ff',
+                      border: '1px solid #b2ddff',
                       padding: '2px 8px',
                       borderRadius: 9999
                     }}

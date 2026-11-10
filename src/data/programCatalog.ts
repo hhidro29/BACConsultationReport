@@ -107,16 +107,28 @@ function deriveRumpunName(clusterLabel: string, prodi: string): StudentTowerRump
   const cl = clusterLabel.toLowerCase();
   const pr = prodi.toLowerCase();
   if (pr.includes('dokter')) return 'Kedokteran Umum, Gigi dan Hewan';
-  if (cl.includes('kesehatan') || cl.includes('farmasi')) return 'Kesehatan';
+  if (cl.includes('kesehatan') || cl.includes('farmasi') || pr.includes('farmasi') || pr.includes('laboratorium')) {
+    return 'Kesehatan';
+  }
   if (cl.includes('teknik') || cl.includes('rekayasa')) return 'Teknik';
   if (pr.includes('sains data') || cl.includes('matematika')) return 'Matematika, Aktuaria & Sains Data';
-  if (cl.includes('informatika') || cl.includes('komputasi')) return 'Ilmu Komputer dan Informatika';
+  if (cl.includes('informatika') || cl.includes('komputasi') || pr.includes('informatika')) {
+    return 'Ilmu Komputer dan Informatika';
+  }
   if (cl.includes('pangan') || cl.includes('pertanian')) return 'Pertanian, Peternakan, Perikanan & Kehutanan';
   if (cl.includes('sains murni')) return 'Sains dan MIPA';
   if (cl.includes('hukum')) return 'Ilmu Hukum';
   if (cl.includes('psikologi')) return 'Psikologi';
-  if (cl.includes('ekonomi') || cl.includes('bisnis') || pr.includes('manajemen') || pr.includes('akuntansi')) return 'Ekonomi & Bisnis';
-  if (cl.includes('hubungan internasional') || cl.includes('komunikasi') || cl.includes('politik')) {
+  if (cl.includes('administrasi') || pr.includes('administrasi')) return 'Ilmu Administrasi';
+  if (cl.includes('ekonomi') || cl.includes('bisnis') || pr.includes('manajemen') || pr.includes('akuntansi')) {
+    return 'Ekonomi & Bisnis';
+  }
+  if (
+    cl.includes('hubungan internasional') ||
+    cl.includes('komunikasi') ||
+    cl.includes('politik') ||
+    pr.includes('hubungan masyarakat')
+  ) {
     return 'Ilmu Sosial dan Ilmu Politik (FISIP)';
   }
   return 'Sains dan MIPA';
@@ -612,6 +624,181 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     supportSubjects: ['Matematika Tingkat Lanjut', 'Informatika'],
     prioritySubtests: ['pk', 'pm', 'pu'],
     subtestWeights: { pk: 0.25, pm: 0.24, pu: 0.18, ppu: 0.09, pbm: 0.08, lbe: 0.08, lbi_a: 0.06, lbi_s: 0.02 }
+  },
+
+  // =====================================================
+  // PROGRAM VOKASI (D4 & D3) UNTUK KOMBINASI SNBT 2026
+  // =====================================================
+  {
+    id: 'poltekkes_jkt3_tlm',
+    prodi: 'D4 Teknologi Laboratorium Medis',
+    univ: 'Poltekkes Kemenkes Jakarta III',
+    shortUniv: 'Poltekkes Jkt III',
+    degree: 'D4',
+    rumpun: 'saintek',
+    clusterLabel: 'Kesehatan & Farmasi',
+    city: 'Jakarta',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 582,
+    quota2026: 48,
+    applicants2025: 980,
+    tightness: '4.90%',
+    participantsCount: 210,
+    supportSubjects: ['Biologi', 'Kimia'],
+    prioritySubtests: ['pu', 'pk', 'lbi_a'],
+    subtestWeights: { pu: 0.23, pk: 0.21, lbi_a: 0.16, pm: 0.15, pbm: 0.10, lbe: 0.08, ppu: 0.05, lbi_s: 0.02 }
+  },
+  {
+    id: 'poltekkes_jkt2_farmasi_d3',
+    prodi: 'D3 Farmasi',
+    univ: 'Poltekkes Kemenkes Jakarta II',
+    shortUniv: 'Poltekkes Jkt II',
+    degree: 'D3',
+    rumpun: 'saintek',
+    clusterLabel: 'Kesehatan & Farmasi',
+    city: 'Jakarta',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 555,
+    quota2026: 60,
+    applicants2025: 1120,
+    tightness: '5.36%',
+    participantsCount: 240,
+    supportSubjects: ['Kimia', 'Biologi'],
+    prioritySubtests: ['pk', 'pu', 'lbi_a'],
+    subtestWeights: { pk: 0.22, pu: 0.20, lbi_a: 0.17, pm: 0.15, pbm: 0.10, lbe: 0.08, ppu: 0.06, lbi_s: 0.02 }
+  },
+  {
+    id: 'unair_k3_d4',
+    prodi: 'D4 Keselamatan dan Kesehatan Kerja',
+    univ: 'Universitas Airlangga (Unair)',
+    shortUniv: 'Unair',
+    degree: 'D4',
+    rumpun: 'saintek',
+    clusterLabel: 'Kesehatan & Farmasi',
+    city: 'Surabaya',
+    regionGroup: 'jatim',
+    targetScore: 605,
+    quota2026: 72,
+    applicants2025: 1310,
+    tightness: '5.50%',
+    participantsCount: 310,
+    supportSubjects: ['Biologi', 'Kimia'],
+    prioritySubtests: ['pu', 'pk', 'lbi_a'],
+    subtestWeights: { pu: 0.22, pk: 0.20, lbi_a: 0.16, pm: 0.15, pbm: 0.11, lbe: 0.09, ppu: 0.05, lbi_s: 0.02 }
+  },
+  {
+    id: 'polban_mesin_d4',
+    prodi: 'D4 Teknik Mesin',
+    univ: 'Politeknik Negeri Bandung (Polban)',
+    shortUniv: 'Polban',
+    degree: 'D4',
+    rumpun: 'saintek',
+    clusterLabel: 'Teknik & Rekayasa',
+    city: 'Bandung',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 590,
+    quota2026: 44,
+    applicants2025: 890,
+    tightness: '4.94%',
+    participantsCount: 260,
+    supportSubjects: ['Fisika', 'Matematika'],
+    prioritySubtests: ['pm', 'pk', 'pu'],
+    subtestWeights: { pm: 0.26, pk: 0.24, pu: 0.18, lbi_a: 0.10, pbm: 0.08, lbe: 0.08, ppu: 0.04, lbi_s: 0.02 }
+  },
+  {
+    id: 'pnj_mesin_d3',
+    prodi: 'D3 Teknik Mesin',
+    univ: 'Politeknik Negeri Jakarta (PNJ)',
+    shortUniv: 'PNJ',
+    degree: 'D3',
+    rumpun: 'saintek',
+    clusterLabel: 'Teknik & Rekayasa',
+    city: 'Depok',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 558,
+    quota2026: 68,
+    applicants2025: 1050,
+    tightness: '6.48%',
+    participantsCount: 295,
+    supportSubjects: ['Fisika', 'Matematika'],
+    prioritySubtests: ['pm', 'pk', 'pu'],
+    subtestWeights: { pm: 0.25, pk: 0.23, pu: 0.18, lbi_a: 0.11, pbm: 0.08, lbe: 0.08, ppu: 0.05, lbi_s: 0.02 }
+  },
+  {
+    id: 'pens_if_d3',
+    prodi: 'D3 Teknik Informatika',
+    univ: 'Politeknik Elektronika Negeri Surabaya (PENS)',
+    shortUniv: 'PENS',
+    degree: 'D3',
+    rumpun: 'saintek',
+    clusterLabel: 'Informatika & Komputasi',
+    city: 'Surabaya',
+    regionGroup: 'jatim',
+    targetScore: 580,
+    quota2026: 54,
+    applicants2025: 920,
+    tightness: '5.87%',
+    participantsCount: 315,
+    supportSubjects: ['Matematika', 'Informatika'],
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.26, pm: 0.24, pu: 0.18, lbe: 0.10, ppu: 0.07, pbm: 0.07, lbi_a: 0.06, lbi_s: 0.02 }
+  },
+  {
+    id: 'unj_humas_d4',
+    prodi: 'D4 Hubungan Masyarakat & Komunikasi Digital',
+    univ: 'Universitas Negeri Jakarta (UNJ)',
+    shortUniv: 'UNJ',
+    degree: 'D4',
+    rumpun: 'soshum',
+    clusterLabel: 'Komunikasi & Media',
+    city: 'Jakarta',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 585,
+    quota2026: 52,
+    applicants2025: 1180,
+    tightness: '4.41%',
+    participantsCount: 320,
+    supportSubjects: ['Bahasa Indonesia', 'Sosiologi'],
+    prioritySubtests: ['pbm', 'lbi_s', 'lbe'],
+    subtestWeights: { pbm: 0.22, lbi_s: 0.21, lbe: 0.18, ppu: 0.16, pu: 0.15, pk: 0.03, pm: 0.03, lbi_a: 0.02 }
+  },
+  {
+    id: 'ui_humas_d3',
+    prodi: 'D3 Hubungan Masyarakat',
+    univ: 'Universitas Indonesia (UI)',
+    shortUniv: 'UI',
+    degree: 'D3',
+    rumpun: 'soshum',
+    clusterLabel: 'Komunikasi & Media',
+    city: 'Depok',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 592,
+    quota2026: 48,
+    applicants2025: 1240,
+    tightness: '3.87%',
+    participantsCount: 380,
+    supportSubjects: ['Bahasa Indonesia', 'Sosiologi'],
+    prioritySubtests: ['pbm', 'lbi_s', 'pu'],
+    subtestWeights: { pbm: 0.22, lbi_s: 0.21, pu: 0.18, ppu: 0.16, lbe: 0.15, pk: 0.03, pm: 0.03, lbi_a: 0.02 }
+  },
+  {
+    id: 'ui_adm_d3',
+    prodi: 'D3 Administrasi Perkantoran',
+    univ: 'Universitas Indonesia (UI)',
+    shortUniv: 'UI',
+    degree: 'D3',
+    rumpun: 'soshum',
+    clusterLabel: 'Ilmu Administrasi',
+    city: 'Depok',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 588,
+    quota2026: 50,
+    applicants2025: 1090,
+    tightness: '4.59%',
+    participantsCount: 290,
+    supportSubjects: ['Ekonomi', 'Bahasa Indonesia'],
+    prioritySubtests: ['pbm', 'lbi_s', 'pu'],
+    subtestWeights: { pbm: 0.21, lbi_s: 0.20, pu: 0.19, ppu: 0.16, lbe: 0.12, pk: 0.06, pm: 0.04, lbi_a: 0.02 }
   }
 ];
 
@@ -786,4 +973,147 @@ export function matchCatalogProgram(choice: ProgramChoice): CatalogProgram | und
     const pShort = normalize(p.shortUniv);
     return pProdi === cProdi && (pUniv === cUniv || cUniv.includes(pShort) || pUniv.includes(cUniv));
   });
+}
+
+export interface SnbtValidationResult {
+  isValid: boolean;
+  total: number;
+  s1Count: number;
+  d4Count: number;
+  d3Count: number;
+  patternLabel: string;
+  message: string;
+  needsVokasiFilter: boolean;
+  needsD3Only: boolean;
+}
+
+export function validateSnbtChoices(programs: ProgramChoice[]): SnbtValidationResult {
+  const total = programs.length;
+  const degrees = programs.map((p) => (p.degree || 'S1').toUpperCase());
+  const s1Count = degrees.filter((d) => d === 'S1').length;
+  const d4Count = degrees.filter((d) => d === 'D4').length;
+  const d3Count = degrees.filter((d) => d === 'D3').length;
+  const vokasiCount = d4Count + d3Count;
+  const patternLabel = degrees.join(' – ') || 'Kosong';
+
+  if (total === 0) {
+    return {
+      isValid: false,
+      total,
+      s1Count,
+      d4Count,
+      d3Count,
+      patternLabel,
+      message: 'Minimal pilih 1 program studi.',
+      needsVokasiFilter: false,
+      needsD3Only: false
+    };
+  }
+
+  if (total > 4) {
+    return {
+      isValid: false,
+      total,
+      s1Count,
+      d4Count,
+      d3Count,
+      patternLabel,
+      message: 'Maksimal 4 pilihan program studi di SNBT 2026.',
+      needsVokasiFilter: false,
+      needsD3Only: false
+    };
+  }
+
+  if (total <= 2) {
+    return {
+      isValid: true,
+      total,
+      s1Count,
+      d4Count,
+      d3Count,
+      patternLabel,
+      message: `Sah SNBT 2026 (${total} pilihan: bebas kombinasi jenjang S1/D4/D3).`,
+      needsVokasiFilter: false,
+      needsD3Only: false
+    };
+  }
+
+  if (total === 3) {
+    if (s1Count > 2) {
+      return {
+        isValid: false,
+        total,
+        s1Count,
+        d4Count,
+        d3Count,
+        patternLabel,
+        message: 'Untuk 3 pilihan SNBT 2026, maksimal hanya boleh 2 S1. Ganti salah satu slot ke Vokasi (D4/D3) atau kurangi menjadi 2 pilihan.',
+        needsVokasiFilter: true,
+        needsD3Only: false
+      };
+    }
+    if (vokasiCount === 3 && d3Count === 0) {
+      return {
+        isValid: false,
+        total,
+        s1Count,
+        d4Count,
+        d3Count,
+        patternLabel,
+        message: 'Jika ke-3 pilihan semuanya Vokasi, wajib menyertakan minimal 1 program Diploma Tiga (D3).',
+        needsVokasiFilter: true,
+        needsD3Only: true
+      };
+    }
+    return {
+      isValid: true,
+      total,
+      s1Count,
+      d4Count,
+      d3Count,
+      patternLabel,
+      message: `Sah SNBT 2026 (3 pilihan: ${s1Count} S1 + ${vokasiCount} Vokasi).`,
+      needsVokasiFilter: false,
+      needsD3Only: false
+    };
+  }
+
+  // total === 4
+  if (s1Count > 2) {
+    return {
+      isValid: false,
+      total,
+      s1Count,
+      d4Count,
+      d3Count,
+      patternLabel,
+      message: 'Untuk 4 pilihan SNBT 2026, maksimal 2 S1 dan wajib menyertakan minimal 1 program Diploma Tiga (D3).',
+      needsVokasiFilter: true,
+      needsD3Only: d3Count === 0
+    };
+  }
+  if (d3Count === 0) {
+    return {
+      isValid: false,
+      total,
+      s1Count,
+      d4Count,
+      d3Count,
+      patternLabel,
+      message: 'Untuk 4 pilihan SNBT 2026, wajib menyertakan minimal 1 program Diploma Tiga (D3).',
+      needsVokasiFilter: true,
+      needsD3Only: true
+    };
+  }
+  return {
+    isValid: true,
+    total,
+    s1Count,
+    d4Count,
+    d3Count,
+    patternLabel,
+    message: `Sah SNBT 2026 (4 pilihan: ${s1Count} S1 + ${d4Count} D4 + ${d3Count} D3).`,
+    needsVokasiFilter: false,
+    needsD3Only: false
+  };
 }

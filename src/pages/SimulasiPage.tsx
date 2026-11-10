@@ -9,7 +9,9 @@ import {
   Plus,
   MapPin,
   ChevronDown,
-  GitBranch
+  GitBranch,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { CHECKPOINT1_STUDENTS, ProgramChoice } from '../data/garudaData';
 import {
@@ -25,11 +27,13 @@ import {
   matchCatalogProgram,
   getStudentSubtestScoreMap,
   getZoneFromGap,
+  validateSnbtChoices,
   SUBTEST_LABELS
 } from '../data/programCatalog';
 
 type RumpunFilter = 'all' | StudentTowerRumpun;
 type OpportunityFilter = 'all' | 'realistic' | OpportunityZone;
+type DegreeFilter = 'all' | 'S1' | 'D4' | 'D3' | 'vokasi';
 
 const STORAGE_KEY_PROGRAMS = 'bac_v2_custom_programs_v1';
 const STORAGE_KEY_STUDENT = 'bac_v2_active_student_v1';
@@ -124,21 +128,33 @@ export const SimulasiPage: React.FC = () => {
   }, [student]);
 
   const [scoreBasis, setScoreBasis] = useState<ScoreBasis>('to4');
+  const [focusedSlotIdx, setFocusedSlotIdx] = useState<number>(0);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+
+  // Student Tower Filter State
   const [provinceFilter, setProvinceFilter] = useState<string>('all');
   const [rumpunFilter, setRumpunFilter] = useState<RumpunFilter>(studentRumpun);
   const [universityFilter, setUniversityFilter] = useState<string>('all');
   const [opportunityFilter, setOpportunityFilter] = useState<OpportunityFilter>('all');
+  const [degreeFilter, setDegreeFilter] = useState<DegreeFilter>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [candidateId, setCandidateId] = useState<string | null>(null);
   const [actionToast, setActionToast] = useState<string | null>(null);
-  const [openApplyDropdownId, setOpenApplyDropdownId] = useState<string | null>(null);
+
+  // Keep focusedSlotIdx in valid bounds when activePrograms length changes
+  useEffect(() => {
+    if (focusedSlotIdx > activePrograms.length) {
+      setFocusedSlotIdx(Math.max(0, activePrograms.length - 1));
+    }
+  }, [activePrograms.length, focusedSlotIdx]);
 
   // Sync rumpun pre-filter when switching student
   useEffect(() => {
     setRumpunFilter(studentRumpun);
+    setFocusedSlotIdx(0);
+    setCompareIds([]);
+    setDegreeFilter('all');
   }, [student.id, studentRumpun]);
 
-  // Reset UI filters when switching student
   const handleSelectStudent = (id: string) => {
     setSelectedStudentId(id);
     localStorage.setItem(STORAGE_KEY_STUDENT, id);
@@ -147,9 +163,8 @@ export const SimulasiPage: React.FC = () => {
     setProvinceFilter('all');
     setUniversityFilter('all');
     setOpportunityFilter('all');
+    setDegreeFilter('all');
     setSearchQuery('');
-    setCandidateId(null);
-    setOpenApplyDropdownId(null);
   };
 
   const handleResetFilters = () => {
@@ -157,6 +172,7 @@ export const SimulasiPage: React.FC = () => {
     setRumpunFilter('all');
     setUniversityFilter('all');
     setOpportunityFilter('all');
+    setDegreeFilter('all');
     setSearchQuery('');
   };
 
@@ -166,8 +182,12 @@ export const SimulasiPage: React.FC = () => {
   };
 
   const handleApplyPrograms = (newPrograms: ProgramChoice[]) => {
+    const normalized = newPrograms.map((p, idx) => ({
+      ...p,
+      priority: `Pilihan ${idx + 1}`
+    }));
     setCustomProgramsByStudent((prev) => {
-      const next = { ...prev, [student.id]: newPrograms };
+      const next = { ...prev, [student.id]: normalized };
       localStorage.setItem(STORAGE_KEY_PROGRAMS, JSON.stringify(next));
       return next;
     });
@@ -180,7 +200,19 @@ export const SimulasiPage: React.FC = () => {
       localStorage.setItem(STORAGE_KEY_PROGRAMS, JSON.stringify(next));
       return next;
     });
+    setFocusedSlotIdx(0);
     showToast('Pilihan jurusan dikembalikan ke data awal siswa.');
+  };
+
+  const handleRemoveSlot = (idxToRemove: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activePrograms.length <= 1) return;
+    const next = activePrograms.filter((_, idx) => idx !== idxToRemove);
+    handleApplyPrograms(next);
+    if (focusedSlotIdx >= next.length) {
+      setFocusedSlotIdx(Math.max(0, next.length - 1));
+    }
+    showToast(`Pilihan ${idxToRemove + 1} dihapus dari formulasi.`);
   };
 
   // Pre-compute simulation results for all catalog programs
@@ -188,14 +220,11 @@ export const SimulasiPage: React.FC = () => {
     return PROGRAM_CATALOG.map((prog) => computeSimulatedProgram(student, prog, scoreBasis));
   }, [student, scoreBasis]);
 
-  // Map active Pilihan 1, 2, 3 to simulated cards
-  const activeColumns = useMemo(() => {
+  // Convert activePrograms (1..4) into SimulatedProgramResult entries
+  const activeSimulatedSlots = useMemo(() => {
     const scoreMap = getStudentSubtestScoreMap(student.subtests, scoreBasis);
 
-    return [0, 1, 2].map((idx) => {
-      const choice = activePrograms[idx];
-      if (!choice) return null;
-
+    return activePrograms.map((choice, idx) => {
       const matched = matchCatalogProgram(choice);
       if (matched) {
         const sim = allSimulated.find((s) => s.catalog.id === matched.id);
@@ -257,12 +286,30 @@ export const SimulasiPage: React.FC = () => {
         choice
       };
     });
-  }, [activePrograms, allSimulated, student.subtests, scoreBasis]);
+  }, [activePrograms, allSimulated, student.subtests, scoreBasis, studentRumpun]);
 
-  const candidateSim = useMemo(() => {
-    if (!candidateId) return null;
-    return allSimulated.find((s) => s.catalog.id === candidateId) || null;
-  }, [candidateId, allSimulated]);
+  // SNBT 2026 Real-time Validation
+  const snbtValidation = useMemo(() => validateSnbtChoices(activePrograms), [activePrograms]);
+
+  // Focused Slot & Compare Candidates (up to 2)
+  const focusedSlot = activeSimulatedSlots[focusedSlotIdx] || null;
+  const compareSims = useMemo(() => {
+    return compareIds
+      .map((id) => allSimulated.find((s) => s.catalog.id === id))
+      .filter((s): s is SimulatedProgramResult => Boolean(s));
+  }, [compareIds, allSimulated]);
+
+  const toggleCompareCandidate = (progId: string) => {
+    setCompareIds((prev) => {
+      if (prev.includes(progId)) {
+        return prev.filter((id) => id !== progId);
+      }
+      if (prev.length >= 2) {
+        return [prev[1], progId];
+      }
+      return [...prev, progId];
+    });
+  };
 
   const getActiveSlotLabel = (prog: CatalogProgram): string | null => {
     for (let i = 0; i < activePrograms.length; i++) {
@@ -272,15 +319,20 @@ export const SimulasiPage: React.FC = () => {
     return null;
   };
 
-  const handleSetChoice = (sim: SimulatedProgramResult, targetSlotIdx: number) => {
-    const priorityLabel = `Pilihan ${targetSlotIdx + 1}`;
+  const handleApplyToFocusedSlot = (sim: SimulatedProgramResult) => {
+    const targetIdx = focusedSlotIdx;
+    const priorityLabel = `Pilihan ${targetIdx + 1}`;
     const updated = [...activePrograms];
-    updated[targetSlotIdx] = sim.asProgramChoice(priorityLabel);
+    if (targetIdx < updated.length) {
+      updated[targetIdx] = sim.asProgramChoice(priorityLabel);
+    } else {
+      updated.push(sim.asProgramChoice(priorityLabel));
+    }
     handleApplyPrograms(updated);
-    setOpenApplyDropdownId(null);
-    showToast(`${priorityLabel} diperbarui menjadi ${sim.catalog.prodi} — ${sim.catalog.shortUniv}`);
+    showToast(`${priorityLabel} diterapkan: ${sim.catalog.prodi} — ${sim.catalog.shortUniv}`);
   };
 
+  // Cascading Universities based on Provinsi & Rumpun
   const availableUniversities = useMemo(() => {
     const filtered = PROGRAM_CATALOG.filter((p) => {
       if (provinceFilter !== 'all' && p.province !== provinceFilter) return false;
@@ -302,6 +354,11 @@ export const SimulasiPage: React.FC = () => {
         if (provinceFilter !== 'all' && item.catalog.province !== provinceFilter) return false;
         if (rumpunFilter !== 'all' && item.catalog.rumpunName !== rumpunFilter) return false;
         if (universityFilter !== 'all' && item.catalog.univ !== universityFilter) return false;
+        if (degreeFilter === 'S1' && item.catalog.degree !== 'S1') return false;
+        if (degreeFilter === 'D4' && item.catalog.degree !== 'D4') return false;
+        if (degreeFilter === 'D3' && item.catalog.degree !== 'D3') return false;
+        if (degreeFilter === 'vokasi' && item.catalog.degree === 'S1') return false;
+
         if (opportunityFilter === 'realistic' && item.gap < -30) return false;
         if (
           opportunityFilter !== 'all' &&
@@ -320,12 +377,13 @@ export const SimulasiPage: React.FC = () => {
         return true;
       })
       .sort((a, b) => b.gap - a.gap);
-  }, [allSimulated, provinceFilter, rumpunFilter, universityFilter, opportunityFilter, searchQuery]);
+  }, [allSimulated, provinceFilter, rumpunFilter, universityFilter, degreeFilter, opportunityFilter, searchQuery]);
 
   const hasActiveFilters =
     provinceFilter !== 'all' ||
     rumpunFilter !== 'all' ||
     universityFilter !== 'all' ||
+    degreeFilter !== 'all' ||
     opportunityFilter !== 'all' ||
     searchQuery.trim().length > 0;
 
@@ -334,6 +392,246 @@ export const SimulasiPage: React.FC = () => {
   const avgTO = Math.round(
     student.identity.toScores.reduce((acc, v) => acc + v, 0) / (student.identity.toScores.length || 1)
   );
+
+  // Render helper for a Compare Arena Card (Col 1 Active or Col 2/3 Candidate)
+  const renderCompareCard = (
+    sim: SimulatedProgramResult,
+    opts: {
+      badgeText: string;
+      isCandidate: boolean;
+      baselineSim?: SimulatedProgramResult | null;
+      onRemoveCandidate?: () => void;
+    }
+  ) => {
+    const theme = getZoneTheme(sim.zone);
+    const baseline = opts.baselineSim;
+    const targetDelta = baseline ? baseline.catalog.targetScore - sim.catalog.targetScore : 0;
+    const gapDelta = baseline ? sim.gap - baseline.gap : 0;
+
+    return (
+      <div
+        style={{
+          background: '#ffffff',
+          border: opts.isCandidate ? `2px dashed ${theme.borderColor}` : `1.5px solid ${theme.borderColor}`,
+          borderRadius: 10,
+          padding: 15,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        }}
+      >
+        <div>
+          {/* Top Row: Role Badge + Degree + Location */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 800,
+                  color: theme.textColor,
+                  background: theme.boxBg,
+                  border: `1px solid ${theme.borderColor}`,
+                  padding: '2px 8px',
+                  borderRadius: 4,
+                  textTransform: 'uppercase'
+                }}
+              >
+                {opts.badgeText}
+              </span>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: '#334155',
+                  background: '#f1f5f9',
+                  padding: '2px 6px',
+                  borderRadius: 4
+                }}
+              >
+                {sim.catalog.degree}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: '#475569',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  padding: '2px 7px',
+                  borderRadius: 4,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 3
+                }}
+              >
+                <MapPin size={10} /> {sim.isOutOfTown ? 'Luar Kota' : 'Satu Wilayah'}
+              </span>
+              {opts.onRemoveCandidate && (
+                <button
+                  type="button"
+                  onClick={opts.onRemoveCandidate}
+                  title="Keluarkan dari perbandingan"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    padding: 2,
+                    display: 'inline-flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Prodi & Kampus */}
+          <div style={{ minHeight: 46 }}>
+            <div style={{ fontSize: 14.5, fontWeight: 800, color: '#0f172a', lineHeight: 1.25 }}>
+              {sim.catalog.prodi}
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginTop: 2 }}>
+              {sim.catalog.univ} · {sim.catalog.city}
+            </div>
+          </div>
+
+          {/* Direct Delta Callout vs Focused Slot (Only for Candidates) */}
+          {opts.isCandidate && baseline && (
+            <div
+              style={{
+                marginTop: 8,
+                padding: '6px 9px',
+                borderRadius: 6,
+                background: gapDelta > 0 ? '#ecfdf3' : '#f8fafc',
+                border: `1px solid ${gapDelta > 0 ? '#a6f4c5' : '#e2e8f0'}`,
+                fontSize: 11,
+                color: gapDelta > 0 ? '#027a48' : '#475569',
+                fontWeight: 600,
+                lineHeight: 1.4
+              }}
+            >
+              {targetDelta > 0
+                ? `↓ Target lebih ringan ${targetDelta} poin · Peluang membaik +${gapDelta} poin`
+                : targetDelta < 0
+                ? `↑ Target lebih tinggi ${Math.abs(targetDelta)} poin`
+                : 'Target acuan setara dengan pilihan saat ini'}
+              {baseline.isOutOfTown && !sim.isOutOfTown && ' · 🏠 Satu wilayah'}
+            </div>
+          )}
+
+          {/* Neutral Score Box */}
+          <div
+            style={{
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: 6,
+              padding: '9px 11px',
+              marginTop: 9,
+              marginBottom: 10
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <div>
+                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Skor Terbobot</div>
+                <div style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{sim.weightedScore}</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Acuan</div>
+                <div style={{ fontSize: 14.5, fontWeight: 700, color: '#334155', lineHeight: 1.2 }}>{sim.catalog.targetScore}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Selisih</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: theme.textColor, lineHeight: 1.2 }}>
+                  {sim.gap > 0 ? `+${sim.gap}` : sim.gap}
+                </div>
+              </div>
+            </div>
+            <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#475569' }}>
+              <span>Keketatan: <strong style={{ color: '#0f172a' }}>{sim.catalog.tightness}</strong></span>
+              <span>Kuota: <strong style={{ color: '#0f172a' }}>{sim.catalog.quota2026} kursi</strong></span>
+            </div>
+          </div>
+
+          {/* 3 Subtes Pembobot Utama */}
+          <div style={{ fontSize: 11, marginBottom: 10 }}>
+            <div style={{ fontWeight: 700, color: '#334155', marginBottom: 4 }}>
+              3 Subtes Pembobot Utama (Skor Anda):
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {sim.prioritySubtestDetails.map((sub) => (
+                <div
+                  key={sub.key}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    background: '#f8fafc',
+                    padding: '3.5px 8px',
+                    borderRadius: 4,
+                    border: '1px solid #f1f5f9'
+                  }}
+                >
+                  <span style={{ color: '#475569' }}>
+                    <strong style={{ color: '#0f172a' }}>{sub.shortLabel}</strong> ({sub.weightPct}%)
+                  </span>
+                  <span style={{ fontWeight: 700, color: sub.studentScore >= 600 ? '#027a48' : '#0f172a' }}>
+                    {sub.studentScore}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom CTA or Info */}
+        <div style={{ paddingTop: 8, borderTop: '1px dashed #e2e8f0', fontSize: 11, color: '#475569' }}>
+          <div style={{ marginBottom: opts.isCandidate ? 8 : 4 }}>
+            Rapor SNBP: <strong style={{ color: '#0f172a' }}>{sim.catalog.supportSubjects.join(', ')}</strong>
+          </div>
+          {opts.isCandidate ? (
+            <button
+              type="button"
+              onClick={() => handleApplyToFocusedSlot(sim)}
+              style={{
+                width: '100%',
+                fontSize: 11.5,
+                fontWeight: 700,
+                color: '#ffffff',
+                background: '#1078ca',
+                border: '1px solid #1078ca',
+                borderRadius: 6,
+                padding: '7px 10px',
+                cursor: 'pointer'
+              }}
+            >
+              ✓ Jadikan Pilihan {focusedSlotIdx + 1}
+            </button>
+          ) : (
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: theme.textColor,
+                background: theme.boxBg,
+                border: `1px solid ${theme.boxBorder}`,
+                padding: '2px 8px',
+                borderRadius: 9999,
+                display: 'inline-block'
+              }}
+            >
+              {sim.zoneLabel}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -379,7 +677,7 @@ export const SimulasiPage: React.FC = () => {
 
       <main className="container">
         {/* Action Bar */}
-        <div className="action-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0 14px', flexWrap: 'wrap', gap: 10 }}>
+        <div className="action-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0 12px', flexWrap: 'wrap', gap: 10 }}>
           <button
             type="button"
             className="btn btn-back"
@@ -450,7 +748,6 @@ export const SimulasiPage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, flexWrap: 'wrap', fontSize: 12.5, color: '#64748b' }}>
               <span style={{ fontWeight: 600, color: '#334155' }}>{student.identity.name}</span>
 
-              {/* Dropdown Ganti Siswa (Compact inline) */}
               <div style={{ position: 'relative' }} ref={studentMenuRef}>
                 <button
                   type="button"
@@ -543,7 +840,6 @@ export const SimulasiPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Segmented Control Basis Skor */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 11.5, fontWeight: 600, color: '#64748b' }}>Basis skor:</span>
             <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: 3, borderRadius: 7, border: '1px solid #e2e8f0' }}>
@@ -582,23 +878,202 @@ export const SimulasiPage: React.FC = () => {
         </div>
 
         {/* ========================================================= */}
-        {/* BAGIAN 1: HEAD-TO-HEAD COMPARISON MATRIX (4 KOLOM SEJAJAR) */}
+        {/* BAGIAN 1: STRIP FORMULASI SNBT (1-4 SLOT RINGKAS)         */}
+        {/* ========================================================= */}
+        <section className="stage-card" style={{ marginBottom: 14, padding: '14px 18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0f172a' }}>
+              1. Formulasi Pilihan SNBT Siswa <span style={{ fontWeight: 500, color: '#64748b', fontSize: 12 }}>(Klik salah satu pilihan untuk dievaluasi &amp; dibandingkan)</span>
+            </div>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: '#475467' }}>
+              Komposisi: <strong style={{ color: '#0f172a' }}>{snbtValidation.patternLabel}</strong>
+            </span>
+          </div>
+
+          {/* 4-Slot Horizontal Strip */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 10 }}>
+            {activeSimulatedSlots.map((slot) => {
+              const isFocused = focusedSlotIdx === slot.slotIndex;
+              const theme = getZoneTheme(slot.sim.zone);
+
+              return (
+                <div
+                  key={`strip_${slot.slotIndex}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setFocusedSlotIdx(slot.slotIndex)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') setFocusedSlotIdx(slot.slotIndex);
+                  }}
+                  style={{
+                    background: isFocused ? '#f0f9ff' : '#ffffff',
+                    border: isFocused ? '2px solid #1078ca' : `1px solid ${theme.borderColor}`,
+                    borderRadius: 8,
+                    padding: '9px 11px',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    transition: 'all 0.12s ease'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 800,
+                          color: isFocused ? '#ffffff' : '#334155',
+                          background: isFocused ? '#1078ca' : '#f1f5f9',
+                          padding: '1.5px 6px',
+                          borderRadius: 4
+                        }}
+                      >
+                        Pilihan {slot.slotIndex + 1}
+                      </span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#475569' }}>
+                        {slot.sim.catalog.degree}
+                      </span>
+                    </div>
+
+                    {activePrograms.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={(e) => handleRemoveSlot(slot.slotIndex, e)}
+                        title={`Hapus Pilihan ${slot.slotIndex + 1}`}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#94a3b8',
+                          cursor: 'pointer',
+                          padding: 1,
+                          display: 'inline-flex',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {slot.sim.catalog.prodi}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {slot.sim.catalog.shortUniv} · {slot.sim.catalog.city}
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, paddingTop: 5, borderTop: '1px dashed #e2e8f0', fontSize: 11 }}>
+                    <span style={{ color: '#475569' }}>
+                      Skor <strong style={{ color: '#0f172a' }}>{slot.sim.weightedScore}</strong>
+                    </span>
+                    <span style={{ fontWeight: 800, color: theme.textColor }}>
+                      {slot.sim.gap > 0 ? `+${slot.sim.gap}` : slot.sim.gap} poin
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Add Pilihan 4 (or Empty Slot if < 4) */}
+            {activePrograms.length < 4 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFocusedSlotIdx(activePrograms.length);
+                  if (activePrograms.length >= 2) {
+                    setDegreeFilter(snbtValidation.needsD3Only ? 'D3' : 'vokasi');
+                  }
+                }}
+                style={{
+                  background: focusedSlotIdx === activePrograms.length ? '#f0f9ff' : '#f8fafc',
+                  border: focusedSlotIdx === activePrograms.length ? '2px dashed #1078ca' : '1.5px dashed #cbd5e1',
+                  borderRadius: 8,
+                  padding: '10px 12px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  color: focusedSlotIdx === activePrograms.length ? '#1078ca' : '#64748b'
+                }}
+              >
+                <Plus size={16} />
+                <div style={{ fontSize: 11.5, fontWeight: 700, marginTop: 3 }}>
+                  Tambah Pilihan {activePrograms.length + 1}
+                </div>
+                <div style={{ fontSize: 10, marginTop: 1 }}>
+                  {activePrograms.length >= 2 ? 'Vokasi (D4 / D3)' : 'Opsional s.d. 4 pilihan'}
+                </div>
+              </button>
+            )}
+          </div>
+
+          {/* SNBT 2026 Rule Status Bar */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 10,
+              flexWrap: 'wrap',
+              padding: '8px 12px',
+              borderRadius: 6,
+              background: snbtValidation.isValid ? '#ecfdf3' : '#fff7ed',
+              border: `1px solid ${snbtValidation.isValid ? '#a6f4c5' : '#fed7aa'}`,
+              fontSize: 12,
+              color: snbtValidation.isValid ? '#027a48' : '#9a3412'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 600 }}>
+              {snbtValidation.isValid ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}
+              <span>{snbtValidation.message}</span>
+            </div>
+
+            {!snbtValidation.isValid && snbtValidation.needsVokasiFilter && (
+              <button
+                type="button"
+                onClick={() => {
+                  setRumpunFilter('all');
+                  setDegreeFilter(snbtValidation.needsD3Only ? 'D3' : 'vokasi');
+                }}
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#9a3412',
+                  background: '#ffffff',
+                  border: '1px solid #fdba74',
+                  borderRadius: 5,
+                  padding: '4px 10px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {snbtValidation.needsD3Only ? 'Tampilkan Prodi D3 ▾' : 'Tampilkan Prodi Vokasi (D4/D3) ▾'}
+              </button>
+            )}
+          </div>
+        </section>
+
+        {/* ========================================================= */}
+        {/* BAGIAN 2: MEJA BANDINGKAN FOKUS PER PILIHAN (1 vs 1-2)     */}
         {/* ========================================================= */}
         <section className="stage-card" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
             <div>
-              <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
+              <h2 style={{ fontSize: 15.5, fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
                 <ArrowRightLeft size={16} color="#1078ca" />
-                1. Komparasi Berdampingan (Head-to-Head Matrix)
+                2. Meja Bandingkan: Fokus Pilihan {focusedSlotIdx + 1}
               </h2>
               <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>
-                Bandingkan skor terbobot, keketatan, lokasi, dan rincian skor siswa di 3 subtes pembobot utama antara Pilihan 1–3 dengan kandidat alternatif.
+                {focusedSlot
+                  ? `Membandingkan ${focusedSlot.sim.catalog.prodi} (${focusedSlot.sim.catalog.shortUniv}) dengan maksimal 2 alternatif dari katalog di bawah.`
+                  : `Pilih salah satu prodi dari katalog di bawah untuk mengisi Slot Pilihan ${focusedSlotIdx + 1}.`}
               </p>
             </div>
-            {candidateSim && (
+            {compareSims.length > 0 && (
               <button
                 type="button"
-                onClick={() => setCandidateId(null)}
+                onClick={() => setCompareIds([])}
                 style={{
                   fontSize: 11.5,
                   fontWeight: 600,
@@ -610,316 +1085,23 @@ export const SimulasiPage: React.FC = () => {
                   cursor: 'pointer'
                 }}
               >
-                Kosongkan Kandidat Pembanding
+                Kosongkan Pembanding
               </button>
             )}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
-            {/* 3 Kolom Pilihan Aktif */}
-            {activeColumns.map((col) => {
-              if (!col) return null;
-              const { sim, priorityLabel, slotIndex } = col;
-              const theme = getZoneTheme(sim.zone);
-
-              return (
-                <div
-                  key={`active_${slotIndex}`}
-                  style={{
-                    background: '#ffffff',
-                    border: `1.5px solid ${theme.borderColor}`,
-                    borderRadius: 10,
-                    padding: 14,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-                  }}
-                >
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 4, marginBottom: 8 }}>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 800,
-                          color: theme.textColor,
-                          background: theme.boxBg,
-                          border: `1px solid ${theme.borderColor}`,
-                          padding: '2px 8px',
-                          borderRadius: 4,
-                          textTransform: 'uppercase'
-                        }}
-                      >
-                        {priorityLabel}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 600,
-                          color: '#475569',
-                          background: '#f1f5f9',
-                          padding: '2px 7px',
-                          borderRadius: 4,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 3
-                        }}
-                      >
-                        <MapPin size={10} /> {sim.isOutOfTown ? 'Luar Kota' : 'Satu Wilayah'}
-                      </span>
-                    </div>
-
-                    <div style={{ minHeight: 48 }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', lineHeight: 1.25 }}>
-                        {sim.catalog.prodi}
-                      </div>
-                      <div style={{ fontSize: 11.5, fontWeight: 600, color: '#475569', marginTop: 2 }}>
-                        {sim.catalog.univ} · {sim.catalog.city}
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: 6,
-                        padding: '9px 10px',
-                        marginTop: 8,
-                        marginBottom: 10
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <div>
-                          <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Skor Terbobot</div>
-                          <div style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{sim.weightedScore}</div>
-                        </div>
-                        <div style={{ textAlign: 'center' }}>
-                          <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Acuan</div>
-                          <div style={{ fontSize: 14.5, fontWeight: 700, color: '#334155', lineHeight: 1.2 }}>{sim.catalog.targetScore}</div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Selisih</div>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: theme.textColor, lineHeight: 1.2 }}>
-                            {sim.gap > 0 ? `+${sim.gap}` : sim.gap}
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#475569' }}>
-                        <span>Keketatan: <strong style={{ color: '#0f172a' }}>{sim.catalog.tightness}</strong></span>
-                        <span>Kuota: <strong style={{ color: '#0f172a' }}>{sim.catalog.quota2026} kursi</strong></span>
-                      </div>
-                    </div>
-
-                    <div style={{ fontSize: 11, marginBottom: 10 }}>
-                      <div style={{ fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                        3 Subtes Pembobot Utama (Skor Anda):
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                        {sim.prioritySubtestDetails.map((sub) => (
-                          <div
-                            key={sub.key}
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              background: '#f8fafc',
-                              padding: '3.5px 8px',
-                              borderRadius: 4,
-                              border: '1px solid #f1f5f9'
-                            }}
-                          >
-                            <span style={{ color: '#475569' }}>
-                              <strong style={{ color: '#0f172a' }}>{sub.shortLabel}</strong> ({sub.weightPct}%)
-                            </span>
-                            <span style={{ fontWeight: 700, color: sub.studentScore >= 600 ? '#027a48' : '#0f172a' }}>
-                              {sub.studentScore}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ paddingTop: 8, borderTop: '1px dashed #e2e8f0', fontSize: 10.5, color: '#475569' }}>
-                    <div>
-                      Rapor SNBP: <strong style={{ color: '#0f172a' }}>{sim.catalog.supportSubjects.join(', ')}</strong>
-                    </div>
-                    <div style={{ marginTop: 5 }}>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 700,
-                          color: theme.textColor,
-                          background: theme.boxBg,
-                          border: `1px solid ${theme.boxBorder}`,
-                          padding: '2px 8px',
-                          borderRadius: 9999,
-                          display: 'inline-block'
-                        }}
-                      >
-                        {sim.zoneLabel}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Kolom ke-4: Kandidat Pembanding */}
-            {candidateSim ? (
-              (() => {
-                const theme = getZoneTheme(candidateSim.zone);
-                return (
-                  <div
-                    style={{
-                      background: '#ffffff',
-                      border: `2px dashed ${theme.borderColor}`,
-                      borderRadius: 10,
-                      padding: 14,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      boxShadow: '0 2px 6px rgba(16, 120, 202, 0.08)'
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 4, marginBottom: 8 }}>
-                        <span
-                          style={{
-                            fontSize: 10,
-                            fontWeight: 800,
-                            color: theme.textColor,
-                            background: theme.boxBg,
-                            border: `1px solid ${theme.borderColor}`,
-                            padding: '2px 8px',
-                            borderRadius: 4,
-                            textTransform: 'uppercase'
-                          }}
-                        >
-                          Kandidat Banding
-                        </span>
-                        <span
-                          style={{
-                            fontSize: 10,
-                            fontWeight: 600,
-                            color: '#475569',
-                            background: '#f1f5f9',
-                            padding: '2px 7px',
-                            borderRadius: 4,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 3
-                          }}
-                        >
-                          <MapPin size={10} /> {candidateSim.isOutOfTown ? 'Luar Kota' : 'Satu Wilayah'}
-                        </span>
-                      </div>
-
-                      <div style={{ minHeight: 48 }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', lineHeight: 1.25 }}>
-                          {candidateSim.catalog.prodi}
-                        </div>
-                        <div style={{ fontSize: 11.5, fontWeight: 600, color: '#475569', marginTop: 2 }}>
-                          {candidateSim.catalog.univ} · {candidateSim.catalog.city}
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          background: '#f8fafc',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: 6,
-                          padding: '9px 10px',
-                          marginTop: 8,
-                          marginBottom: 10
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                          <div>
-                            <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Skor Terbobot</div>
-                            <div style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{candidateSim.weightedScore}</div>
-                          </div>
-                          <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Acuan</div>
-                            <div style={{ fontSize: 14.5, fontWeight: 700, color: '#334155', lineHeight: 1.2 }}>{candidateSim.catalog.targetScore}</div>
-                          </div>
-                          <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Selisih</div>
-                            <div style={{ fontSize: 14, fontWeight: 800, color: theme.textColor, lineHeight: 1.2 }}>
-                              {candidateSim.gap > 0 ? `+${candidateSim.gap}` : candidateSim.gap}
-                            </div>
-                          </div>
-                        </div>
-                        <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#475569' }}>
-                          <span>Keketatan: <strong style={{ color: '#0f172a' }}>{candidateSim.catalog.tightness}</strong></span>
-                          <span>Kuota: <strong style={{ color: '#0f172a' }}>{candidateSim.catalog.quota2026} kursi</strong></span>
-                        </div>
-                      </div>
-
-                      <div style={{ fontSize: 11, marginBottom: 10 }}>
-                        <div style={{ fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                          3 Subtes Pembobot Utama (Skor Anda):
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                          {candidateSim.prioritySubtestDetails.map((sub) => (
-                            <div
-                              key={sub.key}
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                background: '#f8fafc',
-                                padding: '3.5px 8px',
-                                borderRadius: 4,
-                                border: '1px solid #f1f5f9'
-                              }}
-                            >
-                              <span style={{ color: '#475569' }}>
-                                <strong style={{ color: '#0f172a' }}>{sub.shortLabel}</strong> ({sub.weightPct}%)
-                              </span>
-                              <span style={{ fontWeight: 700, color: sub.studentScore >= 600 ? '#027a48' : '#0f172a' }}>
-                                {sub.studentScore}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ paddingTop: 8, borderTop: '1px dashed #e2e8f0' }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: '#475469', marginBottom: 5 }}>
-                        Terapkan Kandidat Ini ke Formulasi:
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
-                        {[0, 1, 2].map((slotIdx) => (
-                          <button
-                            key={slotIdx}
-                            type="button"
-                            onClick={() => handleSetChoice(candidateSim, slotIdx)}
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 700,
-                              color: '#1078ca',
-                              background: '#eff8ff',
-                              border: '1px solid #b2ddff',
-                              borderRadius: 5,
-                              padding: '5px 0',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Pil. {slotIdx + 1}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+            {/* Column 1: Focused Active Slot */}
+            {focusedSlot ? (
+              renderCompareCard(focusedSlot.sim, {
+                badgeText: `Pilihan ${focusedSlotIdx + 1} Saat Ini`,
+                isCandidate: false
+              })
             ) : (
               <div
                 style={{
                   background: '#f8fafc',
-                  border: '1.5px dashed #cbd5e1',
+                  border: '1.5px dashed #1078ca',
                   borderRadius: 10,
                   padding: 18,
                   display: 'flex',
@@ -927,36 +1109,78 @@ export const SimulasiPage: React.FC = () => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   textAlign: 'center',
-                  color: '#64748b'
+                  color: '#475569'
                 }}
               >
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    background: '#e2e8f0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 10
-                  }}
-                >
-                  <Plus size={20} color="#475569" />
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
-                  Slot Kandidat Pembanding
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1078ca', marginBottom: 6 }}>
+                  Slot Pilihan {focusedSlotIdx + 1} (Baru)
                 </div>
                 <p style={{ fontSize: 11.5, lineHeight: 1.5, margin: 0 }}>
-                  Klik tombol <strong>+ Bandingkan</strong> pada salah satu prodi di katalog bawah untuk menjajarkannya secara langsung dengan Pilihan 1–3.
+                  Gunakan filter di bawah lalu klik <strong>Pilih ke Pil. {focusedSlotIdx + 1}</strong> atau bandingkan kandidat terlebih dahulu.
                 </p>
               </div>
             )}
+
+            {/* Column 2 & 3: Up to 2 Comparison Candidates */}
+            {[0, 1].map((candIdx) => {
+              const candSim = compareSims[candIdx];
+              if (candSim) {
+                return (
+                  <React.Fragment key={`cand_${candSim.catalog.id}`}>
+                    {renderCompareCard(candSim, {
+                      badgeText: `Alternatif #${candIdx + 1}`,
+                      isCandidate: true,
+                      baselineSim: focusedSlot?.sim || null,
+                      onRemoveCandidate: () => toggleCompareCandidate(candSim.catalog.id)
+                    })}
+                  </React.Fragment>
+                );
+              }
+
+              return (
+                <div
+                  key={`empty_cand_${candIdx}`}
+                  style={{
+                    background: '#f8fafc',
+                    border: '1.5px dashed #cbd5e1',
+                    borderRadius: 10,
+                    padding: 18,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    color: '#64748b'
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: '50%',
+                      background: '#e2e8f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: 8
+                    }}
+                  >
+                    <Plus size={18} color="#475569" />
+                  </div>
+                  <div style={{ fontSize: 12.5, fontWeight: 700, color: '#334155', marginBottom: 4 }}>
+                    Slot Alternatif #{candIdx + 1}
+                  </div>
+                  <p style={{ fontSize: 11.5, lineHeight: 1.45, margin: 0 }}>
+                    Klik tombol <strong>+ Bandingkan</strong> di katalog bawah untuk menimbang prodi ini terhadap Pilihan {focusedSlotIdx + 1}.
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </section>
 
         {/* ========================================================= */}
-        {/* BAGIAN 2: CARI KAMPUS DAN PROGRAM STUDI (FILTER STUDENT TOWER) */}
+        {/* BAGIAN 3: CARI KAMPUS DAN PROGRAM STUDI (STUDENT TOWER)   */}
         {/* ========================================================= */}
         <section className="stage-card" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
@@ -965,30 +1189,66 @@ export const SimulasiPage: React.FC = () => {
                 Cari kampus dan program studi
               </h2>
               <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>
-                UTBK-SNBT maksimal 3 pilihan. Pre-filtered sesuai minat rumpun siswa; sesuaikan filter di bawah untuk mencari prodi pembanding ({filteredCatalog.length} prodi tersedia).
+                UTBK-SNBT maksimal 4 pilihan (maks. 2 S1; pilihan ke-3/4 kombinasi Vokasi D4/D3). Tersedia {filteredCatalog.length} prodi sesuai filter.
               </p>
             </div>
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: '#475467',
-                  background: '#f8fafc',
-                  border: '1px solid #d0d5dd',
-                  borderRadius: 6,
-                  padding: '6px 11px',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 5
-                }}
-              >
-                <RotateCcw size={13} /> Reset filter
-              </button>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              {/* Subtle Jenjang Toggle for SNBT Vokasi Scaffolding */}
+              <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: 2.5, borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                {(
+                  [
+                    { id: 'all', label: 'Semua Jenjang' },
+                    { id: 'S1', label: 'S1' },
+                    { id: 'vokasi', label: 'Vokasi (D4/D3)' },
+                    { id: 'D3', label: 'Khusus D3' }
+                  ] as { id: DegreeFilter; label: string }[]
+                ).map((d) => {
+                  const active = degreeFilter === d.id;
+                  return (
+                    <button
+                      key={d.id}
+                      type="button"
+                      onClick={() => setDegreeFilter(d.id)}
+                      style={{
+                        fontSize: 11,
+                        fontWeight: active ? 700 : 500,
+                        color: active ? '#1078ca' : '#64748b',
+                        background: active ? '#ffffff' : 'transparent',
+                        border: 'none',
+                        borderRadius: 4,
+                        padding: '3px 8px',
+                        boxShadow: active ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {d.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  style={{
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                    color: '#475467',
+                    background: '#f8fafc',
+                    border: '1px solid #d0d5dd',
+                    borderRadius: 6,
+                    padding: '5px 10px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4
+                  }}
+                >
+                  <RotateCcw size={12} /> Reset filter
+                </button>
+              )}
+            </div>
           </div>
 
           {/* 3-Column Student Tower Filter Grid */}
@@ -1087,7 +1347,7 @@ export const SimulasiPage: React.FC = () => {
               </select>
             </div>
 
-            {/* 4. Tier (Dipertahankan kosong mengikuti existing Student Tower) */}
+            {/* 4. Tier (Empty matching existing Student Tower) */}
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
                 Tier
@@ -1136,7 +1396,7 @@ export const SimulasiPage: React.FC = () => {
               />
             </div>
 
-            {/* 6. Peluang (Field baru) */}
+            {/* 6. Peluang */}
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
                 Peluang
@@ -1171,11 +1431,11 @@ export const SimulasiPage: React.FC = () => {
               <thead>
                 <tr>
                   <th style={{ width: '28%' }}>Program Studi &amp; Perguruan Tinggi</th>
-                  <th style={{ width: '12%', textAlign: 'center' }}>Skor Terbobot</th>
+                  <th style={{ width: '11%', textAlign: 'center' }}>Skor Terbobot</th>
                   <th style={{ width: '11%', textAlign: 'center' }}>Target Acuan</th>
                   <th style={{ width: '12%', textAlign: 'center' }}>Selisih</th>
                   <th style={{ width: '16%', textAlign: 'center' }}>Kompetisi &amp; Lokasi</th>
-                  <th style={{ width: '21%', textAlign: 'right' }}>Aksi Komparasi</th>
+                  <th style={{ width: '22%', textAlign: 'right' }}>Aksi (Fokus Pil. {focusedSlotIdx + 1})</th>
                 </tr>
               </thead>
               <tbody>
@@ -1188,15 +1448,14 @@ export const SimulasiPage: React.FC = () => {
                 ) : (
                   filteredCatalog.map((sim) => {
                     const activeLabel = getActiveSlotLabel(sim.catalog);
-                    const isCandidate = candidateId === sim.catalog.id;
+                    const isCompared = compareIds.includes(sim.catalog.id);
                     const theme = getZoneTheme(sim.zone);
-                    const isDropdownOpen = openApplyDropdownId === sim.catalog.id;
 
                     return (
                       <tr
                         key={sim.catalog.id}
                         style={{
-                          background: isCandidate ? '#f0f9ff' : activeLabel ? '#f8fafc' : undefined
+                          background: isCompared ? '#f0f9ff' : activeLabel ? '#f8fafc' : undefined
                         }}
                       >
                         <td>
@@ -1204,6 +1463,19 @@ export const SimulasiPage: React.FC = () => {
                             <strong style={{ color: '#0f172a', fontSize: 13 }}>
                               {sim.catalog.prodi} — {sim.catalog.shortUniv}
                             </strong>
+                            <span
+                              style={{
+                                fontSize: 9.5,
+                                fontWeight: 700,
+                                background: sim.catalog.degree === 'S1' ? '#f1f5f9' : '#ecfdf3',
+                                color: sim.catalog.degree === 'S1' ? '#475569' : '#027a48',
+                                border: `1px solid ${sim.catalog.degree === 'S1' ? '#e2e8f0' : '#a6f4c5'}`,
+                                padding: '1px 5px',
+                                borderRadius: 4
+                              }}
+                            >
+                              {sim.catalog.degree}
+                            </span>
                             {activeLabel && (
                               <span
                                 style={{
@@ -1254,85 +1526,40 @@ export const SimulasiPage: React.FC = () => {
                           </div>
                         </td>
                         <td style={{ textAlign: 'right' }}>
-                          <div style={{ display: 'inline-flex', gap: 6, alignItems: 'center', position: 'relative' }}>
+                          <div style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
                             <button
                               type="button"
-                              onClick={() => setCandidateId(isCandidate ? null : sim.catalog.id)}
+                              onClick={() => toggleCompareCandidate(sim.catalog.id)}
+                              style={{
+                                fontSize: 11.5,
+                                fontWeight: 700,
+                                padding: '5px 9px',
+                                borderRadius: 5,
+                                cursor: 'pointer',
+                                background: isCompared ? '#1078ca' : '#ffffff',
+                                color: isCompared ? '#ffffff' : '#334155',
+                                border: `1px solid ${isCompared ? '#1078ca' : '#cbd5e1'}`
+                              }}
+                            >
+                              {isCompared ? '✓ Dibandingkan' : '+ Bandingkan'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleApplyToFocusedSlot(sim)}
                               style={{
                                 fontSize: 11.5,
                                 fontWeight: 700,
                                 padding: '5px 10px',
                                 borderRadius: 5,
                                 cursor: 'pointer',
-                                background: isCandidate ? '#1078ca' : '#ffffff',
-                                color: isCandidate ? '#ffffff' : '#334155',
-                                border: `1px solid ${isCandidate ? '#1078ca' : '#cbd5e1'}`
+                                background: '#eff8ff',
+                                color: '#1078ca',
+                                border: '1px solid #b2ddff'
                               }}
                             >
-                              {isCandidate ? '✓ Dibandingkan' : '+ Bandingkan'}
+                              Pilih ke Pil. {focusedSlotIdx + 1}
                             </button>
-
-                            <div style={{ position: 'relative' }}>
-                              <button
-                                type="button"
-                                onClick={() => setOpenApplyDropdownId(isDropdownOpen ? null : sim.catalog.id)}
-                                style={{
-                                  fontSize: 11.5,
-                                  fontWeight: 700,
-                                  padding: '5px 10px',
-                                  borderRadius: 5,
-                                  cursor: 'pointer',
-                                  background: '#eff8ff',
-                                  color: '#1078ca',
-                                  border: '1px solid #b2ddff'
-                                }}
-                              >
-                                Terapkan ▾
-                              </button>
-
-                              {isDropdownOpen && (
-                                <div
-                                  style={{
-                                    position: 'absolute',
-                                    right: 0,
-                                    top: 'calc(100% + 4px)',
-                                    background: '#ffffff',
-                                    border: '1px solid #cbd5e1',
-                                    borderRadius: 6,
-                                    boxShadow: '0 8px 20px rgba(15, 23, 42, 0.14)',
-                                    padding: 4,
-                                    zIndex: 50,
-                                    minWidth: 145,
-                                    textAlign: 'left'
-                                  }}
-                                >
-                                  {[0, 1, 2].map((slotIdx) => (
-                                    <button
-                                      key={slotIdx}
-                                      type="button"
-                                      onClick={() => handleSetChoice(sim, slotIdx)}
-                                      style={{
-                                        width: '100%',
-                                        textAlign: 'left',
-                                        fontSize: 12,
-                                        fontWeight: 600,
-                                        color: '#1e293b',
-                                        background: 'transparent',
-                                        border: 'none',
-                                        padding: '6px 9px',
-                                        borderRadius: 4,
-                                        cursor: 'pointer',
-                                        display: 'block'
-                                      }}
-                                      onMouseEnter={(e) => (e.currentTarget.style.background = '#eff8ff')}
-                                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                                    >
-                                      Set sebagai Pilihan {slotIdx + 1}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
                           </div>
                         </td>
                       </tr>
@@ -1363,7 +1590,7 @@ export const SimulasiPage: React.FC = () => {
         >
           <Info size={17} style={{ flexShrink: 0, marginTop: 2 }} />
           <div>
-            <strong>Disclaimer Acuan Internal:</strong> Angka target acuan dan posisi peringkat di atas merupakan benchmark peserta internal Ruangguru (bukan passing grade resmi SNPMB atau jaminan kelolosan personal). Gunakan komparasi berdampingan ini bersama siswa &amp; orang tua untuk menyepakati opsi yang realistis secara skor maupun lokasi.
+            <strong>Disclaimer Acuan Internal:</strong> Angka target acuan dan posisi peringkat di atas merupakan benchmark peserta internal Ruangguru (bukan passing grade resmi SNPMB atau jaminan kelolosan personal). Gunakan perbandingan fokus per pilihan ini bersama siswa &amp; orang tua untuk menyepakati kombinasi SNBT yang sah dan realistis.
           </div>
         </div>
       </main>
