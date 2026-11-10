@@ -4,7 +4,8 @@ import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, Bo
 import { V2PdfModal } from '../components/V2PdfModal';
 import { SimulasiModal } from '../components/SimulasiModal';
 import {
-  CHECKPOINT1_STUDENTS
+  CHECKPOINT1_STUDENTS,
+  ProgramChoice
 } from '../data/garudaData';
 import { useRapor } from '../context/RaporContext';
 import { useRuleConfig } from '../utils/saRuleStore';
@@ -46,7 +47,37 @@ export const CheckpointV2Page: React.FC = () => {
   const activeStudent = CHECKPOINT1_STUDENTS.find((s) => s.id === selectedStudentId) || CHECKPOINT1_STUDENTS[0];
   const studentIdentity = activeStudent.identity;
   const subtestsV2Data = activeStudent.subtests;
-  const targetPrograms = activeStudent.targetPrograms;
+
+  const [customProgramsByStudent, setCustomProgramsByStudent] = useState<Record<string, ProgramChoice[]>>(() => {
+    try {
+      const saved = localStorage.getItem('bac_v2_custom_programs_v1');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const customPrograms = customProgramsByStudent[activeStudent.id];
+  const targetPrograms = customPrograms || activeStudent.targetPrograms;
+  const isProgramsCustomized = Boolean(customPrograms);
+
+  const handleApplyPrograms = (newPrograms: ProgramChoice[]) => {
+    setCustomProgramsByStudent((prev) => {
+      const next = { ...prev, [activeStudent.id]: newPrograms };
+      localStorage.setItem('bac_v2_custom_programs_v1', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const handleResetPrograms = () => {
+    setCustomProgramsByStudent((prev) => {
+      const next = { ...prev };
+      delete next[activeStudent.id];
+      localStorage.setItem('bac_v2_custom_programs_v1', JSON.stringify(next));
+      return next;
+    });
+  };
+
   const prioritySubtestsV2 = activeStudent.prioritySubtests;
 
   const [isPdfOpen, setIsPdfOpen] = useState<boolean>(
@@ -254,7 +285,7 @@ export const CheckpointV2Page: React.FC = () => {
 
   const stage2Out = analyzeStage2(
     {
-      programs: activeStudent.targetPrograms,
+      programs: targetPrograms,
       familyAlignment: activeStudent.familyAlignment,
       studentHomeCity: activeStudent.identity.branch.split('-')[0].trim()
     },
@@ -887,11 +918,54 @@ export const CheckpointV2Page: React.FC = () => {
 
           {/* Table Program Choices */}
           <div className="section-block" id="sec_tahap2_table">
-            <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Evaluasi Peluang Kelulusan 3 Pilihan Jurusan PTN</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                Dihitung dari Skor TO 4 Menggunakan Formula Bobot Subtes Resmi Super CMS
-              </span>
+            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <h3 className="section-title" style={{ fontSize: 15, margin: 0 }}>1. Evaluasi Peluang 3 Pilihan Jurusan PTN</h3>
+                {isProgramsCustomized && (
+                  <span
+                    style={{
+                      fontSize: 10.5,
+                      fontWeight: 700,
+                      color: '#027a48',
+                      background: '#ecfdf3',
+                      border: '1px solid #a6f4c5',
+                      padding: '2px 8px',
+                      borderRadius: 9999
+                    }}
+                  >
+                    ✓ Diperbarui dari Simulasi
+                  </span>
+                )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {isProgramsCustomized && !isLocked && (
+                  <button
+                    type="button"
+                    onClick={handleResetPrograms}
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: '#64748b',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 6,
+                      padding: '4px 9px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ↺ Reset Awal
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsSimulasiOpen(true)}
+                  className="btn btn-outline"
+                  style={{ fontSize: 11.5, padding: '4px 10px', display: 'inline-flex', alignItems: 'center', gap: 5 }}
+                >
+                  <Compass size={13} color="#1078ca" />
+                  Bandingkan / Ubah via Simulasi
+                </button>
+              </div>
             </div>
 
             <div className="table-container">
@@ -900,14 +974,14 @@ export const CheckpointV2Page: React.FC = () => {
                   <tr>
                     <th style={{ width: '12%' }}>Pilihan</th>
                     <th style={{ width: '40%' }}>Program Studi &amp; Perguruan Tinggi</th>
-                    <th style={{ width: '16%', textAlign: 'center' }}>Target Skor Lolos</th>
+                    <th style={{ width: '16%', textAlign: 'center' }}>Target Acuan</th>
                     <th style={{ width: '16%', textAlign: 'center' }}>Skor Terbobot TO 4</th>
                     <th style={{ width: '16%', textAlign: 'center' }}>Selisih ke Target</th>
                   </tr>
                 </thead>
                 <tbody>
                   {targetPrograms.map((prog, idx) => (
-                    <tr key={prog.priority}>
+                    <tr key={`${prog.priority}_${prog.prodi}_${prog.univ}`}>
                       <td>
                         <span style={{ fontWeight: 700, color: idx === 0 ? '#1078ca' : idx === 1 ? '#0284c7' : '#b54708' }}>
                           {prog.priority}
@@ -915,7 +989,9 @@ export const CheckpointV2Page: React.FC = () => {
                       </td>
                       <td>
                         <strong>{prog.prodi}</strong><br />
-                        <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{prog.univ} • Keketatan: {prog.tightness}</span>
+                        <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                          {prog.univ} · {prog.city} ({prog.isOutOfTown ? 'Luar Kota' : 'Satu Wilayah'}) · Keketatan: {prog.tightness}
+                        </span>
                       </td>
                       <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{prog.targetScore}</td>
                       <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#1078ca' }}>{prog.weightedScore}</td>
@@ -1373,7 +1449,15 @@ export const CheckpointV2Page: React.FC = () => {
       </main>
 
       <V2PdfModal isOpen={isPdfOpen} onClose={closePdf} />
-      <SimulasiModal isOpen={isSimulasiOpen} onClose={() => setIsSimulasiOpen(false)} />
+      <SimulasiModal
+        isOpen={isSimulasiOpen}
+        onClose={() => setIsSimulasiOpen(false)}
+        student={activeStudent}
+        activePrograms={targetPrograms}
+        onApplyPrograms={handleApplyPrograms}
+        onResetPrograms={handleResetPrograms}
+        isCustomized={isProgramsCustomized}
+      />
     </div>
   );
 };
