@@ -376,7 +376,7 @@ export const CheckpointV2Page: React.FC = () => {
                       <th style={{ textAlign: 'center', width: '8%' }}>TO 2</th>
                       <th style={{ textAlign: 'center', width: '8%' }}>TO 3</th>
                       <th style={{ textAlign: 'center', width: '8%' }}>TO 4</th>
-                      <th style={{ textAlign: 'center', width: '10%' }}>Total 4 TO</th>
+                      <th style={{ textAlign: 'center', width: '10%' }}>Rata-rata 4 TO</th>
                       <th style={{ width: '22%' }}>Visual Posisi vs Target 600</th>
                       <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
                       <th style={{ textAlign: 'center', width: '10%' }}>Status</th>
