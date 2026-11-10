@@ -1,2 +1,430 @@
 <!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Konsultasi Checkpoint 1 - Super CMS</title><meta http-equiv="refresh" content="0;url=Consultation%20Checkpoint%201%20-%20Prototype.html"></head><body><a href="Consultation%20Checkpoint%201%20-%20Prototype.html">Buka Konsultasi Checkpoint 1</a></body></html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal Prototipe Konsultasi Checkpoint 1 &amp; Laporan SA</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <script>
+    // Client-side Router: handle ?v=, ?route=, or hash #v1, #v2, #rapor, etc.
+    const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash.toLowerCase().replace('#', '').trim();
+    const rawRoute = (params.get('v') || params.get('route') || hash || '').toLowerCase();
+
+    const routeMap = {
+      '2': 'Consultation%20Checkpoint%201%20-%20Prototype%20V2.html',
+      'v2': 'Consultation%20Checkpoint%201%20-%20Prototype%20V2.html',
+      '1': 'Consultation%20Checkpoint%201%20-%20Prototype.html',
+      'v1': 'Consultation%20Checkpoint%201%20-%20Prototype.html',
+      'rapor': 'Update%20Nilai%20Rapor.html',
+      'guided': 'Consultation%20Brief%20-%20Garuda%20Mahawira%20Sena%20-%20Guided%20Report.html',
+      'meeting': 'Consultation%20Brief%20-%20Garuda%20Mahawira%20Sena%20-%20Meeting%20Mode.html',
+      'simulasi': 'Simulasi%20Wording%20SA%20-%20Tryout.html'
+    };
+
+    if (routeMap[rawRoute]) {
+      const extraQuery = window.location.search
+        .replace(/[?&](v|route)=[^&]*/g, '')
+        .replace(/^&/, '?');
+      window.location.replace(routeMap[rawRoute] + (extraQuery.startsWith('?') ? extraQuery : (extraQuery ? '?' + extraQuery : '')) + window.location.hash);
+    }
+  </script>
+  <style>
+    :root {
+      --primary: #1078ca;
+      --primary-dark: #095995;
+      --accent: #0284c7;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 32px 20px 60px;
+    }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .badge-hub {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1e3a8a;
+      color: #93c5fd;
+      border: 1px solid #2563eb;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    
+    .quick-route-bar {
+      background: #1e293b;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .quick-route-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .route-pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .route-pill {
+      background: #334155;
+      color: #e2e8f0;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      border: 1px solid #475467;
+    }
+    .route-pill:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .route-pill.highlight {
+      background: #2563eb;
+      color: #fff;
+      border-color: #3b82f6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: #475467;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    .card.featured {
+      border: 2px solid #2563eb;
+      background: linear-gradient(180deg, #1e293b 0%, #172554 100%);
+    }
+    .card-top {
+      margin-bottom: 20px;
+    }
+    .card-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .badge-v2 { background: #1d4ed8; color: #dbeafe; }
+    .badge-rec { background: #065f46; color: #a7f3d0; }
+    .badge-v1 { background: #475467; color: #f1f5f9; }
+    .badge-mod { background: #854d0e; color: #fef08a; }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .card-highlights {
+      list-style: none;
+      font-size: 12px;
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .card-highlights li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .card-highlights li::before {
+      content: "✓";
+      color: #38bdf8;
+      font-weight: bold;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 16px;
+      font-size: 12.5px;
+      font-weight: 700;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: #ffffff;
+      border: 1px solid #3b82f6;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-outline {
+      background: #334155;
+      color: #f1f5f9;
+      border: 1px solid #475467;
+    }
+    .btn-outline:hover {
+      background: #475467;
+      color: #fff;
+    }
+
+    .archive-box {
+      background: #1e293b;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 22px;
+    }
+    .archive-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 10px;
+    }
+    .archive-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .archive-link {
+      font-size: 12.5px;
+      color: #38bdf8;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .archive-link:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge-hub">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polygon points="12 6 12 12 16 14"></polygon></svg>
+        Antigravity Prototype Router
+      </div>
+      <h1>Portal Konsultasi Checkpoint 1 &amp; Laporan SA</h1>
+      <p class="subtitle">Pilih versi rancangan Information Architecture (IA) dan alur konsultasi untuk ditinjau bersama tim akademik dan stakeholder.</p>
+    </header>
+
+    <!-- Quick URL Route Short Bar -->
+    <div class="quick-route-bar">
+      <div class="quick-route-label">
+        ⚡ <strong>Pintas Rute:</strong> Klik untuk membuka langsung versi terkait:
+      </div>
+      <div class="route-pill-group">
+        <a href="v2/" class="route-pill highlight">⚡ Versi 2 (/v2/)</a>
+        <a href="v1/" class="route-pill">📊 Versi 1 (/v1/)</a>
+        <a href="rapor/" class="route-pill">📝 Rapor 20 Mapel (/rapor/)</a>
+        <a href="guided/" class="route-pill">📑 Guided Report (/guided/)</a>
+        <a href="meeting/" class="route-pill">🤝 Meeting Mode (/meeting/)</a>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid">
+      <!-- Card V2 -->
+      <div class="card featured">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge badge-v2">Versi 2 (Terbaru)</span>
+            <span class="badge badge-rec">Rekomendasi Tim Akademik</span>
+          </div>
+          <h2 class="card-title">
+            <span>🎯</span> Usulan Tim Akademik (Target 600)
+          </h2>
+          <p class="card-desc">
+            Rancangan Information Architecture baru berbasis strategi Semester 1 (fondasi 600 poin), pemisahan Skor IRT Reguler vs Terbobot PTN, integrasi drill Ruangguru, dan 4 tahap pembawaan SA.
+          </p>
+          <ul class="card-highlights">
+            <li><strong>Skor Reguler vs Terbobot:</strong> Pemisahan jelas antara kemampuan dasar dan bobot seleksi PTN.</li>
+            <li><strong>Visual Progress 400..700:</strong> Bar progress horizontal dengan garis patokan target 600.</li>
+            <li><strong>4 Subtes Prioritas:</strong> Dikorelasikan langsung dengan jumlah soal &amp; akurasi di aplikasi Ruangguru.</li>
+            <li><strong>Dashboard SA 4 Tahap:</strong> Panduan pembawaan internal untuk memfasilitasi sesi konsultasi.</li>
+            <li><strong>Laporan Cetak PDF:</strong> Presisi 2 halaman A4 untuk diserahkan ke siswa dan orang tua.</li>
+          </ul>
+        </div>
+        <div class="card-actions">
+          <a href="Consultation%20Checkpoint%201%20-%20Prototype%20V2.html" class="btn btn-primary">
+            Buka Dashboard SA (V2) ➔
+          </a>
+          <a href="Consultation%20Checkpoint%201%20-%20Prototype%20V2.html?preview=1" class="btn btn-outline" title="Buka Pratinjau Cetak PDF 2 Halaman">
+            📄 Cetak PDF
+          </a>
+        </div>
+      </div>
+
+      <!-- Card V1 -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge badge-v1">Versi 1 (Baseline)</span>
+          </div>
+          <h2 class="card-title">
+            <span>📊</span> Baseline Tren Skor Historis
+          </h2>
+          <p class="card-desc">
+            Rancangan Information Architecture awal yang berfokus pada evaluasi tren pergerakan skor dari TO 1 ke TO 4, evaluasi 8 subtes, dan tab komparasi 3 pilihan prodi.
+          </p>
+          <ul class="card-highlights">
+            <li><strong>Evaluasi Tren TO:</strong> Menyoroti penurunan skor 55 poin dari TO 1 (601) ke TO 4 (546).</li>
+            <li><strong>Tab Pilihan 1 / 2 / 3:</strong> Tab terpisah untuk membedah masing-masing prodi pilihan.</li>
+            <li><strong>Catatan SA 7 Poin:</strong> Formulir dokumentasi komprehensif bagi Kakak Asuh.</li>
+            <li><strong>Laporan Cetak PDF:</strong> Dokumen 2 halaman A4 dengan tabel histori lengkap.</li>
+          </ul>
+        </div>
+        <div class="card-actions">
+          <a href="Consultation%20Checkpoint%201%20-%20Prototype.html" class="btn btn-outline">
+            Buka Dashboard SA (V1) ➔
+          </a>
+          <a href="Consultation%20Checkpoint%201%20-%20Prototype.html?preview=1" class="btn btn-outline">
+            📄 Cetak PDF
+          </a>
+        </div>
+      </div>
+
+      <!-- Card Rapor 20 Mapel -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge badge-mod">Modul Pendukung</span>
+          </div>
+          <h2 class="card-title">
+            <span>📝</span> Update Nilai Rapor 20 Mapel
+          </h2>
+          <p class="card-desc">
+            Modul kalkulator dan editor interaktif nilai rapor SMA untuk 20 mata pelajaran (Semester 1–5). Terhubung langsung dengan analisis bobot mata pelajaran pendukung prodi.
+          </p>
+          <ul class="card-highlights">
+            <li><strong>20 Mapel Lengkap:</strong> Edit nilai per semester dengan validasi batas rentang nilai.</li>
+            <li><strong>Kalkulasi Otomatis:</strong> Rata-rata semester, rata-rata mapel, dan rata-rata kumulatif.</li>
+            <li><strong>Adaptif Prodi:</strong> Pembobotan mapel pendukung otomatis menyesuaikan pilihan 1 / 2 / 3.</li>
+            <li><strong>Sinkronisasi Instan:</strong> Tersimpan di LocalStorage dan siap diakses dashboard.</li>
+          </ul>
+        </div>
+        <div class="card-actions">
+          <a href="Update%20Nilai%20Rapor.html" class="btn btn-outline">
+            Buka Editor Rapor ➔
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Archive Section -->
+    <div class="archive-box">
+      <div class="archive-title">📁 Eksplorasi Desain Awal &amp; Alat Bantu Terkait:</div>
+      <div class="archive-links">
+        <a href="Consultation%20Brief%20-%20Garuda%20Mahawira%20Sena%20-%20Guided%20Report.html" class="archive-link">
+          📑 Guided Report Konsultasi
+        </a>
+        <span style="color: var(--border);">•</span>
+        <a href="Consultation%20Brief%20-%20Garuda%20Mahawira%20Sena%20-%20Meeting%20Mode.html" class="archive-link">
+          🤝 Meeting Mode Konsultasi
+        </a>
+        <span style="color: var(--border);">•</span>
+        <a href="Simulasi%20Wording%20SA%20-%20Tryout.html" class="archive-link">
+          💬 Simulator Wording SA (Tryout)
+        </a>
+      </div>
+    </div>
+
+    <footer>
+      Ruangguru Konsultasi Checkpoint 1 Prototipe &bull; Deploy via GitHub Pages &amp; Vercel &bull; 2026
+    </footer>
+  </div>
+</body>
+</html>
