@@ -328,13 +328,20 @@ export const CheckpointV2Page: React.FC = () => {
                     {subtestsV2Data.map((sub) => {
                       const isHigh = sub.status === 'PRIORITAS UTAMA';
                       const isDone = sub.gap >= 0;
+                      const renderTrend = (curr: number, prev: number) => {
+                        if (curr > prev) return <span style={{ color: '#027a48', fontSize: 10 }}> ▲</span>;
+                        if (curr < prev) return <span style={{ color: '#b42318', fontSize: 10 }}> ▼</span>;
+                        return null;
+                      };
                       return (
                         <tr key={sub.id} style={isHigh ? { background: '#fffbfa' } : undefined}>
                           <td><strong>{sub.name}</strong></td>
                           <td style={{ textAlign: 'center' }}>{sub.to1}</td>
-                          <td style={{ textAlign: 'center' }}>{sub.to2}</td>
-                          <td style={{ textAlign: 'center' }}>{sub.to3}</td>
-                          <td style={{ textAlign: 'center', fontWeight: 700, color: isDone ? '#027a48' : isHigh ? '#b42318' : undefined }}>{sub.to4}</td>
+                          <td style={{ textAlign: 'center' }}>{sub.to2}{renderTrend(sub.to2, sub.to1)}</td>
+                          <td style={{ textAlign: 'center' }}>{sub.to3}{renderTrend(sub.to3, sub.to2)}</td>
+                          <td style={{ textAlign: 'center', fontWeight: 700, color: isDone ? '#027a48' : isHigh ? '#b42318' : '#175cd3' }}>
+                            {sub.to4}{renderTrend(sub.to4, sub.to3)}
+                          </td>
                           <td style={{ textAlign: 'center', fontWeight: 700 }}>
                             {sub.median}
                           </td>
