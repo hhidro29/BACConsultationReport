@@ -2,7 +2,6 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
-  Compass,
   Info,
   RotateCcw,
   CheckCircle2,
@@ -430,16 +429,28 @@ export const SimulasiPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Student Context Banner */}
-        <div className="student-header" style={{ marginBottom: 16 }}>
-          <div className="student-info">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <Compass size={20} color="#1078ca" />
-                <h1 style={{ margin: 0, fontSize: 20 }}>Simulasi Peluang &amp; Komparasi Prodi PTN</h1>
-              </div>
+        {/* Minimalist Header & Context Bar */}
+        <div
+          className="student-header"
+          style={{
+            marginBottom: 14,
+            padding: '14px 20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 16,
+            flexWrap: 'wrap'
+          }}
+        >
+          <div>
+            <h1 style={{ margin: 0, fontSize: 18.5, fontWeight: 800, color: '#0f172a', letterSpacing: -0.2 }}>
+              Simulasi &amp; Komparasi Prodi PTN
+            </h1>
 
-              {/* Dropdown Ganti Siswa */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, flexWrap: 'wrap', fontSize: 12.5, color: '#64748b' }}>
+              <span style={{ fontWeight: 600, color: '#334155' }}>{student.identity.name}</span>
+
+              {/* Dropdown Ganti Siswa (Compact inline) */}
               <div style={{ position: 'relative' }} ref={studentMenuRef}>
                 <button
                   type="button"
@@ -447,21 +458,20 @@ export const SimulasiPage: React.FC = () => {
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 6,
-                    padding: '4px 10px',
-                    fontSize: 12,
+                    gap: 4,
+                    padding: '2px 8px',
+                    fontSize: 11.5,
                     fontWeight: 600,
-                    color: '#344054',
-                    background: isStudentMenuOpen ? '#f1f5f9' : '#ffffff',
+                    color: '#1078ca',
+                    background: isStudentMenuOpen ? '#eff8ff' : '#f8fafc',
                     border: '1px solid #d0d5dd',
-                    borderRadius: 6,
-                    boxShadow: '0 1px 2px rgba(16, 24, 40, 0.05)',
+                    borderRadius: 5,
                     cursor: 'pointer'
                   }}
                 >
-                  <span>Siswa: <strong style={{ color: '#1078ca' }}>{student.identity.name}</strong></span>
+                  <span>Ganti</span>
                   <ChevronDown
-                    size={13}
+                    size={12}
                     color="#667085"
                     style={{
                       transition: 'transform 0.15s ease',
@@ -525,43 +535,48 @@ export const SimulasiPage: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
 
-            <p style={{ marginTop: 6, marginBottom: 0 }}>
-              <span>Domisili: <strong>{studentCity}</strong></span>
-              <span className="student-tag">{student.identity.school}</span>
-              <span className="student-tag">Rumpun Minat: {studentRumpun}</span>
-              <span className="student-tag">Skor Reguler TO 4: {latestTO4} (Rata-rata: {avgTO})</span>
-            </p>
+              <span>·</span>
+              <span>{studentCity}</span>
+              <span>·</span>
+              <span>{studentRumpun}</span>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475467' }}>Basis Skor Kalkulasi:</div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button
-                type="button"
-                onClick={() => setScoreBasis('to4')}
-                className={`btn ${scoreBasis === 'to4' ? 'btn-primary' : 'btn-outline'}`}
-                style={{ padding: '4px 10px', fontSize: 11.5 }}
-              >
-                TO 4 ({latestTO4})
-              </button>
-              <button
-                type="button"
-                onClick={() => setScoreBasis('median')}
-                className={`btn ${scoreBasis === 'median' ? 'btn-primary' : 'btn-outline'}`}
-                style={{ padding: '4px 10px', fontSize: 11.5 }}
-              >
-                Median
-              </button>
-              <button
-                type="button"
-                onClick={() => setScoreBasis('avg')}
-                className={`btn ${scoreBasis === 'avg' ? 'btn-primary' : 'btn-outline'}`}
-                style={{ padding: '4px 10px', fontSize: 11.5 }}
-              >
-                Rata-rata ({avgTO})
-              </button>
+          {/* Segmented Control Basis Skor */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: '#64748b' }}>Basis skor:</span>
+            <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: 3, borderRadius: 7, border: '1px solid #e2e8f0' }}>
+              {(
+                [
+                  { id: 'to4', label: `TO 4 (${latestTO4})` },
+                  { id: 'median', label: 'Median' },
+                  { id: 'avg', label: `Rata-rata (${avgTO})` }
+                ] as { id: ScoreBasis; label: string }[]
+              ).map((opt) => {
+                const isActive = scoreBasis === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setScoreBasis(opt.id)}
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: 11.5,
+                      fontWeight: isActive ? 700 : 500,
+                      color: isActive ? '#0f172a' : '#64748b',
+                      background: isActive ? '#ffffff' : 'transparent',
+                      border: 'none',
+                      borderRadius: 5,
+                      boxShadow: isActive ? '0 1px 2px rgba(15, 23, 42, 0.08)' : 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.12s ease'
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
