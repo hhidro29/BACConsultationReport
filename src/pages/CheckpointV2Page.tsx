@@ -1032,54 +1032,73 @@ export const CheckpointV2Page: React.FC = () => {
                       boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                       <div>
                         <span
                           style={{
-                            fontSize: 10.5,
-                            fontWeight: 800,
+                            fontSize: 10,
+                            fontWeight: 700,
                             color: theme.textColor,
                             background: theme.boxBg,
                             border: `1px solid ${theme.borderColor}`,
-                            padding: '2px 8px',
+                            padding: '2.5px 8px',
                             borderRadius: 4,
                             letterSpacing: 0.3,
-                            display: 'inline-block'
+                            display: 'inline-block',
+                            textTransform: 'uppercase'
                           }}
                         >
                           {item.priorityLabel}
                         </span>
-                        <h4 style={{ fontSize: 14.5, fontWeight: 700, color: theme.textColor, marginTop: 4 }}>{item.name}</h4>
+                        <h4 style={{ fontSize: 14.5, fontWeight: 700, color: '#0f172a', marginTop: 5, marginBottom: 0 }}>
+                          {item.name}
+                        </h4>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: theme.textColor }}>{item.toScore}</div>
-                        <div style={{ fontSize: 10.5, color: theme.textColor, fontWeight: 700 }}>Jarak ke 600: {item.gapText}</div>
+                        <div style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
+                          {item.toScore}
+                        </div>
+                        <div style={{ fontSize: 10.5, color: theme.textColor, fontWeight: 700, marginTop: 3 }}>
+                          Jarak ke 600: {item.gapText}
+                        </div>
                       </div>
                     </div>
 
-                    <div style={{ background: theme.boxBg, border: `1px solid ${theme.boxBorder}`, borderRadius: 6, padding: '8px 10px', marginBottom: 10, fontSize: 11.5 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>📱 Soal Selesai di Ruangguru:</span>
-                        <strong>{item.rgQuestionsDone} soal</strong>
+                    {/* Drill Box Netral (Neutral Slate) */}
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: 6,
+                        padding: '9px 12px',
+                        marginBottom: 11,
+                        fontSize: 11.5
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ color: '#475569' }}>📱 Soal Selesai di Ruangguru:</span>
+                        <strong style={{ color: '#0f172a', fontWeight: 700 }}>{item.rgQuestionsDone} soal</strong>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
-                        <span>🎯 Akurasi Latihan:</span>
-                        <strong style={{ color: theme.textColor }}>{item.rgAccuracy}</strong>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                        <span style={{ color: '#475569' }}>🎯 Akurasi Latihan:</span>
+                        <strong style={{ color: '#0f172a', fontWeight: 700 }}>{item.rgAccuracy}</strong>
                       </div>
                     </div>
 
-                    <div style={{ fontSize: 11.5, color: '#334155', lineHeight: 1.45, marginBottom: 10 }}>
-                      <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
+                    {/* 3 Topik Akurasi Terendah */}
+                    <div style={{ fontSize: 11.5, color: '#334155', lineHeight: 1.45, marginBottom: 11 }}>
+                      <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>
                         📌 3 Topik Akurasi Terendah di TO Terakhir:
                       </div>
-                      <ul style={{ margin: 0, paddingLeft: 16, color: '#475569' }}>
+                      <ul style={{ margin: 0, paddingLeft: 18, color: '#475569' }}>
                         {item.lowestTopics.map((topic, idx) => (
-                          <li key={idx}>{topic}</li>
+                          <li key={idx} style={{ marginBottom: 2 }}>{topic}</li>
                         ))}
                       </ul>
                     </div>
 
-                    <div style={{ paddingTop: 8, borderTop: `1px dashed ${theme.dashBorder}`, fontSize: 11.5, lineHeight: 1.45 }}>
+                    {/* Diagnosa Korelasi TO vs Drill & Panduan SA */}
+                    <div style={{ paddingTop: 9, borderTop: '1px dashed #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                         <span
                           style={{
@@ -1088,15 +1107,16 @@ export const CheckpointV2Page: React.FC = () => {
                             color: theme.textColor,
                             background: theme.boxBg,
                             border: `1px solid ${theme.boxBorder}`,
-                            padding: '1.5px 8px',
-                            borderRadius: 9999
+                            padding: '2px 8px',
+                            borderRadius: 9999,
+                            display: 'inline-block'
                           }}
                         >
                           {subRule.conditionLabel}
                         </span>
                       </div>
-                      <div style={{ color: '#0f172a' }}>
-                        <strong>Panduan SA:</strong> {subRule.saTask}
+                      <div style={{ color: '#334155' }}>
+                        <strong style={{ color: '#0f172a' }}>Panduan SA:</strong> {subRule.saTask}
                       </div>
                     </div>
                   </div>
