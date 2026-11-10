@@ -1,11 +1,30 @@
 {
   "name": "sa-consultation-report",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "python3 -m http.server 8788 --bind 127.0.0.1",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 8788",
+    "deploy": "vite build && gh-pages -d dist",
+    "start": "vite preview --port 8788 --host 127.0.0.1",
     "check": "node scripts/check-report-insights.cjs && node scripts/check-garuda-refresh.cjs"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.14",
+    "@vitejs/plugin-react": "^6.0.1",
+    "gh-pages": "^6.3.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.5"
+  },
+  "dependencies": {
+    "lucide-react": "^1.7.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.14.0"
   }
 }
