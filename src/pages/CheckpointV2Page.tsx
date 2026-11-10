@@ -22,6 +22,7 @@ export const CheckpointV2Page: React.FC = () => {
   const [isSimulasiOpen, setIsSimulasiOpen] = useState<boolean>(false);
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [draftSavedToast, setDraftSavedToast] = useState<boolean>(false);
+  const [activeStage, setActiveStage] = useState<string>('tahap1');
   const [saNotes, setSaNotes] = useState<string>(() => {
     const saved = localStorage.getItem('bac_v2_sa_notes');
     return saved || "Siswa sempat merasa terbebani penurunan nilai dari TO 1 ke TO 4, namun kembali bersemangat setelah melihat Penalaran Matematika (597) sudah di ambang batas 600. Orang tua menyetujui target 15 soal/hari dan akan mendampingi jadwal belajar mandiri di rumah. Fokus pemulihan utama: PU dan PK.";
@@ -34,6 +35,27 @@ export const CheckpointV2Page: React.FC = () => {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    const stageIds = ['tahap1', 'tahap2', 'tahap3', 'tahap4'];
+    const handleScroll = () => {
+      const offset = 160;
+      let current = 'tahap1';
+      for (const id of stageIds) {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= offset) {
+            current = id;
+          }
+        }
+      }
+      setActiveStage(current);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleSaveNotes = () => {
     localStorage.setItem('bac_v2_sa_notes', saNotes);
     setDraftSavedToast(true);
@@ -42,7 +64,9 @@ export const CheckpointV2Page: React.FC = () => {
 
   const scrollTo = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
-    const el = document.getElementById(id.replace('#', ''));
+    const targetId = id.replace('#', '');
+    setActiveStage(targetId);
+    const el = document.getElementById(targetId);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -180,7 +204,7 @@ export const CheckpointV2Page: React.FC = () => {
           aria-label="Alur Konsultasi 4 Tahap"
           style={{
             position: 'sticky',
-            top: 10,
+            top: 68,
             zIndex: 40,
             background: 'rgba(255, 255, 255, 0.96)',
             backdropFilter: 'blur(8px)',
@@ -188,7 +212,7 @@ export const CheckpointV2Page: React.FC = () => {
             borderRadius: 10,
             padding: '8px 16px',
             marginBottom: 28,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+            boxShadow: '0 4px 12px rgba(15, 23, 42, 0.08)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -196,20 +220,20 @@ export const CheckpointV2Page: React.FC = () => {
             flexWrap: 'wrap'
           }}
         >
-          <div className="jump-nav-label" style={{ fontSize: 12.5, fontWeight: 700, color: '#0f172a' }}>
-            🧭 <span>Alur Sesi Konsultasi:</span>
+          <div className="jump-nav-label" style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>
+            🧭 <span>Alur:</span>
           </div>
-          <div className="jump-nav-links" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <a href="#tahap1" onClick={(e) => scrollTo(e, '#tahap1')} className="jump-pill">
+          <div className="jump-nav-links" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <a href="#tahap1" onClick={(e) => scrollTo(e, '#tahap1')} className={`jump-pill ${activeStage === 'tahap1' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
               🎯 1. Fondasi 600 &amp; Skor Reguler
             </a>
-            <a href="#tahap2" onClick={(e) => scrollTo(e, '#tahap2')} className="jump-pill">
+            <a href="#tahap2" onClick={(e) => scrollTo(e, '#tahap2')} className={`jump-pill ${activeStage === 'tahap2' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
               🏛️ 2. Skor Terbobot &amp; Jurusan
             </a>
-            <a href="#tahap3" onClick={(e) => scrollTo(e, '#tahap3')} className="jump-pill">
+            <a href="#tahap3" onClick={(e) => scrollTo(e, '#tahap3')} className={`jump-pill ${activeStage === 'tahap3' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
               🛠️ 3. Subtes Prioritas &amp; Drill
             </a>
-            <a href="#tahap4" onClick={(e) => scrollTo(e, '#tahap4')} className="jump-pill">
+            <a href="#tahap4" onClick={(e) => scrollTo(e, '#tahap4')} className={`jump-pill ${activeStage === 'tahap4' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
               📝 4. Rencana Aksi &amp; Catatan SA
             </a>
           </div>
@@ -218,7 +242,7 @@ export const CheckpointV2Page: React.FC = () => {
         {/* ========================================================= */}
         {/* TAHAP 1: FONDASI 600 & EVALUASI SKOR IRT REGULER          */}
         {/* ========================================================= */}
-        <section id="tahap1" style={{ scrollMarginTop: 75, marginBottom: 40 }}>
+        <section id="tahap1" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#1e40af', background: '#dbeafe', padding: '3px 10px', borderRadius: 9999 }}>
@@ -529,7 +553,7 @@ export const CheckpointV2Page: React.FC = () => {
         </section>
 
         {/* ========================================================= */}
-        <section id="tahap2" style={{ scrollMarginTop: 75, marginBottom: 40 }}>
+        <section id="tahap2" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#0284c7', background: '#e0f2fe', padding: '3px 10px', borderRadius: 9999 }}>
@@ -642,7 +666,7 @@ export const CheckpointV2Page: React.FC = () => {
         </section>
 
         {/* ========================================================= */}
-        <section id="tahap3" style={{ scrollMarginTop: 75, marginBottom: 40 }}>
+        <section id="tahap3" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#b54708', background: '#fef0c7', padding: '3px 10px', borderRadius: 9999 }}>
@@ -776,7 +800,7 @@ export const CheckpointV2Page: React.FC = () => {
         </section>
 
         {/* ========================================================= */}
-        <section id="tahap4" style={{ scrollMarginTop: 75, marginBottom: 40 }}>
+        <section id="tahap4" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#027a48', background: '#ecfdf3', padding: '3px 10px', borderRadius: 9999 }}>
