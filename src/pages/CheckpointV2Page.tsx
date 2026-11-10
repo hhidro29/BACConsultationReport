@@ -367,40 +367,57 @@ export const CheckpointV2Page: React.FC = () => {
                 </table>
               </div>
 
-              <div className="table-container" style={{ marginTop: 18 }}>
-                <div style={{ background: '#f0f9ff', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
-                  <strong style={{ fontSize: 13, color: '#0f172a' }}>Ringkasan Tren Skor Keseluruhan (TO 1 – TO 4)</strong>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 4 }}>
-                    Rata-rata total 4 TO: 571 poin
-                  </span>
-                </div>
+              <div className="table-container" style={{ marginTop: 14 }}>
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th style={{ width: '24%' }}>Metrik Keseluruhan</th>
-                      <th style={{ textAlign: 'center', width: '9%' }}>TO 1</th>
-                      <th style={{ textAlign: 'center', width: '9%' }}>TO 2</th>
-                      <th style={{ textAlign: 'center', width: '9%' }}>TO 3</th>
-                      <th style={{ textAlign: 'center', width: '9%' }}>TO 4</th>
-                      <th style={{ width: '40%' }}>Arti untuk Orang Tua &amp; Siswa</th>
+                      <th style={{ width: '24%' }}>Ringkasan 8 Subtes</th>
+                      <th style={{ textAlign: 'center', width: '8%' }}>TO 1</th>
+                      <th style={{ textAlign: 'center', width: '8%' }}>TO 2</th>
+                      <th style={{ textAlign: 'center', width: '8%' }}>TO 3</th>
+                      <th style={{ textAlign: 'center', width: '8%' }}>TO 4</th>
+                      <th style={{ textAlign: 'center', width: '10%' }}>Total 4 TO</th>
+                      <th style={{ width: '22%' }}>Visual Posisi vs Target 600</th>
+                      <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
+                      <th style={{ textAlign: 'center', width: '10%' }}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td><strong>Rata-rata 8 subtes</strong></td>
-                      <td style={{ textAlign: 'center' }}>601</td>
-                      <td style={{ textAlign: 'center' }}>576 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
-                      <td style={{ textAlign: 'center' }}>561 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
-                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#b42318' }}>546 <span style={{ fontSize: 10 }}>▼</span></td>
-                      <td style={{ fontSize: 12.5, color: '#334155' }}>Skor TO 4 berada <strong>-54 poin</strong> dari batas aman target 600.</td>
+                      <td style={{ textAlign: 'center', fontWeight: 600 }}>601</td>
+                      <td style={{ textAlign: 'center', fontWeight: 600 }}>576 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
+                      <td style={{ textAlign: 'center', fontWeight: 600 }}>561 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#b54708' }}>546 <span style={{ fontSize: 10 }}>▼</span></td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#1078ca' }}>571</td>
+                      <td>
+                        <div className="v2-progress-track">
+                          <div className="v2-progress-fill" style={{ width: '48.7%', background: '#f79009' }} />
+                          <div className="v2-progress-target-line" title="Target 600" />
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#b54708' }}>-54</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className="badge badge-warn">PERLU DITINGKATKAN</span>
+                      </td>
                     </tr>
                     <tr>
-                      <td><strong>Nilai tengah (Median)</strong></td>
+                      <td><strong>Median 8 subtes</strong></td>
                       <td style={{ textAlign: 'center', color: '#475467' }}>596</td>
                       <td style={{ textAlign: 'center', color: '#475467' }}>572,5 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
                       <td style={{ textAlign: 'center', color: '#475467' }}>567 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
-                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#b42318' }}>548,5 <span style={{ fontSize: 10 }}>▼</span></td>
-                      <td style={{ fontSize: 12.5, color: '#475467' }}>Nilai tengah ikut turun (penurunan merata di banyak subtes).</td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#b54708' }}>548,5 <span style={{ fontSize: 10 }}>▼</span></td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#475467' }}>569,8</td>
+                      <td>
+                        <div className="v2-progress-track">
+                          <div className="v2-progress-fill" style={{ width: '49.5%', background: '#f79009' }} />
+                          <div className="v2-progress-target-line" title="Target 600" />
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#b54708' }}>-51,5</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className="badge badge-warn">PERLU DITINGKATKAN</span>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
