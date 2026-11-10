@@ -210,7 +210,7 @@ export const CheckpointV2Page: React.FC = () => {
               🛠️ 3. Subtes Prioritas &amp; Drill
             </a>
             <a href="#tahap4" onClick={(e) => scrollTo(e, '#tahap4')} className="jump-pill">
-              📝 4. Rencana Aksi &amp; Kesepakatan
+              📝 4. Rencana Aksi &amp; Catatan SA
             </a>
           </div>
         </nav>
@@ -811,7 +811,7 @@ export const CheckpointV2Page: React.FC = () => {
                 className="btn btn-outline"
                 style={{ fontWeight: 700, color: '#027a48', borderColor: '#a6f4c5', background: '#ecfdf3', display: 'inline-flex', alignItems: 'center', gap: 6 }}
               >
-                Lanjut ke Tahap 4: Rencana Aksi &amp; Lembar Kesepakatan <ChevronDown size={15} />
+                Lanjut ke Tahap 4: Rencana Aksi &amp; Catatan SA <ChevronDown size={15} />
               </a>
             </div>
 
@@ -825,10 +825,10 @@ export const CheckpointV2Page: React.FC = () => {
                 TAHAP 4 DARI 4
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                📝 Rencana Aksi Menuju TO 5 &amp; Lembar Kesepakatan 3 Pihak
+                📝 Rencana Aksi Menuju TO 5 &amp; Catatan Kakak Asuh
               </h2>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Komitmen Nyata Siswa, Orang Tua &amp; Kakak Asuh</span>
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Tindak Lanjut &amp; Pengingat Pertemuan Berikutnya</span>
           </div>
 
 
@@ -876,40 +876,20 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
 
-          {/* Agreement & Signature Card */}
+          {/* Catatan Khusus Kakak Asuh (Statement & Wet Signatures Live in PDF Page 2) */}
           <div className="section-block" id="sec_tahap4_agreement">
             <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>2. Lembar Kesepakatan Bersama 3 Pihak</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Dokumen Resmi Konsultasi Checkpoint 1 Cabang Depok Margonda</span>
+              <h3 className="section-title" style={{ fontSize: 15 }}>2. Catatan Khusus Kakak Asuh</h3>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                Pengingat sesi berikutnya · Lembar pernyataan &amp; tanda tangan 3 pihak tersedia di Halaman 2 PDF
+              </span>
             </div>
 
-            <div style={{ background: '#f8fafc', border: '1px solid var(--border)', borderRadius: 8, padding: 18 }}>
-              <div style={{ fontSize: 12.5, color: '#334155', fontStyle: 'italic', marginBottom: 14, lineHeight: 1.55 }}>
-                &quot;Dengan menandatangani lembar ini, Siswa, Orang Tua / Wali, dan Kakak Asuh Brain Academy menyatakan telah berdiskusi bersama, memahami hasil evaluasi belajar 4 Tryout, dan bersepakat mengenai formulasi pilihan jurusan serta komitmen rencana tindak lanjut belajar Checkpoint 1 demi mencapai target PTN impian.&quot;
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, textAlign: 'center' }}>
-                <div style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>PIHAK SISWA</div>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{studentIdentity.name}</div>
-                  <div style={{ fontSize: 11, color: '#027a48', fontWeight: 600, marginTop: 2 }}>✓ Menyetujui Komitmen</div>
-                </div>
-                <div style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>PIHAK ORANG TUA</div>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{studentIdentity.parentName}</div>
-                  <div style={{ fontSize: 11, color: '#027a48', fontWeight: 600, marginTop: 2 }}>✓ Hadir &amp; Menyetujui</div>
-                </div>
-                <div style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>KAKAK ASUH RUANGGURU</div>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{studentIdentity.saName}</div>
-                  <div style={{ fontSize: 11, color: '#1078ca', fontWeight: 600, marginTop: 2 }}>✓ Fasilitator &amp; Pendamping</div>
-                </div>
-              </div>
-
-              <div style={{ marginTop: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ background: '#f8fafc', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
                   <label style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink)' }}>
-                    Catatan Khusus Kakak Asuh (Pengingat Sesi Berikutnya &amp; Kesepakatan):
+                    Ringkasan Kesepakatan &amp; Tindak Lanjut (Tersimpan ke LocalStorage):
                   </label>
                   {!isLocked && (
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
