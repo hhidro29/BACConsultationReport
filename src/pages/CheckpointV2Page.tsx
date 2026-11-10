@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Save, Download, Info, Building2, Wrench, ShieldCheck, BookOpen, ChevronDown, Eye, Check } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, BookOpen, ChevronDown, Compass, FileText } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
-import { downloadPdfFile } from '../utils/downloadPdf';
+import { SimulasiModal } from '../components/SimulasiModal';
 import {
   studentIdentity,
   subtestsV2Data,
@@ -19,10 +19,9 @@ export const CheckpointV2Page: React.FC = () => {
   const [isPdfOpen, setIsPdfOpen] = useState<boolean>(
     searchParams.get('preview') === '1' || searchParams.get('preview') === 'true'
   );
+  const [isSimulasiOpen, setIsSimulasiOpen] = useState<boolean>(false);
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [draftSavedToast, setDraftSavedToast] = useState<boolean>(false);
-  const [isDownloading, setIsDownloading] = useState<boolean>(false);
-  const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
   const [saNotes, setSaNotes] = useState<string>(() => {
     const saved = localStorage.getItem('bac_v2_sa_notes');
     return saved || "Siswa sempat merasa terbebani penurunan nilai dari TO 1 ke TO 4, namun kembali bersemangat setelah melihat Penalaran Matematika (597) sudah di ambang batas 600. Orang tua menyetujui target 15 soal/hari dan akan mendampingi jadwal belajar mandiri di rumah. Fokus pemulihan utama: PU dan PK.";
@@ -39,14 +38,6 @@ export const CheckpointV2Page: React.FC = () => {
     localStorage.setItem('bac_v2_sa_notes', saNotes);
     setDraftSavedToast(true);
     setTimeout(() => setDraftSavedToast(false), 3000);
-  };
-
-  const handleDirectDownload = async () => {
-    setIsDownloading(true);
-    await downloadPdfFile('Laporan_Konsultasi_Checkpoint_1_Garuda_Mahawira_Sena.pdf');
-    setIsDownloading(false);
-    setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 3000);
   };
 
   const scrollTo = (e: React.MouseEvent, id: string) => {
@@ -70,7 +61,7 @@ export const CheckpointV2Page: React.FC = () => {
             <span className="crumb-sep">›</span>
             <a href="#checkpoint">Konsultasi - Checkpoint</a>
             <span className="crumb-sep">›</span>
-            <span className="crumb-current">Detail Checkpoint 1 (Alur Lengkap)</span>
+            <span className="crumb-current">Detail Checkpoint 1</span>
           </nav>
           <div className="user-pill">
             <span>{studentIdentity.saName} · {studentIdentity.saEmail}</span>
@@ -80,46 +71,73 @@ export const CheckpointV2Page: React.FC = () => {
       </header>
 
       <main className="container" style={{ paddingBottom: 60 }}>
-        {/* Action Bar */}
-        <div className="action-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <button type="button" className="btn btn-back" onClick={() => window.history.back()}>
-            <ArrowLeft size={16} />
+        {/* Action Bar (Aligned with Super CMS Profiling Layout) */}
+        <div className="action-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, gap: 12, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-back"
+            style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap' }}
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft size={15} />
             Kembali
           </button>
 
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             {draftSavedToast && (
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#027a48', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '4px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: '#027a48', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '4px 10px', borderRadius: 9999, whiteSpace: 'nowrap' }}>
                 ✓ Draft tersimpan!
               </span>
             )}
-            <Link to="/rapor" className="btn btn-outline">
-              📝 Update Rapor ({raporMetrics.overallAvg})
-            </Link>
-            <button type="button" className="btn btn-outline" onClick={() => setIsLocked(!isLocked)}>
-              {isLocked ? <Lock size={14} /> : <Unlock size={14} />}
-              {isLocked ? 'Terkunci' : 'Kunci Catatan'}
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => setIsSimulasiOpen(true)}
+              style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap' }}
+              title="Buka Simulasi Peluang & Alternatif Prodi PTN"
+            >
+              <Compass size={14} /> Simulasi
             </button>
-            <button type="button" className="btn btn-outline" onClick={handleSaveNotes}>
+            <Link
+              to="/rapor"
+              className="btn btn-outline"
+              style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap' }}
+              title="Lihat & Update Nilai Rapor Semester 1–5"
+            >
+              📝 Rapor ({raporMetrics.overallAvg})
+            </Link>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={handleSaveNotes}
+              disabled={isLocked}
+              style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap', opacity: isLocked ? 0.5 : 1 }}
+            >
               <Save size={14} /> Simpan Draft
             </button>
-            <button type="button" className="btn btn-outline" onClick={openPdf} title="Buka preview dokumen 2 halaman di layar">
-              <Eye size={14} /> Preview Dokumen
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={openPdf}
+              title="Buka Preview & Download PDF 2 Halaman"
+              style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap' }}
+            >
+              <FileText size={14} /> Preview &amp; Download PDF
             </button>
             <button
               type="button"
               className="btn btn-primary"
-              onClick={handleDirectDownload}
-              disabled={isDownloading}
-              title="Unduh file PDF resmi langsung ke komputer"
+              onClick={() => setIsLocked(!isLocked)}
               style={{
-                background: downloadSuccess ? '#027a48' : '#1078ca',
-                fontWeight: 700,
-                transition: 'background 0.2s ease'
+                padding: '7px 16px',
+                fontSize: 12.5,
+                whiteSpace: 'nowrap',
+                background: isLocked ? '#475467' : '#1078ca',
+                borderColor: isLocked ? '#475467' : '#1078ca'
               }}
             >
-              {downloadSuccess ? <Check size={14} /> : <Download size={14} />}
-              {isDownloading ? 'Mengunduh...' : downloadSuccess ? 'PDF Terunduh!' : 'Download PDF (2 Hlm)'}
+              {isLocked ? <Unlock size={14} /> : <Lock size={14} />}
+              {isLocked ? 'Buka Kunci' : 'Kunci'}
             </button>
           </div>
         </div>
@@ -127,8 +145,23 @@ export const CheckpointV2Page: React.FC = () => {
         {/* Student Header */}
         <div className="student-header" style={{ marginBottom: 16 }}>
           <div className="student-info">
-            <h1>{studentIdentity.name}</h1>
-            <p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <h1 style={{ margin: 0 }}>{studentIdentity.name}</h1>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  padding: '2.5px 10px',
+                  borderRadius: 9999,
+                  background: isLocked ? '#e2e8f0' : '#ecfdf3',
+                  color: isLocked ? '#475467' : '#027a48',
+                  border: `1px solid ${isLocked ? '#cbd5e1' : '#a6f4c5'}`
+                }}
+              >
+                {isLocked ? 'Terkunci' : 'Draft Aktif'}
+              </span>
+            </div>
+            <p style={{ marginTop: 6 }}>
               <span>NISN: <strong>{studentIdentity.nisn}</strong></span>
               <span className="student-tag">{studentIdentity.school}</span>
               <span className="student-tag">Kelas 12 SMA</span>
@@ -987,8 +1020,8 @@ export const CheckpointV2Page: React.FC = () => {
                   <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>📋 CHECKLIST PENUTUPAN SA:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
                     <li>Pastikan ada kesepakatan <strong>hari &amp; jam hadir Klinik PR</strong> di cabang minggu ini.</li>
-                    <li>Catat keputusan &amp; hal yang perlu dicek ulang pada kolom di atas, lalu klik <strong>Simpan Draft</strong>.</li>
-                    <li>Klik <strong>Download PDF</strong> di bawah untuk menyerahkan ringkasan resmi 2 halaman kepada orang tua.</li>
+                    <li>Catat keputusan &amp; hal yang perlu dicek ulang, lalu klik <strong>Simpan Draft</strong> di bar aksi atas.</li>
+                    <li>Klik <strong>Preview &amp; Download PDF</strong> di bar aksi atas (tombol <strong>Download PDF</strong> ada di dalam preview), lalu klik <strong>Kunci</strong> bila sudah final.</li>
                   </ul>
                 </div>
 
@@ -1002,50 +1035,25 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
           </div>
 
-
-            {/* Bottom Download Banner */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, background: '#0f172a', color: '#fff', padding: '14px 20px', borderRadius: 8 }}>
-              <div>
-                <div style={{ fontSize: 13.5, fontWeight: 700 }}>Dokumen Laporan Konsultasi 2 Halaman Siap Didownload</div>
-                <div style={{ fontSize: 11.5, color: '#94a3b8', marginTop: 2 }}>
-                  Format standar A4 tanpa instruksi internal SA — dikhususkan untuk diserahkan ke Siswa &amp; Orang Tua.
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={openPdf}
-                  style={{ color: '#fff', borderColor: '#475569', fontWeight: 600, padding: '8px 14px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                >
-                  <Eye size={15} />
-                  Preview di Layar
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleDirectDownload}
-                  disabled={isDownloading}
-                  style={{
-                    background: downloadSuccess ? '#027a48' : '#2563eb',
-                    border: 'none',
-                    fontWeight: 700,
-                    padding: '8px 18px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    transition: 'background 0.2s ease'
-                  }}
-                >
-                  {downloadSuccess ? <Check size={15} /> : <Download size={15} />}
-                  {isDownloading ? 'Mengunduh...' : downloadSuccess ? 'PDF Berhasil Diunduh!' : 'Download PDF Langsung'}
-                </button>
-              </div>
+          {/* Subtle Return-to-Top Footer (Keeps All Primary CTAs Unified at Profiling-Style Top Action Bar) */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 18px', borderRadius: 8, flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ fontSize: 12, color: '#475467' }}>
+              ✓ Seluruh tahap konsultasi selesai ditinjau. Gunakan bar aksi di bagian atas halaman untuk <strong>Simulasi</strong>, <strong>Simpan Draft</strong>, <strong>Preview &amp; Download PDF</strong>, atau <strong>Kunci</strong>.
             </div>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              style={{ padding: '6px 14px', fontSize: 12, whiteSpace: 'nowrap' }}
+            >
+              ↑ Kembali ke Bar Aksi Atas
+            </button>
+          </div>
         </section>
       </main>
 
       <V2PdfModal isOpen={isPdfOpen} onClose={closePdf} />
+      <SimulasiModal isOpen={isSimulasiOpen} onClose={() => setIsSimulasiOpen(false)} />
     </div>
   );
 };
