@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Save, FileText, Info, HelpCircle, X } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Save, FileText, Download, Info, HelpCircle, X } from 'lucide-react';
 import { V1PdfModal } from '../components/V1PdfModal';
 import { useRapor } from '../context/RaporContext';
 import { studentIdentity } from '../data/garudaData';
@@ -184,7 +184,7 @@ export const CheckpointV1Page: React.FC = () => {
               <Save size={14} /> Simpan Draft
             </button>
             <button type="button" className="btn btn-primary" onClick={() => setIsPdfOpen(true)}>
-              <FileText size={14} /> Preview &amp; Cetak PDF (V1)
+              <Download size={14} /> Preview &amp; Download PDF (V1)
             </button>
           </div>
         </div>

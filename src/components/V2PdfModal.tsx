@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Printer, X, FileText } from 'lucide-react';
+import { Download, X, FileText } from 'lucide-react';
 
 interface V2PdfModalProps {
   isOpen: boolean;
@@ -23,6 +23,16 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({ isOpen, onClose }) => {
     };
   }, [isOpen, onClose]);
 
+  const handleDownload = () => {
+    const filename = 'Laporan_Konsultasi_Checkpoint_1_Garuda_Mahawira_Sena.pdf';
+    const link = document.createElement('a');
+    link.href = `${import.meta.env.BASE_URL}${filename}`;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!isOpen) return null;
 
   return createPortal(
@@ -39,9 +49,9 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({ isOpen, onClose }) => {
           <span className="pdf-modal-badge">A4 • 2 Halaman</span>
         </div>
         <div className="pdf-modal-actions">
-          <button type="button" className="btn-pdf-print" onClick={() => window.print()}>
-            <Printer size={15} />
-            Cetak / Simpan PDF
+          <button type="button" className="btn-pdf-print" onClick={handleDownload} title="Download Dokumen PDF">
+            <Download size={15} />
+            Download PDF
           </button>
           <button type="button" className="btn-pdf-close" onClick={onClose} title="Tutup Preview (Esc)">
             <X size={16} />

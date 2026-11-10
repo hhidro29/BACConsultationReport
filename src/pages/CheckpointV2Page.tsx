@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Save, FileText, Info, Building2, Wrench, ShieldCheck, BookOpen } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Save, FileText, Download, Info, Building2, Wrench, ShieldCheck, BookOpen } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
 import {
   studentIdentity,
@@ -146,7 +146,7 @@ export const CheckpointV2Page: React.FC = () => {
               <Save size={14} /> Simpan Draft
             </button>
             <button type="button" className="btn btn-primary" onClick={openPdf}>
-              <FileText size={14} /> Preview &amp; Cetak PDF (2 Halaman)
+              <Download size={14} /> Preview &amp; Download PDF (2 Halaman)
             </button>
           </div>
         </div>
@@ -794,7 +794,7 @@ export const CheckpointV2Page: React.FC = () => {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, background: '#0f172a', color: '#fff', padding: '14px 20px', borderRadius: 8 }}>
                 <div>
-                  <div style={{ fontSize: 13.5, fontWeight: 700 }}>Dokumen Laporan Konsultasi 2 Halaman Siap Dicetak</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700 }}>Dokumen Laporan Konsultasi 2 Halaman Siap Didownload</div>
                   <div style={{ fontSize: 11.5, color: '#94a3b8', marginTop: 2 }}>Format standar A4 tanpa instruksi internal SA — dikhususkan untuk diserahkan ke Siswa &amp; Orang Tua.</div>
                 </div>
                 <div style={{ display: 'flex', gap: 10 }}>
@@ -802,8 +802,8 @@ export const CheckpointV2Page: React.FC = () => {
                     ← Kembali ke Tahap 3
                   </button>
                   <button type="button" className="btn btn-primary" onClick={openPdf} style={{ background: '#2563eb', border: 'none', fontWeight: 700, padding: '8px 18px' }}>
-                    <FileText size={15} style={{ marginRight: 4 }} />
-                    Buka Dokumen PDF 2 Halaman (Siswa &amp; Ortu)
+                    <Download size={15} style={{ marginRight: 6 }} />
+                    Buka &amp; Download PDF (2 Halaman)
                   </button>
                 </div>
               </div>
