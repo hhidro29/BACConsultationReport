@@ -813,7 +813,7 @@ export function analyzeStage4(
   const checklist = [
     'Jadwal hadir Klinik PR cabang minggu ini sudah disepakati bersama siswa.',
     'Ringkasan keputusan dan pengingat sesi berikutnya sudah ditulis di Catatan SA & diklik Simpan Draft.',
-    'Buka Preview & Download PDF di bar atas (tombol Download PDF ada di dalam modal) untuk diserahkan ke keluarga.'
+    'Buka tombol Download PDF di bar atas untuk diserahkan ke keluarga.'
   ];
 
   // Dynamic Holistic Action Plans for Checkpoint 1

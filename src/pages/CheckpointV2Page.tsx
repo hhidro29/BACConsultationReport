@@ -328,10 +328,10 @@ export const CheckpointV2Page: React.FC = () => {
               type="button"
               className="btn btn-outline"
               onClick={openPdf}
-              title="Buka Preview & Download PDF 2 Halaman"
+              title="Download PDF Laporan Resmi 2 Halaman"
               style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap' }}
             >
-              <FileText size={14} /> Preview &amp; Download PDF
+              <FileText size={14} /> Download PDF
             </button>
             <button
               type="button"
