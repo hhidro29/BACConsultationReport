@@ -263,50 +263,68 @@ export const CheckpointV2Page: React.FC = () => {
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Data Berdasarkan 4 Episode Tryout SNBT Awal</span>
             </div>
             
-            {/* 4-KPI Metric Cards Grid */}
-            <div className="metrics-grid">
-              {/* Card 1: Rata-Rata */}
-              <div className="metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderTop: '3px solid #1078ca', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Rata-Rata Skor Reguler</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '1.5px 6px', borderRadius: 4 }}>4 Tryout</span>
+            {/* Minimalist 4-Column KPI Summary Strip */}
+            <div
+              className="metrics-grid"
+              style={{
+                gap: 1,
+                background: '#e2e8f0',
+                border: '1px solid #e2e8f0',
+                borderRadius: 8,
+                overflow: 'hidden',
+                marginBottom: 16
+              }}
+            >
+              {/* Metric 1 */}
+              <div style={{ background: '#ffffff', padding: '12px 16px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                  Rata-Rata 4 TO
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: '#1078ca', lineHeight: 1.1, margin: '4px 0 6px' }}>{studentIdentity.toAverage}</div>
-                <div style={{ fontSize: 11.5, color: '#64748b' }}>Tren: 601 → 576 → 561 → <strong>546</strong></div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1078ca', lineHeight: 1.2, margin: '4px 0 3px' }}>
+                  {studentIdentity.toAverage}
+                </div>
+                <div style={{ fontSize: 11.5, color: '#64748b', whiteSpace: 'nowrap' }}>
+                  601 → 576 → 561 → <strong style={{ color: '#0f172a' }}>546</strong>
+                </div>
               </div>
 
-              {/* Card 2: Di Atas 600 */}
-              <div className="metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderTop: '3px solid #12b76a', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Di Atas Target 600 (+)</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#027a48', background: '#ecfdf3', padding: '1.5px 6px', borderRadius: 4 }}>Tercapai</span>
+              {/* Metric 2 */}
+              <div style={{ background: '#ffffff', padding: '12px 16px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                  Di Atas Target 600
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: '#027a48', lineHeight: 1.1, margin: '4px 0 6px' }}>
-                  1 <span style={{ fontSize: 14, fontWeight: 600, color: '#64748b' }}>/ 8 Subtes</span>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#027a48', lineHeight: 1.2, margin: '4px 0 3px' }}>
+                  1 <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ 8 subtes</span>
                 </div>
-                <div style={{ fontSize: 11.5, color: '#027a48', fontWeight: 600 }}>PPU: 640 (+40 poin)</div>
+                <div style={{ fontSize: 11.5, color: '#027a48', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  PPU: 640 (+40)
+                </div>
               </div>
 
-              {/* Card 3: Di Bawah 600 */}
-              <div className="metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderTop: '3px solid #f04438', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Di Bawah Target 600 (-)</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#b42318', background: '#fef3f2', padding: '1.5px 6px', borderRadius: 4 }}>Perlu Dikejar</span>
+              {/* Metric 3 */}
+              <div style={{ background: '#ffffff', padding: '12px 16px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                  Di Bawah Target 600
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: '#b42318', lineHeight: 1.1, margin: '4px 0 6px' }}>
-                  7 <span style={{ fontSize: 14, fontWeight: 600, color: '#64748b' }}>/ 8 Subtes</span>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#b42318', lineHeight: 1.2, margin: '4px 0 3px' }}>
+                  7 <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ 8 subtes</span>
                 </div>
-                <div style={{ fontSize: 11.5, color: '#b42318', fontWeight: 600 }}>Rentang gap: -135 s.d. -3 poin</div>
+                <div style={{ fontSize: 11.5, color: '#b42318', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  Gap: -135 s.d. -3
+                </div>
               </div>
 
-              {/* Card 4: Kehadiran */}
-              <div className="metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderTop: '3px solid #0ba5ec', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Kehadiran Kelas</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#027a48', background: '#ecfdf3', padding: '1.5px 6px', borderRadius: 4 }}>Disiplin</span>
+              {/* Metric 4 */}
+              <div style={{ background: '#ffffff', padding: '12px 16px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                  Kehadiran Kelas
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: '#0284c7', lineHeight: 1.1, margin: '4px 0 6px' }}>{studentIdentity.attendanceRate}</div>
-                <div style={{ fontSize: 11.5, color: '#64748b' }}>{studentIdentity.attendanceDetail}</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', lineHeight: 1.2, margin: '4px 0 3px' }}>
+                  {studentIdentity.attendanceRate}
+                </div>
+                <div style={{ fontSize: 11.5, color: '#64748b' }}>
+                  36 Hadir · 1 Telat · 6 Sakit · 2 Izin
+                </div>
               </div>
             </div>
 
