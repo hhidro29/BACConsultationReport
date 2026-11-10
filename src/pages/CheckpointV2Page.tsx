@@ -250,47 +250,99 @@ export const CheckpointV2Page: React.FC = () => {
               <h3 className="section-title" style={{ fontSize: 15 }}>1. Ringkasan Evaluasi Skor Reguler Siswa</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Data Berdasarkan 4 Episode Tryout SNBT Awal</span>
             </div>
+            
+            {/* 4-KPI Metric Cards Grid */}
             <div className="metrics-grid">
-              <div className="metric-card">
-                <div className="metric-card-label">Rata-Rata Skor Reguler</div>
-                <div className="metric-card-val" style={{ color: '#1078ca' }}>{studentIdentity.toAverage}</div>
-                <div className="metric-card-hint">Rata-rata 4 TO (601, 576, 561, 546)</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-card-label">Subtes Di Atas 600 (+)</div>
-                <div className="metric-card-val" style={{ color: '#027a48' }}>
-                  1 <span style={{ fontSize: 14, fontWeight: 500, color: '#475467' }}>/ 8 Subtes</span>
+              {/* Card 1: Rata-Rata */}
+              <div className="metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderTop: '3px solid #1078ca', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Rata-Rata Skor Reguler</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '1.5px 6px', borderRadius: 4 }}>4 Tryout</span>
                 </div>
-                <div className="metric-card-hint" style={{ color: '#027a48', fontWeight: 600 }}>Pengetahuan &amp; Pemahaman Umum (PPU: 640 / +40)</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#1078ca', lineHeight: 1.1, margin: '4px 0 6px' }}>{studentIdentity.toAverage}</div>
+                <div style={{ fontSize: 11.5, color: '#64748b' }}>Tren: 601 → 576 → 561 → <strong>546</strong></div>
               </div>
-              <div className="metric-card">
-                <div className="metric-card-label">Subtes Di Bawah 600 (-)</div>
-                <div className="metric-card-val" style={{ color: '#b42318' }}>
-                  7 <span style={{ fontSize: 14, fontWeight: 500, color: '#475467' }}>/ 8 Subtes</span>
+
+              {/* Card 2: Di Atas 600 */}
+              <div className="metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderTop: '3px solid #12b76a', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Di Atas Target 600 (+)</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#027a48', background: '#ecfdf3', padding: '1.5px 6px', borderRadius: 4 }}>Tercapai</span>
                 </div>
-                <div className="metric-card-hint" style={{ color: '#b42318', fontWeight: 600 }}>Jarak: -135 s.d. -3 ke batas 600</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#027a48', lineHeight: 1.1, margin: '4px 0 6px' }}>
+                  1 <span style={{ fontSize: 14, fontWeight: 600, color: '#64748b' }}>/ 8 Subtes</span>
+                </div>
+                <div style={{ fontSize: 11.5, color: '#027a48', fontWeight: 600 }}>PPU: 640 (+40 poin)</div>
               </div>
-              <div className="metric-card">
-                <div className="metric-card-label">Tingkat Kehadiran Kelas</div>
-                <div className="metric-card-val" style={{ color: '#027a48' }}>{studentIdentity.attendanceRate}</div>
-                <div className="metric-card-hint">{studentIdentity.attendanceDetail}</div>
+
+              {/* Card 3: Di Bawah 600 */}
+              <div className="metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderTop: '3px solid #f04438', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Di Bawah Target 600 (-)</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#b42318', background: '#fef3f2', padding: '1.5px 6px', borderRadius: 4 }}>Perlu Dikejar</span>
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#b42318', lineHeight: 1.1, margin: '4px 0 6px' }}>
+                  7 <span style={{ fontSize: 14, fontWeight: 600, color: '#64748b' }}>/ 8 Subtes</span>
+                </div>
+                <div style={{ fontSize: 11.5, color: '#b42318', fontWeight: 600 }}>Rentang gap: -135 s.d. -3 poin</div>
+              </div>
+
+              {/* Card 4: Kehadiran */}
+              <div className="metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderTop: '3px solid #0ba5ec', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Kehadiran Kelas</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#027a48', background: '#ecfdf3', padding: '1.5px 6px', borderRadius: 4 }}>Disiplin</span>
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#0284c7', lineHeight: 1.1, margin: '4px 0 6px' }}>{studentIdentity.attendanceRate}</div>
+                <div style={{ fontSize: 11.5, color: '#64748b' }}>{studentIdentity.attendanceDetail}</div>
               </div>
             </div>
 
-            <div style={{ background: '#f0f9ff', border: '1px solid #b9e6fe', borderLeft: '4px solid #0284c7', borderRadius: 8, padding: '14px 18px', marginTop: 14 }}>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#0284c7', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <BookOpen size={15} />
-                Panduan Edukasi Orang Tua: Cara Membaca Dua Sistem Skor
-              </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, fontSize: 12, color: '#334155', lineHeight: 1.55 }}>
-                <div>
-                  <strong style={{ color: '#0f172a' }}>1. Skor IRT Reguler (Kemampuan Dasar):</strong>
-                  <p style={{ marginTop: 3 }}>Menghitung performa murni per subtes tanpa bobot jurusan. Digunakan untuk melihat ketahanan fondasi belajar siswa. <strong>Target Semester 1: seluruh 8 subtes mencapai minimal 600.</strong></p>
+            {/* Panduan Edukasi Dua Sistem Skor (Matching PDF Styling) */}
+            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 8, padding: '14px 18px', marginTop: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+                <BookOpen size={16} color="#0284c7" />
+                <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Panduan Edukasi Orang Tua: Cara Membaca Dua Sistem Skor
+                </h4>
+                <span style={{ fontSize: 11, color: '#64748b', marginLeft: 'auto' }}>Diselaraskan dengan Halaman 1 Laporan Resmi PDF</span>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                {/* Skor IRT Reguler */}
+                <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderTop: '3px solid #1078ca', borderRadius: 6, padding: '12px 14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#1078ca' }}>SKOR IRT REGULER</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#1078ca', background: '#dbeafe', padding: '1.5px 6px', borderRadius: 4 }}>Kemampuan Dasar</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic', marginBottom: 6 }}>Nilai tiap subtes, sama untuk semua jurusan</div>
+                  <p style={{ fontSize: 11.5, color: '#334155', margin: '0 0 8px', lineHeight: 1.5 }}>
+                    Setiap subtes dinilai dengan satu cara hitung yang sama. Angkanya tidak berubah saat pilihan jurusan berganti.
+                  </p>
+                  <div style={{ fontSize: 11, color: '#1e40af', background: '#eff8ff', padding: '5px 8px', borderRadius: 4 }}>
+                    <strong>Dipakai untuk:</strong> Memantau fondasi tiap subtes dan target Semester 1 (seluruh subtes minimal 600).
+                  </div>
                 </div>
-                <div>
-                  <strong style={{ color: '#0f172a' }}>2. Skor IRT Terbobot (Penentu Kelolosan PTN):</strong>
-                  <p style={{ marginTop: 3 }}>Setiap jurusan PTN memberikan bobot berbeda untuk tiap mata uji. Skor ini dihitung langsung oleh sistem CMS Ruangguru dan dibandingkan langsung dengan skor batas aman PTN tujuan.</p>
+
+                {/* Skor IRT Terbobot */}
+                <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderTop: '3px solid #7c3aed', borderRadius: 6, padding: '12px 14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#6b21a8' }}>SKOR IRT TERBOBOT</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6b21a8', background: '#f3e8ff', padding: '1.5px 6px', borderRadius: 4 }}>Penentu Kelolosan PTN</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic', marginBottom: 6 }}>Nilai yang dihitung sesuai bobot jurusan tujuan</div>
+                  <p style={{ fontSize: 11.5, color: '#334155', margin: '0 0 8px', lineHeight: 1.5 }}>
+                    Skor dihitung ulang dengan bobot subtes milik tiap program studi, sehingga hasilnya berbeda untuk setiap jurusan.
+                  </p>
+                  <div style={{ fontSize: 11, color: '#581c87', background: '#f5f3ff', padding: '5px 8px', borderRadius: 4 }}>
+                    <strong>Dipakai untuk:</strong> Melihat jarak ke skor lolos jurusan impian (di Tahap 2).
+                  </div>
                 </div>
+              </div>
+
+              {/* Bottom Yellow Callout */}
+              <div style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 6, padding: '9px 13px', fontSize: 11.5, color: '#b54708', lineHeight: 1.5 }}>
+                💡 <strong>Mengapa semua subtes dikejar ke 600?</strong> Bobot subtes berbeda di tiap jurusan. Subtes yang tertinggal jauh (&lt;500) akan menarik jatuh skor satu jurusan lebih jauh dibanding jurusan lain. Dengan fondasi 600 di seluruh 8 subtes, tidak ada subtes yang menjadi titik lemah di jurusan mana pun.
               </div>
             </div>
           </div>

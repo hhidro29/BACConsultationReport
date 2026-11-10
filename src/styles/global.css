@@ -351,11 +351,24 @@
     .sa-prompt-list li strong { color: #0f172a; }
 
     /* Metric Grid */
-    .metric-grid {
+    .metric-grid,
+    .metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 22px;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 960px) {
+      .metric-grid,
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 540px) {
+      .metric-grid,
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
     }
     .metric-card {
       background: #f8fafc;
