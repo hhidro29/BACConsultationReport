@@ -16,11 +16,9 @@ import { CHECKPOINT1_STUDENTS, ProgramChoice } from '../data/garudaData';
 import {
   PROGRAM_CATALOG,
   CATALOG_PROVINCES,
-  CATALOG_TIERS,
   STUDENT_TOWER_RUMPUNS,
   StudentTowerRumpun,
   CatalogProgram,
-  ProgramTier,
   ScoreBasis,
   OpportunityZone,
   SimulatedProgramResult,
@@ -32,6 +30,7 @@ import {
 } from '../data/programCatalog';
 
 type RumpunFilter = 'all' | StudentTowerRumpun;
+type OpportunityFilter = 'all' | 'realistic' | OpportunityZone;
 
 const STORAGE_KEY_PROGRAMS = 'bac_v2_custom_programs_v1';
 const STORAGE_KEY_STUDENT = 'bac_v2_active_student_v1';
@@ -129,7 +128,7 @@ export const SimulasiPage: React.FC = () => {
   const [provinceFilter, setProvinceFilter] = useState<string>('all');
   const [rumpunFilter, setRumpunFilter] = useState<RumpunFilter>(studentRumpun);
   const [universityFilter, setUniversityFilter] = useState<string>('all');
-  const [tierFilter, setTierFilter] = useState<'all' | ProgramTier>('all');
+  const [opportunityFilter, setOpportunityFilter] = useState<OpportunityFilter>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [candidateId, setCandidateId] = useState<string | null>(null);
   const [actionToast, setActionToast] = useState<string | null>(null);
@@ -148,7 +147,7 @@ export const SimulasiPage: React.FC = () => {
     setIsStudentMenuOpen(false);
     setProvinceFilter('all');
     setUniversityFilter('all');
-    setTierFilter('all');
+    setOpportunityFilter('all');
     setSearchQuery('');
     setCandidateId(null);
     setOpenApplyDropdownId(null);
@@ -158,7 +157,7 @@ export const SimulasiPage: React.FC = () => {
     setProvinceFilter('all');
     setRumpunFilter('all');
     setUniversityFilter('all');
-    setTierFilter('all');
+    setOpportunityFilter('all');
     setSearchQuery('');
   };
 
@@ -304,7 +303,14 @@ export const SimulasiPage: React.FC = () => {
         if (provinceFilter !== 'all' && item.catalog.province !== provinceFilter) return false;
         if (rumpunFilter !== 'all' && item.catalog.rumpunName !== rumpunFilter) return false;
         if (universityFilter !== 'all' && item.catalog.univ !== universityFilter) return false;
-        if (tierFilter !== 'all' && item.catalog.tier !== tierFilter) return false;
+        if (opportunityFilter === 'realistic' && item.gap < -30) return false;
+        if (
+          opportunityFilter !== 'all' &&
+          opportunityFilter !== 'realistic' &&
+          item.zone !== opportunityFilter
+        ) {
+          return false;
+        }
 
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase();
@@ -315,13 +321,13 @@ export const SimulasiPage: React.FC = () => {
         return true;
       })
       .sort((a, b) => b.gap - a.gap);
-  }, [allSimulated, provinceFilter, rumpunFilter, universityFilter, tierFilter, searchQuery]);
+  }, [allSimulated, provinceFilter, rumpunFilter, universityFilter, opportunityFilter, searchQuery]);
 
   const hasActiveFilters =
     provinceFilter !== 'all' ||
     rumpunFilter !== 'all' ||
     universityFilter !== 'all' ||
-    tierFilter !== 'all' ||
+    opportunityFilter !== 'all' ||
     searchQuery.trim().length > 0;
 
   const studentCity = student.identity.branch.split('-')[0].trim();
@@ -938,13 +944,36 @@ export const SimulasiPage: React.FC = () => {
         {/* BAGIAN 2: CARI KAMPUS DAN PROGRAM STUDI (FILTER STUDENT TOWER) */}
         {/* ========================================================= */}
         <section className="stage-card" style={{ marginBottom: 16 }}>
-          <div style={{ marginBottom: 14 }}>
-            <h2 style={{ fontSize: 15.5, fontWeight: 700, color: '#0f172a', margin: 0 }}>
-              Cari kampus dan program studi
-            </h2>
-            <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>
-              UTBK-SNBT maksimal 3 pilihan. Pre-filtered sesuai minat rumpun siswa; sesuaikan filter di bawah untuk mencari prodi pembanding ({filteredCatalog.length} prodi tersedia).
-            </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+            <div>
+              <h2 style={{ fontSize: 15.5, fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                Cari kampus dan program studi
+              </h2>
+              <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>
+                UTBK-SNBT maksimal 3 pilihan. Pre-filtered sesuai minat rumpun siswa; sesuaikan filter di bawah untuk mencari prodi pembanding ({filteredCatalog.length} prodi tersedia).
+              </p>
+            </div>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: '#475467',
+                  background: '#f8fafc',
+                  border: '1px solid #d0d5dd',
+                  borderRadius: 6,
+                  padding: '6px 11px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5
+                }}
+              >
+                <RotateCcw size={13} /> Reset filter
+              </button>
+            )}
           </div>
 
           {/* 3-Column Student Tower Filter Grid */}
@@ -1043,36 +1072,28 @@ export const SimulasiPage: React.FC = () => {
               </select>
             </div>
 
-            {/* 4. Tier */}
+            {/* 4. Tier (Dipertahankan kosong mengikuti existing Student Tower) */}
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
                 Tier
               </label>
               <select
-                value={tierFilter}
-                onChange={(e) => setTierFilter(e.target.value as 'all' | ProgramTier)}
+                value="all"
+                disabled
+                title="Data tier kampus belum tersedia di Student Tower"
                 style={{
                   width: '100%',
                   padding: '8px 10px',
                   fontSize: 12.5,
-                  color: tierFilter === 'all' ? '#64748b' : '#0f172a',
-                  background: '#ffffff',
-                  border: '1px solid #d0d5dd',
+                  color: '#94a3b8',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
                   borderRadius: 6,
                   outline: 'none',
-                  cursor: 'pointer'
+                  cursor: 'not-allowed'
                 }}
               >
                 <option value="all">Semua tier</option>
-                {CATALOG_TIERS.map((t) => (
-                  <option key={t} value={t}>
-                    {t === 'Tier 1'
-                      ? 'Tier 1 (Ketat · Target ≥ 660)'
-                      : t === 'Tier 2'
-                      ? 'Tier 2 (Moderat · 610–659)'
-                      : 'Tier 3 (Realistis · < 610)'}
-                  </option>
-                ))}
               </select>
             </div>
 
@@ -1100,29 +1121,33 @@ export const SimulasiPage: React.FC = () => {
               />
             </div>
 
-            {/* 6. Reset Filter Slot */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start' }}>
-              {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={handleResetFilters}
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: '#475467',
-                    background: '#f8fafc',
-                    border: '1px solid #d0d5dd',
-                    borderRadius: 6,
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 5
-                  }}
-                >
-                  <RotateCcw size={13} /> Reset filter
-                </button>
-              )}
+            {/* 6. Peluang (Field baru) */}
+            <div>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+                Peluang
+              </label>
+              <select
+                value={opportunityFilter}
+                onChange={(e) => setOpportunityFilter(e.target.value as OpportunityFilter)}
+                style={{
+                  width: '100%',
+                  padding: '8px 10px',
+                  fontSize: 12.5,
+                  color: opportunityFilter === 'all' ? '#64748b' : '#0f172a',
+                  background: '#ffffff',
+                  border: '1px solid #d0d5dd',
+                  borderRadius: 6,
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">Semua peluang</option>
+                <option value="realistic">Aman &amp; Mendekati (Selisih ≥ -30)</option>
+                <option value="safe">Realistis / Tercapai (Selisih ≥ 0)</option>
+                <option value="near">Mendekati Target (-1 s.d. -30)</option>
+                <option value="target">Target Bertahap (-31 s.d. -90)</option>
+                <option value="reach">Ambisius / Jauh (&lt; -90)</option>
+              </select>
             </div>
           </div>
 
@@ -1164,19 +1189,6 @@ export const SimulasiPage: React.FC = () => {
                             <strong style={{ color: '#0f172a', fontSize: 13 }}>
                               {sim.catalog.prodi} — {sim.catalog.shortUniv}
                             </strong>
-                            <span
-                              style={{
-                                fontSize: 10,
-                                fontWeight: 700,
-                                background: '#f1f5f9',
-                                color: '#475569',
-                                border: '1px solid #e2e8f0',
-                                padding: '1px 5px',
-                                borderRadius: 4
-                              }}
-                            >
-                              {sim.catalog.tier}
-                            </span>
                             {activeLabel && (
                               <span
                                 style={{
