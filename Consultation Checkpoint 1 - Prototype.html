@@ -1030,7 +1030,7 @@
         <div class="section-header">
           <div>
             <h2 class="section-title">2. Perkembangan Skor Tryout UTBK (Episode 1 s/d 4)</h2>
-            <p style="margin: 3px 0 0; font-size: 12.5px; color: var(--muted);">Gunakan grafik untuk melihat stabilitas per subtes dan menggali penyebab perubahan nilai antar episode.</p>
+            <p style="margin: 3px 0 0; font-size: 12.5px; color: var(--muted);">Menampilkan tren <strong>Skor Rata-rata 8 Subtes Siswa</strong> per episode tryout atau pilih subtes tertentu pada dropdown untuk evaluasi kestabilan materi.</p>
           </div>
         </div>
 
@@ -1051,7 +1051,7 @@
               <!-- Box 2: Rata-rata 4 TO Siswa (Garis Putus-putus Abu-abu) -->
               <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px;">
                 <span style="width: 14px; border-top: 2px dashed #94a3b8; display: inline-block;"></span>
-                <span style="font-size: 11.5px; color: var(--muted); font-weight: 500;">Rata-rata 4 TO:</span>
+                <span style="font-size: 11.5px; color: var(--muted); font-weight: 500;">Rata-rata Kumulatif (4 TO):</span>
                 <strong style="font-size: 14px; color: var(--ink);" id="overviewMeanHighlightVal">571</strong>
               </div>
 
@@ -1066,7 +1066,7 @@
             <div style="display: flex; align-items: center; gap: 8px;">
               <label for="overviewChartSelect" style="font-size: 12px; font-weight: 600; color: #475467;">Pilih Subtes:</label>
               <select id="overviewChartSelect" class="table-input" style="width: auto; padding: 5px 12px; font-size: 12px; font-weight: 600; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff;" onchange="updateOverviewChart(this.value)">
-                <option value="total">Skor Rata-rata UTBK</option>
+                <option value="total">Skor Rata-rata 8 Subtes Siswa (601 → 546)</option>
                 <option value="pu">Penalaran Umum (PU)</option>
                 <option value="pk">Pengetahuan Kuantitatif (PK)</option>
                 <option value="pm">Penalaran Matematika (PM)</option>
@@ -1156,7 +1156,7 @@
                 Tabel 1: Riwayat Nilai 8 Subtes UTBK (Diurutkan dari yang Paling Butuh Ditingkatkan)
               </h4>
               <p style="margin: 3px 0 0; font-size: 12px; color: var(--muted);">
-                Disusun dari skor TO 4 terendah untuk memudahkan SA memetakan prioritas bimbingan materi akademis.
+                Disusun dari skor TO 4 terendah. Menampilkan nilai mandiri Garuda per subtes pada tiap episode tryout beserta rata-rata historis capaiannya selama 4 episode (bukan rata-rata nasional).
               </p>
             </div>
             <span class="badge" style="background: #f1f5f9; color: #475467; border: 1px solid #e2e8f0; font-size: 11px;">
@@ -1174,7 +1174,7 @@
                   <th style="width: 9%; text-align: center;">TO 2<br>(14 Sep)</th>
                   <th style="width: 9%; text-align: center;">TO 3<br>(28 Sep)</th>
                   <th style="width: 9%; text-align: center;">TO 4<br>(30 Okt)</th>
-                  <th style="width: 10%; text-align: center;">Rata-rata 4 TO</th>
+                  <th style="width: 10%; text-align: center;">Rata-rata Subtes<br>(4 TO)</th>
                   <th style="width: 13%; text-align: center;">Target Ambang Aman<br>(Pilihan 1–3)*</th>
                   <th style="width: 12%; text-align: center;">Status Kesiapan</th>
                 </tr>
@@ -1302,7 +1302,8 @@
                 </tr>
               </tbody>
             </table>
-            <div style="font-size: 11.5px; color: var(--muted); font-style: italic; margin-top: 6px;">
+            <div style="font-size: 11.5px; color: var(--muted); font-style: italic; margin-top: 6px; line-height: 1.5;">
+              * <strong>Keterangan Metodologi Nilai:</strong> Seluruh skor adalah nilai mandiri siswa (skala 200–1000). Skor pada Seksi 2 merupakan <em>rata-rata 8 subtes siswa</em> per episode tryout, sedangkan kolom <em>Rata-rata Subtes (4 TO)</em> merupakan rata-rata historis capaian siswa pada subtes tersebut sepanjang 4 episode tryout (bukan rata-rata nasional).<br>
               * <strong>Target Ambang Aman (Pilihan 1–3):</strong> Mengacu pada batas skor tertinggi di antara Pilihan 1 (Farmasi UGM), Pilihan 2 (Farmasi UI), dan Pilihan 3 (Teknik Mesin ITB) untuk memastikan posisi Garuda aman di seluruh pilihan.
             </div>
           </div>
@@ -1974,8 +1975,17 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih b
 
           <!-- 2. Perkembangan Skor Rata-rata UTBK (Mini Visual Line Chart) -->
           <div class="profiling-print-section">
-            <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">2.</span>Perkembangan Skor Rata-rata UTBK (4 Episode Tryout)</h2>
+            <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">2.</span>Perkembangan Skor Rata-rata 8 Subtes Siswa (4 Episode Tryout)</h2>
             <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2.2mm 3mm 2mm;">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.2mm;">
+                <p style="margin: 0; font-size: 7.8px; color: #475467; line-height: 1.35;">
+                  Grafik menampilkan tren <strong>Skor Rata-rata 8 Subtes Siswa</strong> pada tiap episode tryout (mandiri, bukan rata-rata nasional).
+                </p>
+                <div style="font-size: 7.5px; color: #475467; display: flex; gap: 3mm; align-items: center; white-space: nowrap;">
+                  <span><span style="display: inline-block; width: 12px; border-top: 1.5px dashed #94a3b8; vertical-align: middle; margin-right: 3px;"></span>Rata-rata 4 TO: <strong>571 Poin</strong></span>
+                  <span style="color: #059669;"><span style="display: inline-block; width: 12px; border-top: 1.5px dashed #059669; vertical-align: middle; margin-right: 3px;"></span>🎯 Target UGM: <strong>694 Poin</strong></span>
+                </div>
+              </div>
               <!-- Mini SVG Line Chart -->
               <svg viewBox="0 0 680 125" style="width: 100%; height: auto; display: block; overflow: visible;">
                 <defs>
@@ -1992,11 +2002,12 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih b
 
                 <!-- Reference Line: Target Lolos UGM (694) -> y = 28 -->
                 <line x1="40" y1="28" x2="640" y2="28" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4"/>
-                <text x="635" y="24" text-anchor="end" fill="#059669" font-size="9" font-weight="700">🎯 Target Lolos UGM: 694 Poin</text>
+                <text x="36" y="31" text-anchor="end" fill="#059669" font-size="7.5" font-weight="700">694</text>
+                <text x="635" y="24" text-anchor="end" fill="#059669" font-size="8.5" font-weight="700">🎯 Target Lolos UGM: 694 Poin</text>
 
-                <!-- Reference Line: Rata-rata 4 TO (571) -> y = 64 -->
+                <!-- Reference Line: Rata-rata Kumulatif 4 TO (571) -> y = 64 -->
                 <line x1="40" y1="64" x2="640" y2="64" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
-                <text x="635" y="60" text-anchor="end" fill="#64748b" font-size="8.5" font-weight="600">Rata-rata 4 TO: 571 Poin</text>
+                <text x="36" y="67" text-anchor="end" fill="#64748b" font-size="7.5" font-weight="700">571</text>
 
                 <!-- Area Fill Under Score Path: 601(55.3), 576(62.7), 561(67.1), 546(71.6) -->
                 <polygon points="65,105 65,55.3 250,62.7 435,67.1 615,71.6 615,105" fill="url(#areaGrad)"/>
@@ -2032,25 +2043,25 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih b
 
               <!-- 4 Episode Metric Cards -->
               <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin-top: 1.5mm;">
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.5mm; text-align: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.2mm; text-align: center;">
                   <div style="font-size: 7.5px; color: #64748b;">TO 1 (30 Agu)</div>
-                  <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0.5mm 0;">601</div>
-                  <div style="font-size: 7.5px; color: #059669; font-weight: 700;">Baseline Awal</div>
+                  <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0.3mm 0;">601</div>
+                  <div style="font-size: 7px; color: #059669; font-weight: 700;">Baseline • Rata-rata 8 Subtes</div>
                 </div>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.5mm; text-align: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.2mm; text-align: center;">
                   <div style="font-size: 7.5px; color: #64748b;">TO 2 (14 Sep)</div>
-                  <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0.5mm 0;">576</div>
-                  <div style="font-size: 7.5px; color: #b42318; font-weight: 700;">-25 Poin</div>
+                  <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0.3mm 0;">576</div>
+                  <div style="font-size: 7px; color: #b42318; font-weight: 700;">-25 Poin • Rata-rata 8 Subtes</div>
                 </div>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.5mm; text-align: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.2mm; text-align: center;">
                   <div style="font-size: 7.5px; color: #64748b;">TO 3 (28 Sep)</div>
-                  <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0.5mm 0;">561</div>
-                  <div style="font-size: 7.5px; color: #b42318; font-weight: 700;">-15 Poin</div>
+                  <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0.3mm 0;">561</div>
+                  <div style="font-size: 7px; color: #b42318; font-weight: 700;">-15 Poin • Rata-rata 8 Subtes</div>
                 </div>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.5mm; text-align: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.2mm; text-align: center;">
                   <div style="font-size: 7.5px; color: #64748b;">TO 4 (30 Okt)</div>
-                  <div style="font-size: 11px; font-weight: 800; color: #b42318; margin: 0.5mm 0;">546</div>
-                  <div style="font-size: 7.5px; color: #b42318; font-weight: 700;">-15 Poin</div>
+                  <div style="font-size: 11px; font-weight: 800; color: #b42318; margin: 0.3mm 0;">546</div>
+                  <div style="font-size: 7px; color: #b42318; font-weight: 700;">-15 Poin • Rata-rata 8 Subtes</div>
                 </div>
               </div>
 
@@ -2064,6 +2075,9 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih b
           <!-- 3. Riwayat Lengkap Nilai 8 Subtes UTBK (TO 1 s.d. TO 4) -->
           <div class="profiling-print-section">
             <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">3.</span>Riwayat Nilai Lengkap 8 Subtes UTBK (Diurutkan Berdasarkan Kebutuhan Perbaikan)</h2>
+            <p style="margin: 0 0 1.2mm; font-size: 7.8px; color: #475467; line-height: 1.35;">
+              Menampilkan riwayat nilai mandiri Garuda per subtes pada tiap episode tryout beserta rata-rata historis per subtes selama 4 episode (bukan rata-rata nasional).
+            </p>
             <table class="profiling-print-table">
               <thead>
                 <tr>
@@ -2073,7 +2087,7 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih b
                   <th style="width: 10%; text-align: center;">TO 2<br>(14 Sep)</th>
                   <th style="width: 10%; text-align: center;">TO 3<br>(28 Sep)</th>
                   <th style="width: 10%; text-align: center;">TO 4<br>(30 Okt)</th>
-                  <th style="width: 11%; text-align: center;">Rata-rata 4 TO</th>
+                  <th style="width: 11%; text-align: center;">Rata-rata Subtes<br>(4 TO)</th>
                   <th style="width: 22%; text-align: center;">Target Ambang Aman<br>(Pilihan 1–3)*</th>
                 </tr>
               </thead>
@@ -2184,8 +2198,9 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih b
                 </tr>
               </tbody>
             </table>
-            <div style="font-size: 7.5px; color: #64748b; font-style: italic; margin-top: 1.2mm;">
-              * Target Ambang Aman mengacu pada batas skor tertinggi di antara Pilihan 1 (Farmasi UGM), Pilihan 2 (Farmasi UI), dan Pilihan 3 (Teknik Mesin ITB) untuk memastikan posisi Garuda aman di seluruh pilihan.
+            <div style="font-size: 7px; color: #64748b; font-style: italic; margin-top: 1.2mm; line-height: 1.4;">
+              * <strong>Keterangan Metodologi Nilai:</strong> Seluruh skor adalah nilai mandiri siswa (skala 200–1000). Skor pada Bagian 2 merupakan <em>rata-rata 8 subtes siswa</em> per episode tryout, sedangkan kolom <em>Rata-rata Subtes (4 TO)</em> merupakan rata-rata historis capaian siswa pada subtes tersebut sepanjang 4 episode tryout (bukan rata-rata nasional).<br>
+              * <strong>Target Ambang Aman (Pilihan 1–3):</strong> Mengacu pada batas skor tertinggi di antara Pilihan 1 (Farmasi UGM), Pilihan 2 (Farmasi UI), dan Pilihan 3 (Teknik Mesin ITB) untuk memastikan posisi Garuda aman di seluruh pilihan.
             </div>
           </div>
 
