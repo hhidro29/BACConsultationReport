@@ -375,6 +375,73 @@
       </div>
     </div>
 
+    <!-- Kesiapan Nilai Rapor Siswa terhadap 3 Pilihan SNBP -->
+    <div style="background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 18px 22px; margin-bottom: 22px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+        <div>
+          <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--ink);">
+            Kesiapan Nilai Rapor Siswa terhadap Pilihan Program Studi (Jalur SNBP)
+          </h3>
+          <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">
+            Kesesuaian mata pelajaran pendukung Kurikulum Merdeka (Kepmendikbudristek No. 345/M/2022) terhadap 3 pilihan jurusan siswa.
+          </p>
+        </div>
+        <span class="badge" style="background: #eff8ff; color: #1078ca; font-weight: 700;">
+          Kalkulasi Real-time
+        </span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;" id="snbpChoiceGrid">
+        <!-- Pilihan 1: Farmasi UGM -->
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span class="badge" style="background: #1078ca; color: #fff; font-size: 11px; font-weight: 700;">Pilihan 1</span>
+            <span class="badge" style="background: #edfcf2; color: #027a48; font-size: 10.5px; font-weight: 700;" id="p1StatusBadge">Kategori Aman</span>
+          </div>
+          <div style="font-weight: 700; font-size: 13.5px; color: var(--ink);">S1 Farmasi — UGM</div>
+          <div style="font-size: 11.5px; color: var(--muted); margin-top: 4px;">
+            Mapel Pendukung: <strong style="color: #1078ca;">Kimia & Biologi</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border);">
+            <span style="font-size: 11.5px; color: var(--muted);">Rata-rata Mapel:</span>
+            <span style="font-size: 16px; font-weight: 800; color: #027a48;" id="p1SupportAvg">89.3 / 100</span>
+          </div>
+        </div>
+
+        <!-- Pilihan 2: Farmasi UI -->
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span class="badge" style="background: #0284c7; color: #fff; font-size: 11px; font-weight: 700;">Pilihan 2</span>
+            <span class="badge" style="background: #edfcf2; color: #027a48; font-size: 10.5px; font-weight: 700;" id="p2StatusBadge">Kategori Aman</span>
+          </div>
+          <div style="font-weight: 700; font-size: 13.5px; color: var(--ink);">S1 Farmasi — UI</div>
+          <div style="font-size: 11.5px; color: var(--muted); margin-top: 4px;">
+            Mapel Pendukung: <strong style="color: #0284c7;">Kimia & Biologi</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border);">
+            <span style="font-size: 11.5px; color: var(--muted);">Rata-rata Mapel:</span>
+            <span style="font-size: 16px; font-weight: 800; color: #027a48;" id="p2SupportAvg">89.3 / 100</span>
+          </div>
+        </div>
+
+        <!-- Pilihan 3: Teknik Mesin ITB -->
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span class="badge" style="background: #b54708; color: #fff; font-size: 11px; font-weight: 700;">Pilihan 3</span>
+            <span class="badge" style="background: #edfcf2; color: #027a48; font-size: 10.5px; font-weight: 700;" id="p3StatusBadge">Kategori Aman</span>
+          </div>
+          <div style="font-weight: 700; font-size: 13.5px; color: var(--ink);">S1 Teknik Mesin — ITB</div>
+          <div style="font-size: 11.5px; color: var(--muted); margin-top: 4px;">
+            Mapel Pendukung: <strong style="color: #b54708;">Fisika & MTK Lanjut</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border);">
+            <span style="font-size: 11.5px; color: var(--muted);">Rata-rata Mapel:</span>
+            <span style="font-size: 16px; font-weight: 800; color: #027a48;" id="p3SupportAvg">85.8 / 100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 20 Subjects Table -->
     <div class="table-container">
       <table class="data-table">
@@ -511,6 +578,20 @@
       updateSummary();
     }
 
+    function calcSupportAvg(subjectNames) {
+      const validScores = [];
+      currentRaporData.forEach(s => {
+        if (subjectNames.includes(s.name)) {
+          s.scores.forEach(v => {
+            if (Number(v) > 0) validScores.push(Number(v));
+          });
+        }
+      });
+      return validScores.length > 0
+        ? (validScores.reduce((a, b) => a + b, 0) / validScores.length).toFixed(1)
+        : "0.0";
+    }
+
     function updateSummary() {
       let filledCount = 0;
       let totalAvgSum = 0;
@@ -542,6 +623,25 @@
         badge.style.background = "#fef3f2";
         badge.style.color = "#b42318";
       }
+
+      // Update SNBP Supporting Subject Cards
+      const p1p2Avg = calcSupportAvg(["Kimia", "Biologi"]);
+      const p1El = document.getElementById("p1SupportAvg");
+      const p2El = document.getElementById("p2SupportAvg");
+      if (p1El) p1El.innerText = `${p1p2Avg} / 100`;
+      if (p2El) p2El.innerText = `${p1p2Avg} / 100`;
+
+      const p3Avg = calcSupportAvg(["Fisika", "Matematika Tingkat Lanjut"]);
+      const p3El = document.getElementById("p3SupportAvg");
+      if (p3El) p3El.innerText = `${p3Avg} / 100`;
+
+      // Status badges
+      const p1Badge = document.getElementById("p1StatusBadge");
+      const p2Badge = document.getElementById("p2StatusBadge");
+      const p3Badge = document.getElementById("p3StatusBadge");
+      if (p1Badge) p1Badge.innerText = Number(p1p2Avg) >= 85 ? "Kategori Aman (>85)" : "Perlu Penguatan";
+      if (p2Badge) p2Badge.innerText = Number(p1p2Avg) >= 85 ? "Kategori Aman (>85)" : "Perlu Penguatan";
+      if (p3Badge) p3Badge.innerText = Number(p3Avg) >= 85 ? "Kategori Aman (>85)" : "Perlu Penguatan";
     }
 
     function saveAndReturn() {
