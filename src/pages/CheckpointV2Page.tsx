@@ -75,7 +75,7 @@ export const CheckpointV2Page: React.FC = () => {
   const openPdf = () => setIsPdfOpen(true);
   const closePdf = () => setIsPdfOpen(false);
 
-  // Dynamic KPI Metrics (computed strictly from data, handles 0, 1, 2..8 subtests cleanly)
+  // Dynamic KPI Metrics (computed strictly from student data)
   const toScoresList = studentIdentity.toScores;
   const toAverageComputed = toScoresList.length
     ? Math.round(toScoresList.reduce((acc, v) => acc + v, 0) / toScoresList.length)
@@ -96,28 +96,10 @@ export const CheckpointV2Page: React.FC = () => {
     const diff = s.to4 - 600;
     return `${code}: ${s.to4} (${diff >= 0 ? `+${diff}` : diff})`;
   };
-
   const aboveTargetSubtests = subtestsV2Data.filter((s) => s.to4 >= 600);
   const belowTargetSubtests = subtestsV2Data.filter((s) => s.to4 < 600);
-
   const aboveTooltip = aboveTargetSubtests.map(formatSubtestItem).join(' · ');
   const belowTooltip = belowTargetSubtests.map(formatSubtestItem).join(' · ');
-
-  const aboveSurpluses = aboveTargetSubtests.map((s) => s.to4 - 600);
-  const aboveSublabel =
-    aboveTargetSubtests.length === 0
-      ? 'Belum ada subtes ≥ 600'
-      : aboveTargetSubtests.length === 1
-        ? formatSubtestItem(aboveTargetSubtests[0])
-        : `Surplus: +${Math.min(...aboveSurpluses)} s.d. +${Math.max(...aboveSurpluses)}`;
-
-  const belowGaps = belowTargetSubtests.map((s) => s.to4 - 600);
-  const belowSublabel =
-    belowTargetSubtests.length === 0
-      ? 'Semua subtes ≥ 600'
-      : belowTargetSubtests.length === 1
-        ? formatSubtestItem(belowTargetSubtests[0])
-        : `Gap: ${Math.min(...belowGaps)} s.d. ${Math.max(...belowGaps)}`;
 
   return (
     <div>
@@ -320,59 +302,42 @@ export const CheckpointV2Page: React.FC = () => {
               }}
             >
               {/* Metric 1 */}
-              <div style={{ background: '#ffffff', padding: '12px 16px' }}>
+              <div title={toScoresList.join(' → ')} style={{ background: '#ffffff', padding: '12px 16px' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Rata-rata Tryout
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#1078ca', lineHeight: 1.2, margin: '4px 0 3px' }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1078ca', lineHeight: 1.2, marginTop: 4 }}>
                   {toAverageComputed}
-                </div>
-                <div style={{ fontSize: 11.5, color: '#64748b', whiteSpace: 'nowrap' }}>
-                  {toScoresList.map((score, idx) => (
-                    <React.Fragment key={idx}>
-                      {idx > 0 && ' → '}
-                      {idx === toScoresList.length - 1 ? <strong style={{ color: '#0f172a' }}>{score}</strong> : score}
-                    </React.Fragment>
-                  ))}
                 </div>
               </div>
 
               {/* Metric 2 */}
-              <div style={{ background: '#ffffff', padding: '12px 16px' }}>
+              <div title={aboveTooltip || undefined} style={{ background: '#ffffff', padding: '12px 16px' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Di Atas Target 600
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#027a48', lineHeight: 1.2, margin: '4px 0 3px' }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#027a48', lineHeight: 1.2, marginTop: 4 }}>
                   {aboveTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ {totalSubtestsCount} subtes</span>
-                </div>
-                <div title={aboveTooltip} style={{ fontSize: 11.5, color: '#027a48', fontWeight: 600, whiteSpace: 'nowrap', cursor: aboveTooltip ? 'help' : 'default' }}>
-                  {aboveSublabel}
                 </div>
               </div>
 
               {/* Metric 3 */}
-              <div style={{ background: '#ffffff', padding: '12px 16px' }}>
+              <div title={belowTooltip || undefined} style={{ background: '#ffffff', padding: '12px 16px' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Di Bawah Target 600
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#b42318', lineHeight: 1.2, margin: '4px 0 3px' }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#b42318', lineHeight: 1.2, marginTop: 4 }}>
                   {belowTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ {totalSubtestsCount} subtes</span>
-                </div>
-                <div title={belowTooltip} style={{ fontSize: 11.5, color: '#b42318', fontWeight: 600, whiteSpace: 'nowrap', cursor: belowTooltip ? 'help' : 'default' }}>
-                  {belowSublabel}
                 </div>
               </div>
 
               {/* Metric 4 */}
-              <div style={{ background: '#ffffff', padding: '12px 16px' }}>
+              <div title={studentIdentity.attendanceDetail} style={{ background: '#ffffff', padding: '12px 16px' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Kehadiran Kelas
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', lineHeight: 1.2, margin: '4px 0 3px' }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', lineHeight: 1.2, marginTop: 4 }}>
                   {studentIdentity.attendanceRate}
-                </div>
-                <div style={{ fontSize: 11.5, color: '#64748b' }}>
-                  {studentIdentity.attendanceDetail}
                 </div>
               </div>
             </div>
