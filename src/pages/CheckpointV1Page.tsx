@@ -263,7 +263,7 @@ export const CheckpointV1Page: React.FC = () => {
             <section className="section-block">
               <div className="metrics-grid">
                 <div className="metric-card">
-                  <div className="metric-card-label">Rata-rata 4 Tryout</div>
+                  <div className="metric-card-label">Rata-rata Tryout</div>
                   <div className="metric-card-val" style={{ color: '#1078ca' }}>571</div>
                   <div className="metric-card-hint">TO 1: 601 • TO 2: 576 • TO 3: 561</div>
                 </div>

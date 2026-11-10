@@ -149,7 +149,7 @@ export const SimulasiModal: React.FC<SimulasiModalProps> = ({ isOpen, onClose })
               className={`btn ${scoreBasis === 'avg' ? 'btn-primary' : 'btn-outline'}`}
               style={{ padding: '4px 12px', fontSize: 12 }}
             >
-              Rata-rata 4 TO (571)
+              Rata-rata Tryout (571)
             </button>
           </div>
 

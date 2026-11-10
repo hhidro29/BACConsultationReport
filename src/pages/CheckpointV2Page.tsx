@@ -75,6 +75,32 @@ export const CheckpointV2Page: React.FC = () => {
   const openPdf = () => setIsPdfOpen(true);
   const closePdf = () => setIsPdfOpen(false);
 
+  // Dynamic KPI Metrics (computed strictly from data, auto-updates if student data changes)
+  const toScoresList = studentIdentity.toScores;
+  const toAverageComputed = toScoresList.length
+    ? Math.round(toScoresList.reduce((acc, v) => acc + v, 0) / toScoresList.length)
+    : 0;
+  const totalSubtestsCount = subtestsV2Data.length;
+  const aboveTargetSubtests = subtestsV2Data.filter((s) => s.to4 >= 600);
+  const belowTargetSubtests = subtestsV2Data.filter((s) => s.to4 < 600);
+  const aboveSublabel =
+    aboveTargetSubtests.length > 0
+      ? aboveTargetSubtests
+          .slice(0, 2)
+          .map((s) => {
+            const m = s.name.match(/\(([^)]+)\)/);
+            const code = m ? m[1] : s.name;
+            const diff = s.to4 - 600;
+            return `${code}: ${s.to4} (${diff >= 0 ? `+${diff}` : diff})`;
+          })
+          .join(' · ')
+      : 'Belum ada subtes ≥ 600';
+  const belowGaps = belowTargetSubtests.map((s) => s.to4 - 600);
+  const belowSublabel =
+    belowGaps.length > 0
+      ? `Gap: ${Math.min(...belowGaps)} s.d. ${Math.max(...belowGaps)}`
+      : 'Semua subtes ≥ 600';
+
   return (
     <div>
       {/* Topbar */}
@@ -260,10 +286,10 @@ export const CheckpointV2Page: React.FC = () => {
           <div className="section-block" id="sec_tahap1_metrics">
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 15 }}>1. Ringkasan Evaluasi Skor Reguler Siswa</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Data Berdasarkan 4 Episode Tryout SNBT Awal</span>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Ringkasan Performa Tryout Reguler</span>
             </div>
             
-            {/* Minimalist 4-Column KPI Summary Strip */}
+            {/* Minimalist 4-Column KPI Summary Strip (100% Data-Driven) */}
             <div
               className="metrics-grid"
               style={{
@@ -278,13 +304,18 @@ export const CheckpointV2Page: React.FC = () => {
               {/* Metric 1 */}
               <div style={{ background: '#ffffff', padding: '12px 16px' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
-                  Rata-Rata 4 TO
+                  Rata-rata Tryout
                 </div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#1078ca', lineHeight: 1.2, margin: '4px 0 3px' }}>
-                  {studentIdentity.toAverage}
+                  {toAverageComputed}
                 </div>
                 <div style={{ fontSize: 11.5, color: '#64748b', whiteSpace: 'nowrap' }}>
-                  601 → 576 → 561 → <strong style={{ color: '#0f172a' }}>546</strong>
+                  {toScoresList.map((score, idx) => (
+                    <React.Fragment key={idx}>
+                      {idx > 0 && ' → '}
+                      {idx === toScoresList.length - 1 ? <strong style={{ color: '#0f172a' }}>{score}</strong> : score}
+                    </React.Fragment>
+                  ))}
                 </div>
               </div>
 
@@ -294,10 +325,10 @@ export const CheckpointV2Page: React.FC = () => {
                   Di Atas Target 600
                 </div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#027a48', lineHeight: 1.2, margin: '4px 0 3px' }}>
-                  1 <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ 8 subtes</span>
+                  {aboveTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ {totalSubtestsCount} subtes</span>
                 </div>
                 <div style={{ fontSize: 11.5, color: '#027a48', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                  PPU: 640 (+40)
+                  {aboveSublabel}
                 </div>
               </div>
 
@@ -307,10 +338,10 @@ export const CheckpointV2Page: React.FC = () => {
                   Di Bawah Target 600
                 </div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#b42318', lineHeight: 1.2, margin: '4px 0 3px' }}>
-                  7 <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ 8 subtes</span>
+                  {belowTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ {totalSubtestsCount} subtes</span>
                 </div>
                 <div style={{ fontSize: 11.5, color: '#b42318', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                  Gap: -135 s.d. -3
+                  {belowSublabel}
                 </div>
               </div>
 
@@ -323,7 +354,7 @@ export const CheckpointV2Page: React.FC = () => {
                   {studentIdentity.attendanceRate}
                 </div>
                 <div style={{ fontSize: 11.5, color: '#64748b' }}>
-                  36 Hadir · 1 Telat · 6 Sakit · 2 Izin
+                  {studentIdentity.attendanceDetail}
                 </div>
               </div>
             </div>
@@ -382,7 +413,7 @@ export const CheckpointV2Page: React.FC = () => {
           {/* Table 8 Subtests */}
           <div className="section-block" id="sec_tahap1_table">
             <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>2. Evaluasi Capaian 8 Subtes vs Target 600 (Median 4 TO)</h3>
+              <h3 className="section-title" style={{ fontSize: 15 }}>2. Evaluasi Capaian {totalSubtestsCount} Subtes vs Target 600</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Skala visual progress bar rentang 400 - 700 dengan garis patokan target 600</span>
             </div>
             <div className="table-container">
@@ -394,7 +425,7 @@ export const CheckpointV2Page: React.FC = () => {
                     <th style={{ textAlign: 'center', width: '8%' }}>TO 2</th>
                     <th style={{ textAlign: 'center', width: '8%' }}>TO 3</th>
                     <th style={{ textAlign: 'center', width: '8%' }}>TO 4</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Median 4 TO</th>
+                    <th style={{ textAlign: 'center', width: '10%' }}>Median</th>
                     <th style={{ width: '22%' }}>Visual Posisi vs Target 600</th>
                     <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
                     <th style={{ textAlign: 'center', width: '10%' }}>Prioritas</th>
@@ -450,7 +481,7 @@ export const CheckpointV2Page: React.FC = () => {
                     <th style={{ textAlign: 'center', width: '8%' }}>TO 2</th>
                     <th style={{ textAlign: 'center', width: '8%' }}>TO 3</th>
                     <th style={{ textAlign: 'center', width: '8%' }}>TO 4</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Rata-rata 4 TO</th>
+                    <th style={{ textAlign: 'center', width: '10%' }}>Rata-rata</th>
                     <th style={{ width: '22%' }}>Visual Posisi vs Target 600</th>
                     <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
                     <th style={{ textAlign: 'center', width: '10%' }}>Status</th>

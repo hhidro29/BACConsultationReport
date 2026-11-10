@@ -64,7 +64,7 @@ export const studentIdentity = {
   counselorName: "Sarah Az-Zahra, M.Psi.",
   parentName: "Bambang Sena (Ayah)",
   attendanceRate: "81.8%",
-  attendanceDetail: "36 Hadir • 1 Terlambat • 6 Sakit • 2 Izin",
+  attendanceDetail: "36 Hadir · 1 Telat · 6 Sakit · 2 Izin",
   toScores: [601, 576, 561, 546],
   toAverage: 571,
   toLabels: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"]
