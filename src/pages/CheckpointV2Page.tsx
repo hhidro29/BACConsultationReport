@@ -250,6 +250,9 @@ export const CheckpointV2Page: React.FC = () => {
                   <li>
                     <strong>Catatan untuk Kakak Asuh:</strong> Jangan langsung membuat orang tua cemas karena gap nilai. Jelaskan bahwa penurunan skor dari TO 1 (601) ke TO 4 (546) wajar terjadi karena tingkat kesulitan soal UTBK bertahap meningkat, namun perlu diimbangi disiplin drill harian.
                   </li>
+                  <li>
+                    <strong>Cara Membaca Rerata vs Median (Deteksi Fluktuasi Ekstrem):</strong> Selalu perhatikan kolom <strong>Median 4 TO</strong> dan baris <strong>Nilai tengah (Median)</strong> secara berdampingan dengan nilai rata-rata. Jika rata-rata dan median bergerak sejalan (misal TO 4 rata-rata 546 &amp; median 548,5), berarti tren bersifat merata. Namun jika terdapat selisih jauh atau skor subtes fluktuatif ekstrem (contoh Literasi B. Indo Soshum Garuda: <code>628 → 494 → 488 → 573</code>), nilai <strong>Median (533,5)</strong> menunjukkan performa tipikal yang sebenarnya tanpa terseret satu skor ekstrem.
+                  </li>
                 </ul>
               </div>
             </section>
