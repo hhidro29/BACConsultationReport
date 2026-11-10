@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch, ChevronDown } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
 import { SimulasiModal } from '../components/SimulasiModal';
 import {
@@ -21,7 +21,28 @@ export const CheckpointV2Page: React.FC = () => {
   const { getMetrics } = useRapor();
   const { config: ruleConfig, isCustomized: isRuleCustomized } = useRuleConfig();
   const raporMetrics = getMetrics();
-  const [selectedStudentId, setSelectedStudentId] = useState<string>('garuda');
+  const [selectedStudentId, setSelectedStudentId] = useState<string>(() => {
+    const fromParam = searchParams.get('student');
+    if (fromParam && CHECKPOINT1_STUDENTS.some((s) => s.id === fromParam)) {
+      return fromParam;
+    }
+    return 'garuda';
+  });
+  const [isStudentMenuOpen, setIsStudentMenuOpen] = useState<boolean>(false);
+  const studentMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (studentMenuRef.current && !studentMenuRef.current.contains(event.target as Node)) {
+        setIsStudentMenuOpen(false);
+      }
+    }
+    if (isStudentMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isStudentMenuOpen]);
+
   const activeStudent = CHECKPOINT1_STUDENTS.find((s) => s.id === selectedStudentId) || CHECKPOINT1_STUDENTS[0];
   const studentIdentity = activeStudent.identity;
   const subtestsV2Data = activeStudent.subtests;
@@ -171,9 +192,9 @@ export const CheckpointV2Page: React.FC = () => {
       <header className="topbar">
         <div className="topbar-inner">
           <nav aria-label="breadcrumb" className="breadcrumbs">
-            <a href="#home">Home</a>
+            <Link to="/">Home</Link>
             <span className="crumb-sep">›</span>
-            <a href="#checkpoint">Konsultasi - Checkpoint</a>
+            <Link to="/">Konsultasi - Checkpoint</Link>
             <span className="crumb-sep">›</span>
             <span className="crumb-current">Detail Checkpoint 1</span>
           </nav>
@@ -281,53 +302,110 @@ export const CheckpointV2Page: React.FC = () => {
         {/* Student Header */}
         <div className="student-header" style={{ marginBottom: 16 }}>
           <div className="student-info">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               <h1 style={{ margin: 0 }}>{studentIdentity.name}</h1>
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  padding: '2.5px 10px',
-                  borderRadius: 9999,
-                  background: isLocked ? '#e2e8f0' : '#ecfdf3',
-                  color: isLocked ? '#475467' : '#027a48',
-                  border: `1px solid ${isLocked ? '#cbd5e1' : '#a6f4c5'}`
-                }}
-              >
-                {isLocked ? 'Terkunci' : 'Draft Aktif'}
-              </span>
+
+              {/* Dropdown Ganti Siswa (di sebelah nama, menggantikan label draft aktif) */}
+              <div style={{ position: 'relative' }} ref={studentMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsStudentMenuOpen(!isStudentMenuOpen)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 10px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: '#344054',
+                    background: isStudentMenuOpen ? '#f1f5f9' : '#ffffff',
+                    border: '1px solid #d0d5dd',
+                    borderRadius: 6,
+                    boxShadow: '0 1px 2px rgba(16, 24, 40, 0.05)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Pilih profil siswa Checkpoint 1"
+                >
+                  <span style={{ color: '#1078ca', fontWeight: 700 }}>Ganti Siswa</span>
+                  <ChevronDown
+                    size={13}
+                    color="#667085"
+                    style={{
+                      transition: 'transform 0.15s ease',
+                      transform: isStudentMenuOpen ? 'rotate(180deg)' : 'none'
+                    }}
+                  />
+                </button>
+
+                {isStudentMenuOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 6px)',
+                      left: 0,
+                      background: '#ffffff',
+                      borderRadius: 8,
+                      boxShadow: '0 12px 28px -4px rgba(15, 23, 42, 0.15), 0 6px 12px -4px rgba(15, 23, 42, 0.08)',
+                      border: '1px solid #e2e8f0',
+                      padding: '6px',
+                      minWidth: 320,
+                      zIndex: 9999
+                    }}
+                  >
+                    <div style={{ padding: '6px 10px 4px', fontSize: 10.5, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      Pilih Profil Siswa Checkpoint 1
+                    </div>
+                    {CHECKPOINT1_STUDENTS.map((st) => {
+                      const isSelected = st.id === selectedStudentId;
+                      return (
+                        <button
+                          key={st.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedStudentId(st.id);
+                            setIsStudentMenuOpen(false);
+                          }}
+                          style={{
+                            width: '100%',
+                            textAlign: 'left',
+                            background: isSelected ? '#eff8ff' : 'transparent',
+                            border: 'none',
+                            padding: '8px 10px',
+                            borderRadius: 6,
+                            cursor: 'pointer',
+                            display: 'block',
+                            transition: 'background 0.1s'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) e.currentTarget.style.background = '#f8fafc';
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) e.currentTarget.style.background = 'transparent';
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: 12.5, fontWeight: isSelected ? 700 : 600, color: isSelected ? '#1078ca' : '#1e293b' }}>
+                              {st.name}
+                            </span>
+                            {isSelected && <span style={{ fontSize: 11, fontWeight: 700, color: '#1078ca' }}>✓ Aktif</span>}
+                          </div>
+                          <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                            {st.tagline}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
-            <p style={{ marginTop: 6, marginBottom: 8 }}>
+            <p style={{ marginTop: 6, marginBottom: 0 }}>
               <span>NISN: <strong>{studentIdentity.nisn}</strong></span>
               <span className="student-tag">{studentIdentity.school}</span>
               <span className="student-tag">Kelas 12 SMA</span>
               <span className="student-tag">{studentIdentity.branch}</span>
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.3 }}>
-                Kasus Siswa Checkpoint 1:
-              </span>
-              <select
-                value={selectedStudentId}
-                onChange={(e) => setSelectedStudentId(e.target.value)}
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: '#0f172a',
-                  background: '#ffffff',
-                  border: '1.5px solid #cbd5e1',
-                  borderRadius: 6,
-                  padding: '3px 10px',
-                  cursor: 'pointer'
-                }}
-              >
-                {CHECKPOINT1_STUDENTS.map((st) => (
-                  <option key={st.id} value={st.id}>
-                    {st.name} — {st.tagline}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
           <div style={{ textAlign: 'right', fontSize: 12.5, color: 'var(--muted)' }}>
             <div>Sesi: <strong>Konsultasi Checkpoint 1 (Pasca 4 TO)</strong></div>
