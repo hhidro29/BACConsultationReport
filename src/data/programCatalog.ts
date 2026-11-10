@@ -8,6 +8,8 @@ export type RegionGroup = 'jabodetabek_jabar' | 'jateng_diy' | 'jatim' | 'luar_j
 
 export type OpportunityZone = 'safe' | 'near' | 'target' | 'reach';
 
+export type ProgramTier = 'Tier 1' | 'Tier 2' | 'Tier 3';
+
 export interface CatalogProgram {
   id: string;
   prodi: string;
@@ -17,6 +19,8 @@ export interface CatalogProgram {
   rumpun: 'saintek' | 'soshum';
   clusterLabel: string;
   city: string;
+  province: string;
+  tier: ProgramTier;
   regionGroup: RegionGroup;
   targetScore: number;
   quota2026: number;
@@ -57,7 +61,25 @@ export const SUBTEST_LABELS: Record<SubtestKey, { short: string; full: string }>
   pm: { short: 'PM', full: 'Penalaran Matematika' }
 };
 
-export const PROGRAM_CATALOG: CatalogProgram[] = [
+type RawCatalogProgram = Omit<CatalogProgram, 'province' | 'tier'>;
+
+function deriveProvince(city: string): string {
+  const c = city.toLowerCase();
+  if (c.includes('jakarta')) return 'DKI Jakarta';
+  if (c.includes('depok') || c.includes('bogor') || c.includes('bandung') || c.includes('sumedang')) return 'Jawa Barat';
+  if (c.includes('yogyakarta')) return 'DI Yogyakarta';
+  if (c.includes('semarang')) return 'Jawa Tengah';
+  if (c.includes('surabaya') || c.includes('malang')) return 'Jawa Timur';
+  return 'Lainnya';
+}
+
+function deriveTier(targetScore: number): ProgramTier {
+  if (targetScore >= 660) return 'Tier 1';
+  if (targetScore >= 610) return 'Tier 2';
+  return 'Tier 3';
+}
+
+const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
   // =====================================================
   // KLASTER KESEHATAN & FARMASI (SAINTEK)
   // =====================================================
@@ -492,6 +514,15 @@ export const PROGRAM_CATALOG: CatalogProgram[] = [
     subtestWeights: { pu: 0.22, pbm: 0.18, lbe: 0.16, ppu: 0.14, lbi_s: 0.14, pk: 0.08, pm: 0.06, lbi_a: 0.02 }
   }
 ];
+
+export const PROGRAM_CATALOG: CatalogProgram[] = RAW_PROGRAM_CATALOG.map((item) => ({
+  ...item,
+  province: deriveProvince(item.city),
+  tier: deriveTier(item.targetScore)
+}));
+
+export const CATALOG_PROVINCES: string[] = Array.from(new Set(PROGRAM_CATALOG.map((p) => p.province))).sort();
+export const CATALOG_TIERS: ProgramTier[] = ['Tier 1', 'Tier 2', 'Tier 3'];
 
 function computeMedian(nums: number[]): number {
   if (!nums.length) return 0;

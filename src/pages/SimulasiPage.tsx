@@ -5,7 +5,6 @@ import {
   Compass,
   Info,
   RotateCcw,
-  Search,
   CheckCircle2,
   ArrowRightLeft,
   Plus,
@@ -16,7 +15,10 @@ import {
 import { CHECKPOINT1_STUDENTS, ProgramChoice } from '../data/garudaData';
 import {
   PROGRAM_CATALOG,
+  CATALOG_PROVINCES,
+  CATALOG_TIERS,
   CatalogProgram,
+  ProgramTier,
   ScoreBasis,
   OpportunityZone,
   SimulatedProgramResult,
@@ -27,9 +29,7 @@ import {
   SUBTEST_LABELS
 } from '../data/programCatalog';
 
-type RumpunFilter = 'interest' | 'saintek' | 'soshum' | 'all';
-type LocationFilter = 'all' | 'local' | 'out_of_town';
-type ZoneFilter = 'all' | 'realistic' | 'target' | 'reach';
+type RumpunFilter = 'all' | 'saintek' | 'soshum';
 
 const STORAGE_KEY_PROGRAMS = 'bac_v2_custom_programs_v1';
 const STORAGE_KEY_STUDENT = 'bac_v2_active_student_v1';
@@ -113,15 +113,6 @@ export const SimulasiPage: React.FC = () => {
   const activePrograms = customProgramsByStudent[student.id] || student.targetPrograms;
   const isCustomized = Boolean(customProgramsByStudent[student.id]);
 
-  const [scoreBasis, setScoreBasis] = useState<ScoreBasis>('to4');
-  const [rumpunFilter, setRumpunFilter] = useState<RumpunFilter>('interest');
-  const [locationFilter, setLocationFilter] = useState<LocationFilter>('all');
-  const [zoneFilter, setZoneFilter] = useState<ZoneFilter>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [candidateId, setCandidateId] = useState<string | null>(null);
-  const [actionToast, setActionToast] = useState<string | null>(null);
-  const [openApplyDropdownId, setOpenApplyDropdownId] = useState<string | null>(null);
-
   // Determine student's primary rumpun
   const studentRumpun = useMemo<'saintek' | 'soshum'>(() => {
     const p1 = activePrograms[0];
@@ -132,18 +123,41 @@ export const SimulasiPage: React.FC = () => {
     return 'saintek';
   }, [activePrograms, student]);
 
+  const [scoreBasis, setScoreBasis] = useState<ScoreBasis>('to4');
+  const [provinceFilter, setProvinceFilter] = useState<string>('all');
+  const [rumpunFilter, setRumpunFilter] = useState<RumpunFilter>(studentRumpun);
+  const [universityFilter, setUniversityFilter] = useState<string>('all');
+  const [tierFilter, setTierFilter] = useState<'all' | ProgramTier>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [candidateId, setCandidateId] = useState<string | null>(null);
+  const [actionToast, setActionToast] = useState<string | null>(null);
+  const [openApplyDropdownId, setOpenApplyDropdownId] = useState<string | null>(null);
+
+  // Sync rumpun pre-filter when switching student
+  useEffect(() => {
+    setRumpunFilter(studentRumpun);
+  }, [student.id, studentRumpun]);
+
   // Reset UI filters when switching student
   const handleSelectStudent = (id: string) => {
     setSelectedStudentId(id);
     localStorage.setItem(STORAGE_KEY_STUDENT, id);
     setSearchParams({ student: id });
     setIsStudentMenuOpen(false);
-    setRumpunFilter('interest');
-    setLocationFilter('all');
-    setZoneFilter('all');
+    setProvinceFilter('all');
+    setUniversityFilter('all');
+    setTierFilter('all');
     setSearchQuery('');
     setCandidateId(null);
     setOpenApplyDropdownId(null);
+  };
+
+  const handleResetFilters = () => {
+    setProvinceFilter('all');
+    setRumpunFilter('all');
+    setUniversityFilter('all');
+    setTierFilter('all');
+    setSearchQuery('');
   };
 
   const showToast = (msg: string) => {
@@ -207,6 +221,8 @@ export const SimulasiPage: React.FC = () => {
           rumpun: choice.rumpun === 'soshum' ? 'soshum' : 'saintek',
           clusterLabel: 'Pilihan Siswa',
           city: choice.city,
+          province: 'Lainnya',
+          tier: 'Tier 1',
           regionGroup: 'jabodetabek_jabar',
           targetScore: choice.targetScore,
           quota2026: 60,
@@ -264,30 +280,46 @@ export const SimulasiPage: React.FC = () => {
     showToast(`${priorityLabel} diperbarui menjadi ${sim.catalog.prodi} — ${sim.catalog.shortUniv}`);
   };
 
+  const availableUniversities = useMemo(() => {
+    const filtered = PROGRAM_CATALOG.filter((p) => {
+      if (provinceFilter !== 'all' && p.province !== provinceFilter) return false;
+      if (rumpunFilter !== 'all' && p.rumpun !== rumpunFilter) return false;
+      return true;
+    });
+    return Array.from(new Set(filtered.map((p) => p.univ))).sort();
+  }, [provinceFilter, rumpunFilter]);
+
+  useEffect(() => {
+    if (universityFilter !== 'all' && !availableUniversities.includes(universityFilter)) {
+      setUniversityFilter('all');
+    }
+  }, [availableUniversities, universityFilter]);
+
   const filteredCatalog = useMemo(() => {
     return allSimulated
       .filter((item) => {
-        if (rumpunFilter === 'interest' && item.catalog.rumpun !== studentRumpun) return false;
-        if (rumpunFilter === 'saintek' && item.catalog.rumpun !== 'saintek') return false;
-        if (rumpunFilter === 'soshum' && item.catalog.rumpun !== 'soshum') return false;
-
-        if (locationFilter === 'local' && item.isOutOfTown) return false;
-        if (locationFilter === 'out_of_town' && !item.isOutOfTown) return false;
-
-        if (zoneFilter === 'realistic' && item.gap < -30) return false;
-        if (zoneFilter === 'target' && (item.gap < -90 || item.gap >= -30)) return false;
-        if (zoneFilter === 'reach' && item.gap >= -90) return false;
+        if (provinceFilter !== 'all' && item.catalog.province !== provinceFilter) return false;
+        if (rumpunFilter !== 'all' && item.catalog.rumpun !== rumpunFilter) return false;
+        if (universityFilter !== 'all' && item.catalog.univ !== universityFilter) return false;
+        if (tierFilter !== 'all' && item.catalog.tier !== tierFilter) return false;
 
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase();
-          const matchText = `${item.catalog.prodi} ${item.catalog.univ} ${item.catalog.city} ${item.catalog.clusterLabel}`.toLowerCase();
+          const matchText = `${item.catalog.prodi} ${item.catalog.univ} ${item.catalog.shortUniv} ${item.catalog.city} ${item.catalog.province} ${item.catalog.clusterLabel}`.toLowerCase();
           if (!matchText.includes(q)) return false;
         }
 
         return true;
       })
       .sort((a, b) => b.gap - a.gap);
-  }, [allSimulated, rumpunFilter, locationFilter, zoneFilter, searchQuery, studentRumpun]);
+  }, [allSimulated, provinceFilter, rumpunFilter, universityFilter, tierFilter, searchQuery]);
+
+  const hasActiveFilters =
+    provinceFilter !== 'all' ||
+    rumpunFilter !== 'all' ||
+    universityFilter !== 'all' ||
+    tierFilter !== 'all' ||
+    searchQuery.trim().length > 0;
 
   const studentCity = student.identity.branch.split('-')[0].trim();
   const latestTO4 = student.identity.toScores[student.identity.toScores.length - 1] || 0;
@@ -900,109 +932,191 @@ export const SimulasiPage: React.FC = () => {
         </section>
 
         {/* ========================================================= */}
-        {/* BAGIAN 2: KATALOG EKSPLORASI & REKOMENDASI ALTERNATIF     */}
+        {/* BAGIAN 2: CARI KAMPUS DAN PROGRAM STUDI (FILTER STUDENT TOWER) */}
         {/* ========================================================= */}
         <section className="stage-card" style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
+          <div style={{ marginBottom: 14 }}>
+            <h2 style={{ fontSize: 15.5, fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              Cari kampus dan program studi
+            </h2>
+            <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>
+              UTBK-SNBT maksimal 3 pilihan. Pre-filtered sesuai minat rumpun siswa; sesuaikan filter di bawah untuk mencari prodi pembanding ({filteredCatalog.length} prodi tersedia).
+            </p>
+          </div>
+
+          {/* 3-Column Student Tower Filter Grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '12px 16px',
+              marginBottom: 16
+            }}
+          >
+            {/* 1. Provinsi kampus */}
             <div>
-              <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                2. Katalog Eksplorasi &amp; Alternatif ({filteredCatalog.length} Prodi)
-              </h2>
-              <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>
-                Diurutkan dari peluang terdekat terhadap skor siswa aktif. Gunakan filter di samping untuk mencari opsi satu wilayah atau zona aman.
-              </p>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+                Provinsi kampus
+              </label>
+              <select
+                value={provinceFilter}
+                onChange={(e) => setProvinceFilter(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 10px',
+                  fontSize: 12.5,
+                  color: provinceFilter === 'all' ? '#64748b' : '#0f172a',
+                  background: '#ffffff',
+                  border: '1px solid #d0d5dd',
+                  borderRadius: 6,
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">Semua provinsi</option>
+                {CATALOG_PROVINCES.map((prov) => (
+                  <option key={prov} value={prov}>
+                    {prov}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Filter & Search Bar */}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-              <div style={{ position: 'relative' }}>
-                <Search size={13} color="#64748b" style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)' }} />
-                <input
-                  type="text"
-                  placeholder="Cari prodi / PTN / kota..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    padding: '5px 10px 5px 28px',
-                    fontSize: 12,
-                    border: '1px solid #cbd5e1',
-                    borderRadius: 6,
-                    width: 190,
-                    outline: 'none',
-                    background: '#ffffff',
-                    color: '#0f172a'
-                  }}
-                />
-              </div>
+            {/* 2. Rumpun */}
+            <div>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+                Rumpun
+              </label>
+              <select
+                value={rumpunFilter}
+                onChange={(e) => setRumpunFilter(e.target.value as RumpunFilter)}
+                style={{
+                  width: '100%',
+                  padding: '8px 10px',
+                  fontSize: 12.5,
+                  color: rumpunFilter === 'all' ? '#64748b' : '#0f172a',
+                  background: '#ffffff',
+                  border: '1px solid #d0d5dd',
+                  borderRadius: 6,
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">Semua rumpun</option>
+                <option value="saintek">Saintek</option>
+                <option value="soshum">Soshum</option>
+              </select>
+            </div>
 
-              <div style={{ display: 'flex', gap: 3, alignItems: 'center', background: '#f1f5f9', padding: 3, borderRadius: 6 }}>
-                {(
-                  [
-                    { id: 'interest', label: `Minat (${studentRumpun === 'saintek' ? 'Saintek' : 'Soshum'})` },
-                    { id: 'saintek', label: 'Saintek' },
-                    { id: 'soshum', label: 'Soshum' },
-                    { id: 'all', label: 'Semua' }
-                  ] as { id: RumpunFilter; label: string }[]
-                ).map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setRumpunFilter(opt.id)}
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: rumpunFilter === opt.id ? 700 : 500,
-                      background: rumpunFilter === opt.id ? '#ffffff' : 'transparent',
-                      color: rumpunFilter === opt.id ? '#1078ca' : '#475569',
-                      border: 'none',
-                      borderRadius: 4,
-                      padding: '4px 9px',
-                      boxShadow: rumpunFilter === opt.id ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {opt.label}
-                  </button>
+            {/* 3. Universitas */}
+            <div>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+                Universitas
+              </label>
+              <select
+                value={universityFilter}
+                onChange={(e) => setUniversityFilter(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 10px',
+                  fontSize: 12.5,
+                  color: universityFilter === 'all' ? '#64748b' : '#0f172a',
+                  background: '#ffffff',
+                  border: '1px solid #d0d5dd',
+                  borderRadius: 6,
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">Semua universitas</option>
+                {availableUniversities.map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
                 ))}
-              </div>
+              </select>
+            </div>
 
+            {/* 4. Tier */}
+            <div>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+                Tier
+              </label>
               <select
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value as LocationFilter)}
+                value={tierFilter}
+                onChange={(e) => setTierFilter(e.target.value as 'all' | ProgramTier)}
                 style={{
-                  fontSize: 11.5,
-                  fontWeight: 600,
-                  color: '#334155',
+                  width: '100%',
+                  padding: '8px 10px',
+                  fontSize: 12.5,
+                  color: tierFilter === 'all' ? '#64748b' : '#0f172a',
                   background: '#ffffff',
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid #d0d5dd',
                   borderRadius: 6,
-                  padding: '5px 8px',
+                  outline: 'none',
                   cursor: 'pointer'
                 }}
               >
-                <option value="all">📍 Semua Lokasi</option>
-                <option value="local">🏠 Satu Wilayah ({studentCity})</option>
-                <option value="out_of_town">✈️ Luar Kota</option>
+                <option value="all">Semua tier</option>
+                {CATALOG_TIERS.map((t) => (
+                  <option key={t} value={t}>
+                    {t === 'Tier 1'
+                      ? 'Tier 1 (Ketat · Target ≥ 660)'
+                      : t === 'Tier 2'
+                      ? 'Tier 2 (Moderat · 610–659)'
+                      : 'Tier 3 (Realistis · < 610)'}
+                  </option>
+                ))}
               </select>
+            </div>
 
-              <select
-                value={zoneFilter}
-                onChange={(e) => setZoneFilter(e.target.value as ZoneFilter)}
+            {/* 5. Kampus atau jurusan */}
+            <div>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+                Kampus atau jurusan
+              </label>
+              <input
+                type="text"
+                placeholder="Cari nama"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
-                  fontSize: 11.5,
-                  fontWeight: 600,
-                  color: '#334155',
-                  background: '#ffffff',
-                  border: '1px solid #cbd5e1',
+                  width: '100%',
+                  padding: '8px 11px',
+                  fontSize: 12.5,
+                  border: '1px solid #d0d5dd',
                   borderRadius: 6,
-                  padding: '5px 8px',
-                  cursor: 'pointer'
+                  outline: 'none',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  boxSizing: 'border-box'
                 }}
-              >
-                <option value="all">🎯 Semua Zona Peluang</option>
-                <option value="realistic">🟢/🔵 Aman &amp; Mendekati (≥ -30)</option>
-                <option value="target">🟠 Target Bertahap (-31 s.d. -90)</option>
-                <option value="reach">🔴 Ambisius (&lt; -90)</option>
-              </select>
+              />
+            </div>
+
+            {/* 6. Reset Filter Slot */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start' }}>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: '#475467',
+                    background: '#f8fafc',
+                    border: '1px solid #d0d5dd',
+                    borderRadius: 6,
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5
+                  }}
+                >
+                  <RotateCcw size={13} /> Reset filter
+                </button>
+              )}
             </div>
           </div>
 
@@ -1022,7 +1136,7 @@ export const SimulasiPage: React.FC = () => {
                 {filteredCatalog.length === 0 ? (
                   <tr>
                     <td colSpan={6} style={{ textAlign: 'center', padding: 28, color: '#64748b', fontSize: 13 }}>
-                      Tidak ada program studi yang sesuai dengan kombinasi filter saat ini. Coba ubah filter rumpun atau zona peluang.
+                      Tidak ada program studi yang sesuai dengan kombinasi filter saat ini. Coba ubah filter atau klik Reset filter.
                     </td>
                   </tr>
                 ) : (
@@ -1044,6 +1158,19 @@ export const SimulasiPage: React.FC = () => {
                             <strong style={{ color: '#0f172a', fontSize: 13 }}>
                               {sim.catalog.prodi} — {sim.catalog.shortUniv}
                             </strong>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 700,
+                                background: '#f1f5f9',
+                                color: '#475569',
+                                border: '1px solid #e2e8f0',
+                                padding: '1px 5px',
+                                borderRadius: 4
+                              }}
+                            >
+                              {sim.catalog.tier}
+                            </span>
                             {activeLabel && (
                               <span
                                 style={{
@@ -1060,7 +1187,7 @@ export const SimulasiPage: React.FC = () => {
                             )}
                           </div>
                           <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 2 }}>
-                            {sim.catalog.clusterLabel} · Pembobot: {sim.prioritySubtestDetails.map((d) => d.shortLabel).join(', ')}
+                            {sim.catalog.rumpun === 'saintek' ? 'Saintek' : 'Soshum'} · Pembobot: {sim.prioritySubtestDetails.map((d) => d.shortLabel).join(', ')}
                           </div>
                         </td>
                         <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: '#0f172a' }}>
@@ -1090,7 +1217,7 @@ export const SimulasiPage: React.FC = () => {
                             <strong>{sim.catalog.tightness}</strong> · {sim.catalog.quota2026} kursi
                           </div>
                           <div style={{ color: '#64748b', marginTop: 2 }}>
-                            {sim.catalog.city} ({sim.isOutOfTown ? 'Luar Kota' : 'Satu Wilayah'})
+                            {sim.catalog.province} ({sim.isOutOfTown ? 'Luar Kota' : 'Satu Wilayah'})
                           </div>
                         </td>
                         <td style={{ textAlign: 'right' }}>
