@@ -440,72 +440,54 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
-          {/* Upgraded 2-Column SA Guide Tahap 1 (Placed beneath information) */}
+          {/* Live Consultation Prompt: Tahap 1 */}
           <div className="sa-prompt-card" id="sec_tahap1_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #1078ca', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Info size={16} />
-                Panduan Praktis SA: Menyamakan Persepsi &amp; Patokan Milestone 600
+                Panduan Diskusi SA: Mengulas Tren Skor &amp; Fondasi 600
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 8px', borderRadius: 4 }}>
-                Waktu Ideal: ~10 Menit
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 9999 }}>
+                Target Hasil: Paham kendala nilai turun &amp; setuju kejar 600
               </span>
             </div>
 
-            <div style={{ fontSize: 12.5, color: '#334155', background: '#ffffff', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', marginBottom: 12, lineHeight: 1.5 }}>
-              🎯 <strong>Tujuan Tahap Ini:</strong> Samakan pemahaman bahwa di Semester 1 ini, patokan aman pertama adalah membawa <strong>seluruh 8 subtes ke minimal 600 poin</strong>, sebelum kita menghitung peluang lolos jurusan spesifik.
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 0.82fr', gap: 14 }}>
-              {/* Kolom Kiri: Alur Bicara 3 Langkah */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
+              {/* Kolom Kiri: Pertanyaan Penggalian */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#1078ca', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🗣️ ALUR BICARA KE ORANG TUA &amp; SISWA (3 LANGKAH):
+                  🔍 YANG PERLU DIGALI &amp; DIKONFIRMASI:
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, lineHeight: 1.5 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>1. Sambut &amp; Kenalkan Patokan:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #1078ca', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Selamat datang Bapak/Ibu dan Garuda. Hari ini kita bedah hasil 4 kali Tryout. Di sesi ini, patokan utama kita adalah batas aman nasional yaitu 600 poin per subtes.&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Pola Penurunan TO 1 → TO 4):</strong>{' '}
+                    &quot;Di luar PPU (640) dan PM (597) yang sudah kuat, apa yang terasa paling berubah dari TO 1 ke TO 4—apakah materi makin sulit, kehabisan waktu, atau faktor lelah?&quot;
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>2. Puji Capaian Positif Dulu:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #027a48', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Kabar baiknya, Pengetahuan &amp; Pemahaman Umum (PPU) Garuda sudah melewati target di angka 640 (+40) dan Penalaran Matematika sudah 597 (tinggal -3 poin lagi).&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Gap Terbesar di PU &amp; PK):</strong>{' '}
+                    &quot;Untuk PU (465) dan PK (488), kendala utamanya lebih ke belum paham konsep dasarnya, atau salah memahami maksud soal?&quot;
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>3. Ajak Siswa Refleksi Subtes Tertinggal:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #b42318', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Namun PU (465 / -135) dan PK (488 / -112) masih ada gap &gt;100 poin. Menurut Garuda, kendala terbesar saat mengerjakan kedua subtes itu kemarin apa?&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Orang Tua (Konteks di Rumah):</strong>{' '}
+                    &quot;Selama September–Oktober kemarin, apakah ada perubahan jadwal sekolah/ekskul atau kondisi belajar di rumah yang memengaruhi fokus?&quot;
                   </div>
                 </div>
               </div>
 
-              {/* Kolom Kanan: Rambu & Tips Sikap SA */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>✅ LAKUKAN (DO):</div>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Mulai dari apresiasi agar anak merasa dihargai dan orang tua tidak tegang.</li>
-                    <li>Jelaskan skor TO 1 (601) ke TO 4 (546) wajar turun karena soal tryout bertahap makin kompleks (HOTS), bukan anak mundur.</li>
-                  </ul>
-                </div>
-
-                <div style={{ background: '#fffbfa', padding: '10px 12px', borderRadius: 6, border: '1px solid #fecdca', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#b42318', marginBottom: 4 }}>❌ HINDARI (DON&apos;T):</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Jangan pakai kata &quot;nilaimu anjlok&quot; atau &quot;gagal&quot;.</li>
-                    <li>Jangan buru-buru bahas peluang UGM di tahap ini (selesaikan fondasi 600 dulu).</li>
+                    <li><strong>Apresiasi dulu:</strong> Soroti kekuatan PPU (640) &amp; PM (597) agar suasana tidak tegang.</li>
+                    <li><strong>Hindari vonis &quot;anjlok/gagal&quot;:</strong> Jelaskan tingkat kesulitan soal TO bertahap meningkat ke standar HOTS; posisi saat ini adalah titik awal pembinaan.</li>
                   </ul>
                 </div>
 
                 <div style={{ background: '#eff8ff', padding: '10px 12px', borderRadius: 6, border: '1px solid #b2ddff', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#175cd3', marginBottom: 4 }}>📊 KAPAN PAKAI NILAI MEDIAN?</div>
+                  <div style={{ fontWeight: 800, color: '#175cd3', marginBottom: 4 }}>📊 KONTEKS DATA (RERATA VS MEDIAN):</div>
                   <p style={{ margin: 0, color: '#334155' }}>
-                    Jika ada subtes fluktuatif ekstrem (contoh LBI Soshum: <code>628→494→488→573</code>), tunjukkan angka <strong>Median (533,5)</strong> sebagai gambaran performa tipikal yang lebih stabil.
+                    Median (contoh LBI Soshum <code>628→494→488→573</code> = <strong>533,5</strong>) berasal dari <strong>riwayat pribadi siswa</strong> untuk melihat skor tipikal saat hasil berfluktuasi, bukan ranking nasional.
                   </p>
                 </div>
               </div>
@@ -585,71 +567,54 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
-          {/* Upgraded 2-Column SA Guide Tahap 2 (Placed beneath information) */}
+          {/* Live Consultation Prompt: Tahap 2 */}
           <div className="sa-prompt-card" id="sec_tahap2_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #0284c7', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#0284c7', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Building2 size={16} />
-                Panduan Praktis SA: Menjelaskan Skor Terbobot vs Target Lolos PTN
+                Panduan Diskusi SA: Menyelaraskan Pilihan Jurusan &amp; Keluarga
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '2px 8px', borderRadius: 4 }}>
-                Waktu Ideal: ~10 Menit
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '2px 10px', borderRadius: 9999 }}>
+                Target Hasil: Pilihan 1–3 terkonfirmasi &amp; paham batasan keluarga
               </span>
             </div>
 
-            <div style={{ fontSize: 12.5, color: '#334155', background: '#ffffff', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', marginBottom: 12, lineHeight: 1.5 }}>
-              🎯 <strong>Tujuan Tahap Ini:</strong> Jelaskan mengapa nilai rata-rata murni (571) berbeda dengan <em>Skor Terbobot</em> di sistem SNBT. Tunjukkan posisi realistis siswa saat ini terhadap target 3 prodi pilihan tanpa mematahkan semangat belajar.
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 0.82fr', gap: 14 }}>
-              {/* Kolom Kiri: Alur Bicara 3 Langkah */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
+              {/* Kolom Kiri: Pertanyaan Penggalian */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#0284c7', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🗣️ ALUR BICARA KE ORANG TUA &amp; SISWA (3 LANGKAH):
+                  🔍 YANG PERLU DIGALI &amp; DIKONFIRMASI:
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, lineHeight: 1.5 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>1. Jelaskan Rumus Bobot Jurusan:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #0284c7', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Bapak/Ibu, di SNBT panitia memberi bobot lebih berat pada subtes tertentu. Untuk Farmasi UGM, bobot Penalaran Matematika dan Literasi Sains tinggi, sehingga skor terbobot Garuda saat ini berada di angka 538.&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Minat &amp; Komitmen):</strong>{' '}
+                    &quot;Apakah Farmasi (UGM/UI) masih menjadi minat utamamu? Dengan gap skor terbobot saat ini, langkah belajar tambahan apa yang siap kamu ambil?&quot;
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>2. Petakan Jarak Realistis:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #1078ca', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Target lolos Farmasi UGM adalah 694 (selisih -156 poin), Farmasi UI 686 (-144 poin), dan Teknik Mesin ITB 660 (-95 poin).&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Siswa &amp; Ortu (Konflik Pilihan &amp; Lokasi):</strong>{' '}
+                    &quot;Bagaimana kesepakatan keluarga soal perbedaan rumpun (Farmasi vs Teknik Mesin di Pilihan 3) serta kesiapan izin merantau ke Yogyakarta/Bandung?&quot;
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>3. Validasi Minat Siswa:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #027a48', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Garuda, minat kamu di Farmasi sudah sangat kuat. Tapi melihat gap Teknik Mesin ITB lebih dekat (-95 poin), apakah kamu terbuka juga mempertimbangkan opsi teknik sebagai pilihan cadangan?&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Konfirmasi Opsi Serumpun:</strong>{' '}
+                    &quot;Jika nantinya butuh alternatif, apakah keluarga lebih memprioritaskan jurusan Farmasi di kampus lain atau kampus yang lebih dekat?&quot;
                   </div>
                 </div>
               </div>
 
-              {/* Kolom Kanan: Rambu & Tips Sikap SA */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>✅ LAKUKAN (DO):</div>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Tegaskan bahwa gap -156 adalah hal yang wajar di Checkpoint 1 (masih ada waktu 6 bulan).</li>
-                    <li>Ingatkan bahwa jika fondasi 600 di Tahap 1 tercapai, skor terbobot jurusan akan otomatis terdongkrak naik drastis.</li>
+                    <li><strong>Jaga motivasi di CP1:</strong> Jangan memaksa siswa menurunkan jurusan saat ini. Capainya target 600 di Tahap 1 otomatis akan mendongkrak skor terbobot.</li>
+                    <li><strong>Netral terhadap konflik:</strong> Jangan menganggap Teknik Mesin sebagai cadangan otomatis sebelum minat siswa &amp; harapan ortu diselaraskan.</li>
                   </ul>
                 </div>
 
-                <div style={{ background: '#fffbfa', padding: '10px 12px', borderRadius: 6, border: '1px solid #fecdca', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#b42318', marginBottom: 4 }}>❌ HINDARI (DON&apos;T):</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Jangan buru-buru menyuruh siswa menurunkan jurusan di Checkpoint 1. Jaga impian mereka sebagai bahan bakar belajar.</li>
-                  </ul>
-                </div>
-
-                <div style={{ background: '#f0fdf4', padding: '10px 12px', borderRadius: 6, border: '1px solid #bbf7d0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#15803d', marginBottom: 4 }}>🛡️ STRATEGI EVALUASI CHECKPOINT 2:</div>
+                <div style={{ background: '#eff8ff', padding: '10px 12px', borderRadius: 6, border: '1px solid #b2ddff', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#175cd3', marginBottom: 4 }}>ℹ️ KONTEKS TARGET INTERNAL:</div>
                   <p style={{ margin: 0, color: '#334155' }}>
-                    Beri batas aman: <em>&quot;Jika sampai TO 7 (Checkpoint 2) skor belum menembus 620, baru kita siapkan strategi rasionalisasi prodi alternatif.&quot;</em>
+                    Target Skor Lolos &amp; Skor Terbobot CMS adalah <strong>acuan latihan internal</strong> dari profil peserta, bukan passing grade resmi SNPMB atau jaminan kelolosan. Peninjauan alternatif dibahas bertahap di checkpoint berikutnya.
                   </p>
                 </div>
               </div>
@@ -750,74 +715,54 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
-          {/* Upgraded 2-Column SA Guide Tahap 3 (Placed beneath information) */}
+          {/* Live Consultation Prompt: Tahap 3 */}
           <div className="sa-prompt-card" id="sec_tahap3_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #b54708', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#b54708', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Wrench size={16} />
-                Panduan Praktis SA: Menghubungkan Skor TO dengan Latihan Aplikasi
+                Panduan Diskusi SA: Audit Kebiasaan Drill &amp; Prioritas Materi Klinik PR
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#b54708', background: '#fef0c7', padding: '2px 8px', borderRadius: 4 }}>
-                Waktu Ideal: ~10 Menit
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#b54708', background: '#fef0c7', padding: '2px 10px', borderRadius: 9999 }}>
+                Target Hasil: Sepakati topik Klinik PR &amp; perbaikan pola drill
               </span>
             </div>
 
-            <div style={{ fontSize: 12.5, color: '#334155', background: '#ffffff', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', marginBottom: 12, lineHeight: 1.5 }}>
-              🎯 <strong>Tujuan Tahap Ini:</strong> Buktikan ke orang tua dan siswa bahwa kelemahan subtes di TO berbanding lurus dengan kurangnya drill soal di aplikasi, lalu kunci fokus belajar pada bab-bab yang paling lemah.
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 0.82fr', gap: 14 }}>
-              {/* Kolom Kiri: Alur Bicara 3 Langkah */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
+              {/* Kolom Kiri: Pertanyaan Penggalian */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#b54708', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🗣️ ALUR BICARA KE ORANG TUA &amp; SISWA (3 LANGKAH):
+                  🔍 YANG PERLU DIGALI &amp; DIKONFIRMASI:
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, lineHeight: 1.5 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>1. Tunjukkan Fakta Drill Aplikasi:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #b54708', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Garuda, data aplikasi Ruangguru memperlihatkan pola yang sangat jelas: subtes dengan skor terendah adalah yang latihannya paling minim. Di Pengetahuan Kuantitatif (PK), kamu baru latihan 1 sesi (5 butir soal, akurasi 40%).&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Cara Memilih Latihan):</strong>{' '}
+                    &quot;Di aplikasi, PU sudah 7 sesi tapi PK baru 1 sesi dan Literasi 0 sesi. Biasanya saat buka drill, apa yang bikin kamu lebih memilih PU dibanding subtes yang nilainya masih rendah?&quot;
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>2. Beri Apresiasi Rutinitas yang Sudah Bagus:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #027a48', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Bandingkan dengan Penalaran Umum (PU) yang sudah 7 sesi (35 soal, akurasi 63%). Rutinitas drill kamu di PU sudah terbentuk, sekarang kita tinggal copy-paste kebiasaan ini ke PK dan Literasi.&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Latihan Luar &amp; Pembahasan):</strong>{' '}
+                    &quot;Apakah kamu juga latihan dari sumber luar (buku/latihan sekolah)? Setelah mengerjakan dan ada jawaban salah, apakah pembahasannya dicek ulang atau ditanyakan ke pengajar?&quot;
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>3. Kunci Topik yang Perlu Dibenahi:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #1078ca', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Kita tidak perlu belajar ulang semua bab. Di Klinik PR cabang nanti, kita langsung bedah 2 materi utama: Aljabar &amp; Pecahan (PK) dan Penalaran Induktif (PU).&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Kunci Topik Klinik PR):</strong>{' '}
+                    &quot;Dari topik lemah yang tercatat (Aljabar &amp; Pecahan di PK, Penalaran Induktif di PU), materi mana yang paling bikin mentok dan perlu kita bedah dulu di Klinik PR?&quot;
                   </div>
                 </div>
               </div>
 
-              {/* Kolom Kanan: Rambu & Tips Sikap SA */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>✅ LAKUKAN (DO):</div>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Beri optimisme: mengejar 100 poin di subtes yang masih &lt;500 jauh lebih cepat dibanding menaikkan subtes yang sudah &gt;600.</li>
-                    <li>Minta komitmen orang tua untuk memantau waktu anak drill 15 soal setiap malam.</li>
+                    <li><strong>Hindari latihan semu:</strong> Apresiasi konsistensi di PU, lalu ajak mengalihkan porsi latihan ke subtes dengan gap terbesar (PK &amp; Literasi).</li>
+                    <li><strong>Jangan menyimpulkan &quot;malas&quot; dari angka 0:</strong> Data kosong hanya berarti belum tercatat di aplikasi—gali dulu kendala atau latihan di luar sistem.</li>
                   </ul>
                 </div>
 
-                <div style={{ background: '#fffbfa', padding: '10px 12px', borderRadius: 6, border: '1px solid #fecdca', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#b42318', marginBottom: 4 }}>❌ HINDARI (DON&apos;T):</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Jangan memarahi anak karena baru 5 butir soal. Tawarkan solusi penjadwalan harian yang realistis.</li>
-                  </ul>
-                </div>
-
-                <div style={{ background: '#fef3f2', padding: '10px 12px', borderRadius: 6, border: '1px solid #fee4e2', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#b42318', marginBottom: 4 }}>📱 DATA DRILL RIIL GARUDA:</div>
+                <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#b45309', marginBottom: 4 }}>📏 CARA BACA METRIK SESI DRILL:</div>
                   <p style={{ margin: 0, color: '#334155' }}>
-                    • PK: 1 sesi (5 soal · 40% benar)<br/>
-                    • PU: 7 sesi (35 soal · 63% benar)<br/>
-                    • PM: 2 sesi (10 soal · 50% benar)<br/>
-                    • Literasi: 0 sesi (belum ada drill)
+                    1 sesi dapat terhitung meskipun siswa hanya mengerjakan &lt;10 soal. Selalu baca <strong>jumlah sesi bersama total butir soal &amp; akurasinya</strong> (misal PK: 1 sesi = baru 5 soal).
                   </p>
                 </div>
               </div>
@@ -929,11 +874,59 @@ export const CheckpointV2Page: React.FC = () => {
               </div>
 
               <div style={{ marginTop: 16 }}>
-                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--ink)', marginBottom: 6 }}>
-                  Catatan Khusus Kakak Asuh (Tersimpan ke LocalStorage):
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap', gap: 8 }}>
+                  <label style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink)' }}>
+                    Catatan Khusus Kakak Asuh (Pengingat Sesi Berikutnya &amp; Kesepakatan):
+                  </label>
+                  {!isLocked && (
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSaNotes(
+                            '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill harian 15 soal (PU/PK) + Klinik PR cabang setiap hari [... jam ...]\n3) Cek Ulang Sesi Berikutnya: [progres drill PK & akurasi TO 5]'
+                          )
+                        }
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: '#1078ca',
+                          background: '#eff8ff',
+                          border: '1px solid #b2ddff',
+                          borderRadius: 9999,
+                          padding: '2px 9px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        + Pakai Template Terstruktur
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSaNotes((prev) =>
+                            prev.includes('[Cek Ulang Sesi Berikutnya]')
+                              ? prev
+                              : `${prev.trim()}\n• [Cek Ulang Sesi Berikutnya]: Verifikasi izin lokasi/merantau & progres drill PK.`
+                          )
+                        }
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: '#027a48',
+                          background: '#ecfdf3',
+                          border: '1px solid #a6f4c5',
+                          borderRadius: 9999,
+                          padding: '2px 9px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        + Tambah Pengingat Sesi Berikutnya
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <textarea
-                  rows={3}
+                  rows={4}
                   disabled={isLocked}
                   value={saNotes}
                   onChange={(e) => setSaNotes(e.target.value)}
@@ -954,67 +947,56 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
-          {/* Upgraded 2-Column SA Guide Tahap 4 (Placed beneath information) */}
+          {/* Live Consultation Prompt: Tahap 4 */}
           <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #027a48', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#027a48', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ShieldCheck size={16} />
-                Panduan Praktis SA: Mengunci Komitmen 3 Pihak &amp; Penyerahan PDF
+                Panduan Diskusi SA: Mengunci Komitmen Nyata &amp; Penyerahan Laporan
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#027a48', background: '#ecfdf3', padding: '2px 8px', borderRadius: 4 }}>
-                Waktu Ideal: ~10 Menit
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#027a48', background: '#ecfdf3', padding: '2px 10px', borderRadius: 9999 }}>
+                Target Hasil: Jadwal cabang disepakati, catatan tersimpan &amp; PDF diserahkan
               </span>
             </div>
 
-            <div style={{ fontSize: 12.5, color: '#334155', background: '#ffffff', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', marginBottom: 12, lineHeight: 1.5 }}>
-              🎯 <strong>Tujuan Tahap Ini:</strong> Mengunci komitmen tertulis antara <strong>Siswa, Orang Tua, dan Kakak Asuh</strong> dengan 4 rencana aksi yang jelas jadwalnya, lalu serahkan dokumen resmi 2 halaman PDF.
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 0.82fr', gap: 14 }}>
-              {/* Kolom Kiri: Alur Bicara 3 Langkah */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
+              {/* Kolom Kiri: Pertanyaan Penggalian */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#027a48', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🗣️ ALUR BICARA KE ORANG TUA &amp; SISWA (3 LANGKAH):
+                  🔍 YANG PERLU DIGALI &amp; DIKONFIRMASI:
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, lineHeight: 1.5 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>1. Tegaskan Pembagian Peran 3 Pihak:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #027a48', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Bapak/Ibu dan Garuda, strategi terbaik butuh eksekusi harian. Garuda komitmen 15 soal per hari, Kakak Asuh kawal di Klinik PR cabang 2x seminggu, dan Bapak/Ibu mohon bantuannya memantau suasana belajar di rumah.&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Uji Realistis Jadwal):</strong>{' '}
+                    &quot;Untuk target 15 soal/hari (Senin–Jumat) dan Klinik PR 2x seminggu, hari dan jam berapa yang paling realistis dijalankan tanpa bentrok jadwal sekolah/ekskul?&quot;
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>2. Pasang Target Nyata Menuju TO 5:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #1078ca', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Target kita di TO 5 November nanti adalah naik bertahap dari skor 546 ke minimal 585 poin sebagai batu loncatan menuju 600.&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Ke Orang Tua (Bentuk Dukungan):</strong>{' '}
+                    &quot;Bentuk pendampingan atau pengingat seperti apa yang paling nyaman Bapak/Ibu lakukan di rumah untuk membantu konsistensi belajarnya menuju TO 5?&quot;
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>3. Tutup dan Unduh Dokumen:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #0284c7', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Mari kita tandatangani kesepakatan ini bersama, dan dokumen resmi 2 halaman PDF bisa langsung didownload untuk disimpan Bapak/Ibu.&quot;
-                    </div>
+                    <strong style={{ color: '#0f172a' }}>• Konfirmasi Hal Belum Tuntas:</strong>{' '}
+                    &quot;Apakah masih ada topik atau keputusan (misal izin lokasi kampus/pilihan cadangan) yang masih perlu didiskusikan keluarga sebelum sesi berikutnya?&quot;
                   </div>
                 </div>
               </div>
 
-              {/* Kolom Kanan: Checklist Akhir SA */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* Kolom Kanan: Checklist Penutupan SA */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>📋 CHECKLIST AKHIR SA:</div>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>📋 CHECKLIST PENUTUPAN SA:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Pastikan siswa tahu hari dan jam hadir Klinik PR di cabang.</li>
-                    <li>Pastikan orang tua tahu cara melihat progres drill di aplikasi.</li>
-                    <li>Tulis ringkasan catatan konsultasi di formulir bawah dan klik <strong>Simpan Draft</strong>.</li>
-                    <li>Klik <strong>Download PDF</strong> untuk mengunduh laporan resmi 2 halaman.</li>
+                    <li>Pastikan ada kesepakatan <strong>hari &amp; jam hadir Klinik PR</strong> di cabang minggu ini.</li>
+                    <li>Catat keputusan &amp; hal yang perlu dicek ulang pada kolom di atas, lalu klik <strong>Simpan Draft</strong>.</li>
+                    <li>Klik <strong>Download PDF</strong> di bawah untuk menyerahkan ringkasan resmi 2 halaman kepada orang tua.</li>
                   </ul>
                 </div>
 
-                <div style={{ background: '#fffbfa', padding: '10px 12px', borderRadius: 6, border: '1px solid #fecdca', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#b42318', marginBottom: 4 }}>❌ HINDARI (DON&apos;T):</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Jangan bubarkan sesi sebelum ada jadwal pasti kapan siswa datang ke cabang minggu ini.</li>
-                  </ul>
+                <div style={{ background: '#ecfdf3', padding: '10px 12px', borderRadius: 6, border: '1px solid #a6f4c5', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🔄 KESINAMBUNGAN SESI BERIKUTNYA:</div>
+                  <p style={{ margin: 0, color: '#334155' }}>
+                    Catatan di formulir atas berfungsi sebagai <strong>pengingat untuk pertemuan selanjutnya</strong> agar evaluasi progres di TO 5 tidak mengulang pembicaraan dari awal.
+                  </p>
                 </div>
               </div>
             </div>
