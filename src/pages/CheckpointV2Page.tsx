@@ -357,6 +357,45 @@ export const CheckpointV2Page: React.FC = () => {
                 </table>
               </div>
 
+              <div className="table-container" style={{ marginTop: 18 }}>
+                <div style={{ background: '#f0f9ff', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
+                  <strong style={{ fontSize: 13, color: '#0f172a' }}>Ringkasan Tren Skor Keseluruhan (TO 1 – TO 4)</strong>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 4 }}>
+                    Rata-rata total 4 TO: 571 poin
+                  </span>
+                </div>
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '24%' }}>Metrik Keseluruhan</th>
+                      <th style={{ textAlign: 'center', width: '9%' }}>TO 1</th>
+                      <th style={{ textAlign: 'center', width: '9%' }}>TO 2</th>
+                      <th style={{ textAlign: 'center', width: '9%' }}>TO 3</th>
+                      <th style={{ textAlign: 'center', width: '9%' }}>TO 4</th>
+                      <th style={{ width: '40%' }}>Arti untuk Orang Tua &amp; Siswa</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Rata-rata 8 subtes</strong></td>
+                      <td style={{ textAlign: 'center' }}>601</td>
+                      <td style={{ textAlign: 'center' }}>576 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
+                      <td style={{ textAlign: 'center' }}>561 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#b42318' }}>546 <span style={{ fontSize: 10 }}>▼</span></td>
+                      <td style={{ fontSize: 12.5, color: '#334155' }}>Skor TO 4 berada <strong>-54 poin</strong> dari batas aman target 600.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Nilai tengah (Median)</strong></td>
+                      <td style={{ textAlign: 'center', color: '#475467' }}>596</td>
+                      <td style={{ textAlign: 'center', color: '#475467' }}>572,5 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
+                      <td style={{ textAlign: 'center', color: '#475467' }}>567 <span style={{ color: '#b42318', fontSize: 10 }}>▼</span></td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: '#b42318' }}>548,5 <span style={{ fontSize: 10 }}>▼</span></td>
+                      <td style={{ fontSize: 12.5, color: '#475467' }}>Nilai tengah ikut turun (penurunan merata di banyak subtes).</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--border-light)' }}>
                 <span style={{ fontSize: 12, color: 'var(--muted)' }}>💡 Garis putus-putus pada visual menandakan target 600 poin (milestone Semester 1).</span>
                 <button type="button" className="btn btn-primary" onClick={() => handleTabChange('tahap2')}>
