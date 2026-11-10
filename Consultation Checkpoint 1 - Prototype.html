@@ -688,7 +688,7 @@
       box-sizing: border-box;
       width: 210mm;
       min-height: 297mm;
-      padding: 9mm 14mm 9mm;
+      padding: 7.5mm 14mm 7.5mm;
       position: relative;
       color: #1d2939;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -697,20 +697,20 @@
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
       border-radius: 4px;
     }
-    .profiling-print-document-header { margin-bottom: 2.5mm; }
+    .profiling-print-document-header { margin-bottom: 2.2mm; }
     .profiling-print-header {
       align-items: center;
       background: #1078ca;
       border-radius: 4px;
       display: flex;
       justify-content: space-between;
-      min-height: 10.5mm;
-      padding: 2mm 3.5mm;
+      min-height: 10mm;
+      padding: 1.8mm 3.2mm;
     }
     .profiling-print-title { color: #ffffff; font-size: 13px; font-weight: 800; margin: 0; letter-spacing: -0.2px; }
-    .profiling-print-subtitle { color: #edf5f9; font-size: 8px; margin: 0.6mm 0 0; }
+    .profiling-print-subtitle { color: #edf5f9; font-size: 8px; margin: 0.5mm 0 0; }
     .profiling-print-pathway { background: rgba(255, 255, 255, 0.25); border-radius: 999px; color: #ffffff; font-size: 8px; font-weight: 700; padding: 0.8mm 2.2mm; letter-spacing: 0.3px; }
-    .profiling-print-section { break-inside: avoid; margin-bottom: 2.6mm; }
+    .profiling-print-section { break-inside: avoid; margin-bottom: 2mm; }
     .profiling-print-section-title {
       align-items: center;
       background: #edf5f9;
@@ -719,14 +719,14 @@
       display: flex;
       font-size: 9.5px;
       font-weight: 700;
-      margin: 0 0 1.6mm;
-      min-height: 5.5mm;
-      padding: 1mm 2.2mm;
+      margin: 0 0 1.4mm;
+      min-height: 5.2mm;
+      padding: 0.8mm 2.2mm;
       text-transform: uppercase;
       letter-spacing: 0.2px;
     }
-    .profiling-print-table { border-collapse: collapse; table-layout: fixed; width: 100%; font-size: 8.5px; line-height: 1.32; }
-    .profiling-print-table th, .profiling-print-table td { border: 1px solid #cbd5e1; padding: 1.3mm 1.8mm; text-align: left; vertical-align: middle; }
+    .profiling-print-table { border-collapse: collapse; table-layout: fixed; width: 100%; font-size: 8.5px; line-height: 1.3; }
+    .profiling-print-table th, .profiling-print-table td { border: 1px solid #cbd5e1; padding: 0.95mm 1.6mm; text-align: left; vertical-align: middle; }
     .profiling-print-table th { background: #1078ca; color: #ffffff; font-weight: 700; }
     .profiling-print-table tbody tr:nth-of-type(even) td { background: #f8fafc; }
     .profiling-print-number { text-align: right; }
@@ -790,7 +790,7 @@
         max-height: 297mm !important;
         margin: 0 !important;
         overflow: hidden !important;
-        padding: 9mm 14mm 9mm !important;
+        padding: 7.5mm 14mm 7.5mm !important;
         page-break-after: always !important;
         break-after: page !important;
         position: relative !important;
@@ -1976,29 +1976,27 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih b
           <!-- 2. Perkembangan Skor Rata-rata UTBK (Mini Visual Line Chart) -->
           <div class="profiling-print-section">
             <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">2.</span>Perkembangan Skor Rata-rata 8 Subtes Siswa (4 Episode Tryout)</h2>
-            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2.5mm 3.5mm 2.2mm;">
+            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2mm 3mm 1.8mm;">
               
-              <!-- Subtitle & Methodology Note -->
-              <p style="margin: 0 0 1.8mm; font-size: 8.8px; color: #475467; line-height: 1.4;">
-                Grafik menampilkan tren <strong>Skor Rata-rata 8 Subtes Siswa</strong> pada tiap episode tryout (mandiri, bukan rata-rata nasional).
-              </p>
-
-              <!-- Dedicated Legend Bar (Prominent & Clear) -->
-              <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4.5mm; margin-bottom: 2mm; padding: 1.2mm 2.5mm; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <span style="width: 16px; border-top: 2px dashed #94a3b8; display: inline-block;"></span>
-                  <span style="font-size: 9.2px; color: #475467; font-weight: 600;">Rata-rata Kumulatif 4 TO:</span>
-                  <strong style="font-size: 10.5px; color: #0f172a;">571 Poin</strong>
+              <!-- Combined Header Bar: Subtitle & Legend in 1 Compact Row -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4mm; padding: 1mm 2.2mm; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px;">
+                <div style="font-size: 8.5px; color: #334155;">
+                  Tren <strong>Skor Rata-rata 8 Subtes Siswa</strong> (nilai mandiri, bukan rata-rata nasional)
                 </div>
-                <div style="display: flex; align-items: center; gap: 6px; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.8mm 2.5mm; border-radius: 4px;">
-                  <span style="width: 16px; border-top: 2px dashed #059669; display: inline-block;"></span>
-                  <span style="font-size: 9.2px; color: #065f46; font-weight: 700;">🎯 Target Lolos UGM:</span>
-                  <strong style="font-size: 10.5px; color: #047857;">694 Poin</strong>
+                <div style="display: flex; align-items: center; gap: 3.5mm;">
+                  <span style="font-size: 8.8px; color: #475467; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                    <span style="width: 14px; border-top: 2px dashed #94a3b8; display: inline-block;"></span>
+                    Rerata 4 TO: <strong style="color: #0f172a; font-size: 9.5px;">571 Poin</strong>
+                  </span>
+                  <span style="font-size: 8.8px; color: #065f46; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.5mm 2mm; border-radius: 3px;">
+                    <span style="width: 14px; border-top: 2px dashed #059669; display: inline-block;"></span>
+                    🎯 Target UGM: <strong style="font-size: 9.5px; color: #047857;">694 Poin</strong>
+                  </span>
                 </div>
               </div>
 
               <!-- Mini SVG Line Chart -->
-              <svg viewBox="0 0 680 125" style="width: 100%; height: auto; display: block; overflow: visible;">
+              <svg viewBox="0 0 680 120" style="width: 100%; height: 26mm; display: block; overflow: visible;">
                 <defs>
                   <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stop-color="#0284c7" stop-opacity="0.22"/>
@@ -2006,78 +2004,78 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih b
                   </linearGradient>
                 </defs>
                 <!-- Grid Horizontal Lines -->
-                <line x1="40" y1="20" x2="640" y2="20" stroke="#f1f5f9" stroke-width="1"/>
-                <line x1="40" y1="50" x2="640" y2="50" stroke="#f1f5f9" stroke-width="1"/>
-                <line x1="40" y1="80" x2="640" y2="80" stroke="#f1f5f9" stroke-width="1"/>
-                <line x1="40" y1="105" x2="640" y2="105" stroke="#e2e8f0" stroke-width="1"/>
+                <line x1="40" y1="18" x2="640" y2="18" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="40" y1="46" x2="640" y2="46" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="40" y1="74" x2="640" y2="74" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="40" y1="98" x2="640" y2="98" stroke="#e2e8f0" stroke-width="1"/>
 
-                <!-- Reference Line: Target Lolos UGM (694) -> y = 28 -->
-                <line x1="40" y1="28" x2="640" y2="28" stroke="#059669" stroke-width="1.6" stroke-dasharray="4,4"/>
-                <text x="35" y="32" text-anchor="end" fill="#059669" font-size="8.5" font-weight="800">694</text>
-                <text x="635" y="24" text-anchor="end" fill="#059669" font-size="9.5" font-weight="700">🎯 Target Lolos UGM: 694 Poin</text>
+                <!-- Reference Line: Target Lolos UGM (694) -> y = 26 -->
+                <line x1="40" y1="26" x2="640" y2="26" stroke="#059669" stroke-width="1.6" stroke-dasharray="4,4"/>
+                <text x="35" y="30" text-anchor="end" fill="#059669" font-size="8.5" font-weight="800">694</text>
+                <text x="635" y="22" text-anchor="end" fill="#059669" font-size="9.5" font-weight="700">🎯 Target Lolos UGM: 694 Poin</text>
 
-                <!-- Reference Line: Rata-rata Kumulatif 4 TO (571) -> y = 64 -->
-                <line x1="40" y1="64" x2="640" y2="64" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="3,3"/>
-                <text x="35" y="68" text-anchor="end" fill="#64748b" font-size="8.5" font-weight="800">571</text>
+                <!-- Reference Line: Rata-rata Kumulatif 4 TO (571) -> y = 60 -->
+                <line x1="40" y1="60" x2="640" y2="60" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="3,3"/>
+                <text x="35" y="64" text-anchor="end" fill="#64748b" font-size="8.5" font-weight="800">571</text>
 
-                <!-- Area Fill Under Score Path: 601(55.3), 576(62.7), 561(67.1), 546(71.6) -->
-                <polygon points="65,105 65,55.3 250,62.7 435,67.1 615,71.6 615,105" fill="url(#areaGrad)"/>
+                <!-- Area Fill Under Score Path: 601(52), 576(59), 561(63), 546(67) -->
+                <polygon points="65,98 65,52 250,59 435,63 615,67 615,98" fill="url(#areaGrad)"/>
 
                 <!-- Score Trend Line -->
-                <polyline points="65,55.3 250,62.7 435,67.1 615,71.6" fill="none" stroke="#0284c7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="65,52 250,59 435,63 615,67" fill="none" stroke="#0284c7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
 
                 <!-- Data Points & Score Badges -->
                 <!-- TO 1: 601 -->
-                <circle cx="65" cy="55.3" r="4.5" fill="#ffffff" stroke="#0284c7" stroke-width="2.5"/>
-                <rect x="42" y="36" width="46" height="16" rx="3.5" fill="#0284c7"/>
-                <text x="65" y="48" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700">601</text>
-                <text x="65" y="119" text-anchor="middle" fill="#475467" font-size="9" font-weight="600">TO 1 (30 Agu)</text>
+                <circle cx="65" cy="52" r="4.5" fill="#ffffff" stroke="#0284c7" stroke-width="2.5"/>
+                <rect x="42" y="33" width="46" height="16" rx="3.5" fill="#0284c7"/>
+                <text x="65" y="45" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700">601</text>
+                <text x="65" y="112" text-anchor="middle" fill="#475467" font-size="9" font-weight="600">TO 1 (30 Agu)</text>
 
                 <!-- TO 2: 576 -->
-                <circle cx="250" cy="62.7" r="4.5" fill="#ffffff" stroke="#0284c7" stroke-width="2.5"/>
-                <rect x="227" y="43" width="46" height="16" rx="3.5" fill="#ffffff" stroke="#0284c7" stroke-width="1.2"/>
-                <text x="250" y="55" text-anchor="middle" fill="#0284c7" font-size="9.5" font-weight="700">576</text>
-                <text x="250" y="119" text-anchor="middle" fill="#475467" font-size="9" font-weight="600">TO 2 (14 Sep)</text>
+                <circle cx="250" cy="59" r="4.5" fill="#ffffff" stroke="#0284c7" stroke-width="2.5"/>
+                <rect x="227" y="40" width="46" height="16" rx="3.5" fill="#ffffff" stroke="#0284c7" stroke-width="1.2"/>
+                <text x="250" y="52" text-anchor="middle" fill="#0284c7" font-size="9.5" font-weight="700">576</text>
+                <text x="250" y="112" text-anchor="middle" fill="#475467" font-size="9" font-weight="600">TO 2 (14 Sep)</text>
 
                 <!-- TO 3: 561 -->
-                <circle cx="435" cy="67.1" r="4.5" fill="#ffffff" stroke="#0284c7" stroke-width="2.5"/>
-                <rect x="412" y="47" width="46" height="16" rx="3.5" fill="#ffffff" stroke="#0284c7" stroke-width="1.2"/>
-                <text x="435" y="59" text-anchor="middle" fill="#0284c7" font-size="9.5" font-weight="700">561</text>
-                <text x="435" y="119" text-anchor="middle" fill="#475467" font-size="9" font-weight="600">TO 3 (28 Sep)</text>
+                <circle cx="435" cy="63" r="4.5" fill="#ffffff" stroke="#0284c7" stroke-width="2.5"/>
+                <rect x="412" y="44" width="46" height="16" rx="3.5" fill="#ffffff" stroke="#0284c7" stroke-width="1.2"/>
+                <text x="435" y="56" text-anchor="middle" fill="#0284c7" font-size="9.5" font-weight="700">561</text>
+                <text x="435" y="112" text-anchor="middle" fill="#475467" font-size="9" font-weight="600">TO 3 (28 Sep)</text>
 
                 <!-- TO 4: 546 -->
-                <circle cx="615" cy="71.6" r="4.5" fill="#ffffff" stroke="#0284c7" stroke-width="2.5"/>
-                <rect x="592" y="51" width="46" height="16" rx="3.5" fill="#b42318"/>
-                <text x="615" y="63" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700">546</text>
-                <text x="615" y="119" text-anchor="middle" fill="#475467" font-size="9" font-weight="600">TO 4 (30 Okt)</text>
+                <circle cx="615" cy="67" r="4.5" fill="#ffffff" stroke="#0284c7" stroke-width="2.5"/>
+                <rect x="592" y="48" width="46" height="16" rx="3.5" fill="#b42318"/>
+                <text x="615" y="60" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700">546</text>
+                <text x="615" y="112" text-anchor="middle" fill="#475467" font-size="9" font-weight="600">TO 4 (30 Okt)</text>
               </svg>
 
               <!-- 4 Episode Metric Cards -->
-              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin-top: 2mm;">
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.5mm; text-align: center;">
-                  <div style="font-size: 8.5px; color: #64748b; font-weight: 500;">TO 1 (30 Agu)</div>
-                  <div style="font-size: 13px; font-weight: 800; color: #0f172a; margin: 0.4mm 0;">601</div>
-                  <div style="font-size: 8px; color: #059669; font-weight: 700;">Baseline • Rerata 8 Subtes</div>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin-top: 1.5mm;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.2mm 1mm; text-align: center;">
+                  <div style="font-size: 8px; color: #64748b; font-weight: 500;">TO 1 (30 Agu)</div>
+                  <div style="font-size: 12.5px; font-weight: 800; color: #0f172a; margin: 0.3mm 0;">601</div>
+                  <div style="font-size: 7.5px; color: #059669; font-weight: 700;">Baseline • Rerata 8 Subtes</div>
                 </div>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.5mm; text-align: center;">
-                  <div style="font-size: 8.5px; color: #64748b; font-weight: 500;">TO 2 (14 Sep)</div>
-                  <div style="font-size: 13px; font-weight: 800; color: #0f172a; margin: 0.4mm 0;">576</div>
-                  <div style="font-size: 8px; color: #b42318; font-weight: 700;">-25 Poin • Rerata 8 Subtes</div>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.2mm 1mm; text-align: center;">
+                  <div style="font-size: 8px; color: #64748b; font-weight: 500;">TO 2 (14 Sep)</div>
+                  <div style="font-size: 12.5px; font-weight: 800; color: #0f172a; margin: 0.3mm 0;">576</div>
+                  <div style="font-size: 7.5px; color: #b42318; font-weight: 700;">-25 Poin • Rerata 8 Subtes</div>
                 </div>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.5mm; text-align: center;">
-                  <div style="font-size: 8.5px; color: #64748b; font-weight: 500;">TO 3 (28 Sep)</div>
-                  <div style="font-size: 13px; font-weight: 800; color: #0f172a; margin: 0.4mm 0;">561</div>
-                  <div style="font-size: 8px; color: #b42318; font-weight: 700;">-15 Poin • Rerata 8 Subtes</div>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.2mm 1mm; text-align: center;">
+                  <div style="font-size: 8px; color: #64748b; font-weight: 500;">TO 3 (28 Sep)</div>
+                  <div style="font-size: 12.5px; font-weight: 800; color: #0f172a; margin: 0.3mm 0;">561</div>
+                  <div style="font-size: 7.5px; color: #b42318; font-weight: 700;">-15 Poin • Rerata 8 Subtes</div>
                 </div>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.5mm; text-align: center;">
-                  <div style="font-size: 8.5px; color: #64748b; font-weight: 500;">TO 4 (30 Okt)</div>
-                  <div style="font-size: 13px; font-weight: 800; color: #b42318; margin: 0.4mm 0;">546</div>
-                  <div style="font-size: 8px; color: #b42318; font-weight: 700;">-15 Poin • Rerata 8 Subtes</div>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.2mm 1mm; text-align: center;">
+                  <div style="font-size: 8px; color: #64748b; font-weight: 500;">TO 4 (30 Okt)</div>
+                  <div style="font-size: 12.5px; font-weight: 800; color: #b42318; margin: 0.3mm 0;">546</div>
+                  <div style="font-size: 7.5px; color: #b42318; font-weight: 700;">-15 Poin • Rerata 8 Subtes</div>
                 </div>
               </div>
 
               <!-- Reframing Box for Parents -->
-              <div style="background: #f0f9ff; border: 1px solid #b9e6fe; border-left: 3px solid #0284c7; border-radius: 4px; padding: 2mm 3mm; font-size: 8.5px; color: #0369a1; line-height: 1.45; margin-top: 2.2mm;">
+              <div style="background: #f0f9ff; border: 1px solid #b9e6fe; border-left: 3px solid #0284c7; border-radius: 4px; padding: 1.6mm 2.5mm; font-size: 8px; color: #0369a1; line-height: 1.4; margin-top: 1.6mm;">
                 <strong>💡 Catatan Reframing untuk Orang Tua:</strong> Penurunan skor rata-rata pada TO 3 &amp; TO 4 merefleksikan peningkatan tingkat kompleksitas butir soal UTBK nasional, bukan kemunduran pemahaman konsep. Potensi Garuda tetap sangat kompetitif; fokus pendampingan saat ini adalah menstabilkan kembali subtes penalaran melalui drill soal terarah dan Klinik PR tatap muka.
               </div>
             </div>
@@ -2209,9 +2207,9 @@ Kelemahan Kritis: Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) masih b
                 </tr>
               </tbody>
             </table>
-            <div style="font-size: 8px; color: #475467; font-style: italic; margin-top: 1.5mm; line-height: 1.45;">
-              * <strong>Keterangan Metodologi Nilai:</strong> Seluruh skor adalah nilai mandiri siswa (skala 200–1000). Skor pada Bagian 2 merupakan <em>rata-rata 8 subtes siswa</em> per episode tryout, sedangkan kolom <em>Rata-rata Subtes (4 TO)</em> merupakan rata-rata historis capaian siswa pada subtes tersebut sepanjang 4 episode tryout (bukan rata-rata nasional).<br>
-              * <strong>Target Ambang Aman (Pilihan 1–3):</strong> Mengacu pada batas skor tertinggi di antara Pilihan 1 (Farmasi UGM), Pilihan 2 (Farmasi UI), dan Pilihan 3 (Teknik Mesin ITB) untuk memastikan posisi Garuda aman di seluruh pilihan.
+            <div style="font-size: 7.5px; color: #475467; font-style: italic; margin-top: 1mm; line-height: 1.35;">
+              * <strong>Metodologi Nilai:</strong> Seluruh skor adalah nilai mandiri siswa (skala 200–1000, bukan rata-rata nasional). Bagian 2 = rata-rata 8 subtes per TO; Kolom Rata-rata Subtes (4 TO) = rata-rata historis capaian siswa pada subtes tersebut selama 4 TO.<br>
+              * <strong>Target Ambang Aman (Pilihan 1–3):</strong> Mengacu pada batas skor tertinggi di antara Pilihan 1 (Farmasi UGM: 694), Pilihan 2 (Farmasi UI: 686), dan Pilihan 3 (Teknik Mesin ITB: 660) agar aman di seluruh pilihan.
             </div>
           </div>
 
