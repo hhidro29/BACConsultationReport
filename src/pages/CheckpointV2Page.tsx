@@ -114,6 +114,7 @@ export const CheckpointV2Page: React.FC = () => {
     ? Math.round(toScoresList.reduce((acc, v) => acc + v, 0) / toScoresList.length)
     : 0;
   const totalSubtestsCount = subtestsV2Data.length;
+  const sortedSubtests = [...subtestsV2Data].sort((a, b) => a.gap - b.gap || a.to4 - b.to4);
   const shortSubtestMap: Record<string, string> = {
     pu: 'PU',
     pk: 'PK',
@@ -624,7 +625,9 @@ export const CheckpointV2Page: React.FC = () => {
           <div className="section-block" id="sec_tahap1_table">
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 15 }}>2. Evaluasi Capaian {totalSubtestsCount} Subtes vs Target 600</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Skala visual progress bar rentang 400 - 700 dengan garis patokan target 600</span>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                Prioritas intervensi (gap terbesar / terjauh dari 600 di atas) • Skala visual 400 - 700 dengan garis patokan target 600
+              </span>
             </div>
             <div className="table-container">
               <table className="data-table">
@@ -642,7 +645,7 @@ export const CheckpointV2Page: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {subtestsV2Data.map((sub) => {
+                  {sortedSubtests.map((sub) => {
                     const isHigh = sub.status === 'PRIORITAS UTAMA';
                     const isDone = sub.gap >= 0;
                     return (

@@ -360,14 +360,14 @@ export const CHECKPOINT1_STUDENTS: Checkpoint1Student[] = [
       toLabels: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"]
     },
     subtests: [
-      { id: "pbm", name: "Pemahaman Bacaan & Menulis (PBM)", to1: 560, to2: 585, to3: 610, to4: 632, median: "597,5", gap: 32, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 77.3, barColor: "#12b76a" },
-      { id: "lbe", name: "Literasi B. Inggris (LBING)", to1: 550, to2: 570, to3: 595, to4: 625, median: "582,5", gap: 25, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 75.0, barColor: "#12b76a" },
-      { id: "lbi_s", name: "Literasi B. Indonesia (Soshum)", to1: 540, to2: 562, to3: 590, to4: 615, median: "576", gap: 15, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 71.7, barColor: "#12b76a" },
-      { id: "ppu", name: "Pengetahuan & Pemahaman Umum (PPU)", to1: 520, to2: 540, to3: 565, to4: 590, median: "552,5", gap: -10, status: "MENDEKATI 600", badgeClass: "badge-p-low", fillPct: 63.3, barColor: "#1078ca" },
-      { id: "pu", name: "Penalaran Umum (PU)", to1: 510, to2: 535, to3: 560, to4: 582, median: "547,5", gap: -18, status: "MENDEKATI 600", badgeClass: "badge-p-low", fillPct: 60.7, barColor: "#1078ca" },
-      { id: "lbi_a", name: "Literasi B. Indonesia (Saintek)", to1: 505, to2: 520, to3: 550, to4: 575, median: "535", gap: -25, status: "MENDEKATI 600", badgeClass: "badge-p-low", fillPct: 58.3, barColor: "#1078ca" },
+      { id: "pk", name: "Pengetahuan Kuantitatif (PK)", to1: 480, to2: 505, to3: 520, to4: 535, median: "512,5", gap: -65, status: "PERLU DITINGKATKAN", badgeClass: "badge-p-med", fillPct: 45.0, barColor: "#f79009" },
       { id: "pm", name: "Penalaran Matematika (PM)", to1: 490, to2: 520, to3: 545, to4: 560, median: "532,5", gap: -40, status: "PERLU DITINGKATKAN", badgeClass: "badge-p-med", fillPct: 53.3, barColor: "#f79009" },
-      { id: "pk", name: "Pengetahuan Kuantitatif (PK)", to1: 480, to2: 505, to3: 520, to4: 535, median: "512,5", gap: -65, status: "PERLU DITINGKATKAN", badgeClass: "badge-p-med", fillPct: 45.0, barColor: "#f79009" }
+      { id: "lbi_a", name: "Literasi B. Indonesia (Saintek)", to1: 505, to2: 520, to3: 550, to4: 575, median: "535", gap: -25, status: "MENDEKATI 600", badgeClass: "badge-p-low", fillPct: 58.3, barColor: "#1078ca" },
+      { id: "pu", name: "Penalaran Umum (PU)", to1: 510, to2: 535, to3: 560, to4: 582, median: "547,5", gap: -18, status: "MENDEKATI 600", badgeClass: "badge-p-low", fillPct: 60.7, barColor: "#1078ca" },
+      { id: "ppu", name: "Pengetahuan & Pemahaman Umum (PPU)", to1: 520, to2: 540, to3: 565, to4: 590, median: "552,5", gap: -10, status: "MENDEKATI 600", badgeClass: "badge-p-low", fillPct: 63.3, barColor: "#1078ca" },
+      { id: "lbi_s", name: "Literasi B. Indonesia (Soshum)", to1: 540, to2: 562, to3: 590, to4: 615, median: "576", gap: 15, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 71.7, barColor: "#12b76a" },
+      { id: "lbe", name: "Literasi B. Inggris (LBING)", to1: 550, to2: 570, to3: 595, to4: 625, median: "582,5", gap: 25, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 75.0, barColor: "#12b76a" },
+      { id: "pbm", name: "Pemahaman Bacaan & Menulis (PBM)", to1: 560, to2: 585, to3: 610, to4: 632, median: "597,5", gap: 32, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 77.3, barColor: "#12b76a" }
     ],
     targetPrograms: [
       {
@@ -527,14 +527,14 @@ export const CHECKPOINT1_STUDENTS: Checkpoint1Student[] = [
       toLabels: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"]
     },
     subtests: [
-      { id: "ppu", name: "Pengetahuan & Pemahaman Umum (PPU)", to1: 480, to2: 470, to3: 460, to4: 455, median: "465", gap: -145, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 18.3, barColor: "#d92d20" },
-      { id: "pm", name: "Penalaran Matematika (PM)", to1: 475, to2: 460, to3: 450, to4: 445, median: "455", gap: -155, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 15.0, barColor: "#d92d20" },
-      { id: "pbm", name: "Pemahaman Bacaan & Menulis (PBM)", to1: 470, to2: 455, to3: 445, to4: 440, median: "450", gap: -160, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 13.3, barColor: "#d92d20" },
-      { id: "lbi_a", name: "Literasi B. Indonesia (Saintek)", to1: 468, to2: 450, to3: 440, to4: 435, median: "445", gap: -165, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 11.7, barColor: "#d92d20" },
-      { id: "pu", name: "Penalaran Umum (PU)", to1: 465, to2: 450, to3: 445, to4: 430, median: "447,5", gap: -170, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 10.0, barColor: "#d92d20" },
-      { id: "lbe", name: "Literasi B. Inggris (LBING)", to1: 460, to2: 448, to3: 440, to4: 425, median: "444", gap: -175, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 8.3, barColor: "#d92d20" },
+      { id: "lbi_s", name: "Literasi B. Indonesia (Soshum)", to1: 450, to2: 445, to3: 438, to4: 418, median: "441,5", gap: -182, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 6.0, barColor: "#d92d20" },
       { id: "pk", name: "Pengetahuan Kuantitatif (PK)", to1: 455, to2: 440, to3: 435, to4: 420, median: "437,5", gap: -180, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 6.7, barColor: "#d92d20" },
-      { id: "lbi_s", name: "Literasi B. Indonesia (Soshum)", to1: 450, to2: 445, to3: 438, to4: 418, median: "441,5", gap: -182, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 6.0, barColor: "#d92d20" }
+      { id: "lbe", name: "Literasi B. Inggris (LBING)", to1: 460, to2: 448, to3: 440, to4: 425, median: "444", gap: -175, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 8.3, barColor: "#d92d20" },
+      { id: "pu", name: "Penalaran Umum (PU)", to1: 465, to2: 450, to3: 445, to4: 430, median: "447,5", gap: -170, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 10.0, barColor: "#d92d20" },
+      { id: "lbi_a", name: "Literasi B. Indonesia (Saintek)", to1: 468, to2: 450, to3: 440, to4: 435, median: "445", gap: -165, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 11.7, barColor: "#d92d20" },
+      { id: "pbm", name: "Pemahaman Bacaan & Menulis (PBM)", to1: 470, to2: 455, to3: 445, to4: 440, median: "450", gap: -160, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 13.3, barColor: "#d92d20" },
+      { id: "pm", name: "Penalaran Matematika (PM)", to1: 475, to2: 460, to3: 450, to4: 445, median: "455", gap: -155, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 15.0, barColor: "#d92d20" },
+      { id: "ppu", name: "Pengetahuan & Pemahaman Umum (PPU)", to1: 480, to2: 470, to3: 460, to4: 455, median: "465", gap: -145, status: "PRIORITAS UTAMA", badgeClass: "badge-p-high", fillPct: 18.3, barColor: "#d92d20" }
     ],
     targetPrograms: [
       {
