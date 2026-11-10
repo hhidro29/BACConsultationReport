@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Save, Download, Info, Building2, Wrench, ShieldCheck, BookOpen, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Save, Download, Info, Building2, Wrench, ShieldCheck, BookOpen, ChevronDown, Eye, Check } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
+import { downloadPdfFile } from '../utils/downloadPdf';
 import {
   studentIdentity,
   subtestsV2Data,
@@ -20,6 +21,8 @@ export const CheckpointV2Page: React.FC = () => {
   );
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [draftSavedToast, setDraftSavedToast] = useState<boolean>(false);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
   const [saNotes, setSaNotes] = useState<string>(() => {
     const saved = localStorage.getItem('bac_v2_sa_notes');
     return saved || "Siswa sempat merasa terbebani penurunan nilai dari TO 1 ke TO 4, namun kembali bersemangat setelah melihat Penalaran Matematika (597) sudah di ambang batas 600. Orang tua menyetujui target 15 soal/hari dan akan mendampingi jadwal belajar mandiri di rumah. Fokus pemulihan utama: PU dan PK.";
@@ -36,6 +39,14 @@ export const CheckpointV2Page: React.FC = () => {
     localStorage.setItem('bac_v2_sa_notes', saNotes);
     setDraftSavedToast(true);
     setTimeout(() => setDraftSavedToast(false), 3000);
+  };
+
+  const handleDirectDownload = async () => {
+    setIsDownloading(true);
+    await downloadPdfFile('Laporan_Konsultasi_Checkpoint_1_Garuda_Mahawira_Sena.pdf');
+    setIsDownloading(false);
+    setDownloadSuccess(true);
+    setTimeout(() => setDownloadSuccess(false), 3000);
   };
 
   const scrollTo = (e: React.MouseEvent, id: string) => {
@@ -92,8 +103,23 @@ export const CheckpointV2Page: React.FC = () => {
             <button type="button" className="btn btn-outline" onClick={handleSaveNotes}>
               <Save size={14} /> Simpan Draft
             </button>
-            <button type="button" className="btn btn-primary" onClick={openPdf}>
-              <Download size={14} /> Preview &amp; Download PDF (2 Halaman)
+            <button type="button" className="btn btn-outline" onClick={openPdf} title="Buka preview dokumen 2 halaman di layar">
+              <Eye size={14} /> Preview Dokumen
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleDirectDownload}
+              disabled={isDownloading}
+              title="Unduh file PDF resmi langsung ke komputer"
+              style={{
+                background: downloadSuccess ? '#027a48' : '#1078ca',
+                fontWeight: 700,
+                transition: 'background 0.2s ease'
+              }}
+            >
+              {downloadSuccess ? <Check size={14} /> : <Download size={14} />}
+              {isDownloading ? 'Mengunduh...' : downloadSuccess ? 'PDF Terunduh!' : 'Download PDF (2 Hlm)'}
             </button>
           </div>
         </div>
@@ -990,10 +1016,34 @@ export const CheckpointV2Page: React.FC = () => {
                   Format standar A4 tanpa instruksi internal SA — dikhususkan untuk diserahkan ke Siswa &amp; Orang Tua.
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button type="button" className="btn btn-primary" onClick={openPdf} style={{ background: '#2563eb', border: 'none', fontWeight: 700, padding: '8px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Download size={15} />
-                  Buka &amp; Download PDF (2 Halaman)
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={openPdf}
+                  style={{ color: '#fff', borderColor: '#475569', fontWeight: 600, padding: '8px 14px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  <Eye size={15} />
+                  Preview di Layar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleDirectDownload}
+                  disabled={isDownloading}
+                  style={{
+                    background: downloadSuccess ? '#027a48' : '#2563eb',
+                    border: 'none',
+                    fontWeight: 700,
+                    padding: '8px 18px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    transition: 'background 0.2s ease'
+                  }}
+                >
+                  {downloadSuccess ? <Check size={15} /> : <Download size={15} />}
+                  {isDownloading ? 'Mengunduh...' : downloadSuccess ? 'PDF Berhasil Diunduh!' : 'Download PDF Langsung'}
                 </button>
               </div>
             </div>
