@@ -11,6 +11,8 @@ import {
   targetPrograms
 } from '../data/garudaData';
 import { useRapor } from '../context/RaporContext';
+import { RuleTraceBox } from '../components/RuleTraceBox';
+import { useRuleConfig } from '../utils/saRuleStore';
 import {
   analyzeStage1,
   analyzeStage2,
@@ -22,6 +24,7 @@ import {
 export const CheckpointV2Page: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { getMetrics } = useRapor();
+  const { config: ruleConfig, isCustomized: isRuleCustomized } = useRuleConfig();
   const raporMetrics = getMetrics();
   const [isPdfOpen, setIsPdfOpen] = useState<boolean>(
     searchParams.get('preview') === '1' || searchParams.get('preview') === 'true'
@@ -108,26 +111,32 @@ export const CheckpointV2Page: React.FC = () => {
   const aboveTooltip = aboveTargetSubtests.map(formatSubtestItem).join(' · ');
   const belowTooltip = belowTargetSubtests.map(formatSubtestItem).join(' · ');
 
-  // Deterministic SA Guideline Engine (Non-AI-Centered Condition -> Output)
+  // Deterministic, White-Box SA Guideline Engine (Controllable via /engine)
   const attendanceNumeric = parseFloat(studentIdentity.attendanceRate.replace('%', '')) || 0;
-  const stage1Out = analyzeStage1({
-    toScores: toScoresList,
-    subtestRows: subtestsV2Data.map((s) => ({
-      id: s.id,
-      name: s.name,
-      scores: [s.to1, s.to2, s.to3, s.to4],
-      toLatest: s.to4
-    })),
-    attendanceRatePct: attendanceNumeric
-  });
+  const stage1Out = analyzeStage1(
+    {
+      toScores: toScoresList,
+      subtestRows: subtestsV2Data.map((s) => ({
+        id: s.id,
+        name: s.name,
+        scores: [s.to1, s.to2, s.to3, s.to4],
+        toLatest: s.to4
+      })),
+      attendanceRatePct: attendanceNumeric
+    },
+    ruleConfig
+  );
 
-  const stage2Out = analyzeStage2({
-    hasMixedRumpun: targetPrograms.some((p) => p.prodi.includes('Teknik')) && targetPrograms.some((p) => p.prodi.includes('Farmasi')),
-    familyAlignment: 'different_major',
-    minGapToTarget: Math.min(...targetPrograms.map((p) => p.gap)),
-    maxGapToTarget: Math.max(...targetPrograms.map((p) => p.gap)),
-    minParticipantsCount: 642
-  });
+  const stage2Out = analyzeStage2(
+    {
+      hasMixedRumpun: targetPrograms.some((p) => p.prodi.includes('Teknik')) && targetPrograms.some((p) => p.prodi.includes('Farmasi')),
+      familyAlignment: 'different_major',
+      minGapToTarget: Math.min(...targetPrograms.map((p) => p.gap)),
+      maxGapToTarget: Math.max(...targetPrograms.map((p) => p.gap)),
+      minParticipantsCount: 642
+    },
+    ruleConfig
+  );
 
   const stage3SubtestInputs = prioritySubtestsV2.map((item) => ({
     id: item.id,
@@ -138,10 +147,11 @@ export const CheckpointV2Page: React.FC = () => {
     drillSessions: item.drillSessions,
     drillAccuracyPct: item.drillAccuracyPct
   }));
-  const stage3OverallOut = analyzeStage3Overall(stage3SubtestInputs);
+  const stage3OverallOut = analyzeStage3Overall(stage3SubtestInputs, ruleConfig);
   const stage4Out = analyzeStage4(
     true,
-    prioritySubtestsV2.some((s) => s.rgQuestionsDone <= 5)
+    prioritySubtestsV2.some((s) => s.rgQuestionsDone <= ruleConfig.thresholds.drillMismatchLowQ),
+    ruleConfig
   );
 
   return (
@@ -159,23 +169,23 @@ export const CheckpointV2Page: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Link
               to="/engine"
-              title="Buka Simulator & Matriks Aturan Engine Panduan SA (Kondisi → Output)"
+              title="Buka Simulator, Jejak Aturan & Kontrol Engine Panduan SA"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 5,
                 fontSize: 11.5,
                 fontWeight: 700,
-                color: '#1078ca',
-                background: '#eff8ff',
-                border: '1px solid #b2ddff',
+                color: isRuleCustomized ? '#b54708' : '#1078ca',
+                background: isRuleCustomized ? '#fef0c7' : '#eff8ff',
+                border: `1px solid ${isRuleCustomized ? '#fedf89' : '#b2ddff'}`,
                 padding: '4px 10px',
                 borderRadius: 9999,
                 textDecoration: 'none',
                 whiteSpace: 'nowrap'
               }}
             >
-              <GitBranch size={12} /> Engine Aturan
+              <GitBranch size={12} /> {isRuleCustomized ? 'Engine Aturan · Custom' : 'Engine Aturan'}
             </Link>
             <div className="user-pill">
               <span>{studentIdentity.saName} · {studentIdentity.saEmail}</span>
@@ -654,6 +664,7 @@ export const CheckpointV2Page: React.FC = () => {
                 </div>
               </div>
             </div>
+            <RuleTraceBox traces={stage1Out.traces} collapsible />
           </div>
         </section>
 
@@ -762,6 +773,7 @@ export const CheckpointV2Page: React.FC = () => {
                 </div>
               </div>
             </div>
+            <RuleTraceBox traces={stage2Out.traces} collapsible />
           </div>
         </section>
 
@@ -797,15 +809,18 @@ export const CheckpointV2Page: React.FC = () => {
                 const boxBg = isLow ? '#eff8ff' : isHigh ? '#fffbfa' : '#fffcf5';
                 const boxBorder = isLow ? '#b2ddff' : isHigh ? '#fee4e2' : '#fef0c7';
 
-                const subRule = analyzeStage3Subtest({
-                  id: item.id,
-                  name: item.name,
-                  toLatest: item.toLatestNum,
-                  gapTo600: item.gapNum,
-                  drillQuestions: item.rgQuestionsDone,
-                  drillSessions: item.drillSessions,
-                  drillAccuracyPct: item.drillAccuracyPct
-                });
+                const subRule = analyzeStage3Subtest(
+                  {
+                    id: item.id,
+                    name: item.name,
+                    toLatest: item.toLatestNum,
+                    gapTo600: item.gapNum,
+                    drillQuestions: item.rgQuestionsDone,
+                    drillSessions: item.drillSessions,
+                    drillAccuracyPct: item.drillAccuracyPct
+                  },
+                  ruleConfig
+                );
 
                 return (
                   <div
@@ -917,6 +932,7 @@ export const CheckpointV2Page: React.FC = () => {
                 </div>
               </div>
             </div>
+            <RuleTraceBox traces={stage3OverallOut.traces} collapsible />
           </div>
         </section>
 
@@ -1107,6 +1123,7 @@ export const CheckpointV2Page: React.FC = () => {
                 </div>
               </div>
             </div>
+            <RuleTraceBox traces={stage4Out.traces} collapsible />
           </div>
         </section>
       </main>

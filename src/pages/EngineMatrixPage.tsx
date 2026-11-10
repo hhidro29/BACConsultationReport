@@ -1,20 +1,39 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, GitBranch, Sliders, Info, Building2, Wrench, ShieldCheck, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
+  ArrowLeft,
+  GitBranch,
+  Sliders,
+  Info,
+  Building2,
+  Wrench,
+  ShieldCheck,
+  AlertTriangle,
+  RotateCcw,
+  Save,
+  Download,
+  Upload,
+  Table2
+} from 'lucide-react';
+import {
+  DEFAULT_ENGINE_CONFIG,
+  EngineRuleConfig,
+  Stage3ConditionId,
+  TryoutPattern,
   analyzeStage1,
   analyzeStage2,
   analyzeStage3Subtest,
   analyzeStage3Overall,
-  analyzeStage4,
-  TryoutPattern
+  analyzeStage4
 } from '../utils/saGuidelineEngine';
+import { mergeWithDefault, useRuleConfig } from '../utils/saRuleStore';
+import { RuleTraceBox } from '../components/RuleTraceBox';
 
 interface PresetConfig {
   id: string;
   label: string;
   desc: string;
-  toScores: string[]; // string inputs for TO1..TO4 (empty = belum ada nilai)
+  toScores: string[];
   attendanceRatePct: number;
   hasLargeSubtestSwing: boolean;
   hasMixedRumpun: boolean;
@@ -104,26 +123,51 @@ const PRESETS: PresetConfig[] = [
   }
 ];
 
-const ALL_15_PATTERNS: { pattern: TryoutPattern; name: string; condition: string; scoresExample: string }[] = [
-  { pattern: 'no_data', name: 'Belum ada nilai', condition: 'Jumlah skor TO = 0', scoresExample: '—' },
-  { pattern: 'one_result', name: 'Baru satu nilai', condition: 'Jumlah skor TO = 1', scoresExample: '518' },
-  { pattern: 'initial_up', name: 'Dua hasil: naik', condition: '2 TO, selisih > +5 poin', scoresExample: '530 → 565' },
-  { pattern: 'initial_down', name: 'Dua hasil: turun', condition: '2 TO, selisih < -5 poin', scoresExample: '570 → 535' },
-  { pattern: 'initial_flat', name: 'Dua hasil: tetap', condition: '2 TO, selisih dalam rentang ±5 poin', scoresExample: '550 → 553' },
-  { pattern: 'steady_up', name: 'Naik konsisten', condition: '≥ 3 TO, semua perubahan antar-TO > +5', scoresExample: '520 → 545 → 575 → 602' },
-  { pattern: 'steady_down', name: 'Turun konsisten', condition: '≥ 3 TO, semua perubahan antar-TO < -5', scoresExample: '601 → 576 → 561 → 546' },
-  { pattern: 'steady_flat', name: 'Tetap sepanjang riwayat', condition: '≥ 3 TO, semua perubahan dalam ±5', scoresExample: '552 → 554 → 550 → 553' },
-  { pattern: 'up_with_pauses', name: 'Cenderung naik, diselingi tetap', condition: '≥ 3 TO, ada naik & datar tanpa turun', scoresExample: '530 → 532 → 565 → 590' },
-  { pattern: 'down_with_pauses', name: 'Cenderung turun, diselingi tetap', condition: '≥ 3 TO, ada turun & datar tanpa naik', scoresExample: '590 → 560 → 558 → 532' },
-  { pattern: 'recovery', name: 'Sempat turun, lalu naik di TO terakhir', condition: 'Ada penurunan lalu TO terakhir naik > +5', scoresExample: '590 → 552 → 540 → 586' },
-  { pattern: 'reversal_down', name: 'Sempat naik, lalu turun di TO terakhir', condition: 'Ada kenaikan lalu TO terakhir turun < -5', scoresExample: '530 → 575 → 595 → 555' },
-  { pattern: 'fluctuating_up', name: 'Naik-turun (terakhir lebih tinggi dari awal)', condition: 'Berganti arah, TO akhir - TO awal > +5', scoresExample: '540 → 580 → 545 → 570' },
-  { pattern: 'fluctuating_down', name: 'Naik-turun (terakhir lebih rendah dari awal)', condition: 'Berganti arah, TO akhir - TO awal < -5', scoresExample: '580 → 540 → 575 → 550' },
-  { pattern: 'fluctuating_flat', name: 'Naik-turun (awal & akhir serupa)', condition: 'Berganti arah, selisih awal & akhir dalam ±5', scoresExample: '560 → 590 → 535 → 562' }
+const ALL_15_PATTERNS: { pattern: TryoutPattern; condition: string; scoresExample: string }[] = [
+  { pattern: 'no_data', condition: 'Jumlah skor TO = 0', scoresExample: '—' },
+  { pattern: 'one_result', condition: 'Jumlah skor TO = 1', scoresExample: '518' },
+  { pattern: 'initial_up', condition: '2 TO, selisih > +toleransi', scoresExample: '530 → 565' },
+  { pattern: 'initial_down', condition: '2 TO, selisih < -toleransi', scoresExample: '570 → 535' },
+  { pattern: 'initial_flat', condition: '2 TO, selisih dalam ±toleransi', scoresExample: '550 → 553' },
+  { pattern: 'steady_up', condition: '≥ 3 TO, semua perubahan > +toleransi', scoresExample: '520 → 545 → 575 → 602' },
+  { pattern: 'steady_down', condition: '≥ 3 TO, semua perubahan < -toleransi', scoresExample: '601 → 576 → 561 → 546' },
+  { pattern: 'steady_flat', condition: '≥ 3 TO, semua perubahan dalam ±toleransi', scoresExample: '552 → 554 → 550 → 553' },
+  { pattern: 'up_with_pauses', condition: '≥ 3 TO, ada naik & datar tanpa turun', scoresExample: '530 → 532 → 565 → 590' },
+  { pattern: 'down_with_pauses', condition: '≥ 3 TO, ada turun & datar tanpa naik', scoresExample: '590 → 560 → 558 → 532' },
+  { pattern: 'recovery', condition: 'Ada penurunan lalu TO terakhir naik', scoresExample: '590 → 552 → 540 → 586' },
+  { pattern: 'reversal_down', condition: 'Ada kenaikan lalu TO terakhir turun', scoresExample: '530 → 575 → 595 → 555' },
+  { pattern: 'fluctuating_up', condition: 'Berganti arah, TO akhir > awal', scoresExample: '540 → 580 → 545 → 570' },
+  { pattern: 'fluctuating_down', condition: 'Berganti arah, TO akhir < awal', scoresExample: '580 → 540 → 575 → 550' },
+  { pattern: 'fluctuating_flat', condition: 'Berganti arah, awal & akhir serupa', scoresExample: '560 → 590 → 535 → 562' }
 ];
 
 export const EngineMatrixPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'simulator' | 'matrix'>('simulator');
+  const [searchParams] = useSearchParams();
+  const { config, isCustomized, updateAndSave, resetToDefault } = useRuleConfig();
+  const [draftConfig, setDraftConfig] = useState<EngineRuleConfig>(config);
+  const [saveToast, setSaveToast] = useState<string | null>(null);
+  const [importJsonText, setImportJsonText] = useState<string>('');
+  const [showImportBox, setShowImportBox] = useState<boolean>(false);
+
+  const initialTabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<'simulator' | 'controls' | 'matrix'>(
+    initialTabParam === 'controls' ? 'controls' : initialTabParam === 'matrix' ? 'matrix' : 'simulator'
+  );
+  const [editorStage, setEditorStage] = useState<'stage1' | 'stage2' | 'stage3' | 'stage4'>('stage1');
+  const [selectedPatternEdit, setSelectedPatternEdit] = useState<TryoutPattern>('steady_down');
+
+  useEffect(() => {
+    setDraftConfig(config);
+  }, [config]);
+
+  useEffect(() => {
+    const t = searchParams.get('tab');
+    if (t === 'controls' || t === 'matrix' || t === 'simulator') {
+      setActiveTab(t);
+    }
+  }, [searchParams]);
+
+  // Simulator states
   const [selectedPreset, setSelectedPreset] = useState<string>('garuda');
   const [toScores, setToScores] = useState<string[]>(PRESETS[0].toScores);
   const [attendanceRatePct, setAttendanceRatePct] = useState<number>(PRESETS[0].attendanceRatePct);
@@ -158,12 +202,15 @@ export const EngineMatrixPage: React.FC = () => {
     setDrillAccuracyPct(p.drillAccuracyPct);
   };
 
-  // Build synthetic subtest rows matching user simulation parameters
+  // Use live draftConfig when user is previewing in simulator too, or saved config — using draftConfig lets immediate testing!
+  const activeEvalConfig = draftConfig;
+
   const numericScores = toScores.map((s) => Number(s)).filter((n) => !Number.isNaN(n) && n > 0);
   const sampleNames = ['PPU', 'PM', 'PBM', 'LBING', 'LBI Soshum', 'LBI Saintek', 'PU', 'PK'];
+  const targetBasis = activeEvalConfig.thresholds.foundationScoreTarget;
   const syntheticSubtests = sampleNames.map((name, idx) => {
     const isAbove = idx < aboveTargetCount;
-    const latest = isAbove ? 615 + idx * 5 : 530 - idx * 8;
+    const latest = isAbove ? targetBasis + 15 + idx * 5 : targetBasis - 70 - idx * 8;
     const scores =
       idx === sampleNames.length - 1 && hasLargeSubtestSwing
         ? [668, 620, 539, 488]
@@ -176,48 +223,102 @@ export const EngineMatrixPage: React.FC = () => {
     };
   });
 
-  const stage1Out = analyzeStage1({
-    toScores: numericScores,
-    subtestRows: syntheticSubtests,
-    attendanceRatePct
-  });
+  const stage1Out = analyzeStage1(
+    { toScores: numericScores, subtestRows: syntheticSubtests, attendanceRatePct },
+    activeEvalConfig
+  );
 
-  const stage2Out = analyzeStage2({
-    hasMixedRumpun,
-    familyAlignment,
-    minGapToTarget,
-    maxGapToTarget,
-    minParticipantsCount
-  });
+  const stage2Out = analyzeStage2(
+    {
+      hasMixedRumpun,
+      familyAlignment,
+      minGapToTarget,
+      maxGapToTarget,
+      minParticipantsCount
+    },
+    activeEvalConfig
+  );
 
   const simulatedSubInput = {
     id: 'sim_sub',
     name: subtestName,
     toLatest,
-    gapTo600: toLatest - 600,
+    gapTo600: toLatest - activeEvalConfig.thresholds.foundationScoreTarget,
     drillQuestions,
     drillSessions,
     drillAccuracyPct
   };
 
-  const stage3SubOut = analyzeStage3Subtest(simulatedSubInput);
-  const stage3OverallOut = analyzeStage3Overall([
-    {
-      id: 'pu',
-      name: 'Penalaran Umum (PU)',
-      toLatest: 465,
-      gapTo600: -135,
-      drillQuestions: 35,
-      drillSessions: 7,
-      drillAccuracyPct: 63
-    },
-    simulatedSubInput
-  ]);
+  const stage3SubOut = analyzeStage3Subtest(simulatedSubInput, activeEvalConfig);
+  const stage3OverallOut = analyzeStage3Overall(
+    [
+      {
+        id: 'pu',
+        name: 'Penalaran Umum (PU)',
+        toLatest: 465,
+        gapTo600: 465 - activeEvalConfig.thresholds.foundationScoreTarget,
+        drillQuestions: 35,
+        drillSessions: 7,
+        drillAccuracyPct: 63
+      },
+      simulatedSubInput
+    ],
+    activeEvalConfig
+  );
 
   const stage4Out = analyzeStage4(
     hasMixedRumpun || familyAlignment === 'location_limit' || familyAlignment === 'unconfirmed',
-    drillQuestions <= 5
+    drillQuestions <= activeEvalConfig.thresholds.drillMismatchLowQ,
+    activeEvalConfig
   );
+
+  const hasUnsavedDraft = JSON.stringify(draftConfig) !== JSON.stringify(config);
+
+  const handleSaveConfig = () => {
+    updateAndSave(draftConfig);
+    setSaveToast('Pengaturan aturan & wording disimpan dan langsung aktif di Dashboard V2.');
+    setTimeout(() => setSaveToast(null), 3500);
+  };
+
+  const handleResetConfig = () => {
+    const def = resetToDefault();
+    setDraftConfig(def);
+    setSaveToast('Semua ambang batas & wording dikembalikan ke default sistem.');
+    setTimeout(() => setSaveToast(null), 3500);
+  };
+
+  const handleExportJson = () => {
+    const blob = new Blob([JSON.stringify(draftConfig, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sa-guideline-engine-config.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportJson = () => {
+    try {
+      const parsed = JSON.parse(importJsonText);
+      const merged = mergeWithDefault(parsed);
+      setDraftConfig(merged);
+      updateAndSave(merged);
+      setShowImportBox(false);
+      setImportJsonText('');
+      setSaveToast('Konfigurasi JSON berhasil diimpor & diterapkan.');
+      setTimeout(() => setSaveToast(null), 3500);
+    } catch {
+      setSaveToast('Format JSON tidak valid. Periksa sintaks JSON Anda.');
+      setTimeout(() => setSaveToast(null), 3500);
+    }
+  };
+
+  const updateThreshold = (key: keyof EngineRuleConfig['thresholds'], value: number) => {
+    setDraftConfig((prev) => ({
+      ...prev,
+      thresholds: { ...prev.thresholds, [key]: value }
+    }));
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', paddingBottom: 64 }}>
@@ -227,15 +328,32 @@ export const EngineMatrixPage: React.FC = () => {
           <nav aria-label="breadcrumb" className="breadcrumbs">
             <Link to="/v2">Detail Checkpoint 1</Link>
             <span className="crumb-sep">›</span>
-            <span className="crumb-current">Engine Panduan SA (Kondisi → Output)</span>
+            <span className="crumb-current">Kontrol Engine Panduan SA (White-Box)</span>
           </nav>
-          <Link
-            to="/v2"
-            className="btn btn-outline"
-            style={{ padding: '6px 12px', fontSize: 12, textDecoration: 'none' }}
-          >
-            <ArrowLeft size={14} /> Kembali ke Dashboard V2
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {isCustomized && (
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#b54708',
+                  background: '#fef0c7',
+                  border: '1px solid #fedf89',
+                  padding: '3px 10px',
+                  borderRadius: 9999
+                }}
+              >
+                Aturan Custom Aktif
+              </span>
+            )}
+            <Link
+              to="/v2"
+              className="btn btn-outline"
+              style={{ padding: '6px 12px', fontSize: 12, textDecoration: 'none' }}
+            >
+              <ArrowLeft size={14} /> Kembali ke Dashboard V2
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -268,29 +386,26 @@ export const EngineMatrixPage: React.FC = () => {
                   borderRadius: 9999
                 }}
               >
-                DETERMINISTIK · NON-AI-CENTERED
+                WHITE-BOX · DETERMINISTIK · TERKONTROL
               </span>
               <span style={{ fontSize: 11.5, color: '#64748b' }}>
-                Setiap perubahan data mengubah panduan fasilitasi SA secara konsisten
+                Inspeksi alasan tiap aturan terpicu sekaligus ubah ambang batas &amp; output wording secara langsung
               </span>
             </div>
             <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-              Engine Panduan SA: Simulator Kondisi → Output
+              Engine Panduan SA: Simulator, Jejak Aturan &amp; Kontrol Output
             </h1>
-            <p style={{ fontSize: 12.5, color: '#475569', margin: '4px 0 0' }}>
-              Ubah kondisi skor TO, jumlah subtes ≥ 600, keselarasan prodi keluarga, atau data drill untuk melihat output panduan yang dihasilkan mesin aturan untuk Kakak Asuh.
-            </p>
           </div>
 
-          <div style={{ display: 'flex', gap: 8, background: '#f1f5f9', padding: 4, borderRadius: 8 }}>
+          <div style={{ display: 'flex', gap: 6, background: '#f1f5f9', padding: 4, borderRadius: 8, flexWrap: 'wrap' }}>
             <button
               type="button"
               onClick={() => setActiveTab('simulator')}
               style={{
                 border: 'none',
                 borderRadius: 6,
-                padding: '7px 14px',
-                fontSize: 12.5,
+                padding: '7px 12px',
+                fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'inline-flex',
@@ -300,7 +415,26 @@ export const EngineMatrixPage: React.FC = () => {
                 color: activeTab === 'simulator' ? '#ffffff' : '#475569'
               }}
             >
-              <Sliders size={14} /> Simulator Kondisi → Output
+              <GitBranch size={14} /> 1. Simulator &amp; Jejak Aturan
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('controls')}
+              style={{
+                border: 'none',
+                borderRadius: 6,
+                padding: '7px 12px',
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                background: activeTab === 'controls' ? '#1078ca' : 'transparent',
+                color: activeTab === 'controls' ? '#ffffff' : '#475569'
+              }}
+            >
+              <Sliders size={14} /> 2. Kontrol Ambang &amp; Output
             </button>
             <button
               type="button"
@@ -308,8 +442,8 @@ export const EngineMatrixPage: React.FC = () => {
               style={{
                 border: 'none',
                 borderRadius: 6,
-                padding: '7px 14px',
-                fontSize: 12.5,
+                padding: '7px 12px',
+                fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'inline-flex',
@@ -319,17 +453,34 @@ export const EngineMatrixPage: React.FC = () => {
                 color: activeTab === 'matrix' ? '#ffffff' : '#475569'
               }}
             >
-              <GitBranch size={14} /> Tabel Matriks Lengkap (15 Pola)
+              <Table2 size={14} /> 3. Matriks 15 Pola
             </button>
           </div>
         </div>
 
-        {activeTab === 'simulator' ? (
+        {saveToast && (
+          <div
+            style={{
+              background: '#ecfdf3',
+              border: '1px solid #a6f4c5',
+              color: '#027a48',
+              padding: '10px 14px',
+              borderRadius: 8,
+              fontSize: 12.5,
+              fontWeight: 700,
+              marginBottom: 16
+            }}
+          >
+            ✓ {saveToast}
+          </div>
+        )}
+
+        {activeTab === 'simulator' && (
           <div>
             {/* Preset Bar */}
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>
-                Pilih Skenario Cepat (atau ubah angka secara manual di panel kiri):
+                Pilih Skenario Cepat (atau ubah angka secara manual di panel kiri untuk melihat jejak evaluasi tiap aturan):
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
                 {PRESETS.map((p) => {
@@ -358,8 +509,8 @@ export const EngineMatrixPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Split Grid: Left Controls, Right Deterministic Outputs */}
-            <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 18, alignItems: 'start' }}>
+            {/* Split Grid: Left Controls, Right Deterministic Outputs + White-Box Trace */}
+            <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: 18, alignItems: 'start' }}>
               {/* Left Input Panel */}
               <div
                 style={{
@@ -374,7 +525,7 @@ export const EngineMatrixPage: React.FC = () => {
               >
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#1078ca', marginBottom: 8 }}>
-                    1. KONDISI TAHAP 1 (TRYOUT &amp; KEHADIRAN)
+                    1. DATA TAHAP 1 (TRYOUT &amp; KEHADIRAN)
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 8 }}>
                     {toScores.map((val, idx) => (
@@ -392,13 +543,7 @@ export const EngineMatrixPage: React.FC = () => {
                             setToScores(next);
                             setSelectedPreset('custom');
                           }}
-                          style={{
-                            width: '100%',
-                            padding: '6px 8px',
-                            border: '1px solid #cbd5e1',
-                            borderRadius: 6,
-                            fontSize: 12.5
-                          }}
+                          style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12.5 }}
                         />
                       </div>
                     ))}
@@ -406,7 +551,7 @@ export const EngineMatrixPage: React.FC = () => {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     <div>
                       <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
-                        Subtes ≥ 600 (0–8)
+                        Subtes ≥ {targetBasis}
                       </label>
                       <input
                         type="number"
@@ -437,13 +582,13 @@ export const EngineMatrixPage: React.FC = () => {
                       checked={hasLargeSubtestSwing}
                       onChange={(e) => setHasLargeSubtestSwing(e.target.checked)}
                     />
-                    Ada subtes berfluktuasi ≥ 100 poin (misal PK 668 → 488)
+                    Ada subtes berfluktuasi ≥ {activeEvalConfig.thresholds.subtestSwingPts} poin
                   </label>
                 </div>
 
                 <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#0284c7', marginBottom: 8 }}>
-                    2. KONDISI TAHAP 2 (JURUSAN &amp; KELUARGA)
+                    2. DATA TAHAP 2 (JURUSAN &amp; KELUARGA)
                   </div>
                   <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
                     Keselarasan Pilihan Siswa &amp; Orang Tua
@@ -494,12 +639,12 @@ export const EngineMatrixPage: React.FC = () => {
 
                 <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#b54708', marginBottom: 8 }}>
-                    3. KONDISI TAHAP 3 (SUBTES &amp; DRILL)
+                    3. DATA TAHAP 3 (SUBTES &amp; DRILL)
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     <div>
                       <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
-                        Skor TO Terakhir Subtes
+                        Skor TO Subtes
                       </label>
                       <input
                         type="number"
@@ -549,13 +694,13 @@ export const EngineMatrixPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Right Live Deterministic Output Panel */}
+              {/* Right Live Deterministic Output Panel WITH Transparent Trace */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {/* Stage 1 Output */}
                 <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderLeft: '4px solid #1078ca', borderRadius: 10, padding: '14px 18px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#1e40af', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <Info size={16} /> Output Tahap 1: Mengulas Tren Skor &amp; Fondasi 600
+                      <Info size={16} /> Output Tahap 1: Mengulas Tren Skor &amp; Fondasi {targetBasis}
                     </span>
                     <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 9999 }}>
                       Pola: {stage1Out.patternLabel}
@@ -580,6 +725,7 @@ export const EngineMatrixPage: React.FC = () => {
                       )}
                     </div>
                   </div>
+                  <RuleTraceBox traces={stage1Out.traces} collapsible={false} editLinkTo="/engine?tab=controls" />
                 </div>
 
                 {/* Stage 2 Output */}
@@ -597,10 +743,11 @@ export const EngineMatrixPage: React.FC = () => {
                       <li key={i}>{t}</li>
                     ))}
                   </ul>
-                  <div style={{ fontSize: 11.5, color: minParticipantsCount < 500 ? '#b42318' : '#175cd3', background: minParticipantsCount < 500 ? '#fef3f2' : '#eff8ff', border: `1px solid ${minParticipantsCount < 500 ? '#fecdca' : '#b2ddff'}`, borderRadius: 6, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 11.5, color: minParticipantsCount < activeEvalConfig.thresholds.minBenchmarkParticipants ? '#b42318' : '#175cd3', background: minParticipantsCount < activeEvalConfig.thresholds.minBenchmarkParticipants ? '#fef3f2' : '#eff8ff', border: `1px solid ${minParticipantsCount < activeEvalConfig.thresholds.minBenchmarkParticipants ? '#fecdca' : '#b2ddff'}`, borderRadius: 6, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <AlertTriangle size={14} />
                     <span>{stage2Out.guardrailNote}</span>
                   </div>
+                  <RuleTraceBox traces={stage2Out.traces} collapsible={false} editLinkTo="/engine?tab=controls" />
                 </div>
 
                 {/* Stage 3 Output */}
@@ -622,9 +769,11 @@ export const EngineMatrixPage: React.FC = () => {
                       <strong>Deteksi Ketimpangan Drill:</strong> {stage3OverallOut.mismatchNote}
                     </div>
                   )}
-                  <div style={{ fontSize: 11.5, color: '#475569' }}>
-                    <strong>Rambu Baca Metrik:</strong> {stage3OverallOut.guardrailNote}
-                  </div>
+                  <RuleTraceBox
+                    traces={[...stage3SubOut.traces, ...stage3OverallOut.traces]}
+                    collapsible={false}
+                    editLinkTo="/engine?tab=controls"
+                  />
                 </div>
 
                 {/* Stage 4 Output */}
@@ -637,20 +786,378 @@ export const EngineMatrixPage: React.FC = () => {
                       <li key={i}>{t}</li>
                     ))}
                   </ul>
+                  <RuleTraceBox traces={stage4Out.traces} collapsible={false} editLinkTo="/engine?tab=controls" />
                 </div>
               </div>
             </div>
           </div>
-        ) : (
-          /* Complete Condition -> Output Matrix */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            {/* Matrix 1: 15 Tryout Patterns */}
+        )}
+
+        {activeTab === 'controls' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {/* Sticky Control Action Bar */}
+            <div
+              style={{
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: 10,
+                padding: '12px 18px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 12,
+                flexWrap: 'wrap'
+              }}
+            >
+              <div style={{ fontSize: 12.5, color: '#334155' }}>
+                <strong>Panel Kontrol Engine:</strong> Ubah ambang batas atau teks output di bawah, lalu klik <strong>Simpan &amp; Terapkan</strong> agar langsung mengubah panduan di Dashboard V2 dan Simulator.
+                {hasUnsavedDraft && (
+                  <span style={{ marginLeft: 8, color: '#b54708', fontWeight: 800 }}>• Ada perubahan belum disimpan</span>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button type="button" className="btn btn-outline" onClick={handleExportJson} style={{ fontSize: 12, padding: '6px 12px' }}>
+                  <Download size={14} /> Export JSON
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => setShowImportBox((v) => !v)}
+                  style={{ fontSize: 12, padding: '6px 12px' }}
+                >
+                  <Upload size={14} /> Import JSON
+                </button>
+                <button type="button" className="btn btn-outline" onClick={handleResetConfig} style={{ fontSize: 12, padding: '6px 12px' }}>
+                  <RotateCcw size={14} /> Reset Default
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSaveConfig}
+                  style={{ fontSize: 12, padding: '6px 14px', background: '#1078ca', borderColor: '#1078ca' }}
+                >
+                  <Save size={14} /> Simpan &amp; Terapkan ke V2
+                </button>
+              </div>
+            </div>
+
+            {showImportBox && (
+              <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Tempel JSON Konfigurasi Engine:</div>
+                <textarea
+                  value={importJsonText}
+                  onChange={(e) => setImportJsonText(e.target.value)}
+                  rows={5}
+                  placeholder='{ "thresholds": { "toTolerancePts": 10 } }'
+                  style={{ width: '100%', padding: 10, fontFamily: 'monospace', fontSize: 11.5, border: '1px solid #cbd5e1', borderRadius: 6 }}
+                />
+                <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+                  <button type="button" className="btn btn-primary" onClick={handleImportJson} style={{ fontSize: 12, padding: '6px 12px' }}>
+                    Terapkan JSON
+                  </button>
+                  <button type="button" className="btn btn-outline" onClick={() => setShowImportBox(false)} style={{ fontSize: 12, padding: '6px 12px' }}>
+                    Batal
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Section A: Threshold Controls */}
             <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 18 }}>
               <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
-                1. Matriks Tahap 1 — 15 Pola Riwayat Skor Tryout (Toleransi Tetap ±5 Poin)
+                A. Kontrol Ambang Batas Kondisi (Thresholds)
+              </h2>
+              <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 14px' }}>
+                Menentukan kapan sebuah kondisi dianggap terpicu oleh sistem.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                {[
+                  { key: 'toTolerancePts', label: 'Toleransi TO Datar (±poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.toTolerancePts },
+                  { key: 'foundationScoreTarget', label: 'Target Fondasi Subtes', def: DEFAULT_ENGINE_CONFIG.thresholds.foundationScoreTarget },
+                  { key: 'subtestSwingPts', label: 'Batas Fluktuasi Subtes (poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.subtestSwingPts },
+                  { key: 'attendanceWarnPct', label: 'Ambang Peringatan Absensi (%)', def: DEFAULT_ENGINE_CONFIG.thresholds.attendanceWarnPct },
+                  { key: 'wideWeightedGapPts', label: 'Gap Terbobot Lebar (≤ poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.wideWeightedGapPts },
+                  { key: 'minBenchmarkParticipants', label: 'Min. Peserta Pembanding', def: DEFAULT_ENGINE_CONFIG.thresholds.minBenchmarkParticipants },
+                  { key: 'drillLowQuestions', label: 'Batas Drill Minim (< soal)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillLowQuestions },
+                  { key: 'drillLowAccuracyPct', label: 'Batas Akurasi Rendah (< %)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillLowAccuracyPct },
+                  { key: 'drillActiveHighGap', label: 'Gap Subtes Prioritas (≤ poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillActiveHighGap },
+                  { key: 'nearTargetGapPts', label: 'Batas Dekat Target (≥ poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.nearTargetGapPts },
+                  { key: 'drillMismatchHighQ', label: 'Ketimpangan: Subtes Aktif (≥ soal)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillMismatchHighQ },
+                  { key: 'drillMismatchLowQ', label: 'Ketimpangan: Prioritas (≤ soal)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillMismatchLowQ }
+                ].map((f) => {
+                  const k = f.key as keyof EngineRuleConfig['thresholds'];
+                  const val = draftConfig.thresholds[k];
+                  const changed = val !== f.def;
+                  return (
+                    <div
+                      key={f.key}
+                      style={{
+                        background: changed ? '#fffbeb' : '#f8fafc',
+                        border: `1px solid ${changed ? '#fde68a' : '#e2e8f0'}`,
+                        borderRadius: 8,
+                        padding: '10px 12px'
+                      }}
+                    >
+                      <label style={{ fontSize: 11, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                        {f.label}
+                      </label>
+                      <input
+                        type="number"
+                        value={val}
+                        onChange={(e) => updateThreshold(k, Number(e.target.value))}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, fontWeight: 700 }}
+                      />
+                      <div style={{ fontSize: 10.5, color: '#64748b', marginTop: 4 }}>
+                        Default: <strong>{f.def}</strong> {changed && <span style={{ color: '#b45309' }}>· Diubah</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section B: Output Wording Template Editor */}
+            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 18 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+                <div>
+                  <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
+                    B. Editor Output Wording per Kondisi
+                  </h2>
+                  <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
+                    Edit langsung teks panduan SA yang muncul ketika suatu kondisi terpenuhi.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: 6, background: '#f1f5f9', padding: 4, borderRadius: 8 }}>
+                  {[
+                    { id: 'stage1', label: 'Tahap 1 (15 Pola TO)' },
+                    { id: 'stage2', label: 'Tahap 2 (Jurusan)' },
+                    { id: 'stage3', label: 'Tahap 3 (5 Subtes)' },
+                    { id: 'stage4', label: 'Tahap 4 (Penutupan)' }
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setEditorStage(s.id as typeof editorStage)}
+                      style={{
+                        border: 'none',
+                        borderRadius: 6,
+                        padding: '6px 10px',
+                        fontSize: 11.5,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        background: editorStage === s.id ? '#0f172a' : 'transparent',
+                        color: editorStage === s.id ? '#ffffff' : '#475569'
+                      }}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {editorStage === 'stage1' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 16 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 420, overflowY: 'auto' }}>
+                    {ALL_15_PATTERNS.map((p) => {
+                      const active = selectedPatternEdit === p.pattern;
+                      const tpl = draftConfig.patternTemplates[p.pattern];
+                      return (
+                        <button
+                          key={p.pattern}
+                          type="button"
+                          onClick={() => setSelectedPatternEdit(p.pattern)}
+                          style={{
+                            textAlign: 'left',
+                            padding: '8px 10px',
+                            borderRadius: 6,
+                            border: active ? '1.5px solid #1078ca' : '1px solid #e2e8f0',
+                            background: active ? '#eff8ff' : '#ffffff',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <div style={{ fontSize: 12, fontWeight: 700, color: active ? '#1078ca' : '#0f172a' }}>{tpl.label}</div>
+                          <div style={{ fontSize: 10.5, color: '#64748b' }}>{p.condition}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 800, color: '#1078ca' }}>
+                      Edit Output Pola: {selectedPatternEdit}
+                    </div>
+                    {[
+                      { field: 'label', title: 'Label Pola' },
+                      { field: 'student', title: 'Tugas Fasilitasi ke Siswa' },
+                      { field: 'parent', title: 'Tugas Fasilitasi ke Orang Tua' },
+                      { field: 'nextStep', title: 'Arah Tindak Lanjut' }
+                    ].map((item) => {
+                      const fk = item.field as 'label' | 'student' | 'parent' | 'nextStep';
+                      return (
+                        <div key={item.field}>
+                          <label style={{ fontSize: 11, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                            {item.title}
+                          </label>
+                          <textarea
+                            rows={fk === 'label' ? 1 : 2}
+                            value={draftConfig.patternTemplates[selectedPatternEdit][fk]}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setDraftConfig((prev) => ({
+                                ...prev,
+                                patternTemplates: {
+                                  ...prev.patternTemplates,
+                                  [selectedPatternEdit]: {
+                                    ...prev.patternTemplates[selectedPatternEdit],
+                                    [fk]: val
+                                  }
+                                }
+                              }));
+                            }}
+                            style={{ width: '100%', padding: '7px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {editorStage === 'stage2' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  {(
+                    [
+                      { key: 'mixedOrDifferent', title: 'Jika Rumpun Berbeda / Konflik Pilihan' },
+                      { key: 'aligned', title: 'Jika Pilihan Siswa & Keluarga Selaras' },
+                      { key: 'unconfirmed', title: 'Jika Pilihan Belum Terkonfirmasi Keluarga' },
+                      { key: 'locationCheck', title: 'Tugas Tambahan Pengecekan Izin Lokasi' },
+                      { key: 'wideGap', title: 'Jika Gap Terbobot Masih Lebar' },
+                      { key: 'remainingGap', title: 'Jika Gap Moderat (< 0)' },
+                      { key: 'exceedTarget', title: 'Jika Skor Melampaui Target Acuan (≥ 0)' },
+                      { key: 'lowParticipantsWarning', title: 'Peringatan Pembanding < Batas ({count}, {limit})' }
+                    ] as const
+                  ).map((item) => (
+                    <div key={item.key} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 10 }}>
+                      <label style={{ fontSize: 11.5, fontWeight: 700, color: '#0284c7', display: 'block', marginBottom: 4 }}>
+                        {item.title}
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={draftConfig.stage2Templates[item.key]}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftConfig((prev) => ({
+                            ...prev,
+                            stage2Templates: { ...prev.stage2Templates, [item.key]: v }
+                          }));
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {editorStage === 'stage3' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  {(
+                    [
+                      { id: 'no_drill', desc: 'Drill aplikasi = 0 soal' },
+                      { id: 'low_vol_low_acc', desc: 'Soal < batas & akurasi < batas' },
+                      { id: 'active_drill_low_to', desc: 'Drill aktif tapi gap TO masih lebar' },
+                      { id: 'near_target', desc: 'Gap ke target sudah dekat' },
+                      { id: 'general_gap', desc: 'Kondisi umum lainnya' }
+                    ] as { id: Stage3ConditionId; desc: string }[]
+                  ).map((cond) => (
+                    <div key={cond.id} style={{ background: '#fffcf5', border: '1px solid #fde68a', borderRadius: 8, padding: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: '#b54708', marginBottom: 6 }}>
+                        Kondisi: {cond.desc} ({cond.id})
+                      </div>
+                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 3 }}>
+                        Label Badge
+                      </label>
+                      <input
+                        type="text"
+                        value={draftConfig.stage3SubtestTemplates[cond.id].label}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftConfig((prev) => ({
+                            ...prev,
+                            stage3SubtestTemplates: {
+                              ...prev.stage3SubtestTemplates,
+                              [cond.id]: { ...prev.stage3SubtestTemplates[cond.id], label: v }
+                            }
+                          }));
+                        }}
+                        style={{ width: '100%', padding: '5px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, marginBottom: 8 }}
+                      />
+                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 3 }}>
+                        Output Panduan SA
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={draftConfig.stage3SubtestTemplates[cond.id].saTask}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftConfig((prev) => ({
+                            ...prev,
+                            stage3SubtestTemplates: {
+                              ...prev.stage3SubtestTemplates,
+                              [cond.id]: { ...prev.stage3SubtestTemplates[cond.id], saTask: v }
+                            }
+                          }));
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {editorStage === 'stage4' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  {(
+                    [
+                      { key: 'scheduleTask', title: 'Tugas Konfirmasi Jadwal Siswa' },
+                      { key: 'parentSupportTask', title: 'Tugas Konfirmasi Dukungan Orang Tua' },
+                      { key: 'missingDrillTask', title: 'Tugas Tambahan Jika Ada Drill Minim' },
+                      { key: 'conflictOrLocationTask', title: 'Tugas Tambahan Jika Ada Konflik Prodi/Lokasi' }
+                    ] as const
+                  ).map((item) => (
+                    <div key={item.key} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 10 }}>
+                      <label style={{ fontSize: 11.5, fontWeight: 700, color: '#027a48', display: 'block', marginBottom: 4 }}>
+                        {item.title}
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={draftConfig.stage4Templates[item.key]}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftConfig((prev) => ({
+                            ...prev,
+                            stage4Templates: { ...prev.stage4Templates, [item.key]: v }
+                          }));
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'matrix' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 18 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
+                Matriks Tahap 1 — 15 Pola Riwayat Skor Tryout (Toleransi Aktif ±{activeEvalConfig.thresholds.toTolerancePts} Poin)
               </h2>
               <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 12px' }}>
-                Setiap pola menghasilkan wording netral untuk siswa, orang tua, dan langkah lanjutan tanpa menuduh penyebab.
+                Tabel ini otomatis membaca konfigurasi &amp; wording aktif yang sedang diatur di Tab 2.
               </p>
               <table className="data-table">
                 <thead>
@@ -658,7 +1165,7 @@ export const EngineMatrixPage: React.FC = () => {
                     <th style={{ width: '18%' }}>Nama Pola</th>
                     <th style={{ width: '22%' }}>Jika Kondisi Seperti Ini</th>
                     <th style={{ width: '16%' }}>Contoh Skor</th>
-                    <th>Output Tugas Fasilitasi SA</th>
+                    <th>Output Tugas Fasilitasi SA (Aktif)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -667,14 +1174,13 @@ export const EngineMatrixPage: React.FC = () => {
                       row.scoresExample === '—'
                         ? []
                         : row.scoresExample.split('→').map((x) => Number(x.trim()));
-                    const res = analyzeStage1({
-                      toScores: exNums,
-                      subtestRows: [],
-                      attendanceRatePct: 85
-                    });
+                    const res = analyzeStage1(
+                      { toScores: exNums, subtestRows: [], attendanceRatePct: 85 },
+                      activeEvalConfig
+                    );
                     return (
                       <tr key={row.pattern}>
-                        <td><strong>{row.name}</strong></td>
+                        <td><strong>{res.patternLabel}</strong></td>
                         <td style={{ fontSize: 11.5, color: '#475569' }}>{row.condition}</td>
                         <td><code style={{ fontSize: 11 }}>{row.scoresExample}</code></td>
                         <td style={{ fontSize: 11.5, lineHeight: 1.45 }}>
@@ -687,77 +1193,6 @@ export const EngineMatrixPage: React.FC = () => {
                   })}
                 </tbody>
               </table>
-            </div>
-
-            {/* Matrix 2: Stage 2 & Stage 3 */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 18 }}>
-                <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0284c7', margin: '0 0 10px' }}>
-                  2. Matriks Tahap 2 — Pilihan Jurusan &amp; Keluarga
-                </h2>
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '35%' }}>Jika Kondisi Seperti Ini</th>
-                      <th>Output Panduan SA</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><strong>Rumpun berbeda</strong> antara Pilihan 1–3 atau konflik keinginan keluarga</td>
-                      <td style={{ fontSize: 11.5 }}>Konfirmasi minat utama siswa &amp; harapan ortu antarprodi sebelum membahas cadangan; cek batasan lokasi kampus.</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Pilihan selaras</strong> &amp; gap terbobot masih &le; -100</td>
-                      <td style={{ fontSize: 11.5 }}>Konfirmasi prioritas Pilihan 1–3; bahas komitmen latihan bertahap tanpa memaksa turun jurusan di CP1.</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Melampaui target acuan</strong> (gap &ge; 0)</td>
-                      <td style={{ fontSize: 11.5 }}>Bahas konsistensi skor dan tawarkan cek alternatif lewat Simulasi bila siswa berminat.</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Pembanding &lt; 500 peserta</strong></td>
-                      <td style={{ fontSize: 11.5 }}>Tampilkan peringatan: jangan dipakai sebagai klaim posisi aman maupun jaminan SNPMB.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 18 }}>
-                <h2 style={{ fontSize: 15, fontWeight: 800, color: '#b54708', margin: '0 0 10px' }}>
-                  3. Matriks Tahap 3 — 5 Kondisi Subtes &amp; Drill
-                </h2>
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '35%' }}>Jika Kondisi Seperti Ini</th>
-                      <th>Output Tugas Kartu Subtes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><strong>Drill aplikasi = 0 soal</strong></td>
-                      <td style={{ fontSize: 11.5 }}>Konfirmasi apakah siswa berlatih dari sumber luar atau terkendala teknis, tanpa menyimpulkan siswa belum belajar.</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Drill &lt; 15 soal &amp; akurasi &lt; 50%</strong></td>
-                      <td style={{ fontSize: 11.5 }}>Tinjau 3 topik akurasi terendah bersama siswa dan bahas penguatan konsep dasar di Klinik PR.</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Drill &ge; 15 soal &amp; gap TO &le; -90</strong></td>
-                      <td style={{ fontSize: 11.5 }}>Bandingkan cara siswa mengerjakan latihan vs saat tryout (manajemen waktu, ketelitian premis, variasi soal).</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Jarak ke 600 &ge; -30</strong> (dekat target)</td>
-                      <td style={{ fontSize: 11.5 }}>Pertahankan ritme latihan pada topik yang masih salah agar stabil melampaui 600.</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Ketimpangan drill</strong> (subtes A &ge; 20 soal, subtes gap &le; -90 baru &le; 5 soal)</td>
-                      <td style={{ fontSize: 11.5 }}>Munculkan pengingat latihan semu: tinjau alasan pemilihan latihan agar porsi pindah ke subtes prioritas.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
             </div>
           </div>
         )}
