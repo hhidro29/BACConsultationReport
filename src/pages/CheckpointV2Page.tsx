@@ -187,6 +187,55 @@ export const CheckpointV2Page: React.FC = () => {
     return rangeB - rangeA;
   })[0] || subtestsV2Data[0];
 
+  // Holistic Semantic Theme based on Gap to 600
+  const getCardTheme = (gap: number) => {
+    if (gap >= 0) {
+      return {
+        status: 'TERCAPAI',
+        textColor: '#027a48',
+        borderColor: '#a6f4c5',
+        boxBg: '#ecfdf3',
+        boxBorder: '#a6f4c5',
+        dashBorder: '#a6f4c5'
+      };
+    }
+    if (gap >= -30) {
+      return {
+        status: 'MENDEKATI 600',
+        textColor: '#175cd3',
+        borderColor: '#b2ddff',
+        boxBg: '#eff8ff',
+        boxBorder: '#b2ddff',
+        dashBorder: '#b2ddff'
+      };
+    }
+    if (gap >= -90) {
+      return {
+        status: 'PERLU DITINGKATKAN',
+        textColor: '#b54708',
+        borderColor: '#fedf89',
+        boxBg: '#fffcf5',
+        boxBorder: '#fef0c7',
+        dashBorder: '#fedf89'
+      };
+    }
+    return {
+      status: 'PRIORITAS UTAMA',
+      textColor: '#b42318',
+      borderColor: '#fecdca',
+      boxBg: '#fffbfa',
+      boxBorder: '#fee4e2',
+      dashBorder: '#fecdd3'
+    };
+  };
+
+  const getProgramGapColor = (gap: number) => {
+    if (gap >= 0) return '#027a48';
+    if (gap >= -30) return '#1078ca';
+    if (gap >= -70) return '#b54708';
+    return '#b42318';
+  };
+
   // Deterministic, White-Box SA Guideline Engine (Controllable via /engine)
   const attendanceNumeric = parseFloat(studentIdentity.attendanceRate.replace('%', '')) || 0;
   const stage1Out = analyzeStage1(
@@ -870,7 +919,9 @@ export const CheckpointV2Page: React.FC = () => {
                       </td>
                       <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{prog.targetScore}</td>
                       <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#1078ca' }}>{prog.weightedScore}</td>
-                      <td style={{ textAlign: 'center', fontWeight: 700, color: idx === 2 ? '#b54708' : '#b42318' }}>{prog.gap}</td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: getProgramGapColor(prog.gap) }}>
+                        {prog.gap > 0 ? `+${prog.gap}` : prog.gap}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -955,11 +1006,7 @@ export const CheckpointV2Page: React.FC = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               {prioritySubtestsV2.map((item) => {
-                const isHigh = item.priorityLabel.includes('TERTINGGI') && (item.id === 'pk' || item.id === 'pu');
-                const isLow = item.id === 'pm';
-                const titleColor = isLow ? '#175cd3' : isHigh ? '#b42318' : '#b54708';
-                const boxBg = isLow ? '#eff8ff' : isHigh ? '#fffbfa' : '#fffcf5';
-                const boxBorder = isLow ? '#b2ddff' : isHigh ? '#fee4e2' : '#fef0c7';
+                const theme = getCardTheme(item.gapNum);
 
                 const subRule = analyzeStage3Subtest(
                   {
@@ -979,7 +1026,7 @@ export const CheckpointV2Page: React.FC = () => {
                     key={item.id}
                     style={{
                       background: '#ffffff',
-                      border: `1.5px solid ${item.borderColor}`,
+                      border: `1.5px solid ${theme.borderColor}`,
                       borderRadius: 10,
                       padding: 16,
                       boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
@@ -987,23 +1034,37 @@ export const CheckpointV2Page: React.FC = () => {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                       <div>
-                        <span className={isLow ? 'badge-p-low' : isHigh ? 'badge-p-high' : 'badge-p-med'}>{item.priorityLabel}</span>
-                        <h4 style={{ fontSize: 14.5, fontWeight: 700, color: titleColor, marginTop: 4 }}>{item.name}</h4>
+                        <span
+                          style={{
+                            fontSize: 10.5,
+                            fontWeight: 800,
+                            color: theme.textColor,
+                            background: theme.boxBg,
+                            border: `1px solid ${theme.borderColor}`,
+                            padding: '2px 8px',
+                            borderRadius: 4,
+                            letterSpacing: 0.3,
+                            display: 'inline-block'
+                          }}
+                        >
+                          {item.priorityLabel}
+                        </span>
+                        <h4 style={{ fontSize: 14.5, fontWeight: 700, color: theme.textColor, marginTop: 4 }}>{item.name}</h4>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: titleColor }}>{item.toScore}</div>
-                        <div style={{ fontSize: 10.5, color: titleColor, fontWeight: 700 }}>Jarak ke 600: {item.gapText}</div>
+                        <div style={{ fontSize: 18, fontWeight: 800, color: theme.textColor }}>{item.toScore}</div>
+                        <div style={{ fontSize: 10.5, color: theme.textColor, fontWeight: 700 }}>Jarak ke 600: {item.gapText}</div>
                       </div>
                     </div>
 
-                    <div style={{ background: boxBg, border: `1px solid ${boxBorder}`, borderRadius: 6, padding: '8px 10px', marginBottom: 10, fontSize: 11.5 }}>
+                    <div style={{ background: theme.boxBg, border: `1px solid ${theme.boxBorder}`, borderRadius: 6, padding: '8px 10px', marginBottom: 10, fontSize: 11.5 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span>📱 Soal Selesai di Ruangguru:</span>
                         <strong>{item.rgQuestionsDone} soal</strong>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
                         <span>🎯 Akurasi Latihan:</span>
-                        <strong style={{ color: titleColor }}>{item.rgAccuracy}</strong>
+                        <strong style={{ color: theme.textColor }}>{item.rgAccuracy}</strong>
                       </div>
                     </div>
 
@@ -1018,9 +1079,19 @@ export const CheckpointV2Page: React.FC = () => {
                       </ul>
                     </div>
 
-                    <div style={{ paddingTop: 8, borderTop: `1px dashed ${isHigh ? '#fecdd3' : '#fedf89'}`, fontSize: 11.5, lineHeight: 1.45 }}>
+                    <div style={{ paddingTop: 8, borderTop: `1px dashed ${theme.dashBorder}`, fontSize: 11.5, lineHeight: 1.45 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                        <span style={{ fontSize: 10.5, fontWeight: 700, color: titleColor, background: boxBg, border: `1px solid ${boxBorder}`, padding: '1px 7px', borderRadius: 9999 }}>
+                        <span
+                          style={{
+                            fontSize: 10.5,
+                            fontWeight: 700,
+                            color: theme.textColor,
+                            background: theme.boxBg,
+                            border: `1px solid ${theme.boxBorder}`,
+                            padding: '1.5px 8px',
+                            borderRadius: 9999
+                          }}
+                        >
                           {subRule.conditionLabel}
                         </span>
                       </div>
