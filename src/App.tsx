@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { RaporProvider } from './context/RaporContext';
-import { PortalHubPage } from './pages/PortalHubPage';
 import { CheckpointV2Page } from './pages/CheckpointV2Page';
 import { CheckpointV1Page } from './pages/CheckpointV1Page';
 import { UpdateRaporPage } from './pages/UpdateRaporPage';
@@ -37,11 +36,11 @@ export const App: React.FC = () => {
       <HashRouter>
         <QueryParamRedirector />
         <Routes>
-          <Route path="/" element={<PortalHubPage />} />
+          <Route path="/" element={<Navigate to="/v2" replace />} />
           <Route path="/v2" element={<CheckpointV2Page />} />
           <Route path="/v1" element={<CheckpointV1Page />} />
           <Route path="/rapor" element={<UpdateRaporPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/v2" replace />} />
         </Routes>
       </HashRouter>
     </RaporProvider>

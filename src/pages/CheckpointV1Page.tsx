@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Lock, Unlock, Save, FileText, Info, HelpCircle, X } from 'lucide-react';
-import { RouterTopbar } from '../components/RouterTopbar';
 import { V1PdfModal } from '../components/V1PdfModal';
 import { useRapor } from '../context/RaporContext';
 import { studentIdentity } from '../data/garudaData';
@@ -140,17 +139,15 @@ export const CheckpointV1Page: React.FC = () => {
 
   return (
     <div>
-      <RouterTopbar />
-
       {/* Topbar */}
       <header className="topbar">
         <div className="topbar-inner">
           <nav aria-label="breadcrumb" className="breadcrumbs">
-            <Link to="/">Home</Link>
+            <a href="#home">Home</a>
             <span className="crumb-sep">›</span>
-            <Link to="/v1">Konsultasi - Checkpoint</Link>
+            <a href="#checkpoint">Konsultasi - Checkpoint</a>
             <span className="crumb-sep">›</span>
-            <span className="crumb-current">Detail Checkpoint 1 (V1 Baseline)</span>
+            <span className="crumb-current">Detail Checkpoint 1</span>
           </nav>
           <div className="user-pill">
             <span>{studentIdentity.saName} · {studentIdentity.saEmail}</span>
@@ -162,10 +159,10 @@ export const CheckpointV1Page: React.FC = () => {
       <main className="container">
         {/* Action Bar */}
         <div className="action-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <Link to="/" className="btn btn-back">
+          <button type="button" className="btn btn-back" onClick={() => window.history.back()}>
             <ArrowLeft size={16} />
-            Kembali ke Portal
-          </Link>
+            Kembali
+          </button>
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             {draftSavedToast && (

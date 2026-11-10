@@ -829,55 +829,6 @@
     .badge-p-low { background: #eff8ff; color: #175cd3; border: 1px solid #b2ddff; font-size: 7.2px; font-weight: 700; padding: 0.4mm 1.4mm; border-radius: 2.5px; display: inline-block; white-space: nowrap; }
     .badge-p-done { background: #ecfdf3; color: #027a48; border: 1px solid #a6f4c5; font-size: 7.2px; font-weight: 700; padding: 0.4mm 1.4mm; border-radius: 2.5px; display: inline-block; white-space: nowrap; }
 
-        /* Version Switcher Bar */
-    .version-switch-banner {
-      background: #0f172a;
-      color: #f8fafc;
-      padding: 6px 16px;
-      font-size: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 1px solid #334155;
-    }
-    .version-switch-group {
-      display: inline-flex;
-      background: #1e293b;
-      padding: 2px;
-      border-radius: 6px;
-      border: 1px solid #475467;
-    }
-    .version-switch-btn {
-      padding: 3px 10px;
-      font-size: 11.5px;
-      font-weight: 600;
-      color: #94a3b8;
-      text-decoration: none;
-      border-radius: 4px;
-      transition: all 0.15s;
-    }
-    .version-switch-btn.active {
-      background: #1078ca;
-      color: #ffffff;
-      font-weight: 700;
-    }
-    .version-dropdown:hover .version-dropdown-menu,
-    .version-dropdown-menu.show {
-      display: block !important;
-    }
-    .version-dropdown-menu a:hover {
-      background: #334155;
-      color: #ffffff !important;
-    }
-    @media print {
-      .version-switch-banner { display: none !important; }
-    }
-
-  
-
     /* Rapor Editor Specifics */
     .info-card {
       background: #f0f7ff;

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, RotateCcw } from 'lucide-react';
-import { RouterTopbar } from '../components/RouterTopbar';
 import { useRapor } from '../context/RaporContext';
 import { studentIdentity } from '../data/garudaData';
 
@@ -24,13 +23,11 @@ export const UpdateRaporPage: React.FC = () => {
 
   return (
     <div>
-      <RouterTopbar />
-
       {/* Topbar Super CMS */}
       <header className="topbar">
         <div className="topbar-inner">
           <nav aria-label="breadcrumb" className="breadcrumbs">
-            <Link to="/">Home</Link>
+            <a href="#home">Home</a>
             <span className="crumb-sep">›</span>
             <Link to="/v2">Konsultasi - Checkpoint</Link>
             <span className="crumb-sep">›</span>
