@@ -528,16 +528,16 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
           <div className="jump-nav-links" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <a href="#tahap1" onClick={(e) => scrollTo(e, '#tahap1')} className={`jump-pill ${activeStage === 'tahap1' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
-              🎯 1. Fondasi 600 &amp; Skor Reguler
+              🎯 1. Evaluasi Tryout
             </a>
             <a href="#tahap2" onClick={(e) => scrollTo(e, '#tahap2')} className={`jump-pill ${activeStage === 'tahap2' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
-              🏛️ 2. Skor Terbobot &amp; Jurusan
+              🏛️ 2. Analisis Jurusan
             </a>
             <a href="#tahap3" onClick={(e) => scrollTo(e, '#tahap3')} className={`jump-pill ${activeStage === 'tahap3' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
-              🛠️ 3. Subtes Prioritas &amp; Drill Soal
+              🛠️ 3. Subtes &amp; Drill Soal
             </a>
             <a href="#tahap4" onClick={(e) => scrollTo(e, '#tahap4')} className={`jump-pill ${activeStage === 'tahap4' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
-              📝 4. Rencana Aksi &amp; Catatan SA
+              📝 4. Tindak Lanjut Belajar
             </a>
           </div>
         </nav>
