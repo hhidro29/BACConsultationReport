@@ -11,7 +11,6 @@ import {
   targetPrograms
 } from '../data/garudaData';
 import { useRapor } from '../context/RaporContext';
-import { RuleTraceBox } from '../components/RuleTraceBox';
 import { useRuleConfig } from '../utils/saRuleStore';
 import {
   analyzeStage1,
@@ -616,7 +615,7 @@ export const CheckpointV2Page: React.FC = () => {
                   Pola Terdeteksi: {stage1Out.patternLabel}
                 </span>
                 <Link to="/engine" style={{ fontSize: 11, fontWeight: 700, color: '#1078ca', textDecoration: 'none' }}>
-                  Lihat Aturan →
+                  Lihat &amp; Kontrol Engine →
                 </Link>
               </div>
             </div>
@@ -664,7 +663,6 @@ export const CheckpointV2Page: React.FC = () => {
                 </div>
               </div>
             </div>
-            <RuleTraceBox traces={stage1Out.traces} collapsible />
           </div>
         </section>
 
@@ -773,7 +771,6 @@ export const CheckpointV2Page: React.FC = () => {
                 </div>
               </div>
             </div>
-            <RuleTraceBox traces={stage2Out.traces} collapsible />
           </div>
         </section>
 
@@ -932,7 +929,6 @@ export const CheckpointV2Page: React.FC = () => {
                 </div>
               </div>
             </div>
-            <RuleTraceBox traces={stage3OverallOut.traces} collapsible />
           </div>
         </section>
 
@@ -1123,7 +1119,6 @@ export const CheckpointV2Page: React.FC = () => {
                 </div>
               </div>
             </div>
-            <RuleTraceBox traces={stage4Out.traces} collapsible />
           </div>
         </section>
       </main>
