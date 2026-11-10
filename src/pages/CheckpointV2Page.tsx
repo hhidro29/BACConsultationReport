@@ -245,7 +245,7 @@ export const CheckpointV2Page: React.FC = () => {
                     <strong>Kalimat Pembuka ke Ortu &amp; Siswa:</strong> <em>&quot;Selamat datang Garuda dan Bapak/Ibu. Hari ini kita membedah hasil 4 kali Tryout awal. Di sesi ini, kita menggunakan patokan batas kompetitif nasional yaitu 600 poin per subtes. Sebelum kita hitung peluang lolos di Farmasi UGM atau ITB, target wajib Semester 1 adalah memastikan fondasi di ke-8 subtes menyentuh minimal 600 poin.&quot;</em>
                   </li>
                   <li>
-                    <strong>Pertanyaan Pemantik ke Siswa:</strong> <em>&quot;Dari hasil 4 TO kemarin, ada 1 subtes yang sudah mencapai 600 yaitu Penalaran Matematika (597 ~ 600), tapi ada beberapa subtes seperti Penalaran Umum (465) dan Pengetahuan Kuantitatif (488) yang masih tertinggal jauh. Menurutmu, kendala terbesar di subtes tersebut apa?&quot;</em>
+                    <strong>Pertanyaan Pemantik ke Siswa:</strong> <em>&quot;Dari hasil 4 TO kemarin, ada 1 subtes yang sudah melewati 600 yaitu Pengetahuan &amp; Pemahaman Umum (640 / +40) dan Penalaran Matematika sudah dekat (597 / -3), tapi ada beberapa subtes seperti Penalaran Umum (465 / -135) dan Pengetahuan Kuantitatif (488 / -112) yang masih tertinggal jauh. Menurutmu, kendala terbesar di subtes tersebut apa?&quot;</em>
                   </li>
                   <li>
                     <strong>Catatan untuk Kakak Asuh:</strong> Jangan langsung membuat orang tua cemas karena gap nilai. Jelaskan bahwa penurunan skor dari TO 1 (601) ke TO 4 (546) wajar terjadi karena tingkat kesulitan soal UTBK bertahap meningkat, namun perlu diimbangi disiplin drill harian.
@@ -266,18 +266,18 @@ export const CheckpointV2Page: React.FC = () => {
                   <div className="metric-card-hint">Rata-rata 4 TO (601, 576, 561, 546)</div>
                 </div>
                 <div className="metric-card">
-                  <div className="metric-card-label">Subtes Melampaui 600</div>
+                  <div className="metric-card-label">Subtes Di Atas 600 (+)</div>
                   <div className="metric-card-val" style={{ color: '#027a48' }}>
                     1 <span style={{ fontSize: 14, fontWeight: 500, color: '#475467' }}>/ 8 Subtes</span>
                   </div>
-                  <div className="metric-card-hint" style={{ color: '#027a48', fontWeight: 600 }}>Penalaran Matematika (597 ≈ 600)</div>
+                  <div className="metric-card-hint" style={{ color: '#027a48', fontWeight: 600 }}>Pengetahuan &amp; Pemahaman Umum (PPU: 640 / +40)</div>
                 </div>
                 <div className="metric-card">
-                  <div className="metric-card-label">Subtes Belum Capai 600</div>
+                  <div className="metric-card-label">Subtes Di Bawah 600 (-)</div>
                   <div className="metric-card-val" style={{ color: '#b42318' }}>
                     7 <span style={{ fontSize: 14, fontWeight: 500, color: '#475467' }}>/ 8 Subtes</span>
                   </div>
-                  <div className="metric-card-hint" style={{ color: '#b42318', fontWeight: 600 }}>Gap rata-rata: -73 poin ke batas 600</div>
+                  <div className="metric-card-hint" style={{ color: '#b42318', fontWeight: 600 }}>Jarak: -135 s.d. -3 ke batas 600</div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-card-label">Tingkat Kehadiran Kelas</div>
@@ -326,15 +326,16 @@ export const CheckpointV2Page: React.FC = () => {
                   </thead>
                   <tbody>
                     {subtestsV2Data.map((sub) => {
-                      const isHigh = sub.status === 'PRIORITAS TINGGI';
+                      const isHigh = sub.status === 'PRIORITAS UTAMA';
+                      const isDone = sub.gap >= 0;
                       return (
                         <tr key={sub.id} style={isHigh ? { background: '#fffbfa' } : undefined}>
                           <td><strong>{sub.name}</strong></td>
                           <td style={{ textAlign: 'center' }}>{sub.to1}</td>
                           <td style={{ textAlign: 'center' }}>{sub.to2}</td>
                           <td style={{ textAlign: 'center' }}>{sub.to3}</td>
-                          <td style={{ textAlign: 'center' }}>{sub.to4}</td>
-                          <td style={{ textAlign: 'center', fontWeight: 700, color: sub.id === 'pm' ? '#027a48' : isHigh ? '#d92d20' : undefined }}>
+                          <td style={{ textAlign: 'center', fontWeight: 700, color: isDone ? '#027a48' : isHigh ? '#b42318' : undefined }}>{sub.to4}</td>
+                          <td style={{ textAlign: 'center', fontWeight: 700 }}>
                             {sub.median}
                           </td>
                           <td>
@@ -343,8 +344,8 @@ export const CheckpointV2Page: React.FC = () => {
                               <div className="v2-progress-target-line" title="Target 600" />
                             </div>
                           </td>
-                          <td style={{ textAlign: 'center', fontWeight: 700, color: sub.id === 'pm' ? '#027a48' : isHigh ? '#d92d20' : '#b42318' }}>
-                            {sub.id === 'pm' ? '-3 (Tercapai)' : sub.gap}
+                          <td style={{ textAlign: 'center', fontWeight: 700, color: isDone ? '#027a48' : isHigh ? '#d92d20' : '#b42318' }}>
+                            {sub.gap > 0 ? `+${sub.gap}` : sub.gap}
                           </td>
                           <td style={{ textAlign: 'center' }}>
                             <span className={sub.badgeClass}>{sub.status}</span>
@@ -523,10 +524,11 @@ export const CheckpointV2Page: React.FC = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 {prioritySubtestsV2.map((item) => {
-                  const isHigh = item.priorityLabel.includes('TINGGI');
-                  const titleColor = isHigh ? '#b42318' : '#b54708';
-                  const boxBg = isHigh ? '#fffbfa' : '#fffcf5';
-                  const boxBorder = isHigh ? '#fee4e2' : '#fef0c7';
+                  const isHigh = item.priorityLabel.includes('TERTINGGI') && (item.id === 'pk' || item.id === 'pu');
+                  const isLow = item.id === 'pm';
+                  const titleColor = isLow ? '#175cd3' : isHigh ? '#b42318' : '#b54708';
+                  const boxBg = isLow ? '#eff8ff' : isHigh ? '#fffbfa' : '#fffcf5';
+                  const boxBorder = isLow ? '#b2ddff' : isHigh ? '#fee4e2' : '#fef0c7';
 
                   return (
                     <div
@@ -541,12 +543,12 @@ export const CheckpointV2Page: React.FC = () => {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                         <div>
-                          <span className={isHigh ? 'badge-p-high' : 'badge-p-med'}>{item.priorityLabel}</span>
+                          <span className={isLow ? 'badge-p-low' : isHigh ? 'badge-p-high' : 'badge-p-med'}>{item.priorityLabel}</span>
                           <h3 style={{ fontSize: 14.5, fontWeight: 700, color: titleColor, marginTop: 4 }}>{item.name}</h3>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <div style={{ fontSize: 18, fontWeight: 800, color: titleColor }}>{item.toScore}</div>
-                          <div style={{ fontSize: 10.5, color: titleColor, fontWeight: 700 }}>Gap: {item.gap} ke 600</div>
+                          <div style={{ fontSize: 10.5, color: titleColor, fontWeight: 700 }}>Jarak ke 600: {item.gapText}</div>
                         </div>
                       </div>
 

@@ -7,9 +7,9 @@ export interface SubtestV2 {
   to2: number;
   to3: number;
   to4: number;
-  median: number;
+  median: number | string;
   gap: number;
-  status: 'SUDAH AMAN' | 'CUKUP AMAN' | 'PERLU DITINGKATKAN' | 'PRIORITAS SEDANG' | 'PRIORITAS TINGGI';
+  status: 'TERCAPAI' | 'MENDEKATI 600' | 'PERLU DITINGKATKAN' | 'PRIORITAS UTAMA';
   badgeClass: string;
   fillPct: number;
   barColor: string;
@@ -32,9 +32,9 @@ export interface PrioritySubtest {
   id: string;
   priorityLabel: string;
   name: string;
-  toScore: number;
+  toScore: string;
   targetScore: number;
-  gap: number;
+  gapText: string;
   rgQuestionsDone: number;
   rgAccuracy: string;
   diagnosis: string;
@@ -70,71 +70,71 @@ export const studentIdentity = {
   toLabels: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"]
 };
 
-// 8 Subtests for Academic Team IA (Versi 2)
+// 8 Subtests for Academic Team IA (Versi 2) - Synchronized with V2 PDF
 export const subtestsV2Data: SubtestV2[] = [
   {
-    id: "pm",
-    name: "Penalaran Matematika (PM)",
-    to1: 615, to2: 602, to3: 592, to4: 580,
-    median: 597, gap: -3,
-    status: "SUDAH AMAN", badgeClass: "badge-p-done",
-    fillPct: 65.6, barColor: "#12b76a"
-  },
-  {
-    id: "lbi",
-    name: "Literasi Bahasa Inggris (LBI)",
-    to1: 590, to2: 585, to3: 572, to4: 558,
-    median: 571, gap: -29,
-    status: "CUKUP AMAN", badgeClass: "badge-p-low",
-    fillPct: 57.0, barColor: "#1078ca"
-  },
-  {
-    id: "lbind",
-    name: "Literasi Bahasa Indonesia (LBIND)",
-    to1: 575, to2: 568, to3: 552, to4: 540,
-    median: 555, gap: -45,
-    status: "CUKUP AMAN", badgeClass: "badge-p-low",
-    fillPct: 51.7, barColor: "#1078ca"
-  },
-  {
-    id: "pi",
-    name: "Penalaran Induktif (PI)",
-    to1: 560, to2: 550, to3: 544, to4: 530,
-    median: 542, gap: -58,
-    status: "PERLU DITINGKATKAN", badgeClass: "badge-p-med",
-    fillPct: 47.3, barColor: "#f79009"
-  },
-  {
-    id: "kmb",
-    name: "Kemampuan Memahami Bacaan (KMB)",
-    to1: 548, to2: 536, to3: 525, to4: 515,
-    median: 528, gap: -72,
-    status: "PRIORITAS SEDANG", badgeClass: "badge-p-med",
-    fillPct: 42.7, barColor: "#f79009"
-  },
-  {
-    id: "ppu",
-    name: "Pengetahuan & Pemahaman Umum (PPU)",
-    to1: 535, to2: 524, to3: 512, to4: 502,
-    median: 515, gap: -85,
-    status: "PRIORITAS SEDANG", badgeClass: "badge-p-med",
-    fillPct: 38.3, barColor: "#f79009"
+    id: "pu",
+    name: "Penalaran Umum (PU)",
+    to1: 567, to2: 583, to3: 514, to4: 465,
+    median: "540,5", gap: -135,
+    status: "PRIORITAS UTAMA", badgeClass: "badge-p-high",
+    fillPct: 21.7, barColor: "#d92d20"
   },
   {
     id: "pk",
     name: "Pengetahuan Kuantitatif (PK)",
-    to1: 510, to2: 495, to3: 485, to4: 470,
-    median: 488, gap: -112,
-    status: "PRIORITAS TINGGI", badgeClass: "badge-p-high",
+    to1: 668, to2: 620, to3: 539, to4: 488,
+    median: "579,5", gap: -112,
+    status: "PRIORITAS UTAMA", badgeClass: "badge-p-high",
     fillPct: 29.3, barColor: "#d92d20"
   },
   {
-    id: "pu",
-    name: "Penalaran Umum (PU)",
-    to1: 490, to2: 472, to3: 460, to4: 445,
-    median: 465, gap: -135,
-    status: "PRIORITAS TINGGI", badgeClass: "badge-p-high",
-    fillPct: 21.7, barColor: "#d92d20"
+    id: "lbi_a",
+    name: "Literasi B. Indonesia (Saintek)",
+    to1: 626, to2: 637, to3: 590, to4: 505,
+    median: "608", gap: -95,
+    status: "PRIORITAS UTAMA", badgeClass: "badge-p-high",
+    fillPct: 35.0, barColor: "#d92d20"
+  },
+  {
+    id: "lbe",
+    name: "Literasi B. Inggris (LBING)",
+    to1: 572, to2: 538, to3: 607, to4: 543,
+    median: "557,5", gap: -57,
+    status: "PERLU DITINGKATKAN", badgeClass: "badge-p-med",
+    fillPct: 47.7, barColor: "#f79009"
+  },
+  {
+    id: "pbm",
+    name: "Pemahaman Bacaan & Menulis (PBM)",
+    to1: 553, to2: 562, to3: 612, to4: 554,
+    median: "558", gap: -46,
+    status: "PERLU DITINGKATKAN", badgeClass: "badge-p-med",
+    fillPct: 51.3, barColor: "#f79009"
+  },
+  {
+    id: "lbi_s",
+    name: "Literasi B. Indonesia (Soshum)",
+    to1: 628, to2: 494, to3: 488, to4: 573,
+    median: "533,5", gap: -27,
+    status: "MENDEKATI 600", badgeClass: "badge-p-low",
+    fillPct: 57.7, barColor: "#1078ca"
+  },
+  {
+    id: "pm",
+    name: "Penalaran Matematika (PM)",
+    to1: 597, to2: 639, to3: 588, to4: 597,
+    median: "597", gap: -3,
+    status: "MENDEKATI 600", badgeClass: "badge-p-low",
+    fillPct: 65.7, barColor: "#1078ca"
+  },
+  {
+    id: "ppu",
+    name: "Pengetahuan & Pemahaman Umum (PPU)",
+    to1: 595, to2: 536, to3: 546, to4: 640,
+    median: "570,5", gap: 40,
+    status: "TERCAPAI", badgeClass: "badge-p-done",
+    fillPct: 80.0, barColor: "#12b76a"
   }
 ];
 
@@ -178,58 +178,58 @@ export const targetPrograms: ProgramChoice[] = [
   }
 ];
 
-// 4 Subtests Prioritas for V2
+// 4 Subtests Prioritas for V2 - Synchronized with V2 PDF Section 4
 export const prioritySubtestsV2: PrioritySubtest[] = [
   {
-    id: "pu",
-    priorityLabel: "PRIORITAS TINGGI #1",
-    name: "Penalaran Umum (PU)",
-    toScore: 465,
-    targetScore: 600,
-    gap: -135,
-    rgQuestionsDone: 142,
-    rgAccuracy: "58% (Rendah)",
-    diagnosis: "Siswa sering terkecoh pada logika silogisme majemuk dan premis negatif. Butuh pembiasaan teknik eliminasi premis.",
-    targetTo5: "Naik minimal +45 poin (Skor ≥ 510)",
-    borderColor: "#fda29b"
-  },
-  {
     id: "pk",
-    priorityLabel: "PRIORITAS TINGGI #2",
+    priorityLabel: "BOBOT TERTINGGI #1",
     name: "Pengetahuan Kuantitatif (PK)",
-    toScore: 488,
+    toScore: "488",
     targetScore: 600,
-    gap: -112,
-    rgQuestionsDone: 98,
-    rgAccuracy: "52% (Kritis)",
-    diagnosis: "Kecepatan hitung lambat (>90 detik/soal). Konsep aljabar dasar dan geometri analitik butuh review intensif di klinik PR.",
+    gapText: "-112",
+    rgQuestionsDone: 5,
+    rgAccuracy: "40% benar (1 sesi)",
+    diagnosis: "Kritis. Baru mengerjakan 5 soal di aplikasi. Drill harian dan perkuat konsep dasar Aljabar, Peluang Dasar, dan Geometri di Klinik PR.",
     targetTo5: "Naik minimal +42 poin (Skor ≥ 530)",
     borderColor: "#fda29b"
   },
   {
-    id: "ppu",
-    priorityLabel: "PRIORITAS SEDANG #3",
-    name: "Pengetahuan & Pemahaman Umum (PPU)",
-    toScore: 515,
+    id: "pu",
+    priorityLabel: "BOBOT TERTINGGI #2",
+    name: "Penalaran Umum (PU)",
+    toScore: "465",
     targetScore: 600,
-    gap: -85,
-    rgQuestionsDone: 110,
-    rgAccuracy: "64% (Sedang)",
-    diagnosis: "Kosakata serapan dan makna bertingkat konteks kalimat sering salah tebak. Perlu pembiasaan membaca artikel editorial formal.",
-    targetTo5: "Naik minimal +30 poin (Skor ≥ 545)",
-    borderColor: "#fedf89"
+    gapText: "-135",
+    rgQuestionsDone: 35,
+    rgAccuracy: "63% benar (7 sesi)",
+    diagnosis: "Rutinitas drill sudah terbentuk. Fokus perbaikan pada ketelitian membaca premis silogisme dan pola penalaran induktif.",
+    targetTo5: "Naik minimal +45 poin (Skor ≥ 510)",
+    borderColor: "#fda29b"
   },
   {
-    id: "kmb",
-    priorityLabel: "PRIORITAS SEDANG #4",
-    name: "Kemampuan Memahami Bacaan & Menulis (KMB)",
-    toScore: 528,
+    id: "pm",
+    priorityLabel: "BOBOT TERTINGGI #3",
+    name: "Penalaran Matematika (PM)",
+    toScore: "597",
     targetScore: 600,
-    gap: -72,
-    rgQuestionsDone: 125,
-    rgAccuracy: "67% (Sedang)",
-    diagnosis: "Kecepatan membaca teks panjang (skimming) masih kurang terlatih, sering kehabisan waktu di paragraf terakhir.",
-    targetTo5: "Naik minimal +32 poin (Skor ≥ 560)",
+    gapText: "-3",
+    rgQuestionsDone: 10,
+    rgAccuracy: "50% benar (2 sesi)",
+    diagnosis: "Skor relatif stabil dan hanya terpaut -3 poin dari target 600. Jaga ritme latihan mingguan pada model aljabar kontekstual.",
+    targetTo5: "Stabil menembus ≥ 610",
+    borderColor: "#b2ddff"
+  },
+  {
+    id: "lbi",
+    priorityLabel: "SUBTES PENDUKUNG",
+    name: "Literasi B. Indo (Saintek) & B. Inggris",
+    toScore: "505 / 543",
+    targetScore: 600,
+    gapText: "-95 / -57",
+    rgQuestionsDone: 0,
+    rgAccuracy: "0% (belum ada drill)",
+    diagnosis: "Belum pernah membuka drill literasi di aplikasi. Biasakan membaca minimal 1 teks ilmiah akademik per hari untuk menajamkan ide pokok.",
+    targetTo5: "Naik ke kisaran 550+",
     borderColor: "#fedf89"
   }
 ];
@@ -239,7 +239,7 @@ export const actionPlansV2: ActionPlan[] = [
   {
     num: 1,
     title: "Drill Mandiri Aplikasi Ruangguru",
-    desc: "Target: Menyelesaikan minimal 25 soal per hari khusus subtes prioritas (PU dan PK). Fokus pada bab dengan akurasi terendah di Student Tower setiap malam setelah belajar sekolah.",
+    desc: "Target: Menyelesaikan minimal 25 soal per hari khusus subtes prioritas (PK dan PU). Fokus pada bab dengan akurasi terendah di Student Tower setiap malam setelah belajar sekolah.",
     pic: "Garuda Mahawira Sena (Siswa)",
     accentColor: "#1078ca"
   },
@@ -253,7 +253,7 @@ export const actionPlansV2: ActionPlan[] = [
   {
     num: 3,
     title: "Evaluasi Peningkatan di Tryout 5",
-    desc: "Target: Mengikuti TO 5 tepat waktu dengan target perbaikan skor: PU ≥ 510 (+45), PK ≥ 530 (+42), dan rata-rata keseluruhan naik kembali ke batas aman ≥ 580.",
+    desc: "Target: Mengikuti TO 5 tepat waktu dengan target perbaikan skor: PU ≥ 510 (+45), PK ≥ 530 (+42), dan rata-rata keseluruhan naik kembali menuju batas aman ≥ 580.",
     pic: "Siswa & Tim Akademik Ruangguru",
     accentColor: "#f79009"
   },
