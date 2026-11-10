@@ -198,77 +198,6 @@ export const CheckpointV2Page: React.FC = () => {
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>Milestone Utama Semester 1</span>
           </div>
 
-          {/* Upgraded 2-Column SA Guide Tahap 1 */}
-          <div className="sa-prompt-card" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #1078ca', borderRadius: 8, padding: '14px 18px', marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Info size={16} />
-                Panduan Praktis SA: Menyamakan Persepsi &amp; Patokan Milestone 600
-              </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 8px', borderRadius: 4 }}>
-                Waktu Ideal: ~10 Menit
-              </span>
-            </div>
-
-            <div style={{ fontSize: 12.5, color: '#334155', background: '#ffffff', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', marginBottom: 12, lineHeight: 1.5 }}>
-              🎯 <strong>Tujuan Tahap Ini:</strong> Samakan pemahaman bahwa di Semester 1 ini, patokan aman pertama adalah membawa <strong>seluruh 8 subtes ke minimal 600 poin</strong>, sebelum kita menghitung peluang lolos jurusan spesifik.
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 0.82fr', gap: 14 }}>
-              {/* Kolom Kiri: Alur Bicara 3 Langkah */}
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#1078ca', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🗣️ ALUR BICARA KE ORANG TUA &amp; SISWA (3 LANGKAH):
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, lineHeight: 1.5 }}>
-                  <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>1. Sambut &amp; Kenalkan Patokan:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #1078ca', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Selamat datang Bapak/Ibu dan Garuda. Hari ini kita bedah hasil 4 kali Tryout. Di sesi ini, patokan utama kita adalah batas aman nasional yaitu 600 poin per subtes.&quot;
-                    </div>
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>2. Puji Capaian Positif Dulu:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #027a48', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Kabar baiknya, Pengetahuan &amp; Pemahaman Umum (PPU) Garuda sudah melewati target di angka 640 (+40) dan Penalaran Matematika sudah 597 (tinggal -3 poin lagi).&quot;
-                    </div>
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>3. Ajak Siswa Refleksi Subtes Tertinggal:</strong>
-                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #b42318', color: '#334155', fontStyle: 'italic' }}>
-                      &quot;Namun PU (465 / -135) dan PK (488 / -112) masih ada gap &gt;100 poin. Menurut Garuda, kendala terbesar saat mengerjakan kedua subtes itu kemarin apa?&quot;
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Kolom Kanan: Rambu & Tips Sikap SA */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>✅ LAKUKAN (DO):</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Mulai dari apresiasi agar anak merasa dihargai dan orang tua tidak tegang.</li>
-                    <li>Jelaskan skor TO 1 (601) ke TO 4 (546) wajar turun karena soal tryout bertahap makin kompleks (HOTS), bukan anak mundur.</li>
-                  </ul>
-                </div>
-
-                <div style={{ background: '#fffbfa', padding: '10px 12px', borderRadius: 6, border: '1px solid #fecdca', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#b42318', marginBottom: 4 }}>❌ HINDARI (DON&apos;T):</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Jangan pakai kata &quot;nilaimu anjlok&quot; atau &quot;gagal&quot;.</li>
-                    <li>Jangan buru-buru bahas peluang UGM di tahap ini (selesaikan fondasi 600 dulu).</li>
-                  </ul>
-                </div>
-
-                <div style={{ background: '#eff8ff', padding: '10px 12px', borderRadius: 6, border: '1px solid #b2ddff', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#175cd3', marginBottom: 4 }}>📊 KAPAN PAKAI NILAI MEDIAN?</div>
-                  <p style={{ margin: 0, color: '#334155' }}>
-                    Jika ada subtes fluktuatif ekstrem (contoh LBI Soshum: <code>628→494→488→573</code>), tunjukkan angka <strong>Median (533,5)</strong> sebagai gambaran performa tipikal yang lebih stabil.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Metrics Summary */}
           <div className="section-block" id="sec_tahap1_metrics">
@@ -372,6 +301,8 @@ export const CheckpointV2Page: React.FC = () => {
               </div>
             </div>
           </div>
+
+
 
           {/* Table 8 Subtests */}
           <div className="section-block" id="sec_tahap1_table">
@@ -507,6 +438,81 @@ export const CheckpointV2Page: React.FC = () => {
               </span>
             </div>
 
+          </div>
+
+          {/* Upgraded 2-Column SA Guide Tahap 1 (Placed beneath information) */}
+          <div className="sa-prompt-card" id="sec_tahap1_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #1078ca', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Info size={16} />
+                Panduan Praktis SA: Menyamakan Persepsi &amp; Patokan Milestone 600
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 8px', borderRadius: 4 }}>
+                Waktu Ideal: ~10 Menit
+              </span>
+            </div>
+
+            <div style={{ fontSize: 12.5, color: '#334155', background: '#ffffff', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', marginBottom: 12, lineHeight: 1.5 }}>
+              🎯 <strong>Tujuan Tahap Ini:</strong> Samakan pemahaman bahwa di Semester 1 ini, patokan aman pertama adalah membawa <strong>seluruh 8 subtes ke minimal 600 poin</strong>, sebelum kita menghitung peluang lolos jurusan spesifik.
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 0.82fr', gap: 14 }}>
+              {/* Kolom Kiri: Alur Bicara 3 Langkah */}
+              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#1078ca', marginBottom: 8, letterSpacing: 0.3 }}>
+                  🗣️ ALUR BICARA KE ORANG TUA &amp; SISWA (3 LANGKAH):
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, lineHeight: 1.5 }}>
+                  <div>
+                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>1. Sambut &amp; Kenalkan Patokan:</strong>
+                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #1078ca', color: '#334155', fontStyle: 'italic' }}>
+                      &quot;Selamat datang Bapak/Ibu dan Garuda. Hari ini kita bedah hasil 4 kali Tryout. Di sesi ini, patokan utama kita adalah batas aman nasional yaitu 600 poin per subtes.&quot;
+                    </div>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>2. Puji Capaian Positif Dulu:</strong>
+                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #027a48', color: '#334155', fontStyle: 'italic' }}>
+                      &quot;Kabar baiknya, Pengetahuan &amp; Pemahaman Umum (PPU) Garuda sudah melewati target di angka 640 (+40) dan Penalaran Matematika sudah 597 (tinggal -3 poin lagi).&quot;
+                    </div>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#0f172a', display: 'block', marginBottom: 2 }}>3. Ajak Siswa Refleksi Subtes Tertinggal:</strong>
+                    <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, borderLeft: '2.5px solid #b42318', color: '#334155', fontStyle: 'italic' }}>
+                      &quot;Namun PU (465 / -135) dan PK (488 / -112) masih ada gap &gt;100 poin. Menurut Garuda, kendala terbesar saat mengerjakan kedua subtes itu kemarin apa?&quot;
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Kolom Kanan: Rambu & Tips Sikap SA */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>✅ LAKUKAN (DO):</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
+                    <li>Mulai dari apresiasi agar anak merasa dihargai dan orang tua tidak tegang.</li>
+                    <li>Jelaskan skor TO 1 (601) ke TO 4 (546) wajar turun karena soal tryout bertahap makin kompleks (HOTS), bukan anak mundur.</li>
+                  </ul>
+                </div>
+
+                <div style={{ background: '#fffbfa', padding: '10px 12px', borderRadius: 6, border: '1px solid #fecdca', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#b42318', marginBottom: 4 }}>❌ HINDARI (DON&apos;T):</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
+                    <li>Jangan pakai kata &quot;nilaimu anjlok&quot; atau &quot;gagal&quot;.</li>
+                    <li>Jangan buru-buru bahas peluang UGM di tahap ini (selesaikan fondasi 600 dulu).</li>
+                  </ul>
+                </div>
+
+                <div style={{ background: '#eff8ff', padding: '10px 12px', borderRadius: 6, border: '1px solid #b2ddff', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#175cd3', marginBottom: 4 }}>📊 KAPAN PAKAI NILAI MEDIAN?</div>
+                  <p style={{ margin: 0, color: '#334155' }}>
+                    Jika ada subtes fluktuatif ekstrem (contoh LBI Soshum: <code>628→494→488→573</code>), tunjukkan angka <strong>Median (533,5)</strong> sebagai gambaran performa tipikal yang lebih stabil.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
             {/* Next Stage Jump Link */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
               <a
@@ -518,11 +524,9 @@ export const CheckpointV2Page: React.FC = () => {
                 Lanjut ke Tahap 2: Skor Terbobot &amp; Jurusan <ChevronDown size={15} />
               </a>
             </div>
-          </div>
+
         </section>
 
-        {/* ========================================================= */}
-        {/* TAHAP 2: SKOR TERBOBOT & EVALUASI JURUSAN PILIHAN         */}
         {/* ========================================================= */}
         <section id="tahap2" style={{ scrollMarginTop: 75, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
@@ -537,8 +541,52 @@ export const CheckpointV2Page: React.FC = () => {
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>Formula Pembobotan Resmi CMS Ruangguru</span>
           </div>
 
-          {/* Upgraded 2-Column SA Guide Tahap 2 */}
-          <div className="sa-prompt-card" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #0284c7', borderRadius: 8, padding: '14px 18px', marginBottom: 20 }}>
+
+          {/* Table Program Choices */}
+          <div className="section-block" id="sec_tahap2_table">
+            <div className="section-header">
+              <h3 className="section-title" style={{ fontSize: 15 }}>1. Evaluasi Peluang Kelulusan 3 Pilihan Jurusan PTN</h3>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                Dihitung dari Skor TO 4 Menggunakan Formula Bobot Subtes Resmi Super CMS
+              </span>
+            </div>
+
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '12%' }}>Pilihan</th>
+                    <th style={{ width: '40%' }}>Program Studi &amp; Perguruan Tinggi</th>
+                    <th style={{ width: '16%', textAlign: 'center' }}>Target Skor Lolos</th>
+                    <th style={{ width: '16%', textAlign: 'center' }}>Skor Terbobot TO 4</th>
+                    <th style={{ width: '16%', textAlign: 'center' }}>Selisih ke Target</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {targetPrograms.map((prog, idx) => (
+                    <tr key={prog.priority}>
+                      <td>
+                        <span style={{ fontWeight: 700, color: idx === 0 ? '#1078ca' : idx === 1 ? '#0284c7' : '#b54708' }}>
+                          {prog.priority}
+                        </span>
+                      </td>
+                      <td>
+                        <strong>{prog.prodi}</strong><br />
+                        <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{prog.univ} • Keketatan: {prog.tightness}</span>
+                      </td>
+                      <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{prog.targetScore}</td>
+                      <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#1078ca' }}>{prog.weightedScore}</td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: idx === 2 ? '#b54708' : '#b42318' }}>{prog.gap}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+          {/* Upgraded 2-Column SA Guide Tahap 2 (Placed beneath information) */}
+          <div className="sa-prompt-card" id="sec_tahap2_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #0284c7', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#0284c7', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Building2 size={16} />
@@ -608,46 +656,6 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
           </div>
 
-          {/* Table Program Choices */}
-          <div className="section-block" id="sec_tahap2_table">
-            <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Evaluasi Peluang Kelulusan 3 Pilihan Jurusan PTN</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                Dihitung dari Skor TO 4 Menggunakan Formula Bobot Subtes Resmi Super CMS
-              </span>
-            </div>
-
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: '12%' }}>Pilihan</th>
-                    <th style={{ width: '40%' }}>Program Studi &amp; Perguruan Tinggi</th>
-                    <th style={{ width: '16%', textAlign: 'center' }}>Target Skor Lolos</th>
-                    <th style={{ width: '16%', textAlign: 'center' }}>Skor Terbobot TO 4</th>
-                    <th style={{ width: '16%', textAlign: 'center' }}>Selisih ke Target</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {targetPrograms.map((prog, idx) => (
-                    <tr key={prog.priority}>
-                      <td>
-                        <span style={{ fontWeight: 700, color: idx === 0 ? '#1078ca' : idx === 1 ? '#0284c7' : '#b54708' }}>
-                          {prog.priority}
-                        </span>
-                      </td>
-                      <td>
-                        <strong>{prog.prodi}</strong><br />
-                        <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{prog.univ} • Keketatan: {prog.tightness}</span>
-                      </td>
-                      <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{prog.targetScore}</td>
-                      <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#1078ca' }}>{prog.weightedScore}</td>
-                      <td style={{ textAlign: 'center', fontWeight: 700, color: idx === 2 ? '#b54708' : '#b42318' }}>{prog.gap}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
 
             {/* Next Stage Jump Link */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
@@ -660,11 +668,9 @@ export const CheckpointV2Page: React.FC = () => {
                 Lanjut ke Tahap 3: Subtes Prioritas &amp; Drill Aplikasi <ChevronDown size={15} />
               </a>
             </div>
-          </div>
+
         </section>
 
-        {/* ========================================================= */}
-        {/* TAHAP 3: SUBTES PRIORITAS & AKTIVITAS DRILL RUANGGURU     */}
         {/* ========================================================= */}
         <section id="tahap3" style={{ scrollMarginTop: 75, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
@@ -679,8 +685,73 @@ export const CheckpointV2Page: React.FC = () => {
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>Data Aktivitas Student Tower Aplikasi Ruangguru</span>
           </div>
 
-          {/* Upgraded 2-Column SA Guide Tahap 3 */}
-          <div className="sa-prompt-card" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #b54708', borderRadius: 8, padding: '14px 18px', marginBottom: 20 }}>
+
+          {/* Cards 4 Subtests */}
+          <div className="section-block" id="sec_tahap3_cards">
+            <div className="section-header">
+              <h3 className="section-title" style={{ fontSize: 15 }}>1. Analisis Diagnostik 4 Subtes Penentu Kelulusan</h3>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                Dipilih Berdasarkan Bobot Tertinggi di Pilihan Jurusan dan Gap Skor Terbesar
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              {prioritySubtestsV2.map((item) => {
+                const isHigh = item.priorityLabel.includes('TERTINGGI') && (item.id === 'pk' || item.id === 'pu');
+                const isLow = item.id === 'pm';
+                const titleColor = isLow ? '#175cd3' : isHigh ? '#b42318' : '#b54708';
+                const boxBg = isLow ? '#eff8ff' : isHigh ? '#fffbfa' : '#fffcf5';
+                const boxBorder = isLow ? '#b2ddff' : isHigh ? '#fee4e2' : '#fef0c7';
+
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      background: '#ffffff',
+                      border: `1.5px solid ${item.borderColor}`,
+                      borderRadius: 10,
+                      padding: 16,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                      <div>
+                        <span className={isLow ? 'badge-p-low' : isHigh ? 'badge-p-high' : 'badge-p-med'}>{item.priorityLabel}</span>
+                        <h4 style={{ fontSize: 14.5, fontWeight: 700, color: titleColor, marginTop: 4 }}>{item.name}</h4>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 18, fontWeight: 800, color: titleColor }}>{item.toScore}</div>
+                        <div style={{ fontSize: 10.5, color: titleColor, fontWeight: 700 }}>Jarak ke 600: {item.gapText}</div>
+                      </div>
+                    </div>
+
+                    <div style={{ background: boxBg, border: `1px solid ${boxBorder}`, borderRadius: 6, padding: '8px 10px', marginBottom: 10, fontSize: 11.5 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>📱 Soal Selesai di Ruangguru:</span>
+                        <strong>{item.rgQuestionsDone} soal</strong>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
+                        <span>🎯 Akurasi Latihan:</span>
+                        <strong style={{ color: titleColor }}>{item.rgAccuracy}</strong>
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                      <strong>Diagnosa Kakak Asuh:</strong> {item.diagnosis}
+                    </div>
+
+                    <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px dashed ${isHigh ? '#fecdd3' : '#fedf89'}`, fontSize: 11.5, color: '#1078ca', fontWeight: 600 }}>
+                      🎯 Target TO 5: {item.targetTo5}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+          </div>
+
+          {/* Upgraded 2-Column SA Guide Tahap 3 (Placed beneath information) */}
+          <div className="sa-prompt-card" id="sec_tahap3_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #b54708', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#b54708', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Wrench size={16} />
@@ -753,67 +824,6 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
           </div>
 
-          {/* Cards 4 Subtests */}
-          <div className="section-block" id="sec_tahap3_cards">
-            <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Analisis Diagnostik 4 Subtes Penentu Kelulusan</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                Dipilih Berdasarkan Bobot Tertinggi di Pilihan Jurusan dan Gap Skor Terbesar
-              </span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              {prioritySubtestsV2.map((item) => {
-                const isHigh = item.priorityLabel.includes('TERTINGGI') && (item.id === 'pk' || item.id === 'pu');
-                const isLow = item.id === 'pm';
-                const titleColor = isLow ? '#175cd3' : isHigh ? '#b42318' : '#b54708';
-                const boxBg = isLow ? '#eff8ff' : isHigh ? '#fffbfa' : '#fffcf5';
-                const boxBorder = isLow ? '#b2ddff' : isHigh ? '#fee4e2' : '#fef0c7';
-
-                return (
-                  <div
-                    key={item.id}
-                    style={{
-                      background: '#ffffff',
-                      border: `1.5px solid ${item.borderColor}`,
-                      borderRadius: 10,
-                      padding: 16,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                      <div>
-                        <span className={isLow ? 'badge-p-low' : isHigh ? 'badge-p-high' : 'badge-p-med'}>{item.priorityLabel}</span>
-                        <h4 style={{ fontSize: 14.5, fontWeight: 700, color: titleColor, marginTop: 4 }}>{item.name}</h4>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: titleColor }}>{item.toScore}</div>
-                        <div style={{ fontSize: 10.5, color: titleColor, fontWeight: 700 }}>Jarak ke 600: {item.gapText}</div>
-                      </div>
-                    </div>
-
-                    <div style={{ background: boxBg, border: `1px solid ${boxBorder}`, borderRadius: 6, padding: '8px 10px', marginBottom: 10, fontSize: 11.5 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>📱 Soal Selesai di Ruangguru:</span>
-                        <strong>{item.rgQuestionsDone} soal</strong>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
-                        <span>🎯 Akurasi Latihan:</span>
-                        <strong style={{ color: titleColor }}>{item.rgAccuracy}</strong>
-                      </div>
-                    </div>
-
-                    <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
-                      <strong>Diagnosa Kakak Asuh:</strong> {item.diagnosis}
-                    </div>
-
-                    <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px dashed ${isHigh ? '#fecdd3' : '#fedf89'}`, fontSize: 11.5, color: '#1078ca', fontWeight: 600 }}>
-                      🎯 Target TO 5: {item.targetTo5}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
 
             {/* Next Stage Jump Link */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
@@ -826,11 +836,9 @@ export const CheckpointV2Page: React.FC = () => {
                 Lanjut ke Tahap 4: Rencana Aksi &amp; Lembar Kesepakatan <ChevronDown size={15} />
               </a>
             </div>
-          </div>
+
         </section>
 
-        {/* ========================================================= */}
-        {/* TAHAP 4: RENCANA AKSI & KESEPAKATAN 3 PIHAK               */}
         {/* ========================================================= */}
         <section id="tahap4" style={{ scrollMarginTop: 75, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
@@ -845,8 +853,109 @@ export const CheckpointV2Page: React.FC = () => {
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>Komitmen Nyata Siswa, Orang Tua &amp; Kakak Asuh</span>
           </div>
 
-          {/* Upgraded 2-Column SA Guide Tahap 4 */}
-          <div className="sa-prompt-card" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #027a48', borderRadius: 8, padding: '14px 18px', marginBottom: 20 }}>
+
+          {/* Action Plans Cards */}
+          <div className="section-block" id="sec_tahap4_plans">
+            <div className="section-header">
+              <h3 className="section-title" style={{ fontSize: 15 }}>1. Rencana Aksi Bersama Sampai TO 5</h3>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>4 Tindakan Konkret yang Wajib Dijalankan Selama 4 Minggu ke Depan</span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              {actionPlansV2.map((plan) => (
+                <div
+                  key={plan.num}
+                  style={{
+                    background: '#f8fafc',
+                    border: '1px solid var(--border)',
+                    borderLeft: `4px solid ${plan.accentColor}`,
+                    borderRadius: 8,
+                    padding: '14px 16px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span style={{
+                      background: plan.accentColor,
+                      color: '#fff',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      width: 22,
+                      height: 22,
+                      borderRadius: '50%',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      {plan.num}
+                    </span>
+                    <strong style={{ fontSize: 13, color: 'var(--ink)' }}>{plan.title}</strong>
+                  </div>
+                  <p style={{ fontSize: 12, color: '#334155', lineHeight: 1.55 }}>{plan.desc}</p>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>PIC: {plan.pic}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+
+          {/* Agreement & Signature Card */}
+          <div className="section-block" id="sec_tahap4_agreement">
+            <div className="section-header">
+              <h3 className="section-title" style={{ fontSize: 15 }}>2. Lembar Kesepakatan Bersama 3 Pihak</h3>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Dokumen Resmi Konsultasi Checkpoint 1 Cabang Depok Margonda</span>
+            </div>
+
+            <div style={{ background: '#f8fafc', border: '1px solid var(--border)', borderRadius: 8, padding: 18 }}>
+              <div style={{ fontSize: 12.5, color: '#334155', fontStyle: 'italic', marginBottom: 14, lineHeight: 1.55 }}>
+                &quot;Dengan menandatangani lembar ini, Siswa, Orang Tua / Wali, dan Kakak Asuh Brain Academy menyatakan telah berdiskusi bersama, memahami hasil evaluasi belajar 4 Tryout, dan bersepakat mengenai formulasi pilihan jurusan serta komitmen rencana tindak lanjut belajar Checkpoint 1 demi mencapai target PTN impian.&quot;
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, textAlign: 'center' }}>
+                <div style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>PIHAK SISWA</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{studentIdentity.name}</div>
+                  <div style={{ fontSize: 11, color: '#027a48', fontWeight: 600, marginTop: 2 }}>✓ Menyetujui Komitmen</div>
+                </div>
+                <div style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>PIHAK ORANG TUA</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{studentIdentity.parentName}</div>
+                  <div style={{ fontSize: 11, color: '#027a48', fontWeight: 600, marginTop: 2 }}>✓ Hadir &amp; Menyetujui</div>
+                </div>
+                <div style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>KAKAK ASUH RUANGGURU</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{studentIdentity.saName}</div>
+                  <div style={{ fontSize: 11, color: '#1078ca', fontWeight: 600, marginTop: 2 }}>✓ Fasilitator &amp; Pendamping</div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--ink)', marginBottom: 6 }}>
+                  Catatan Khusus Kakak Asuh (Tersimpan ke LocalStorage):
+                </label>
+                <textarea
+                  rows={3}
+                  disabled={isLocked}
+                  value={saNotes}
+                  onChange={(e) => setSaNotes(e.target.value)}
+                  style={{
+                    width: '100%',
+                    border: '1px solid var(--border)',
+                    borderRadius: 6,
+                    padding: '10px 12px',
+                    fontSize: 12,
+                    fontFamily: 'inherit',
+                    lineHeight: 1.5,
+                    color: '#1e293b',
+                    backgroundColor: isLocked ? '#f1f5f9' : '#ffffff'
+                  }}
+                />
+              </div>
+            </div>
+
+          </div>
+
+          {/* Upgraded 2-Column SA Guide Tahap 4 (Placed beneath information) */}
+          <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #027a48', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#027a48', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ShieldCheck size={16} />
@@ -911,102 +1020,6 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
           </div>
 
-          {/* Action Plans Cards */}
-          <div className="section-block" id="sec_tahap4_plans">
-            <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Rencana Aksi Bersama Sampai TO 5</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>4 Tindakan Konkret yang Wajib Dijalankan Selama 4 Minggu ke Depan</span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              {actionPlansV2.map((plan) => (
-                <div
-                  key={plan.num}
-                  style={{
-                    background: '#f8fafc',
-                    border: '1px solid var(--border)',
-                    borderLeft: `4px solid ${plan.accentColor}`,
-                    borderRadius: 8,
-                    padding: '14px 16px'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <span style={{
-                      background: plan.accentColor,
-                      color: '#fff',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      width: 22,
-                      height: 22,
-                      borderRadius: '50%',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      {plan.num}
-                    </span>
-                    <strong style={{ fontSize: 13, color: 'var(--ink)' }}>{plan.title}</strong>
-                  </div>
-                  <p style={{ fontSize: 12, color: '#334155', lineHeight: 1.55 }}>{plan.desc}</p>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>PIC: {plan.pic}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Agreement & Signature Card */}
-          <div className="section-block" id="sec_tahap4_agreement">
-            <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>2. Lembar Kesepakatan Bersama 3 Pihak</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Dokumen Resmi Konsultasi Checkpoint 1 Cabang Depok Margonda</span>
-            </div>
-
-            <div style={{ background: '#f8fafc', border: '1px solid var(--border)', borderRadius: 8, padding: 18 }}>
-              <div style={{ fontSize: 12.5, color: '#334155', fontStyle: 'italic', marginBottom: 14, lineHeight: 1.55 }}>
-                &quot;Dengan menandatangani lembar ini, Siswa, Orang Tua / Wali, dan Kakak Asuh Brain Academy menyatakan telah berdiskusi bersama, memahami hasil evaluasi belajar 4 Tryout, dan bersepakat mengenai formulasi pilihan jurusan serta komitmen rencana tindak lanjut belajar Checkpoint 1 demi mencapai target PTN impian.&quot;
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, textAlign: 'center' }}>
-                <div style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>PIHAK SISWA</div>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{studentIdentity.name}</div>
-                  <div style={{ fontSize: 11, color: '#027a48', fontWeight: 600, marginTop: 2 }}>✓ Menyetujui Komitmen</div>
-                </div>
-                <div style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>PIHAK ORANG TUA</div>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{studentIdentity.parentName}</div>
-                  <div style={{ fontSize: 11, color: '#027a48', fontWeight: 600, marginTop: 2 }}>✓ Hadir &amp; Menyetujui</div>
-                </div>
-                <div style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>KAKAK ASUH RUANGGURU</div>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{studentIdentity.saName}</div>
-                  <div style={{ fontSize: 11, color: '#1078ca', fontWeight: 600, marginTop: 2 }}>✓ Fasilitator &amp; Pendamping</div>
-                </div>
-              </div>
-
-              <div style={{ marginTop: 16 }}>
-                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--ink)', marginBottom: 6 }}>
-                  Catatan Khusus Kakak Asuh (Tersimpan ke LocalStorage):
-                </label>
-                <textarea
-                  rows={3}
-                  disabled={isLocked}
-                  value={saNotes}
-                  onChange={(e) => setSaNotes(e.target.value)}
-                  style={{
-                    width: '100%',
-                    border: '1px solid var(--border)',
-                    borderRadius: 6,
-                    padding: '10px 12px',
-                    fontSize: 12,
-                    fontFamily: 'inherit',
-                    lineHeight: 1.5,
-                    color: '#1e293b',
-                    backgroundColor: isLocked ? '#f1f5f9' : '#ffffff'
-                  }}
-                />
-              </div>
-            </div>
 
             {/* Bottom Download Banner */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, background: '#0f172a', color: '#fff', padding: '14px 20px', borderRadius: 8 }}>
@@ -1047,7 +1060,6 @@ export const CheckpointV2Page: React.FC = () => {
                 </button>
               </div>
             </div>
-          </div>
         </section>
       </main>
 
