@@ -389,7 +389,7 @@ export const CheckpointV2Page: React.FC = () => {
               style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap' }}
               title="Lihat & Update Nilai Rapor Semester 1–5"
             >
-              📝 Rapor ({raporMetrics.overallAvg})
+              📝 Update Rapor
             </Link>
             <button
               type="button"
