@@ -17,6 +17,8 @@ import {
   PROGRAM_CATALOG,
   CATALOG_PROVINCES,
   CATALOG_TIERS,
+  STUDENT_TOWER_RUMPUNS,
+  StudentTowerRumpun,
   CatalogProgram,
   ProgramTier,
   ScoreBasis,
@@ -29,7 +31,7 @@ import {
   SUBTEST_LABELS
 } from '../data/programCatalog';
 
-type RumpunFilter = 'all' | 'saintek' | 'soshum';
+type RumpunFilter = 'all' | StudentTowerRumpun;
 
 const STORAGE_KEY_PROGRAMS = 'bac_v2_custom_programs_v1';
 const STORAGE_KEY_STUDENT = 'bac_v2_active_student_v1';
@@ -113,15 +115,15 @@ export const SimulasiPage: React.FC = () => {
   const activePrograms = customProgramsByStudent[student.id] || student.targetPrograms;
   const isCustomized = Boolean(customProgramsByStudent[student.id]);
 
-  // Determine student's primary rumpun
-  const studentRumpun = useMemo<'saintek' | 'soshum'>(() => {
-    const p1 = activePrograms[0];
-    if (p1 && (p1.rumpun === 'saintek' || p1.rumpun === 'soshum')) return p1.rumpun;
-    if (student.identity.major.toLowerCase().includes('ips') || student.identity.major.toLowerCase().includes('sosial')) {
-      return 'soshum';
+  // Determine student's primary Student Tower Rumpun from Pilihan 1
+  const studentRumpun = useMemo<StudentTowerRumpun>(() => {
+    const p1 = student.targetPrograms[0];
+    if (p1) {
+      const matched = matchCatalogProgram(p1);
+      if (matched) return matched.rumpunName;
     }
-    return 'saintek';
-  }, [activePrograms, student]);
+    return 'Kesehatan';
+  }, [student]);
 
   const [scoreBasis, setScoreBasis] = useState<ScoreBasis>('to4');
   const [provinceFilter, setProvinceFilter] = useState<string>('all');
@@ -219,6 +221,7 @@ export const SimulasiPage: React.FC = () => {
           shortUniv: choice.univ,
           degree: (choice.degree as 'S1' | 'D4' | 'D3') || 'S1',
           rumpun: choice.rumpun === 'soshum' ? 'soshum' : 'saintek',
+          rumpunName: studentRumpun,
           clusterLabel: 'Pilihan Siswa',
           city: choice.city,
           province: 'Lainnya',
@@ -283,7 +286,7 @@ export const SimulasiPage: React.FC = () => {
   const availableUniversities = useMemo(() => {
     const filtered = PROGRAM_CATALOG.filter((p) => {
       if (provinceFilter !== 'all' && p.province !== provinceFilter) return false;
-      if (rumpunFilter !== 'all' && p.rumpun !== rumpunFilter) return false;
+      if (rumpunFilter !== 'all' && p.rumpunName !== rumpunFilter) return false;
       return true;
     });
     return Array.from(new Set(filtered.map((p) => p.univ))).sort();
@@ -299,13 +302,13 @@ export const SimulasiPage: React.FC = () => {
     return allSimulated
       .filter((item) => {
         if (provinceFilter !== 'all' && item.catalog.province !== provinceFilter) return false;
-        if (rumpunFilter !== 'all' && item.catalog.rumpun !== rumpunFilter) return false;
+        if (rumpunFilter !== 'all' && item.catalog.rumpunName !== rumpunFilter) return false;
         if (universityFilter !== 'all' && item.catalog.univ !== universityFilter) return false;
         if (tierFilter !== 'all' && item.catalog.tier !== tierFilter) return false;
 
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase();
-          const matchText = `${item.catalog.prodi} ${item.catalog.univ} ${item.catalog.shortUniv} ${item.catalog.city} ${item.catalog.province} ${item.catalog.clusterLabel}`.toLowerCase();
+          const matchText = `${item.catalog.prodi} ${item.catalog.univ} ${item.catalog.shortUniv} ${item.catalog.city} ${item.catalog.province} ${item.catalog.rumpunName}`.toLowerCase();
           if (!matchText.includes(q)) return false;
         }
 
@@ -521,7 +524,7 @@ export const SimulasiPage: React.FC = () => {
             <p style={{ marginTop: 6, marginBottom: 0 }}>
               <span>Domisili: <strong>{studentCity}</strong></span>
               <span className="student-tag">{student.identity.school}</span>
-              <span className="student-tag">Minat: {studentRumpun === 'saintek' ? 'Saintek' : 'Soshum'}</span>
+              <span className="student-tag">Rumpun Minat: {studentRumpun}</span>
               <span className="student-tag">Skor Reguler TO 4: {latestTO4} (Rata-rata: {avgTO})</span>
             </p>
           </div>
@@ -1003,8 +1006,11 @@ export const SimulasiPage: React.FC = () => {
                 }}
               >
                 <option value="all">Semua rumpun</option>
-                <option value="saintek">Saintek</option>
-                <option value="soshum">Soshum</option>
+                {STUDENT_TOWER_RUMPUNS.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -1187,7 +1193,7 @@ export const SimulasiPage: React.FC = () => {
                             )}
                           </div>
                           <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 2 }}>
-                            {sim.catalog.rumpun === 'saintek' ? 'Saintek' : 'Soshum'} · Pembobot: {sim.prioritySubtestDetails.map((d) => d.shortLabel).join(', ')}
+                            {sim.catalog.rumpunName} · Pembobot: {sim.prioritySubtestDetails.map((d) => d.shortLabel).join(', ')}
                           </div>
                         </td>
                         <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: '#0f172a' }}>

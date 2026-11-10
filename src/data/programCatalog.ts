@@ -10,6 +10,29 @@ export type OpportunityZone = 'safe' | 'near' | 'target' | 'reach';
 
 export type ProgramTier = 'Tier 1' | 'Tier 2' | 'Tier 3';
 
+export const STUDENT_TOWER_RUMPUNS = [
+  'Kedokteran Umum, Gigi dan Hewan',
+  'Kesehatan',
+  'Teknik',
+  'Ilmu Komputer dan Informatika',
+  'Sains dan MIPA',
+  'Matematika, Aktuaria & Sains Data',
+  'Pertanian, Peternakan, Perikanan & Kehutanan',
+  'Pendidikan',
+  'Ekonomi & Bisnis',
+  'Ilmu Hukum',
+  'Psikologi',
+  'Ilmu Sosial dan Ilmu Politik (FISIP)',
+  'Ilmu Administrasi',
+  'Ilmu Budaya, Bahasa & Sastra',
+  'PJOK & Ilmu Keolahragaan',
+  'Desain dan Seni',
+  'Pariwisata & Perhotelan',
+  'Kedinasan, Militer & Kepolisian'
+] as const;
+
+export type StudentTowerRumpun = (typeof STUDENT_TOWER_RUMPUNS)[number];
+
 export interface CatalogProgram {
   id: string;
   prodi: string;
@@ -17,6 +40,7 @@ export interface CatalogProgram {
   shortUniv: string;
   degree: 'S1' | 'D4' | 'D3';
   rumpun: 'saintek' | 'soshum';
+  rumpunName: StudentTowerRumpun;
   clusterLabel: string;
   city: string;
   province: string;
@@ -61,7 +85,7 @@ export const SUBTEST_LABELS: Record<SubtestKey, { short: string; full: string }>
   pm: { short: 'PM', full: 'Penalaran Matematika' }
 };
 
-type RawCatalogProgram = Omit<CatalogProgram, 'province' | 'tier'>;
+type RawCatalogProgram = Omit<CatalogProgram, 'province' | 'tier' | 'rumpunName'>;
 
 function deriveProvince(city: string): string {
   const c = city.toLowerCase();
@@ -77,6 +101,25 @@ function deriveTier(targetScore: number): ProgramTier {
   if (targetScore >= 660) return 'Tier 1';
   if (targetScore >= 610) return 'Tier 2';
   return 'Tier 3';
+}
+
+function deriveRumpunName(clusterLabel: string, prodi: string): StudentTowerRumpun {
+  const cl = clusterLabel.toLowerCase();
+  const pr = prodi.toLowerCase();
+  if (pr.includes('dokter')) return 'Kedokteran Umum, Gigi dan Hewan';
+  if (cl.includes('kesehatan') || cl.includes('farmasi')) return 'Kesehatan';
+  if (cl.includes('teknik') || cl.includes('rekayasa')) return 'Teknik';
+  if (pr.includes('sains data') || cl.includes('matematika')) return 'Matematika, Aktuaria & Sains Data';
+  if (cl.includes('informatika') || cl.includes('komputasi')) return 'Ilmu Komputer dan Informatika';
+  if (cl.includes('pangan') || cl.includes('pertanian')) return 'Pertanian, Peternakan, Perikanan & Kehutanan';
+  if (cl.includes('sains murni')) return 'Sains dan MIPA';
+  if (cl.includes('hukum')) return 'Ilmu Hukum';
+  if (cl.includes('psikologi')) return 'Psikologi';
+  if (cl.includes('ekonomi') || cl.includes('bisnis') || pr.includes('manajemen') || pr.includes('akuntansi')) return 'Ekonomi & Bisnis';
+  if (cl.includes('hubungan internasional') || cl.includes('komunikasi') || cl.includes('politik')) {
+    return 'Ilmu Sosial dan Ilmu Politik (FISIP)';
+  }
+  return 'Sains dan MIPA';
 }
 
 const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
@@ -512,17 +555,78 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     supportSubjects: ['Sosiologi', 'Matematika'],
     prioritySubtests: ['pu', 'pbm', 'lbe'],
     subtestWeights: { pu: 0.22, pbm: 0.18, lbe: 0.16, ppu: 0.14, lbi_s: 0.14, pk: 0.08, pm: 0.06, lbi_a: 0.02 }
+  },
+  {
+    id: 'ui_kedokteran',
+    prodi: 'S1 Pendidikan Dokter',
+    univ: 'Universitas Indonesia (UI)',
+    shortUniv: 'UI',
+    degree: 'S1',
+    rumpun: 'saintek',
+    clusterLabel: 'Kedokteran Umum',
+    city: 'Depok',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 725,
+    quota2026: 90,
+    applicants2025: 3330,
+    tightness: '2.70%',
+    participantsCount: 980,
+    supportSubjects: ['Biologi', 'Kimia'],
+    prioritySubtests: ['pu', 'pk', 'ppu'],
+    subtestWeights: { pu: 0.24, pk: 0.22, ppu: 0.16, pm: 0.14, lbe: 0.10, pbm: 0.08, lbi_a: 0.04, lbi_s: 0.02 }
+  },
+  {
+    id: 'ui_manajemen',
+    prodi: 'S1 Manajemen',
+    univ: 'Universitas Indonesia (UI)',
+    shortUniv: 'UI',
+    degree: 'S1',
+    rumpun: 'soshum',
+    clusterLabel: 'Ekonomi & Bisnis',
+    city: 'Depok',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 684,
+    quota2026: 132,
+    applicants2025: 3890,
+    tightness: '3.39%',
+    participantsCount: 780,
+    supportSubjects: ['Ekonomi', 'Matematika'],
+    prioritySubtests: ['pk', 'pm', 'lbe'],
+    subtestWeights: { pk: 0.22, pm: 0.20, lbe: 0.18, pu: 0.16, ppu: 0.10, pbm: 0.07, lbi_s: 0.05, lbi_a: 0.02 }
+  },
+  {
+    id: 'upnvjt_sainsdata',
+    prodi: 'S1 Sains Data',
+    univ: 'UPN Veteran Jawa Timur',
+    shortUniv: 'UPNV Jatim',
+    degree: 'S1',
+    rumpun: 'saintek',
+    clusterLabel: 'Matematika & Sains Data',
+    city: 'Surabaya',
+    regionGroup: 'jatim',
+    targetScore: 540,
+    quota2026: 70,
+    applicants2025: 920,
+    tightness: '7.61%',
+    participantsCount: 215,
+    supportSubjects: ['Matematika Tingkat Lanjut', 'Informatika'],
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.25, pm: 0.24, pu: 0.18, ppu: 0.09, pbm: 0.08, lbe: 0.08, lbi_a: 0.06, lbi_s: 0.02 }
   }
 ];
 
 export const PROGRAM_CATALOG: CatalogProgram[] = RAW_PROGRAM_CATALOG.map((item) => ({
   ...item,
+  rumpunName: deriveRumpunName(item.clusterLabel, item.prodi),
   province: deriveProvince(item.city),
   tier: deriveTier(item.targetScore)
 }));
 
 export const CATALOG_PROVINCES: string[] = Array.from(new Set(PROGRAM_CATALOG.map((p) => p.province))).sort();
 export const CATALOG_TIERS: ProgramTier[] = ['Tier 1', 'Tier 2', 'Tier 3'];
+export const CATALOG_AVAILABLE_RUMPUNS: StudentTowerRumpun[] = Array.from(
+  new Set(PROGRAM_CATALOG.map((p) => p.rumpunName))
+);
 
 function computeMedian(nums: number[]): number {
   if (!nums.length) return 0;
