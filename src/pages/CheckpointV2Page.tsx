@@ -534,7 +534,7 @@ export const CheckpointV2Page: React.FC = () => {
               🏛️ 2. Skor Terbobot &amp; Jurusan
             </a>
             <a href="#tahap3" onClick={(e) => scrollTo(e, '#tahap3')} className={`jump-pill ${activeStage === 'tahap3' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
-              🛠️ 3. Subtes Prioritas &amp; Drill
+              🛠️ 3. Subtes Prioritas &amp; Drill Soal
             </a>
             <a href="#tahap4" onClick={(e) => scrollTo(e, '#tahap4')} className={`jump-pill ${activeStage === 'tahap4' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
               📝 4. Rencana Aksi &amp; Catatan SA
@@ -988,7 +988,7 @@ export const CheckpointV2Page: React.FC = () => {
                 TAHAP 3 DARI 4
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                🛠️ 4 Subtes Prioritas &amp; Riil Aktivitas Drill di Ruangguru
+                🛠️ 4 Subtes Prioritas &amp; Riil Aktivitas Drill Soal di Ruangguru
               </h2>
             </div>
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>Data Aktivitas Student Tower Aplikasi Ruangguru</span>
@@ -998,7 +998,7 @@ export const CheckpointV2Page: React.FC = () => {
           {/* Cards 4 Subtests (Authentic Data + Deterministic Rule Engine) */}
           <div className="section-block" id="sec_tahap3_cards">
             <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Ringkasan 4 Subtes Prioritas &amp; Data Drill Ruangguru</h3>
+              <h3 className="section-title" style={{ fontSize: 15 }}>1. Ringkasan 4 Subtes Prioritas &amp; Data Drill Soal Ruangguru</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
                 Dipilih Berdasarkan Bobot Tertinggi di Pilihan Jurusan dan Gap Skor Terbesar
               </span>
@@ -1076,11 +1076,11 @@ export const CheckpointV2Page: React.FC = () => {
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: '#475569' }}>📱 Soal Selesai di Ruangguru:</span>
+                        <span style={{ color: '#475569' }}>📱 Drill Soal Selesai di Ruangguru:</span>
                         <strong style={{ color: '#0f172a', fontWeight: 700 }}>{item.rgQuestionsDone} soal</strong>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                        <span style={{ color: '#475569' }}>🎯 Akurasi Latihan:</span>
+                        <span style={{ color: '#475569' }}>🎯 Akurasi Drill Soal:</span>
                         <strong style={{ color: '#0f172a', fontWeight: 700 }}>{item.rgAccuracy}</strong>
                       </div>
                     </div>
@@ -1131,16 +1131,16 @@ export const CheckpointV2Page: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#b54708', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Wrench size={16} />
-                Panduan Diskusi SA: Audit Kebiasaan Drill &amp; Prioritas Materi Klinik PR
+                Panduan Diskusi SA: Audit Kebiasaan Drill Soal &amp; Prioritas Materi Klinik PR
               </span>
               <span style={{ fontSize: 11, fontWeight: 700, color: '#b54708', background: '#fef0c7', padding: '2px 10px', borderRadius: 9999 }}>
-                Target Hasil: Sepakati topik Klinik PR &amp; perbaikan pola drill
+                Target Hasil: Sepakati topik Klinik PR &amp; perbaikan pola drill soal
               </span>
             </div>
 
             {stage3OverallOut.mismatchNote && (
               <div style={{ fontSize: 12, color: '#9a3412', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
-                <strong>Temuan Pola Drill:</strong> {stage3OverallOut.mismatchNote}
+                <strong>Temuan Pola Drill Soal:</strong> {stage3OverallOut.mismatchNote}
               </div>
             )}
 
@@ -1162,8 +1162,8 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li><strong>Hindari latihan semu:</strong> Apresiasi konsistensi di subtes yang sudah aktif, lalu ajak mengalihkan porsi latihan ke subtes dengan gap terbesar.</li>
-                    <li><strong>Jangan menyimpulkan &quot;malas&quot; dari angka 0:</strong> Data kosong hanya berarti belum tercatat di aplikasi—gali dulu kendala atau latihan di luar sistem.</li>
+                    <li><strong>Hindari drill semu:</strong> Apresiasi konsistensi di subtes yang sudah aktif, lalu ajak mengalihkan porsi drill soal ke subtes dengan gap terbesar.</li>
+                    <li><strong>Jangan menyimpulkan &quot;malas&quot; dari angka 0:</strong> Data kosong hanya berarti belum tercatat di aplikasi—gali dulu kendala atau drill soal mandiri di luar sistem.</li>
                   </ul>
                 </div>
 
@@ -1257,7 +1257,7 @@ export const CheckpointV2Page: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => {
-                          const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill harian 15 soal (PU/PK) + Klinik PR cabang setiap hari [... jam ...]\n3) Cek Ulang Sesi Berikutnya: [progres drill PK & akurasi TO 5]';
+                          const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill soal harian 15 soal (PU/PK) + Klinik PR cabang setiap hari [... jam ...]\n3) Cek Ulang Sesi Berikutnya: [progres drill soal PK & akurasi TO 5]';
                           setSaNotes(val);
                           localStorage.setItem('bac_v2_sa_notes', val);
                         }}

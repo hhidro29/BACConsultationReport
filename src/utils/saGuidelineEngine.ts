@@ -207,7 +207,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     locationCheck:
       'Pastikan kesepakatan batasan lokasi kampus (izin kuliah luar kota, biaya, dan preferensi wilayah keluarga).',
     wideGap:
-      'Bahas kesiapan komitmen latihan untuk memperkecil gap secara bertahap; hindari memaksa penurunan target prodi di Checkpoint 1 sebelum pondasi subtes dibenahi.',
+      'Bahas kesiapan komitmen drill soal untuk memperkecil gap secara bertahap; hindari memaksa penurunan target prodi di Checkpoint 1 sebelum pondasi subtes dibenahi.',
     remainingGap:
       'Bandingkan progres subtes penentu bobot jurusan dengan gap yang tersisa menuju checkpoint berikutnya.',
     exceedTarget:
@@ -215,13 +215,13 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     lowParticipantsWarning:
       'Data pembanding internal di bawah batas minimum peserta ({count} < {limit} pemilih); jangan dipakai sebagai klaim posisi aman maupun jaminan SNPMB.',
     defaultBenchmarkNote:
-      'Angka target skor adalah acuan latihan internal Ruangguru, bukan passing grade resmi SNPMB atau jaminan kelolosan.'
+      'Angka target skor adalah acuan drill soal internal Ruangguru, bukan passing grade resmi SNPMB atau jaminan kelolosan.'
   },
   stage3SubtestTemplates: {
     no_drill: {
-      label: 'Belum Ada Data Drill Aplikasi',
+      label: 'Belum Ada Data Drill Soal Aplikasi',
       saTask:
-        'Konfirmasi apakah siswa berlatih dari sumber luar aplikasi atau menemui kendala membuka drill, tanpa menyimpulkan siswa belum belajar.'
+        'Konfirmasi apakah siswa drill soal mandiri dari sumber luar aplikasi atau menemui kendala membuka drill soal, tanpa menyimpulkan siswa belum belajar.'
     },
     low_vol_low_acc: {
       label: 'Volume Terbatas & Akurasi Rendah',
@@ -229,34 +229,34 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
         'Tinjau topik akurasi terendah bersama siswa dan bahas rencana penguatan konsep dasar di Klinik PR.'
     },
     active_drill_low_to: {
-      label: 'Drill Aktif · Gap TO Masih Lebar',
+      label: 'Drill Soal Aktif · Gap TO Masih Lebar',
       saTask:
-        'Bandingkan cara siswa mengerjakan latihan vs saat tryout (manajemen waktu, ketelitian premis, atau variasi soal).'
+        'Bandingkan cara siswa mengerjakan drill soal vs saat tryout (manajemen waktu, ketelitian premis, atau variasi soal).'
     },
     high_acc_low_to: {
-      label: 'Akurasi Drill Tinggi · Gap TO Masih Ada',
+      label: 'Akurasi Drill Soal Tinggi · Gap TO Masih Ada',
       saTask:
-        'Konsep dasar latihan sudah baik di aplikasi; evaluasi simulasi pengerjaan saat tryout (manajemen waktu, ketelitian membaca jebakan, atau mental ujian).'
+        'Konsep dasar drill soal sudah baik di aplikasi; evaluasi simulasi pengerjaan saat tryout (manajemen waktu, ketelitian membaca jebakan, atau mental ujian).'
     },
     near_target: {
       label: 'Mendekati Batas Target',
       saTask:
-        'Pertahankan ritme latihan pada topik yang masih salah agar stabil melampaui batas target acuan.'
+        'Pertahankan ritme drill soal pada topik yang masih salah agar stabil melampaui batas target acuan.'
     },
     mastered_above: {
       label: 'Target 600+ Tercapai',
       saTask:
-        'Pertahankan ritme pemeliharaan skor dan alokasikan porsi jam latihan lebih banyak ke subtes prioritas yang masih di bawah target acuan.'
+        'Pertahankan ritme pemeliharaan skor dan alokasikan porsi jam drill soal lebih banyak ke subtes prioritas yang masih di bawah target acuan.'
     },
     general_gap: {
       label: 'Perlu Penguatan Terarah',
       saTask:
-        'Bahas kendala pada topik terlemah serta kecocokan topik yang dilatih di aplikasi.'
+        'Bahas kendala pada topik terlemah serta kecocokan topik drill soal di aplikasi.'
     }
   },
   stage4Templates: {
     scheduleTask:
-      'Konfirmasi hari, jam, dan target latihan harian yang realistis dijalankan siswa tanpa bentrok jadwal sekolah.',
+      'Konfirmasi hari, jam, dan target drill soal harian yang realistis dijalankan siswa tanpa bentrok jadwal sekolah.',
     parentSupportTask:
       'Bahas bentuk dukungan dan pemantauan belajar yang paling nyaman dilakukan orang tua di rumah.',
     missingDrillTask:
@@ -658,25 +658,25 @@ export function analyzeStage3Subtest(
     },
     {
       ruleId: 's3_r3_active_gap',
-      ruleName: '4. Drill Aktif Tapi Gap TO Lebar',
+      ruleName: '4. Drill Soal Aktif Tapi Gap TO Lebar',
       expression: `questions (${sub.drillQuestions}) ≥ ${th.drillLowQuestions} && gap (${sub.gapTo600}) ≤ ${th.drillActiveHighGap}`,
       matched: isActiveLowTo,
-      effect: isActiveLowTo ? 'Terpilih: evaluasi cara mengerjakan latihan vs TO' : 'Lanjut cek aturan berikutnya'
+      effect: isActiveLowTo ? 'Terpilih: evaluasi cara mengerjakan drill soal vs TO' : 'Lanjut cek aturan berikutnya'
     },
     {
       ruleId: 's3_r4_near',
       ruleName: '5. Mendekati Batas Target',
       expression: `gap (${sub.gapTo600}) ≥ ${th.nearTargetGapPts}`,
       matched: isNearTarget,
-      effect: isNearTarget ? 'Terpilih: jaga ritme latihan stabilkan ≥ 600' : 'Fallback ke Penguatan Terarah'
+      effect: isNearTarget ? 'Terpilih: jaga ritme drill soal stabilkan ≥ 600' : 'Fallback ke Penguatan Terarah'
     }
   ];
 
   const obsMap: Record<Stage3ConditionId, string> = {
     mastered_above: `Skor ${sub.toLatest} (melampaui target +${sub.gapTo600}); tercatat ${sub.drillQuestions} soal (${sub.drillAccuracyPct}% benar).`,
-    no_drill: `Skor ${sub.toLatest} (jarak ${sub.gapTo600}), aktivitas drill di aplikasi tercatat 0 soal.`,
+    no_drill: `Skor ${sub.toLatest} (jarak ${sub.gapTo600}), aktivitas drill soal di aplikasi tercatat 0 soal.`,
     low_vol_low_acc: `Skor ${sub.toLatest} (jarak ${sub.gapTo600}); tercatat ${sub.drillQuestions} soal (${sub.drillSessions} sesi, ${sub.drillAccuracyPct}% benar).`,
-    high_acc_low_to: `Akurasi drill tinggi di aplikasi (${sub.drillAccuracyPct}% benar dari ${sub.drillQuestions} soal), namun skor TO ${sub.toLatest} (jarak ${sub.gapTo600}).`,
+    high_acc_low_to: `Akurasi drill soal tinggi di aplikasi (${sub.drillAccuracyPct}% benar dari ${sub.drillQuestions} soal), namun skor TO ${sub.toLatest} (jarak ${sub.gapTo600}).`,
     active_drill_low_to: `Tercatat ${sub.drillQuestions} soal (${sub.drillSessions} sesi, ${sub.drillAccuracyPct}% benar), namun skor TO ${sub.toLatest} (jarak ${sub.gapTo600}).`,
     near_target: `Skor ${sub.toLatest} (jarak ${sub.gapTo600} ke target); tercatat ${sub.drillQuestions} soal (${sub.drillAccuracyPct}% benar).`,
     general_gap: `Skor ${sub.toLatest} (jarak ${sub.gapTo600}); tercatat ${sub.drillQuestions} soal (${sub.drillSessions} sesi, ${sub.drillAccuracyPct}% benar).`
@@ -686,7 +686,7 @@ export function analyzeStage3Subtest(
     conditionId,
     conditionLabel: tpl[conditionId]?.label || 'Penguatan Terarah',
     observation: obsMap[conditionId],
-    saTask: tpl[conditionId]?.saTask || 'Bahas topik lemah serta kecocokan pola latihan.',
+    saTask: tpl[conditionId]?.saTask || 'Bahas topik lemah serta kecocokan pola drill soal.',
     traces
   };
 }
@@ -717,23 +717,23 @@ export function analyzeStage3Overall(
   );
 
   const mismatchNote = hasMismatch
-    ? `Terdeteksi ketimpangan fokus latihan: drill terbanyak ada di ${highestDrill.name} (${highestDrill.drillQuestions} soal), sedangkan ${zeroOrLowInPriority.map((s) => s.name).join(' & ')} baru ≤ ${th.drillMismatchLowQ} soal.`
+    ? `Terdeteksi ketimpangan fokus drill soal: drill soal terbanyak ada di ${highestDrill.name} (${highestDrill.drillQuestions} soal), sedangkan ${zeroOrLowInPriority.map((s) => s.name).join(' & ')} baru ≤ ${th.drillMismatchLowQ} soal.`
     : null;
 
   const saTasks = [
-    'Tinjau cara siswa memilih subtes saat berlatih di aplikasi dan pastikan apakah latihan diarahkan pada subtes dengan gap terbesar.',
-    'Konfirmasi apakah ada latihan dari buku/sumber di luar aplikasi serta bagaimana siswa membahas soal yang dijawab salah.',
+    'Tinjau cara siswa memilih subtes saat drill soal di aplikasi dan pastikan apakah drill soal diarahkan pada subtes dengan gap terbesar.',
+    'Konfirmasi apakah ada drill soal mandiri dari buku/sumber di luar aplikasi serta bagaimana siswa membahas soal yang dijawab salah.',
     'Sepakati 1–2 topik akurasi terendah yang akan diprioritaskan pada sesi Klinik PR cabang.'
   ];
 
   const traces: RuleTrace[] = [
     {
       ruleId: 's3_mismatch',
-      ruleName: 'Deteksi Ketimpangan / Latihan Semu',
+      ruleName: 'Deteksi Ketimpangan / Drill Semu',
       expression: `maxDrill (${highestDrill?.drillQuestions ?? 0} ≥ ${th.drillMismatchHighQ}) && subtesGap≤${th.drillActiveHighGap}_drill≤${th.drillMismatchLowQ} (${zeroOrLowInPriority.length})`,
       matched: hasMismatch,
       effect: hasMismatch
-        ? 'Munculkan alert ketimpangan drill agar fokus pindah ke subtes prioritas'
+        ? 'Munculkan alert ketimpangan drill soal agar fokus pindah ke subtes prioritas'
         : 'Tidak terdeteksi ketimpangan mencolok'
     }
   ];
@@ -819,15 +819,15 @@ export function analyzeStage4(
   // Dynamic Holistic Action Plans for Checkpoint 1
   const pSub = studentInput?.prioritySubtests || [];
   const largestGapSub = pSub[0]?.name || 'Subtes Prioritas #1';
-  const lowestDrillSub = [...pSub].sort((a, b) => a.rgQuestionsDone - b.rgQuestionsDone)[0]?.name || 'Subtes Minim Latihan';
+  const lowestDrillSub = [...pSub].sort((a, b) => a.rgQuestionsDone - b.rgQuestionsDone)[0]?.name || 'Subtes Minim Drill Soal';
   const weakTopics = pSub.flatMap((s) => s.lowestTopics || []).slice(0, 3);
   const topicsSummary = weakTopics.length ? weakTopics.map((t) => t.split('(')[0].trim()).join(', ') : 'materi dasar subtes prioritas';
 
   const actionPlans: ActionPlanItem[] = [
     {
       num: 1,
-      title: 'Kesepakatan Drill Mandiri Subtes Prioritas',
-      desc: `Sepakati target jumlah soal & jadwal latihan mandiri di aplikasi untuk ${largestGapSub} dan ${lowestDrillSub} yang memiliki gap terbesar atau riwayat latihan terendah.`,
+      title: 'Kesepakatan Drill Soal Mandiri Subtes Prioritas',
+      desc: `Sepakati target jumlah soal & jadwal drill soal mandiri di aplikasi untuk ${largestGapSub} dan ${lowestDrillSub} yang memiliki gap terbesar atau riwayat drill soal terendah.`,
       pic: `${studentInput?.studentName || 'Siswa'} (dipantau bersama ${studentInput?.saName || 'Kakak Asuh'})`,
       accentColor: '#1078ca'
     },

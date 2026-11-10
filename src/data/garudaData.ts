@@ -285,8 +285,8 @@ export const prioritySubtestsV2: PrioritySubtest[] = [
 export const actionPlansV2: ActionPlan[] = [
   {
     num: 1,
-    title: "Kesepakatan Drill Mandiri Subtes Prioritas",
-    desc: "Sepakati target jumlah soal & jadwal latihan harian/mingguan bersama siswa di aplikasi untuk subtes dengan gap terbesar serta volume drill terendah (PK & Literasi).",
+    title: "Kesepakatan Drill Soal Mandiri Subtes Prioritas",
+    desc: "Sepakati target jumlah soal & jadwal drill soal harian/mingguan bersama siswa di aplikasi untuk subtes dengan gap terbesar serta volume drill soal terendah (PK & Literasi).",
     pic: "Siswa (dipantau bersama Kakak Asuh)",
     accentColor: "#1078ca"
   },

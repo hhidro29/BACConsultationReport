@@ -177,7 +177,7 @@ export const programCatalogV1: Record<string, any> = {
     pgSubtests: { pk: 937, pu: 844, pm: 750, pbm: 562, lbe: 516, ppu: 500, lbi: 500 },
     leaderboardSubtests: { pu: 734, ppu: 669, pbm: 685, pk: 768, lbi: 653, lbe: 574, pm: 770 },
     saPrompt: "Peringkat 17 dari 69 pemilih di Ruangguru. Nilai Garuda saat ini 546, masih kurang 148 poin untuk mencapai target kelulusan Farmasi UGM (694). Tiga subtes penentu utama adalah PK (target 937), PU (target 844), dan PM (target 750). Sepakati target bertahap TO 5 di angka 585+.",
-    conclusionText: "<strong>Status Pilihan 1:</strong> Garuda berada di peringkat 17 dari 69 pemilih di Ruangguru (Top 25%). Nilai Garuda saat ini (546) masih kurang 148 poin dari target kelulusan Farmasi UGM (694). Fokus perbaikan utama pada 3 subtes penentu: <strong>Pengetahuan Kuantitatif (PK)</strong>, <strong>Penalaran Umum (PU)</strong>, dan <strong>Penalaran Matematika (PM)</strong>, serta konsistensi latihan drill mandiri di Student Tower.",
+    conclusionText: "<strong>Status Pilihan 1:</strong> Garuda berada di peringkat 17 dari 69 pemilih di Ruangguru (Top 25%). Nilai Garuda saat ini (546) masih kurang 148 poin dari target kelulusan Farmasi UGM (694). Fokus perbaikan utama pada 3 subtes penentu: <strong>Pengetahuan Kuantitatif (PK)</strong>, <strong>Penalaran Umum (PU)</strong>, dan <strong>Penalaran Matematika (PM)</strong>, serta konsistensi drill soal mandiri di Student Tower.",
     peerIds: ["ugm_farmasi", "ui_farmasi", "unpad_farmasi", "ub_farmasi", "ui_kimia", "ipb_tekpang"]
   },
   ui_farmasi: {
