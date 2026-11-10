@@ -33,12 +33,15 @@ export interface PrioritySubtest {
   priorityLabel: string;
   name: string;
   toScore: string;
+  toLatestNum: number;
   targetScore: number;
   gapText: string;
+  gapNum: number;
   rgQuestionsDone: number;
+  drillSessions: number;
+  drillAccuracyPct: number;
   rgAccuracy: string;
-  diagnosis: string;
-  targetTo5: string;
+  lowestTopics: string[];
   borderColor: string;
 }
 
@@ -178,19 +181,26 @@ export const targetPrograms: ProgramChoice[] = [
   }
 ];
 
-// 4 Subtests Prioritas for V2 - Synchronized with V2 PDF Section 4
+// 4 Subtests Prioritas for V2 - Authentic Tryout & Drill Data (No AI Diagnosis)
 export const prioritySubtestsV2: PrioritySubtest[] = [
   {
     id: "pk",
     priorityLabel: "BOBOT TERTINGGI #1",
     name: "Pengetahuan Kuantitatif (PK)",
     toScore: "488",
+    toLatestNum: 488,
     targetScore: 600,
     gapText: "-112",
+    gapNum: -112,
     rgQuestionsDone: 5,
+    drillSessions: 1,
+    drillAccuracyPct: 40,
     rgAccuracy: "40% benar (1 sesi)",
-    diagnosis: "Kritis. Baru mengerjakan 5 soal di aplikasi. Drill harian dan perkuat konsep dasar Aljabar, Peluang Dasar, dan Geometri di Klinik PR.",
-    targetTo5: "Naik minimal +42 poin (Skor ≥ 530)",
+    lowestTopics: [
+      "Aljabar & Fungsi Pecahan (28% benar)",
+      "Statistika & Peluang Dasar (38% benar)",
+      "Geometri Bidang (42% benar)"
+    ],
     borderColor: "#fda29b"
   },
   {
@@ -198,12 +208,19 @@ export const prioritySubtestsV2: PrioritySubtest[] = [
     priorityLabel: "BOBOT TERTINGGI #2",
     name: "Penalaran Umum (PU)",
     toScore: "465",
+    toLatestNum: 465,
     targetScore: 600,
     gapText: "-135",
+    gapNum: -135,
     rgQuestionsDone: 35,
+    drillSessions: 7,
+    drillAccuracyPct: 63,
     rgAccuracy: "63% benar (7 sesi)",
-    diagnosis: "Rutinitas drill sudah terbentuk. Fokus perbaikan pada ketelitian membaca premis silogisme dan pola penalaran induktif.",
-    targetTo5: "Naik minimal +45 poin (Skor ≥ 510)",
+    lowestTopics: [
+      "Penalaran Induktif (32% benar)",
+      "Silogisme & Logika Deduktif (41% benar)",
+      "Penalaran Analitik Simbolik (45% benar)"
+    ],
     borderColor: "#fda29b"
   },
   {
@@ -211,12 +228,19 @@ export const prioritySubtestsV2: PrioritySubtest[] = [
     priorityLabel: "BOBOT TERTINGGI #3",
     name: "Penalaran Matematika (PM)",
     toScore: "597",
+    toLatestNum: 597,
     targetScore: 600,
     gapText: "-3",
+    gapNum: -3,
     rgQuestionsDone: 10,
+    drillSessions: 2,
+    drillAccuracyPct: 50,
     rgAccuracy: "50% benar (2 sesi)",
-    diagnosis: "Skor relatif stabil dan hanya terpaut -3 poin dari target 600. Jaga ritme latihan mingguan pada model aljabar kontekstual.",
-    targetTo5: "Stabil menembus ≥ 610",
+    lowestTopics: [
+      "Pemodelan Linear (40% benar)",
+      "Aritmatika Sosial & Rasio (46% benar)",
+      "Barisan & Deret (50% benar)"
+    ],
     borderColor: "#b2ddff"
   },
   {
@@ -224,44 +248,51 @@ export const prioritySubtestsV2: PrioritySubtest[] = [
     priorityLabel: "SUBTES PENDUKUNG",
     name: "Literasi B. Indo (Saintek) & B. Inggris",
     toScore: "505 / 543",
+    toLatestNum: 505,
     targetScore: 600,
     gapText: "-95 / -57",
+    gapNum: -95,
     rgQuestionsDone: 0,
+    drillSessions: 0,
+    drillAccuracyPct: 0,
     rgAccuracy: "0% (belum ada drill)",
-    diagnosis: "Belum pernah membuka drill literasi di aplikasi. Biasakan membaca minimal 1 teks ilmiah akademik per hari untuk menajamkan ide pokok.",
-    targetTo5: "Naik ke kisaran 550+",
+    lowestTopics: [
+      "Evaluasi Bias Penulis (35% benar)",
+      "Memahami Makna Tersirat (40% benar)",
+      "Logika Antarparagraf (44% benar)"
+    ],
     borderColor: "#fedf89"
   }
 ];
 
-// 4 Action Plans toward TO 5
+// 4 Kerangka Tindak Lanjut menuju TO 5 (untuk disepakati bersama dalam sesi)
 export const actionPlansV2: ActionPlan[] = [
   {
     num: 1,
-    title: "Drill Mandiri Aplikasi Ruangguru",
-    desc: "Target: Menyelesaikan minimal 25 soal per hari khusus subtes prioritas (PK dan PU). Fokus pada bab dengan akurasi terendah di Student Tower setiap malam setelah belajar sekolah.",
-    pic: "Garuda Mahawira Sena (Siswa)",
+    title: "Kesepakatan Drill Mandiri Subtes Prioritas",
+    desc: "Sepakati target jumlah soal & jadwal latihan harian/mingguan bersama siswa di aplikasi untuk subtes dengan gap terbesar serta volume drill terendah (PK & Literasi).",
+    pic: "Siswa (dipantau bersama Kakak Asuh)",
     accentColor: "#1078ca"
   },
   {
     num: 2,
-    title: "Klinik Belajar Tatap Muka Bersama SA",
-    desc: "Target: Hadir minimal 1x seminggu di Cabang Depok Margonda untuk sesi bedah soal jebakan UTBK, teknik cepat penalaran analitis, dan manajemen alokasi waktu ujian.",
+    title: "Sesi Klinik Belajar & Bedah Topik Terendah",
+    desc: "Jadwalkan sesi klinik belajar tatap muka untuk membahas topik dengan akurasi terendah pada Tryout terakhir (Aljabar, Peluang, Penalaran Induktif) sesuai ketersediaan jadwal siswa.",
     pic: "Kak William Candra (Kakak Asuh) & Siswa",
     accentColor: "#0284c7"
   },
   {
     num: 3,
-    title: "Evaluasi Peningkatan di Tryout 5",
-    desc: "Target: Mengikuti TO 5 tepat waktu dengan target perbaikan skor: PU ≥ 510 (+45), PK ≥ 530 (+42), dan rata-rata keseluruhan naik kembali menuju batas aman ≥ 580.",
-    pic: "Siswa & Tim Akademik Ruangguru",
+    title: "Fokus Target Evaluasi Tryout Berikutnya (TO 5)",
+    desc: "Tinjau kesiapan menghadapi TO 5 dengan memprioritaskan penahanan tren turun pada subtes pembobot utama (PK & PU) serta menjaga konsistensi subtes PM.",
+    pic: "Siswa & Kakak Asuh",
     accentColor: "#f79009"
   },
   {
     num: 4,
-    title: "Pendampingan Lingkungan Belajar di Rumah",
-    desc: "Target: Orang tua membantu menjaga waktu belajar tenang minimal 1.5 jam setiap malam (20.00 - 21.30) tanpa distraksi gawai non-belajar, serta memastikan nutrisi & waktu tidur cukup.",
-    pic: "Bapak Bambang Sena (Orang Tua)",
+    title: "Dukungan Kebiasaan & Lingkungan Belajar di Rumah",
+    desc: "Konfirmasikan bentuk dukungan belajar di rumah yang realistis bersama orang tua (konsistensi jam belajar, pengawasan distraksi, dan kesesuaian dukungan target jurusan).",
+    pic: "Orang Tua / Wali Siswa",
     accentColor: "#027a48"
   }
 ];

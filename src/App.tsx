@@ -4,6 +4,7 @@ import { RaporProvider } from './context/RaporContext';
 import { CheckpointV2Page } from './pages/CheckpointV2Page';
 import { CheckpointV1Page } from './pages/CheckpointV1Page';
 import { UpdateRaporPage } from './pages/UpdateRaporPage';
+import { EngineMatrixPage } from './pages/EngineMatrixPage';
 
 // Supports root query shortcuts like /?v=2 or /?v=1&preview=1
 const QueryParamRedirector: React.FC = () => {
@@ -40,6 +41,7 @@ export const App: React.FC = () => {
           <Route path="/v2" element={<CheckpointV2Page />} />
           <Route path="/v1" element={<CheckpointV1Page />} />
           <Route path="/rapor" element={<UpdateRaporPage />} />
+          <Route path="/engine" element={<EngineMatrixPage />} />
           <Route path="*" element={<Navigate to="/v2" replace />} />
         </Routes>
       </HashRouter>

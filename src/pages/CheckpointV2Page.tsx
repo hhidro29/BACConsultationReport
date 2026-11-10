@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Save, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
 import { SimulasiModal } from '../components/SimulasiModal';
 import {
@@ -11,6 +11,13 @@ import {
   targetPrograms
 } from '../data/garudaData';
 import { useRapor } from '../context/RaporContext';
+import {
+  analyzeStage1,
+  analyzeStage2,
+  analyzeStage3Subtest,
+  analyzeStage3Overall,
+  analyzeStage4
+} from '../utils/saGuidelineEngine';
 
 export const CheckpointV2Page: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -101,6 +108,42 @@ export const CheckpointV2Page: React.FC = () => {
   const aboveTooltip = aboveTargetSubtests.map(formatSubtestItem).join(' · ');
   const belowTooltip = belowTargetSubtests.map(formatSubtestItem).join(' · ');
 
+  // Deterministic SA Guideline Engine (Non-AI-Centered Condition -> Output)
+  const attendanceNumeric = parseFloat(studentIdentity.attendanceRate.replace('%', '')) || 0;
+  const stage1Out = analyzeStage1({
+    toScores: toScoresList,
+    subtestRows: subtestsV2Data.map((s) => ({
+      id: s.id,
+      name: s.name,
+      scores: [s.to1, s.to2, s.to3, s.to4],
+      toLatest: s.to4
+    })),
+    attendanceRatePct: attendanceNumeric
+  });
+
+  const stage2Out = analyzeStage2({
+    hasMixedRumpun: targetPrograms.some((p) => p.prodi.includes('Teknik')) && targetPrograms.some((p) => p.prodi.includes('Farmasi')),
+    familyAlignment: 'different_major',
+    minGapToTarget: Math.min(...targetPrograms.map((p) => p.gap)),
+    maxGapToTarget: Math.max(...targetPrograms.map((p) => p.gap)),
+    minParticipantsCount: 642
+  });
+
+  const stage3SubtestInputs = prioritySubtestsV2.map((item) => ({
+    id: item.id,
+    name: item.name,
+    toLatest: item.toLatestNum,
+    gapTo600: item.gapNum,
+    drillQuestions: item.rgQuestionsDone,
+    drillSessions: item.drillSessions,
+    drillAccuracyPct: item.drillAccuracyPct
+  }));
+  const stage3OverallOut = analyzeStage3Overall(stage3SubtestInputs);
+  const stage4Out = analyzeStage4(
+    true,
+    prioritySubtestsV2.some((s) => s.rgQuestionsDone <= 5)
+  );
+
   return (
     <div>
       {/* Topbar */}
@@ -113,9 +156,31 @@ export const CheckpointV2Page: React.FC = () => {
             <span className="crumb-sep">›</span>
             <span className="crumb-current">Detail Checkpoint 1</span>
           </nav>
-          <div className="user-pill">
-            <span>{studentIdentity.saName} · {studentIdentity.saEmail}</span>
-            <div className="user-avatar">WC</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Link
+              to="/engine"
+              title="Buka Simulator & Matriks Aturan Engine Panduan SA (Kondisi → Output)"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                fontSize: 11.5,
+                fontWeight: 700,
+                color: '#1078ca',
+                background: '#eff8ff',
+                border: '1px solid #b2ddff',
+                padding: '4px 10px',
+                borderRadius: 9999,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <GitBranch size={12} /> Engine Aturan
+            </Link>
+            <div className="user-pill">
+              <span>{studentIdentity.saName} · {studentIdentity.saEmail}</span>
+              <div className="user-avatar">WC</div>
+            </div>
           </div>
         </div>
       </header>
@@ -529,47 +594,55 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
-          {/* Live Consultation Prompt: Tahap 1 */}
+          {/* Live Consultation Prompt: Tahap 1 (Driven by saGuidelineEngine) */}
           <div className="sa-prompt-card" id="sec_tahap1_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #1078ca', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Info size={16} />
                 Panduan Diskusi SA: Mengulas Tren Skor &amp; Fondasi 600
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 9999 }}>
-                Target Hasil: Paham kendala nilai turun &amp; setuju kejar 600
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 9999 }}>
+                  Pola Terdeteksi: {stage1Out.patternLabel}
+                </span>
+                <Link to="/engine" style={{ fontSize: 11, fontWeight: 700, color: '#1078ca', textDecoration: 'none' }}>
+                  Lihat Aturan →
+                </Link>
+              </div>
+            </div>
+
+            <div style={{ fontSize: 12, color: '#0f172a', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
+              <strong>Temuan Data:</strong> {stage1Out.observation}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Pertanyaan Penggalian */}
+              {/* Kolom Kiri: Tugas Fasilitasi SA */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#1078ca', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 YANG PERLU DIGALI &amp; DIKONFIRMASI:
+                  🔍 TUGAS FASILITASI SA (BERBASIS KONDISI DATA):
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Pola Penurunan TO 1 → TO 4):</strong>{' '}
-                    &quot;Di luar PPU (640) dan PM (597) yang sudah kuat, apa yang terasa paling berubah dari TO 1 ke TO 4—apakah materi makin sulit, kehabisan waktu, atau faktor lelah?&quot;
+                    <strong style={{ color: '#0f172a' }}>• Ke Siswa:</strong> {stage1Out.studentTask}
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Gap Terbesar di PU &amp; PK):</strong>{' '}
-                    &quot;Untuk PU (465) dan PK (488), kendala utamanya lebih ke belum paham konsep dasarnya, atau salah memahami maksud soal?&quot;
+                    <strong style={{ color: '#0f172a' }}>• Ke Orang Tua:</strong> {stage1Out.parentTask}
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Orang Tua (Konteks di Rumah):</strong>{' '}
-                    &quot;Selama September–Oktober kemarin, apakah ada perubahan jadwal sekolah/ekskul atau kondisi belajar di rumah yang memengaruhi fokus?&quot;
+                    <strong style={{ color: '#0f172a' }}>• Arah Tindak Lanjut:</strong> {stage1Out.nextStep}
                   </div>
                 </div>
               </div>
 
-              {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
+              {/* Kolom Kanan: Rambu Komunikasi & Catatan Tambahan */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 CATATAN KONDISI &amp; RAMBU:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li><strong>Apresiasi dulu:</strong> Soroti kekuatan PPU (640) &amp; PM (597) agar suasana tidak tegang.</li>
-                    <li><strong>Hindari vonis &quot;anjlok/gagal&quot;:</strong> Jelaskan tingkat kesulitan soal TO bertahap meningkat ke standar HOTS; posisi saat ini adalah titik awal pembinaan.</li>
+                    {stage1Out.extraNotes.map((note, idx) => (
+                      <li key={idx}>{note}</li>
+                    ))}
+                    <li><strong>Netral terhadap skor:</strong> Bahas pengalaman pengerjaan siswa terlebih dahulu sebelum menyimpulkan penyebab naik/turunnya nilai.</li>
                   </ul>
                 </div>
 
@@ -642,7 +715,7 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
-          {/* Live Consultation Prompt: Tahap 2 */}
+          {/* Live Consultation Prompt: Tahap 2 (Driven by saGuidelineEngine) */}
           <div className="sa-prompt-card" id="sec_tahap2_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #0284c7', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#0284c7', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -650,30 +723,25 @@ export const CheckpointV2Page: React.FC = () => {
                 Panduan Diskusi SA: Menyelaraskan Pilihan Jurusan &amp; Keluarga
               </span>
               <span style={{ fontSize: 11, fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '2px 10px', borderRadius: 9999 }}>
-                Target Hasil: Pilihan 1–3 terkonfirmasi &amp; paham batasan keluarga
+                Kondisi: {stage2Out.conditionLabel}
               </span>
             </div>
 
+            <div style={{ fontSize: 12, color: '#0f172a', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
+              <strong>Temuan Data:</strong> {stage2Out.observation}
+            </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Pertanyaan Penggalian */}
+              {/* Kolom Kiri: Tugas Fasilitasi SA */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#0284c7', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 YANG PERLU DIGALI &amp; DIKONFIRMASI:
+                  🔍 TUGAS FASILITASI SA:
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
-                  <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Minat &amp; Komitmen):</strong>{' '}
-                    &quot;Apakah Farmasi (UGM/UI) masih menjadi minat utamamu? Dengan gap skor terbobot saat ini, langkah belajar tambahan apa yang siap kamu ambil?&quot;
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Siswa &amp; Ortu (Konflik Pilihan &amp; Lokasi):</strong>{' '}
-                    &quot;Bagaimana kesepakatan keluarga soal perbedaan rumpun (Farmasi vs Teknik Mesin di Pilihan 3) serta kesiapan izin merantau ke Yogyakarta/Bandung?&quot;
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0f172a' }}>• Konfirmasi Opsi Serumpun:</strong>{' '}
-                    &quot;Jika nantinya butuh alternatif, apakah keluarga lebih memprioritaskan jurusan Farmasi di kampus lain atau kampus yang lebih dekat?&quot;
-                  </div>
-                </div>
+                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                  {stage2Out.saTasks.map((task, idx) => (
+                    <li key={idx}>{task}</li>
+                  ))}
+                </ul>
               </div>
 
               {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
@@ -681,15 +749,15 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li><strong>Jaga motivasi di CP1:</strong> Jangan memaksa siswa menurunkan jurusan saat ini. Capainya target 600 di Tahap 1 otomatis akan mendongkrak skor terbobot.</li>
-                    <li><strong>Netral terhadap konflik:</strong> Jangan menganggap Teknik Mesin sebagai cadangan otomatis sebelum minat siswa &amp; harapan ortu diselaraskan.</li>
+                    <li><strong>Jaga motivasi di CP1:</strong> Jangan memaksa siswa menurunkan jurusan saat ini sebelum pondasi subtes dibenahi.</li>
+                    <li><strong>Netral terhadap konflik:</strong> Jangan menganggap pilihan ketiga sebagai cadangan otomatis sebelum minat siswa &amp; harapan ortu diselaraskan.</li>
                   </ul>
                 </div>
 
                 <div style={{ background: '#eff8ff', padding: '10px 12px', borderRadius: 6, border: '1px solid #b2ddff', fontSize: 11.5, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#175cd3', marginBottom: 4 }}>ℹ️ KONTEKS TARGET INTERNAL:</div>
                   <p style={{ margin: 0, color: '#334155' }}>
-                    Target Skor Lolos &amp; Skor Terbobot CMS adalah <strong>acuan latihan internal</strong> dari profil peserta, bukan passing grade resmi SNPMB atau jaminan kelolosan. Peninjauan alternatif dibahas bertahap di checkpoint berikutnya.
+                    {stage2Out.guardrailNote}
                   </p>
                 </div>
               </div>
@@ -712,10 +780,10 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
 
-          {/* Cards 4 Subtests */}
+          {/* Cards 4 Subtests (Authentic Data + Deterministic Rule Engine) */}
           <div className="section-block" id="sec_tahap3_cards">
             <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Analisis Diagnostik 4 Subtes Penentu Kelulusan</h3>
+              <h3 className="section-title" style={{ fontSize: 15 }}>1. Ringkasan 4 Subtes Prioritas &amp; Data Drill Ruangguru</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
                 Dipilih Berdasarkan Bobot Tertinggi di Pilihan Jurusan dan Gap Skor Terbesar
               </span>
@@ -728,6 +796,16 @@ export const CheckpointV2Page: React.FC = () => {
                 const titleColor = isLow ? '#175cd3' : isHigh ? '#b42318' : '#b54708';
                 const boxBg = isLow ? '#eff8ff' : isHigh ? '#fffbfa' : '#fffcf5';
                 const boxBorder = isLow ? '#b2ddff' : isHigh ? '#fee4e2' : '#fef0c7';
+
+                const subRule = analyzeStage3Subtest({
+                  id: item.id,
+                  name: item.name,
+                  toLatest: item.toLatestNum,
+                  gapTo600: item.gapNum,
+                  drillQuestions: item.rgQuestionsDone,
+                  drillSessions: item.drillSessions,
+                  drillAccuracyPct: item.drillAccuracyPct
+                });
 
                 return (
                   <div
@@ -762,12 +840,26 @@ export const CheckpointV2Page: React.FC = () => {
                       </div>
                     </div>
 
-                    <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
-                      <strong>Diagnosa Kakak Asuh:</strong> {item.diagnosis}
+                    <div style={{ fontSize: 11.5, color: '#334155', lineHeight: 1.45, marginBottom: 10 }}>
+                      <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
+                        📌 3 Topik Akurasi Terendah di TO Terakhir:
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: 16, color: '#475569' }}>
+                        {item.lowestTopics.map((topic, idx) => (
+                          <li key={idx}>{topic}</li>
+                        ))}
+                      </ul>
                     </div>
 
-                    <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px dashed ${isHigh ? '#fecdd3' : '#fedf89'}`, fontSize: 11.5, color: '#1078ca', fontWeight: 600 }}>
-                      🎯 Target TO 5: {item.targetTo5}
+                    <div style={{ paddingTop: 8, borderTop: `1px dashed ${isHigh ? '#fecdd3' : '#fedf89'}`, fontSize: 11.5, lineHeight: 1.45 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 700, color: titleColor, background: boxBg, border: `1px solid ${boxBorder}`, padding: '1px 7px', borderRadius: 9999 }}>
+                          {subRule.conditionLabel}
+                        </span>
+                      </div>
+                      <div style={{ color: '#0f172a' }}>
+                        <strong>Panduan SA:</strong> {subRule.saTask}
+                      </div>
                     </div>
                   </div>
                 );
@@ -776,7 +868,7 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
-          {/* Live Consultation Prompt: Tahap 3 */}
+          {/* Live Consultation Prompt: Tahap 3 (Driven by saGuidelineEngine) */}
           <div className="sa-prompt-card" id="sec_tahap3_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #b54708', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#b54708', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -788,26 +880,23 @@ export const CheckpointV2Page: React.FC = () => {
               </span>
             </div>
 
+            {stage3OverallOut.mismatchNote && (
+              <div style={{ fontSize: 12, color: '#9a3412', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
+                <strong>Temuan Pola Drill:</strong> {stage3OverallOut.mismatchNote}
+              </div>
+            )}
+
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Pertanyaan Penggalian */}
+              {/* Kolom Kiri: Tugas Fasilitasi SA */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#b54708', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 YANG PERLU DIGALI &amp; DIKONFIRMASI:
+                  🔍 TUGAS FASILITASI SA:
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
-                  <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Cara Memilih Latihan):</strong>{' '}
-                    &quot;Di aplikasi, PU sudah 7 sesi tapi PK baru 1 sesi dan Literasi 0 sesi. Biasanya saat buka drill, apa yang bikin kamu lebih memilih PU dibanding subtes yang nilainya masih rendah?&quot;
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Latihan Luar &amp; Pembahasan):</strong>{' '}
-                    &quot;Apakah kamu juga latihan dari sumber luar (buku/latihan sekolah)? Setelah mengerjakan dan ada jawaban salah, apakah pembahasannya dicek ulang atau ditanyakan ke pengajar?&quot;
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Kunci Topik Klinik PR):</strong>{' '}
-                    &quot;Dari topik lemah yang tercatat (Aljabar &amp; Pecahan di PK, Penalaran Induktif di PU), materi mana yang paling bikin mentok dan perlu kita bedah dulu di Klinik PR?&quot;
-                  </div>
-                </div>
+                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                  {stage3OverallOut.saTasks.map((task, idx) => (
+                    <li key={idx}>{task}</li>
+                  ))}
+                </ul>
               </div>
 
               {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
@@ -815,7 +904,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li><strong>Hindari latihan semu:</strong> Apresiasi konsistensi di PU, lalu ajak mengalihkan porsi latihan ke subtes dengan gap terbesar (PK &amp; Literasi).</li>
+                    <li><strong>Hindari latihan semu:</strong> Apresiasi konsistensi di subtes yang sudah aktif, lalu ajak mengalihkan porsi latihan ke subtes dengan gap terbesar.</li>
                     <li><strong>Jangan menyimpulkan &quot;malas&quot; dari angka 0:</strong> Data kosong hanya berarti belum tercatat di aplikasi—gali dulu kendala atau latihan di luar sistem.</li>
                   </ul>
                 </div>
@@ -823,7 +912,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 11.5, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#b45309', marginBottom: 4 }}>📏 CARA BACA METRIK SESI DRILL:</div>
                   <p style={{ margin: 0, color: '#334155' }}>
-                    1 sesi dapat terhitung meskipun siswa hanya mengerjakan &lt;10 soal. Selalu baca <strong>jumlah sesi bersama total butir soal &amp; akurasinya</strong> (misal PK: 1 sesi = baru 5 soal).
+                    {stage3OverallOut.guardrailNote}
                   </p>
                 </div>
               </div>
@@ -849,8 +938,8 @@ export const CheckpointV2Page: React.FC = () => {
           {/* Action Plans Cards */}
           <div className="section-block" id="sec_tahap4_plans">
             <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Rencana Aksi Bersama Sampai TO 5</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>4 Tindakan Konkret yang Wajib Dijalankan Selama 4 Minggu ke Depan</span>
+              <h3 className="section-title" style={{ fontSize: 15 }}>1. Kerangka Tindak Lanjut Menuju TO 5</h3>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Disepakati Bersama Siswa &amp; Orang Tua Selama Sesi Konsultasi</span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -974,7 +1063,7 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
-          {/* Live Consultation Prompt: Tahap 4 */}
+          {/* Live Consultation Prompt: Tahap 4 (Driven by saGuidelineEngine) */}
           <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #027a48', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#027a48', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -987,25 +1076,16 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Pertanyaan Penggalian */}
+              {/* Kolom Kiri: Tugas Fasilitasi SA */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#027a48', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 YANG PERLU DIGALI &amp; DIKONFIRMASI:
+                  🔍 TUGAS FASILITASI SA:
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
-                  <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Siswa (Uji Realistis Jadwal):</strong>{' '}
-                    &quot;Untuk target 15 soal/hari (Senin–Jumat) dan Klinik PR 2x seminggu, hari dan jam berapa yang paling realistis dijalankan tanpa bentrok jadwal sekolah/ekskul?&quot;
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Orang Tua (Bentuk Dukungan):</strong>{' '}
-                    &quot;Bentuk pendampingan atau pengingat seperti apa yang paling nyaman Bapak/Ibu lakukan di rumah untuk membantu konsistensi belajarnya menuju TO 5?&quot;
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0f172a' }}>• Konfirmasi Hal Belum Tuntas:</strong>{' '}
-                    &quot;Apakah masih ada topik atau keputusan (misal izin lokasi kampus/pilihan cadangan) yang masih perlu didiskusikan keluarga sebelum sesi berikutnya?&quot;
-                  </div>
-                </div>
+                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                  {stage4Out.saTasks.map((task, idx) => (
+                    <li key={idx}>{task}</li>
+                  ))}
+                </ul>
               </div>
 
               {/* Kolom Kanan: Checklist Penutupan SA */}
@@ -1013,9 +1093,9 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>📋 CHECKLIST PENUTUPAN SA:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li>Pastikan ada kesepakatan <strong>hari &amp; jam hadir Klinik PR</strong> di cabang minggu ini.</li>
-                    <li>Catat keputusan &amp; hal yang perlu dicek ulang, lalu klik <strong>Simpan Draft</strong> di bar aksi atas.</li>
-                    <li>Klik <strong>Preview &amp; Download PDF</strong> di bar aksi atas (tombol <strong>Download PDF</strong> ada di dalam preview), lalu klik <strong>Kunci</strong> bila sudah final.</li>
+                    {stage4Out.checklist.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
                   </ul>
                 </div>
 
