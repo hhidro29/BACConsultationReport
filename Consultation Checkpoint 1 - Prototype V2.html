@@ -891,9 +891,6 @@
         <a href="Consultation Checkpoint 1 - Prototype.html" class="version-switch-btn">Versi 1: Baseline Tren Skor</a>
         <a href="Consultation Checkpoint 1 - Prototype V2.html" class="version-switch-btn active">Versi 2: Usulan Tim Akademik (Target 600)</a>
       </div>
-      <button type="button" onclick="toggleCmsDataMode()" id="btnCmsModeToggle" style="background: #334155; border: 1px solid #475467; color: #f8fafc; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; cursor: pointer;">
-        Mode CMS: <span id="cmsModeLabel" style="color: #facc15;">Placeholder ("isi dari CMS")</span>
-      </button>
     </div>
   </div>
 
@@ -1247,14 +1244,11 @@
 
       <!-- 02 Tabel 3 Pilihan Jurusan & Skor Terbobot CMS -->
       <section class="section-block" id="sec_tahap2_table">
-        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="section-header">
           <div>
             <h2 class="section-title">1. Evaluasi 3 Pilihan Jurusan &amp; Skor IRT Terbobot</h2>
             <span style="font-size: 11.5px; color: var(--muted);">Data Skor Terbobot Dihitung Otomatis Berdasarkan Formula Bobot Mata Uji PTN di CMS</span>
           </div>
-          <button type="button" class="btn btn-outline" onclick="toggleCmsDataMode()" style="font-size: 11.5px; padding: 4px 10px;">
-            Toggle Mode Tampilan: <span id="cmsModeLabel2" style="font-weight: 700; color: #1078ca;">Placeholder / Angka Riil</span>
-          </button>
         </div>
 
         <div class="table-container">
@@ -1277,14 +1271,8 @@
                   <span style="font-size: 11.5px; color: var(--muted);">Universitas Gadjah Mada (UGM) • Keketatan: 3.85%</span>
                 </td>
                 <td style="text-align: center; font-size: 14px; font-weight: 700; color: #0f172a;">694</td>
-                <td style="text-align: center; font-size: 14px; font-weight: 700; color: #1078ca;">
-                  <span class="cms-placeholder" style="color: #64748b; font-style: italic; font-size: 12px;">isi dari CMS</span>
-                  <span class="cms-real-val" style="display: none; color: #1078ca;">538</span>
-                </td>
-                <td style="text-align: center; font-weight: 700; color: #b42318;">
-                  <span class="cms-placeholder" style="color: #64748b; font-style: italic; font-size: 12px;">isi dari CMS</span>
-                  <span class="cms-real-val" style="display: none; color: #b42318;">-156</span>
-                </td>
+                <td style="text-align: center; font-size: 14px; font-weight: 700; color: #1078ca;">538</td>
+                <td style="text-align: center; font-weight: 700; color: #b42318;">-156</td>
                 <td style="text-align: center;">
                   <span class="badge" style="background: #fef3f2; color: #b42318; border: 1px solid #fee4e2; font-size: 11px;">Butuh Peningkatan Signifikan</span>
                 </td>
@@ -1296,14 +1284,8 @@
                   <span style="font-size: 11.5px; color: var(--muted);">Universitas Indonesia (UI) • Keketatan: 5.11%</span>
                 </td>
                 <td style="text-align: center; font-size: 14px; font-weight: 700; color: #0f172a;">686</td>
-                <td style="text-align: center; font-size: 14px; font-weight: 700; color: #1078ca;">
-                  <span class="cms-placeholder" style="color: #64748b; font-style: italic; font-size: 12px;">isi dari CMS</span>
-                  <span class="cms-real-val" style="display: none; color: #1078ca;">542</span>
-                </td>
-                <td style="text-align: center; font-weight: 700; color: #b42318;">
-                  <span class="cms-placeholder" style="color: #64748b; font-style: italic; font-size: 12px;">isi dari CMS</span>
-                  <span class="cms-real-val" style="display: none; color: #b42318;">-144</span>
-                </td>
+                <td style="text-align: center; font-size: 14px; font-weight: 700; color: #1078ca;">542</td>
+                <td style="text-align: center; font-weight: 700; color: #b42318;">-144</td>
                 <td style="text-align: center;">
                   <span class="badge" style="background: #fef3f2; color: #b42318; border: 1px solid #fee4e2; font-size: 11px;">Butuh Peningkatan Signifikan</span>
                 </td>
@@ -1315,14 +1297,8 @@
                   <span style="font-size: 11.5px; color: var(--muted);">Institut Teknologi Bandung (ITB) • Keketatan: 4.63%</span>
                 </td>
                 <td style="text-align: center; font-size: 14px; font-weight: 700; color: #0f172a;">660</td>
-                <td style="text-align: center; font-size: 14px; font-weight: 700; color: #1078ca;">
-                  <span class="cms-placeholder" style="color: #64748b; font-style: italic; font-size: 12px;">isi dari CMS</span>
-                  <span class="cms-real-val" style="display: none; color: #1078ca;">565</span>
-                </td>
-                <td style="text-align: center; font-weight: 700; color: #b42318;">
-                  <span class="cms-placeholder" style="color: #64748b; font-style: italic; font-size: 12px;">isi dari CMS</span>
-                  <span class="cms-real-val" style="display: none; color: #b42318;">-95</span>
-                </td>
+                <td style="text-align: center; font-size: 14px; font-weight: 700; color: #1078ca;">565</td>
+                <td style="text-align: center; font-weight: 700; color: #b54708;">-95</td>
                 <td style="text-align: center;">
                   <span class="badge" style="background: #fffcf5; color: #b54708; border: 1px solid #fedf89; font-size: 11px;">Butuh Peningkatan</span>
                 </td>
@@ -2034,14 +2010,8 @@
                     <span style="color: #475467; font-size: 8px;">Universitas Gadjah Mada (UGM)</span>
                   </td>
                   <td style="text-align: center; font-weight: 800; font-size: 10px; color: #0f172a;">694</td>
-                  <td style="text-align: center; background: #fffbeb;" class="cell-cms-score">
-                    <span class="cms-placeholder" style="color: #b45309; font-size: 8px; font-style: italic; background: #fef3c7; padding: 0.3mm 1.5mm; border-radius: 2px;">isi dari CMS</span>
-                    <span class="cms-real-val" style="display: none; font-weight: 700; color: #1e293b;">538</span>
-                  </td>
-                  <td style="text-align: center; background: #fffbeb;" class="cell-cms-gap">
-                    <span class="cms-placeholder" style="color: #b45309; font-size: 8px; font-style: italic; background: #fef3c7; padding: 0.3mm 1.5mm; border-radius: 2px;">isi</span>
-                    <span class="cms-real-val" style="display: none; font-weight: 700; color: #b42318;">-156 Poin</span>
-                  </td>
+                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #1078ca;">538</td>
+                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #b42318;">-156 Poin</td>
                 </tr>
                 <tr>
                   <td style="font-weight: 700; color: #1078ca;">Pilihan 2</td>
@@ -2050,14 +2020,8 @@
                     <span style="color: #475467; font-size: 8px;">Universitas Indonesia (UI)</span>
                   </td>
                   <td style="text-align: center; font-weight: 800; font-size: 10px; color: #0f172a;">686</td>
-                  <td style="text-align: center; background: #fffbeb;" class="cell-cms-score">
-                    <span class="cms-placeholder" style="color: #b45309; font-size: 8px; font-style: italic; background: #fef3c7; padding: 0.3mm 1.5mm; border-radius: 2px;">isi dari CMS</span>
-                    <span class="cms-real-val" style="display: none; font-weight: 700; color: #1e293b;">542</span>
-                  </td>
-                  <td style="text-align: center; background: #fffbeb;" class="cell-cms-gap">
-                    <span class="cms-placeholder" style="color: #b45309; font-size: 8px; font-style: italic; background: #fef3c7; padding: 0.3mm 1.5mm; border-radius: 2px;">isi</span>
-                    <span class="cms-real-val" style="display: none; font-weight: 700; color: #b42318;">-144 Poin</span>
-                  </td>
+                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #1078ca;">542</td>
+                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #b42318;">-144 Poin</td>
                 </tr>
                 <tr>
                   <td style="font-weight: 700; color: #1078ca;">Pilihan 3</td>
@@ -2066,14 +2030,8 @@
                     <span style="color: #475467; font-size: 8px;">Institut Teknologi Bandung (ITB)</span>
                   </td>
                   <td style="text-align: center; font-weight: 800; font-size: 10px; color: #0f172a;">660</td>
-                  <td style="text-align: center; background: #fffbeb;" class="cell-cms-score">
-                    <span class="cms-placeholder" style="color: #b45309; font-size: 8px; font-style: italic; background: #fef3c7; padding: 0.3mm 1.5mm; border-radius: 2px;">isi dari CMS</span>
-                    <span class="cms-real-val" style="display: none; font-weight: 700; color: #1e293b;">565</span>
-                  </td>
-                  <td style="text-align: center; background: #fffbeb;" class="cell-cms-gap">
-                    <span class="cms-placeholder" style="color: #b45309; font-size: 8px; font-style: italic; background: #fef3c7; padding: 0.3mm 1.5mm; border-radius: 2px;">isi</span>
-                    <span class="cms-real-val" style="display: none; font-weight: 700; color: #b54708;">-95 Poin</span>
-                  </td>
+                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #1078ca;">565</td>
+                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #b54708;">-95 Poin</td>
                 </tr>
               </tbody>
             </table>
@@ -3218,39 +3176,7 @@
       }
     });
 
-    // Toggle CMS Data Mode in Section 3 & Tahap 2
-    let cmsDataMode = 'placeholder'; // 'placeholder' or 'real'
-    function toggleCmsDataMode() {
-      cmsDataMode = cmsDataMode === 'placeholder' ? 'real' : 'placeholder';
-      const label = document.getElementById('cmsModeLabel');
-      const label2 = document.getElementById('cmsModeLabel2');
-      const placeholders = document.querySelectorAll('.cms-placeholder');
-      const realVals = document.querySelectorAll('.cms-real-val');
 
-      if (cmsDataMode === 'real') {
-        if (label) {
-          label.innerText = 'Simulasi Angka Riil (538 / 542 / 565)';
-          label.style.color = '#4ade80';
-        }
-        if (label2) {
-          label2.innerText = 'Angka Riil Aktif (538 / 542 / 565)';
-          label2.style.color = '#12b76a';
-        }
-        placeholders.forEach(el => el.style.display = 'none');
-        realVals.forEach(el => el.style.display = 'inline');
-      } else {
-        if (label) {
-          label.innerText = 'Placeholder ("isi dari CMS")';
-          label.style.color = '#facc15';
-        }
-        if (label2) {
-          label2.innerText = 'Placeholder Aktif ("isi dari CMS")';
-          label2.style.color = '#1078ca';
-        }
-        placeholders.forEach(el => el.style.display = 'inline');
-        realVals.forEach(el => el.style.display = 'none');
-      }
-    }
 
     // Sub navigation data per Tahap
     const v2NavData = {
