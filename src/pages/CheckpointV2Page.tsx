@@ -879,13 +879,13 @@ export const CheckpointV2Page: React.FC = () => {
             {/* Color Legend */}
             <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 10, fontSize: 12, color: '#475467', flexWrap: 'wrap' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 10, height: 10, background: '#d92d20', display: 'inline-block', borderRadius: 2 }}></span> Prioritas utama (-91 atau lebih jauh)
+                <span style={{ width: 10, height: 10, background: '#d92d20', display: 'inline-block', borderRadius: 2 }}></span> Skor &le; 509 (-91 ke bawah)
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 10, height: 10, background: '#f79009', display: 'inline-block', borderRadius: 2 }}></span> Perlu ditingkatkan (-31 s.d. -90)
+                <span style={{ width: 10, height: 10, background: '#f79009', display: 'inline-block', borderRadius: 2 }}></span> Skor 510–569 (-31 s.d. -90)
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 10, height: 10, background: '#2e90fa', display: 'inline-block', borderRadius: 2 }}></span> Mendekati (-30 s.d. -1)
+                <span style={{ width: 10, height: 10, background: '#2e90fa', display: 'inline-block', borderRadius: 2 }}></span> Skor 570–599 (-30 s.d. -1)
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 10, height: 10, background: '#12b76a', display: 'inline-block', borderRadius: 2 }}></span> Tercapai (600+)
