@@ -14,7 +14,8 @@ import {
   analyzeStage2,
   analyzeStage3Subtest,
   analyzeStage3Overall,
-  analyzeStage4
+  analyzeStage4,
+  analyzeStageClassroom
 } from '../utils/saGuidelineEngine';
 
 export const CheckpointV2Page: React.FC = () => {
@@ -89,18 +90,18 @@ export const CheckpointV2Page: React.FC = () => {
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [draftSavedToast, setDraftSavedToast] = useState<boolean>(false);
   const [activeStage, setActiveStage] = useState<string>('tahap1');
-  const [saNotes, setSaNotes] = useState<string>(() => {
-    const saved = localStorage.getItem('bac_v2_sa_notes');
-    return saved || "Siswa sempat merasa terbebani penurunan nilai dari TO 1 ke TO 4, namun kembali bersemangat setelah melihat Penalaran Matematika (597) sudah di ambang batas 600. Orang tua menyetujui target 15 soal/hari dan akan mendampingi jadwal belajar mandiri di rumah. Fokus pemulihan utama: PU dan PK.";
-  });
-
   const classroomData = STUDENT_CLASSROOM_DATA[activeStudent.id] || STUDENT_CLASSROOM_DATA.garuda;
+  const saNotesStorageKey = `bac_v2_sa_notes_${activeStudent.id}`;
+  const [saNotes, setSaNotes] = useState<string>(() => {
+    return localStorage.getItem(`bac_v2_sa_notes_${activeStudent.id}`) || '';
+  });
   const [classFilter, setClassFilter] = useState<'notes' | 'all' | 'absent'>('notes');
   const [classPage, setClassPage] = useState<number>(1);
 
   useEffect(() => {
     setClassFilter('notes');
     setClassPage(1);
+    setSaNotes(localStorage.getItem(`bac_v2_sa_notes_${activeStudent.id}`) || '');
   }, [activeStudent.id]);
 
   useEffect(() => {
@@ -132,7 +133,7 @@ export const CheckpointV2Page: React.FC = () => {
   }, []);
 
   const handleSaveNotes = () => {
-    localStorage.setItem('bac_v2_sa_notes', saNotes);
+    localStorage.setItem(saNotesStorageKey, saNotes);
     setDraftSavedToast(true);
     setTimeout(() => setDraftSavedToast(false), 3000);
   };
@@ -313,6 +314,17 @@ export const CheckpointV2Page: React.FC = () => {
     drillAccuracyPct: item.drillAccuracyPct
   }));
   const stage3OverallOut = analyzeStage3Overall(stage3SubtestInputs, ruleConfig);
+  const stageClassroomOut = analyzeStageClassroom(
+    {
+      totalSessions: classroomData.totalSessions,
+      presentSessions: classroomData.presentSessions,
+      lateSessions: classroomData.lateSessions,
+      sickSessions: classroomData.sickSessions,
+      excusedSessions: classroomData.excusedSessions,
+      notesCount: classroomData.notesCount
+    },
+    ruleConfig
+  );
   const stage4Out = analyzeStage4(
     {
       hasConflictOrLocationCheck:
@@ -1618,7 +1630,7 @@ export const CheckpointV2Page: React.FC = () => {
                   🔍 TUGAS FASILITASI SA:
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
-                  {classroomData.saTasks.map((task, idx) => (
+                  {stageClassroomOut.saTasks.map((task, idx) => (
                     <li key={idx}>{task}</li>
                   ))}
                 </ul>
@@ -1636,7 +1648,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 11.5, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#b45309', marginBottom: 4 }}>📏 BATAS BACA DATA KELAS:</div>
                   <p style={{ margin: 0, color: '#334155' }}>
-                    {classroomData.guardrailNote}
+                    {stageClassroomOut.guardrailNote}
                   </p>
                 </div>
               </div>
@@ -1725,9 +1737,9 @@ export const CheckpointV2Page: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => {
-                          const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill soal harian 15 soal (PU/PK) + Klinik PR cabang setiap hari [... jam ...]\n3) Cek Ulang Sesi Berikutnya: [progres drill soal PK & akurasi TO 5]';
+                          const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill soal harian [.. soal/hari] + Klinik PR cabang [hari & jam]\n3) Cek Ulang Sesi Berikutnya: [progres subtes fokus & akurasi TO 5]';
                           setSaNotes(val);
-                          localStorage.setItem('bac_v2_sa_notes', val);
+                          localStorage.setItem(saNotesStorageKey, val);
                         }}
                         style={{
                           fontSize: 11,
@@ -1747,9 +1759,9 @@ export const CheckpointV2Page: React.FC = () => {
                         onClick={() => {
                           const val = saNotes.includes('[Cek Ulang Sesi Berikutnya]')
                             ? saNotes
-                            : `${saNotes.trim()}\n• [Cek Ulang Sesi Berikutnya]: Verifikasi izin lokasi/merantau & progres drill PK.`;
+                            : `${saNotes.trim() ? `${saNotes.trim()}\n` : ''}• [Cek Ulang Sesi Berikutnya]: `;
                           setSaNotes(val);
-                          localStorage.setItem('bac_v2_sa_notes', val);
+                          localStorage.setItem(saNotesStorageKey, val);
                         }}
                         style={{
                           fontSize: 11,
@@ -1771,9 +1783,10 @@ export const CheckpointV2Page: React.FC = () => {
                   rows={4}
                   disabled={isLocked}
                   value={saNotes}
+                  placeholder="Tulis hasil kesepakatan prodi/lokasi, jadwal drill soal atau Klinik PR yang disepakati, dan pengingat untuk evaluasi TO 5..."
                   onChange={(e) => {
                     setSaNotes(e.target.value);
-                    localStorage.setItem('bac_v2_sa_notes', e.target.value);
+                    localStorage.setItem(saNotesStorageKey, e.target.value);
                   }}
                   style={{
                     width: '100%',

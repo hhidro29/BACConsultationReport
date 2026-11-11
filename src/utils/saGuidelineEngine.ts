@@ -875,3 +875,97 @@ export function analyzeStage4(
 
   return { saTasks, checklist, actionPlans, traces };
 }
+
+export interface StageClassroomInput {
+  totalSessions: number;
+  presentSessions: number;
+  lateSessions: number;
+  sickSessions: number;
+  excusedSessions: number;
+  notesCount: number;
+}
+
+export interface StageClassroomOutput {
+  saTasks: string[];
+  guardrailNote: string;
+  traces: RuleTrace[];
+}
+
+export function analyzeStageClassroom(
+  input: StageClassroomInput,
+  config: EngineRuleConfig = DEFAULT_ENGINE_CONFIG
+): StageClassroomOutput {
+  const th = config.thresholds;
+  const total = Math.max(0, input.totalSessions);
+  const attendancePct = total > 0 ? (input.presentSessions / total) * 100 : 0;
+  const pctLabel = attendancePct.toFixed(1).replace('.', ',');
+  const absentCount = input.sickSessions + input.excusedSessions;
+  const notesPct = total > 0 ? Math.round((input.notesCount / total) * 100) : 0;
+  const emptyNotesCount = Math.max(0, total - input.notesCount);
+
+  const saTasks: string[] = [];
+  const lowAttendance = attendancePct < th.attendanceWarnPct;
+
+  if (lowAttendance) {
+    saTasks.push(
+      `Kehadiran kelas TMB tercatat ${pctLabel}% (${input.presentSessions}/${total} sesi). Gali kendala jadwal, kesehatan, atau perjalanan terlebih dahulu sebelum menambah target belajar baru.`
+    );
+  } else {
+    saTasks.push(
+      `Kehadiran kelas TMB sudah baik (${pctLabel}%, ${input.presentSessions}/${total} sesi). Cocokkan catatan pengajar di tabel dengan subtes yang skor TO-nya masih perlu penguatan.`
+    );
+  }
+
+  const hasRepeatedAbsence = absentCount >= 5;
+  if (hasRepeatedAbsence) {
+    saTasks.push(
+      `Pastikan siswa sudah mengejar materi dari ${absentCount} sesi tidak hadir (${input.sickSessions} sakit, ${input.excusedSessions} izin) melalui rekaman kelas atau Klinik PR cabang.`
+    );
+  }
+
+  const lowNotesCoverage = input.notesCount === 0 || notesPct < 25;
+  if (input.notesCount === 0) {
+    saTasks.push(
+      'Belum ada catatan tertulis pengajar pada periode ini; tanyakan langsung ke siswa materi kelas mana yang masih terasa sulit.'
+    );
+  } else if (notesPct < 25) {
+    saTasks.push(
+      `Baru ${input.notesCount} dari ${total} sesi (${notesPct}%) yang memiliki catatan tertulis pengajar. Jangan menyimpulkan siswa pasif dari sedikitnya catatan; validasi langsung bersama siswa.`
+    );
+  }
+
+  const guardrailNote =
+    emptyNotesCount > 0
+      ? `Data menampilkan rekaman asli Student Tower tanpa pemrosesan AI. Dari ${total} sesi tercatat, ${emptyNotesCount} sesi belum memiliki catatan tertulis — artinya belum diisi pengajar, bukan berarti siswa pasif.`
+      : `Seluruh ${total} sesi tercatat menampilkan catatan asli pengajar langsung dari Student Tower tanpa pemrosesan AI.`;
+
+  const traces: RuleTrace[] = [
+    {
+      ruleId: 's4c_attendance',
+      ruleName: `Ambang Kehadiran Kelas (< ${th.attendanceWarnPct}%)`,
+      expression: `hadir (${pctLabel}%) < ${th.attendanceWarnPct}%`,
+      matched: lowAttendance,
+      effect: lowAttendance
+        ? 'Fokus gali kendala jadwal/kehadiran sebelum tambah target'
+        : 'Apresiasi kehadiran & cocokkan catatan dengan mapel TO'
+    },
+    {
+      ruleId: 's4c_absences',
+      ruleName: 'Tindak Lanjut Sesi Terlewat (Sakit + Izin ≥ 5)',
+      expression: `sakit+izin (${absentCount}) ≥ 5`,
+      matched: hasRepeatedAbsence,
+      effect: hasRepeatedAbsence ? 'Ingatkan kejar materi via rekaman/Klinik PR' : 'Tidak dipicu'
+    },
+    {
+      ruleId: 's4c_notes_coverage',
+      ruleName: 'Cakupan Catatan Pengajar (< 25%)',
+      expression: `catatan (${notesPct}%) < 25%`,
+      matched: lowNotesCoverage,
+      effect: lowNotesCoverage
+        ? 'Tambahkan rambu agar catatan sedikit tidak ditafsirkan pasif'
+        : 'Cakupan catatan cukup representatif'
+    }
+  ];
+
+  return { saTasks, guardrailNote, traces };
+}

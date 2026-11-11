@@ -22,8 +22,6 @@ export interface StudentClassroomData {
   excusedSessions: number;
   notesCount: number;
   sessions: ClassroomSession[];
-  saTasks: string[];
-  guardrailNote: string;
 }
 
 const GARUDA_SESSIONS: ClassroomSession[] = [
@@ -84,13 +82,7 @@ export const STUDENT_CLASSROOM_DATA: Record<string, StudentClassroomData> = {
     sickSessions: 6,
     excusedSessions: 2,
     notesCount: 16,
-    sessions: GARUDA_SESSIONS,
-    saTasks: [
-      'Apresiasi kehadiran Garuda di kelas TMB (36 / 44 sesi) dan cek catatan asli pengajar di tabel atas (khususnya Fisika 10 Sep & Dasar-Dasar Linguistik 7 Sep), lalu gali mengapa kenyamanan di kelas belum sepenuhnya terbawa saat menghadapi soal berbatas waktu di TO 4.',
-      'Konfirmasi tindak lanjut ketidakhadiran 8 sesi (6 Sakit & 2 Izin UTS): pastikan Garuda sudah mengejar materi yang sempat terlewat lewat rekaman atau Klinik PR.'
-    ],
-    guardrailNote:
-      'Data di atas menampilkan rekaman asli Student Tower per sesi tanpa pemrosesan AI. Dari 44 sesi tercatat, 28 sesi belum memiliki catatan tertulis — artinya belum diisi pengajar, bukan berarti siswa pasif.'
+    sessions: GARUDA_SESSIONS
   },
   nadira: {
     studentId: 'nadira',
@@ -119,13 +111,7 @@ export const STUDENT_CLASSROOM_DATA: Record<string, StudentClassroomData> = {
       { id: 'NAD-CLASS-014', dateLabel: '09 Sep 2026', timeLabel: '19:00', subject: 'Sosiologi', teacher: 'Rina Kusuma', attendance: 'Hadir', noteText: 'Menunjukkan keaktifan berpendapat mengenai topik stratifikasi sosial dan menyelesaikan tugas individu tepat waktu.' },
       { id: 'NAD-CLASS-015', dateLabel: '05 Sep 2026', timeLabel: '17:00', subject: 'Pemahaman Bacaan dan Menulis', teacher: 'Muhamad Diky Yulianto', attendance: 'Hadir', noteText: 'Memahami materi kohesi dan koherensi antarparagraf dengan sangat baik dan teliti memeriksa struktur kalimat baku.' },
       { id: 'NAD-CLASS-016', dateLabel: '02 Sep 2026', timeLabel: '19:00', subject: 'Dasar-Dasar Linguistik', teacher: 'Muhamad Diky Yulianto', attendance: 'Hadir', noteText: 'Antusias bertanya saat sesi latihan morfologi dan mampu membedakan makna imbuhan secara kontekstual.' }
-    ],
-    saTasks: [
-      'Pertahankan ritme kehadiran kelas TMB (42/44 sesi) yang sudah sangat baik dan selaras dengan tren kenaikan skor TO Nadira.',
-      'Manfaatkan masukan pengajar Matematika & PK (07 & 14 Okt) untuk menyusun sesi Klinik PR khusus strategi pengerjaan cepat soal kuantitatif.'
-    ],
-    guardrailNote:
-      'Ditampilkan sampel sesi terbaru beserta seluruh sesi bercatatan penting. Catatan kosong pada sebagian sesi berarti pengajar belum mengisi catatan tertulis pada sesi tersebut.'
+    ]
   },
   rizky: {
     studentId: 'rizky',
@@ -146,12 +132,6 @@ export const STUDENT_CLASSROOM_DATA: Record<string, StudentClassroomData> = {
       { id: 'RIZ-CLASS-006', dateLabel: '22 Sep 2026', timeLabel: '19:00', subject: 'Bahasa Indonesia', teacher: 'Rika Amalia', attendance: 'Hadir', noteText: 'Mengikuti diskusi teks bacaan dengan baik ketika dibahas bersama kelompok kecil.' },
       { id: 'RIZ-CLASS-007', dateLabel: '18 Sep 2026', timeLabel: '17:00', subject: 'Pengetahuan Kuantitatif', teacher: 'Dian Pratiwi', attendance: 'Izin', attendanceNote: 'Izin kegiatan sekolah', noteText: null },
       { id: 'RIZ-CLASS-008', dateLabel: '15 Sep 2026', timeLabel: '19:00', subject: 'Bahasa Inggris', teacher: 'Tanto Purwanto', attendance: 'Sakit', attendanceNote: 'Sakit', noteText: null }
-    ],
-    saTasks: [
-      'Gali hambatan utama kehadiran (10 sesi absen: 6 Sakit & 4 Izin, serta 3 Terlambat) sebelum menambah target belajar di luar jam kelas.',
-      'Gunakan pendekatan aman saat bertanya: dorong Rizky memilih 1 pertanyaan yang ingin dikonfirmasi di Klinik PR fondasi numerasi, agar nyaman berdiskusi tanpa merasa tertekan di kelas besar.'
-    ],
-    guardrailNote:
-      'Hanya 6 dari 42 sesi yang memiliki catatan tertulis pengajar. Jangan menyimpulkan siswa malas hanya dari absensi atau sedikitnya catatan; validasi dulu kendala jadwal, kesehatan, atau kenyamanan bertanya di kelas.'
+    ]
   }
 };
