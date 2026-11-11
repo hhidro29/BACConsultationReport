@@ -96,9 +96,11 @@ export const CheckpointV2Page: React.FC = () => {
 
   const classroomData = STUDENT_CLASSROOM_DATA[activeStudent.id] || STUDENT_CLASSROOM_DATA.garuda;
   const [classFilter, setClassFilter] = useState<'notes' | 'all' | 'absent'>('notes');
+  const [classPage, setClassPage] = useState<number>(1);
 
   useEffect(() => {
     setClassFilter('notes');
+    setClassPage(1);
   }, [activeStudent.id]);
 
   useEffect(() => {
@@ -1400,6 +1402,13 @@ export const CheckpointV2Page: React.FC = () => {
                   return true;
                 });
 
+                const pageSize = 6;
+                const totalPages = Math.max(1, Math.ceil(filteredSessions.length / pageSize));
+                const safePage = Math.min(classPage, totalPages);
+                const startIdx = (safePage - 1) * pageSize;
+                const endIdx = Math.min(startIdx + pageSize, filteredSessions.length);
+                const pagedSessions = filteredSessions.slice(startIdx, endIdx);
+
                 const getAttBadgeStyle = (att: string) => {
                   if (att === 'Hadir') return { bg: '#ecfdf3', color: '#027a48', border: '#a6f4c5' };
                   if (att === 'Terlambat') return { bg: '#fef0c7', color: '#b54708', border: '#fedf89' };
@@ -1420,7 +1429,10 @@ export const CheckpointV2Page: React.FC = () => {
                             <button
                               key={tab.id}
                               type="button"
-                              onClick={() => setClassFilter(tab.id)}
+                              onClick={() => {
+                                setClassFilter(tab.id);
+                                setClassPage(1);
+                              }}
                               style={{
                                 fontSize: 11.5,
                                 fontWeight: isActive ? 700 : 600,
@@ -1438,13 +1450,13 @@ export const CheckpointV2Page: React.FC = () => {
                         })}
                       </div>
                       <span style={{ fontSize: 11, color: '#64748b' }}>
-                        Menampilkan {filteredSessions.length} sesi (teks asli pengajar)
+                        Menampilkan {filteredSessions.length === 0 ? 0 : `${startIdx + 1}–${endIdx}`} dari {filteredSessions.length} sesi (teks asli pengajar)
                       </span>
                     </div>
 
-                    <div style={{ maxHeight: 380, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8 }}>
+                    <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-                        <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 2, borderBottom: '1px solid #e2e8f0' }}>
+                        <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                           <tr>
                             <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '15%' }}>TANGGAL</th>
                             <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '24%' }}>MAPEL &amp; PENGAJAR</th>
@@ -1453,7 +1465,7 @@ export const CheckpointV2Page: React.FC = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredSessions.map((ses) => {
+                          {pagedSessions.map((ses) => {
                             const attStyle = getAttBadgeStyle(ses.attendance);
                             return (
                               <tr key={ses.id} style={{ borderBottom: '1px solid #f1f5f9', verticalAlign: 'top' }}>
@@ -1501,6 +1513,85 @@ export const CheckpointV2Page: React.FC = () => {
                         </tbody>
                       </table>
                     </div>
+
+                    {/* Pagination Bar (per 6 records) */}
+                    {totalPages > 1 && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginTop: 10,
+                          paddingTop: 10,
+                          borderTop: '1px solid #f1f5f9',
+                          flexWrap: 'wrap',
+                          gap: 8
+                        }}
+                      >
+                        <span style={{ fontSize: 11.5, color: '#64748b' }}>
+                          Halaman <strong>{safePage}</strong> dari <strong>{totalPages}</strong> (6 sesi per halaman)
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            disabled={safePage <= 1}
+                            onClick={() => setClassPage(safePage - 1)}
+                            style={{
+                              fontSize: 11.5,
+                              fontWeight: 600,
+                              padding: '4px 9px',
+                              borderRadius: 6,
+                              border: '1px solid #e2e8f0',
+                              background: safePage <= 1 ? '#f8fafc' : '#ffffff',
+                              color: safePage <= 1 ? '#94a3b8' : '#334155',
+                              cursor: safePage <= 1 ? 'not-allowed' : 'pointer'
+                            }}
+                          >
+                            ‹ Sebelumnya
+                          </button>
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                            const isCurr = pageNum === safePage;
+                            return (
+                              <button
+                                key={pageNum}
+                                type="button"
+                                onClick={() => setClassPage(pageNum)}
+                                style={{
+                                  fontSize: 11.5,
+                                  fontWeight: isCurr ? 700 : 600,
+                                  minWidth: 28,
+                                  padding: '4px 8px',
+                                  borderRadius: 6,
+                                  border: `1px solid ${isCurr ? '#c7d2fe' : '#e2e8f0'}`,
+                                  background: isCurr ? '#eef2ff' : '#ffffff',
+                                  color: isCurr ? '#4338ca' : '#334155',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          })}
+                          <button
+                            type="button"
+                            disabled={safePage >= totalPages}
+                            onClick={() => setClassPage(safePage + 1)}
+                            style={{
+                              fontSize: 11.5,
+                              fontWeight: 600,
+                              padding: '4px 9px',
+                              borderRadius: 6,
+                              border: '1px solid #e2e8f0',
+                              background: safePage >= totalPages ? '#f8fafc' : '#ffffff',
+                              color: safePage >= totalPages ? '#94a3b8' : '#334155',
+                              cursor: safePage >= totalPages ? 'not-allowed' : 'pointer'
+                            }}
+                          >
+                            Berikutnya ›
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
