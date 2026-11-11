@@ -1,18 +1,120 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Download, X, FileText, Check } from 'lucide-react';
+import { Download, Printer, X, FileText, Check } from 'lucide-react';
 import { downloadPdfFile } from '../utils/downloadPdf';
+import {
+  CHECKPOINT1_STUDENTS,
+  Checkpoint1Student,
+  ProgramChoice,
+  PrioritySubtest,
+  SubtestV2
+} from '../data/garudaData';
 
 interface V2PdfModalProps {
   isOpen: boolean;
   onClose: () => void;
+  student?: Checkpoint1Student;
+  programs?: ProgramChoice[];
 }
 
-const v2SheetsMarkup = '<div class="pdf-sheets-container">\n        <!-- ================= PAGE 1 ================= -->\n        <section class="profiling-print-page" id="reportPage1">\n          <!-- Kop Dokumen -->\n          <header class="profiling-print-document-header">\n            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2mm;">\n              <span style="font-size: 10px; font-weight: 800; color: #1078ca; letter-spacing: 0.5px;">BRAIN ACADEMY BY RUANGGURU</span>\n              <span style="font-size: 8px; color: #64748b; font-weight: 600;">DOKUMEN RESMI KONSULTASI SISWA &amp; ORANG TUA</span>\n            </div>\n            <div class="profiling-print-header">\n              <div>\n                <h1 class="profiling-print-title">LAPORAN KONSULTASI CHECKPOINT 1</h1>\n                <p class="profiling-print-subtitle">Hasil 4 Tryout, posisi 8 subtes UTBK, dan peluang ke 3 pilihan jurusan</p>\n              </div>\n              <div class="profiling-print-pathway">JALUR UTBK-SNBT 2026/2027</div>\n            </div>\n          </header>\n\n          <!-- Identitas Siswa -->\n          <div class="profiling-print-section" style="margin-bottom: 1.8mm;">\n            <table class="profiling-print-table" style="margin-bottom: 0;">\n              <tbody>\n                <tr>\n                  <td style="width: 17%; background: #edf5f9; font-weight: 700; color: #334155;">Nama Siswa</td>\n                  <td style="width: 33%; font-weight: 700; color: #0f172a;">Garuda Mahawira Sena</td>\n                  <td style="width: 17%; background: #edf5f9; font-weight: 700; color: #334155;">Asal Sekolah</td>\n                  <td style="width: 33%;">SMAN 1 Depok (Jawa Barat)</td>\n                </tr>\n                <tr>\n                  <td style="background: #edf5f9; font-weight: 700; color: #334155;">Cabang / Kelas</td>\n                  <td>Depok - Margonda (12 SMA)</td>\n                  <td style="background: #edf5f9; font-weight: 700; color: #334155;">Kakak Asuh (SA)</td>\n                  <td>Nita Ayu Dwiyanti</td>\n                </tr>\n                <tr>\n                  <td style="background: #edf5f9; font-weight: 700; color: #334155;">Skor Reguler Siswa</td>\n                  <td colspan="3"><strong>571 poin</strong> <span style="color: #64748b;">(Rata-rata Tryout)</span> &nbsp;&bull;&nbsp; <strong>546 poin</strong> <span style="color: #b42318; font-weight: 600;">(Skor TO 4 Terakhir)</span></td>\n                </tr>\n              </tbody>\n            </table>\n          </div>\n\n          <!-- Ringkasan Posisi Saat Ini (Berdasarkan TO 4) -->\n          <div style="background: #f0f9ff; border: 1px solid #b9e6fe; border-radius: 4px; padding: 1.5mm 2.2mm; margin-bottom: 1.8mm;">\n            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1mm; border-bottom: 1px solid #d0ecfc; padding-bottom: 0.6mm;">\n              <strong style="font-size: 8.8px; color: #0369a1;">Ringkasan Posisi Saat Ini (Berdasarkan TO 4)</strong>\n              <span style="font-size: 8px; color: #0284c7; font-weight: 600;">Fokus semester ini: semua subtes mencapai 600, apa pun pilihan jurusannya.</span>\n            </div>\n            <div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 2.2mm;">\n              <!-- Box Kiri: Hijau -->\n              <div style="background: #ffffff; border: 1px solid #a6f4c5; border-radius: 3px; padding: 1mm 1.8mm;">\n                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6mm;">\n                  <span style="font-size: 7.8px; font-weight: 800; color: #027a48; letter-spacing: 0.2px;">DI ATAS 600 (+)</span>\n                  <span style="font-size: 7.5px; font-weight: 700; background: #ecfdf3; color: #027a48; padding: 0.2mm 1.2mm; border-radius: 2px;">1 subtes</span>\n                </div>\n                <div style="font-size: 7.8px; color: #334155; line-height: 1.35; font-weight: 600;">\n                  • Pengetahuan &amp; Pemahaman Umum (PPU)\n                </div>\n              </div>\n              <!-- Box Kanan: Merah/Pink -->\n              <div style="background: #ffffff; border: 1px solid #fecdca; border-radius: 3px; padding: 1mm 1.8mm;">\n                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6mm;">\n                  <span style="font-size: 7.8px; font-weight: 800; color: #b42318; letter-spacing: 0.2px;">DI BAWAH 600 (-)</span>\n                  <span style="font-size: 7.5px; font-weight: 700; background: #fee4e2; color: #b42318; padding: 0.2mm 1.2mm; border-radius: 2px;">7 subtes</span>\n                </div>\n                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6mm 2mm; font-size: 7.5px; color: #334155; line-height: 1.25;">\n                  <div>• Penalaran Umum (PU)</div>\n                  <div>• Pemahaman Bacaan &amp; Menulis (PBM)</div>\n                  <div>• Pengetahuan Kuantitatif (PK)</div>\n                  <div>• Literasi B. Indonesia (Soshum)</div>\n                  <div>• Literasi B. Indonesia (Saintek)</div>\n                  <div>• Penalaran Matematika (PM)</div>\n                  <div>• Literasi B. Inggris (LBING)</div>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          <!-- 1. CARA MEMBACA DUA SISTEM SKOR DI LAPORAN INI -->\n          <div class="profiling-print-section" style="margin-bottom: 1.8mm;">\n            <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">1.</span>Cara Membaca Dua Sistem Skor di Laporan Ini</h2>\n            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2mm; margin-bottom: 1mm;">\n              <!-- Card Skor IRT Reguler -->\n              <div style="background: #ffffff; border: 1px solid #cbd5e1; border-top: 2.5px solid #1078ca; border-radius: 3px; padding: 1.2mm 1.8mm;">\n                <div style="margin-bottom: 0.6mm;">\n                  <span style="font-size: 7.5px; font-weight: 800; background: #eff8ff; color: #175cd3; border: 1px solid #b2ddff; padding: 0.2mm 1.4mm; border-radius: 2px;">SKOR IRT REGULER</span>\n                </div>\n                <div style="font-size: 8px; font-weight: 700; color: #0f172a; margin-bottom: 0.3mm;">Nilai tiap subtes, sama untuk semua jurusan</div>\n                <p style="margin: 0 0 0.6mm; font-size: 7.3px; color: #475467; line-height: 1.28;">\n                  Setiap subtes dinilai dengan satu cara hitung yang sama. Angkanya tidak berubah saat pilihan jurusan berganti.\n                </p>\n                <div style="font-size: 7.2px; color: #1e40af; font-weight: 600;">\n                  Dipakai untuk: memantau kemampuan tiap subtes dan target semester ini (600). Ada di bagian 2.\n                </div>\n              </div>\n              <!-- Card Skor IRT Terbobot -->\n              <div style="background: #ffffff; border: 1px solid #cbd5e1; border-top: 2.5px solid #7c3aed; border-radius: 3px; padding: 1.2mm 1.8mm;">\n                <div style="margin-bottom: 0.6mm;">\n                  <span style="font-size: 7.5px; font-weight: 800; background: #f9f5ff; color: #6941c6; border: 1px solid #e9d7fe; padding: 0.2mm 1.4mm; border-radius: 2px;">SKOR IRT TERBOBOT</span>\n                </div>\n                <div style="font-size: 8px; font-weight: 700; color: #0f172a; margin-bottom: 0.3mm;">Nilai yang dihitung sesuai pilihan jurusan</div>\n                <p style="margin: 0 0 0.6mm; font-size: 7.3px; color: #475467; line-height: 1.28;">\n                  Skor dihitung ulang dengan bobot subtes milik tiap jurusan, sehingga hasilnya berbeda untuk setiap pilihan.\n                </p>\n                <div style="font-size: 7.2px; color: #6941c6; font-weight: 600;">\n                  Dipakai untuk: melihat jarak ke skor lolos tiap jurusan. Ada di bagian 3.\n                </div>\n              </div>\n            </div>\n            <!-- Callout Mengapa semua subtes dikejar ke 600 -->\n            <div style="background: #fffbeb; border: 1px solid #fef08a; border-left: 2.5px solid #eab308; border-radius: 3px; padding: 0.9mm 1.8mm; font-size: 7.3px; color: #713f12; line-height: 1.3;">\n              <strong>Mengapa semua subtes dikejar ke 600?</strong> Bobot subtes berbeda di tiap jurusan, sehingga subtes yang lemah menarik skor satu jurusan lebih jauh daripada jurusan lain. Dengan semua subtes di 600, tidak ada subtes yang menjadi titik lemah di pilihan mana pun.\n            </div>\n          </div>\n\n          <!-- 2. SKOR IRT REGULER: POSISI 8 SUBTES TERHADAP TARGET 600 -->\n          <div class="profiling-print-section">\n            <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">2.</span>Skor IRT Reguler: Posisi 8 Subtes Terhadap Target 600</h2>\n            <table class="profiling-print-table" style="font-size: 7.8px;">\n              <thead>\n                <tr>\n                  <th style="width: 3.5%; text-align: center;">#</th>\n                  <th style="width: 23.5%;">Subtes UTBK<br><span style="font-size: 6.8px; font-weight: normal; opacity: 0.9;">(urut dari jarak terbesar)</span></th>\n                  <th style="width: 6.5%; text-align: center;">TO 1<br><span style="font-size: 6.8px; font-weight: normal;">30 Agu</span></th>\n                  <th style="width: 8%; text-align: center;">TO 2<br><span style="font-size: 6.8px; font-weight: normal;">14 Sep</span></th>\n                  <th style="width: 8%; text-align: center;">TO 3<br><span style="font-size: 6.8px; font-weight: normal;">28 Sep</span></th>\n                  <th style="width: 8.5%; text-align: center;">TO 4<br><span style="font-size: 6.8px; font-weight: normal;">30 Okt</span></th>\n                  <th style="width: 7%; text-align: center;">Median</th>\n                  <th style="width: 14.5%; text-align: center;">\n                    Posisi TO 4 vs 600<br>\n                    <div style="display: flex; justify-content: space-between; font-size: 6.5px; font-weight: normal; margin-top: 1px; color: #e2e8f0;">\n                      <span>400</span><span>600</span><span>700</span>\n                    </div>\n                  </th>\n                  <th style="width: 7%; text-align: center;">Jarak<br>ke 600</th>\n                  <th style="width: 13.5%; text-align: center;">Status</th>\n                </tr>\n              </thead>\n              <tbody>\n                <tr>\n                  <td style="text-align: center; color: #64748b;">1</td>\n                  <td><strong>Penalaran Umum (PU)</strong></td>\n                  <td style="text-align: center;">567</td>\n                  <td style="text-align: center;">583 <span style="font-size: 6.5px; color: #027a48;">▲</span></td>\n                  <td style="text-align: center;">514 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #b42318;">465 <span style="font-size: 6.8px;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700;">540,5</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-high" style="width: 21.7%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; color: #b42318; font-weight: 700; font-size: 7.4px;">-135</td>\n                  <td style="text-align: center;"><span class="badge-p-high">Prioritas utama</span></td>\n                </tr>\n                <tr>\n                  <td style="text-align: center; color: #64748b;">2</td>\n                  <td><strong>Pengetahuan Kuantitatif (PK)</strong></td>\n                  <td style="text-align: center;">668</td>\n                  <td style="text-align: center;">620 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center;">539 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #b42318;">488 <span style="font-size: 6.8px;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700;">579,5</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-high" style="width: 29.3%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; color: #b42318; font-weight: 700; font-size: 7.4px;">-112</td>\n                  <td style="text-align: center;"><span class="badge-p-high">Prioritas utama</span></td>\n                </tr>\n                <tr>\n                  <td style="text-align: center; color: #64748b;">3</td>\n                  <td><strong>Literasi B. Indonesia (Saintek)</strong></td>\n                  <td style="text-align: center;">626</td>\n                  <td style="text-align: center;">637 <span style="font-size: 6.5px; color: #027a48;">▲</span></td>\n                  <td style="text-align: center;">590 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #b42318;">505 <span style="font-size: 6.8px;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700;">608</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-high" style="width: 35%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; color: #b42318; font-weight: 700; font-size: 7.4px;">-95</td>\n                  <td style="text-align: center;"><span class="badge-p-high">Prioritas utama</span></td>\n                </tr>\n                <tr>\n                  <td style="text-align: center; color: #64748b;">4</td>\n                  <td><strong>Literasi B. Inggris (LBING)</strong></td>\n                  <td style="text-align: center;">572</td>\n                  <td style="text-align: center;">538 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center;">607 <span style="font-size: 6.5px; color: #027a48;">▲</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #b54708;">543 <span style="font-size: 6.8px;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700;">557,5</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-med" style="width: 47.7%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; color: #b54708; font-weight: 700; font-size: 7.4px;">-57</td>\n                  <td style="text-align: center;"><span class="badge-p-med">Perlu ditingkatkan</span></td>\n                </tr>\n                <tr>\n                  <td style="text-align: center; color: #64748b;">5</td>\n                  <td><strong>Pemahaman Bacaan &amp; Menulis (PBM)</strong></td>\n                  <td style="text-align: center;">553</td>\n                  <td style="text-align: center;">562 <span style="font-size: 6.5px; color: #027a48;">▲</span></td>\n                  <td style="text-align: center;">612 <span style="font-size: 6.5px; color: #027a48;">▲</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #b54708;">554 <span style="font-size: 6.8px;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700;">558</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-med" style="width: 51.3%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; color: #b54708; font-weight: 700; font-size: 7.4px;">-46</td>\n                  <td style="text-align: center;"><span class="badge-p-med">Perlu ditingkatkan</span></td>\n                </tr>\n                <tr>\n                  <td style="text-align: center; color: #64748b;">6</td>\n                  <td><strong>Literasi B. Indonesia (Soshum)</strong></td>\n                  <td style="text-align: center;">628</td>\n                  <td style="text-align: center;">494 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center;">488 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #175cd3;">573 <span style="font-size: 6.8px;">▲</span></td>\n                  <td style="text-align: center; font-weight: 700;">533,5</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-low" style="width: 57.7%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; color: #175cd3; font-weight: 700; font-size: 7.4px;">-27</td>\n                  <td style="text-align: center;"><span class="badge-p-low">Mendekati</span></td>\n                </tr>\n                <tr>\n                  <td style="text-align: center; color: #64748b;">7</td>\n                  <td><strong>Penalaran Matematika (PM)</strong></td>\n                  <td style="text-align: center;">597</td>\n                  <td style="text-align: center;">639 <span style="font-size: 6.5px; color: #027a48;">▲</span></td>\n                  <td style="text-align: center;">588 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #175cd3;">597 <span style="font-size: 6.8px;">▲</span></td>\n                  <td style="text-align: center; font-weight: 700;">597</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-low" style="width: 65.7%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; color: #175cd3; font-weight: 700; font-size: 7.4px;">-3</td>\n                  <td style="text-align: center;"><span class="badge-p-low">Mendekati</span></td>\n                </tr>\n                <tr>\n                  <td style="text-align: center; color: #64748b;">8</td>\n                  <td><strong>Pengetahuan &amp; Pemahaman Umum (PPU)</strong></td>\n                  <td style="text-align: center;">595</td>\n                  <td style="text-align: center;">536 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center;">546 <span style="font-size: 6.5px; color: #027a48;">▲</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #027a48;">640 <span style="font-size: 6.8px;">▲</span></td>\n                  <td style="text-align: center; font-weight: 700;">570,5</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-done" style="width: 80%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; color: #027a48; font-weight: 700; font-size: 7.4px;">+40</td>\n                  <td style="text-align: center;"><span class="badge-p-done">Tercapai</span></td>\n                </tr>\n                              </tbody>\n            </table>\n\n            <!-- Separated Summary Table (Aligned with Main Table Columns) -->\n            <table class="profiling-print-table" style="margin-top: 1.4mm; margin-bottom: 0; font-size: 7.6px;">\n              <thead>\n                <tr>\n                  <th style="width: 27%; background: #edf5f9; color: #0f172a;">Ringkasan 8 Subtes</th>\n                  <th style="width: 6.5%; text-align: center; background: #edf5f9; color: #334155;">TO 1</th>\n                  <th style="width: 8%; text-align: center; background: #edf5f9; color: #334155;">TO 2</th>\n                  <th style="width: 8%; text-align: center; background: #edf5f9; color: #334155;">TO 3</th>\n                  <th style="width: 8.5%; text-align: center; background: #edf5f9; color: #334155;">TO 4</th>\n                  <th style="width: 7%; text-align: center; background: #edf5f9; color: #334155;">Rata-rata</th>\n                  <th style="width: 14.5%; text-align: center; background: #edf5f9; color: #334155;">Posisi TO 4 vs 600</th>\n                  <th style="width: 7%; text-align: center; background: #edf5f9; color: #334155;">Jarak<br><span style="font-size: 6.5px; font-weight: normal;">ke 600</span></th>\n                  <th style="width: 13.5%; text-align: center; background: #edf5f9; color: #334155;">Status</th>\n                </tr>\n              </thead>\n              <tbody>\n                <tr>\n                  <td style="font-weight: 700; color: #0f172a;">Rata-rata 8 subtes</td>\n                  <td style="text-align: center; font-weight: 600;">601</td>\n                  <td style="text-align: center; font-weight: 600;">576 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center; font-weight: 600;">561 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #b54708;">546 <span style="font-size: 6.5px;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #1078ca;">571</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-med" style="width: 48.7%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; font-weight: 700; color: #b54708; font-size: 7.4px;">-54</td>\n                  <td style="text-align: center;"><span class="badge-p-med">Perlu ditingkatkan</span></td>\n                </tr>\n                <tr>\n                  <td style="font-weight: 700; color: #475467;">Median 8 subtes</td>\n                  <td style="text-align: center; color: #475467;">596</td>\n                  <td style="text-align: center; color: #475467;">572,5 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center; color: #475467;">567 <span style="font-size: 6.5px; color: #b42318;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #b54708;">548,5 <span style="font-size: 6.5px;">▼</span></td>\n                  <td style="text-align: center; font-weight: 700; color: #475467;">569,8</td>\n                  <td>\n                    <div class="v2-progress-track">\n                      <div class="v2-progress-fill priority-med" style="width: 49.5%;"></div>\n                      <div class="v2-progress-target-line"></div>\n                    </div>\n                  </td>\n                  <td style="text-align: center; font-weight: 700; color: #b54708; font-size: 7.4px;">-51,5</td>\n                  <td style="text-align: center;"><span class="badge-p-med">Perlu ditingkatkan</span></td>\n                </tr>\n              </tbody>\n            </table>\n\n            <!-- Color Legend Only (placed under both tables) -->\n            <div style="display: flex; gap: 3.5mm; align-items: center; margin-top: 1.2mm; font-size: 7px;">\n              <span style="display: flex; align-items: center; gap: 1mm;"><span style="width: 7px; height: 7px; background: #d92d20; display: inline-block; border-radius: 1.5px;"></span> Prioritas utama (-91 atau lebih jauh)</span>\n              <span style="display: flex; align-items: center; gap: 1mm;"><span style="width: 7px; height: 7px; background: #f79009; display: inline-block; border-radius: 1.5px;"></span> Perlu ditingkatkan (-31 s.d. -90)</span>\n              <span style="display: flex; align-items: center; gap: 1mm;"><span style="width: 7px; height: 7px; background: #2e90fa; display: inline-block; border-radius: 1.5px;"></span> Mendekati (-30 s.d. -1)</span>\n              <span style="display: flex; align-items: center; gap: 1mm;"><span style="width: 7px; height: 7px; background: #12b76a; display: inline-block; border-radius: 1.5px;"></span> Tercapai (600+)</span>\n            </div>\n          </div>\n\n          <!-- Footer Page 1 -->\n          <footer class="profiling-print-footer">\n            <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Dokumen Resmi Hasil Sesi Konsultasi Checkpoint 1</div>\n            <div>Halaman 1 dari 2</div>\n          </footer>\n        </section>\n\n        <!-- ================= PAGE 2 ================= -->\n        <section class="profiling-print-page" id="reportPage2">\n          <!-- Kop Dokumen Page 2 -->\n          <header class="profiling-print-document-header">\n            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2mm;">\n              <span style="font-size: 10px; font-weight: 800; color: #1078ca; letter-spacing: 0.5px;">BRAIN ACADEMY BY RUANGGURU</span>\n              <span style="font-size: 8px; color: #64748b; font-weight: 600;">DOKUMEN RESMI KONSULTASI SISWA &amp; ORANG TUA</span>\n            </div>\n            <div class="profiling-print-header">\n              <div>\n                <h1 class="profiling-print-title">LAPORAN KONSULTASI CHECKPOINT 1</h1>\n                <p class="profiling-print-subtitle">Peluang per jurusan, rencana belajar, dan lembar kesepakatan bersama</p>\n              </div>\n              <div class="profiling-print-pathway">GARUDA MAHAWIRA SENA</div>\n            </div>\n          </header>\n\n          <!-- 3. SKOR IRT TERBOBOT: JARAK KE SKOR LOLOS TIAP PILIHAN JURUSAN -->\n          <div class="profiling-print-section" style="margin-bottom: 2mm;">\n            <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">3.</span>Skor IRT Terbobot: Jarak ke Skor Lolos Tiap Pilihan Jurusan</h2>\n            <table class="profiling-print-table" style="font-size: 8.5px;">\n              <thead>\n                <tr>\n                  <th style="width: 14%;">Pilihan</th>\n                  <th style="width: 46%;">Program Studi &amp; Perguruan Tinggi</th>\n                  <th style="width: 15%; text-align: center;">Target skor lolos<br><span style="font-size: 7px; font-weight: normal;">(terbobot)</span></th>\n                  <th style="width: 13%; text-align: center;">Skor terbobot<br><span style="font-size: 7px; font-weight: normal;">TO 4</span></th>\n                  <th style="width: 12%; text-align: center;">Selisih ke<br><span style="font-size: 7px; font-weight: normal;">target lolos</span></th>\n                </tr>\n              </thead>\n              <tbody>\n                <tr>\n                  <td style="font-weight: 700; color: #1078ca;">Pilihan 1</td>\n                  <td>\n                    <strong>S1 Farmasi</strong><br>\n                    <span style="color: #475467; font-size: 8px;">Universitas Gadjah Mada (UGM)</span>\n                  </td>\n                  <td style="text-align: center; font-weight: 800; font-size: 10px; color: #0f172a;">694</td>\n                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #1078ca;">538</td>\n                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #b42318;">-156</td>\n                </tr>\n                <tr>\n                  <td style="font-weight: 700; color: #1078ca;">Pilihan 2</td>\n                  <td>\n                    <strong>S1 Farmasi</strong><br>\n                    <span style="color: #475467; font-size: 8px;">Universitas Indonesia (UI)</span>\n                  </td>\n                  <td style="text-align: center; font-weight: 800; font-size: 10px; color: #0f172a;">686</td>\n                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #1078ca;">542</td>\n                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #b42318;">-144</td>\n                </tr>\n                <tr>\n                  <td style="font-weight: 700; color: #1078ca;">Pilihan 3</td>\n                  <td>\n                    <strong>S1 Teknik Mesin</strong><br>\n                    <span style="color: #475467; font-size: 8px;">Institut Teknologi Bandung (ITB)</span>\n                  </td>\n                  <td style="text-align: center; font-weight: 800; font-size: 10px; color: #0f172a;">660</td>\n                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #1078ca;">565</td>\n                  <td style="text-align: center; font-weight: 700; font-size: 9px; color: #b54708;">-95</td>\n                </tr>\n              </tbody>\n            </table>\n            <div style="font-size: 7.2px; color: #475467; font-style: italic; margin-top: 1mm; line-height: 1.35;">\n              Skor terbobot dibandingkan hanya dengan target lolos jurusan yang sama. Target 600 per subtes di bagian 2 adalah tahap pertama semester ini. Setelah itu, jarak ke skor lolos pada tabel ini yang dikejar.\n            </div>\n          </div>\n\n          <!-- 4. SUBTES PRIORITAS: AKTIVITAS DRILL DAN ARAHAN PENDAMPINGAN -->\n          <div class="profiling-print-section" style="margin-bottom: 2mm;">\n            <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">4.</span>Subtes Prioritas: Aktivitas Drill dan Arahan Pendampingan</h2>\n            <table class="profiling-print-table" style="font-size: 8px;">\n              <thead>\n                <tr>\n                  <th style="width: 22%;">Subtes</th>\n                  <th style="width: 14%; text-align: center;">Skor TO 4<br><span style="font-size: 6.8px; font-weight: normal;">&amp; Jarak ke 600</span></th>\n                  <th style="width: 16%; text-align: center;">Drill di aplikasi<br>Ruangguru</th>\n                  <th style="width: 24%;">Topik yang perlu dibenahi</th>\n                  <th>Arahan Kakak Asuh</th>\n                </tr>\n              </thead>\n              <tbody>\n                <tr>\n                  <td>\n                    <strong style="color: #0f172a;">Pengetahuan Kuantitatif (PK)</strong>\n                    <div style="font-size: 7px; color: #64748b; margin-top: 0.3mm;">Bobot tinggi di jurusan pilihan (Prioritas #1)</div>\n                  </td>\n                  <td style="text-align: center;">\n                    <div style="font-weight: 800; color: #b42318; font-size: 9.5px;">488</div>\n                    <div style="font-size: 7.2px; color: #b42318; font-weight: 700;">-112</div>\n                  </td>\n                  <td style="text-align: center;">\n                    <strong style="color: #0f172a;">1 sesi</strong><br>\n                    <span style="font-size: 7px; color: #64748b;">5 soal · 40% benar</span>\n                  </td>\n                  <td style="font-size: 7.4px; line-height: 1.3;">\n                    • Aljabar &amp; Pecahan (28% benar)<br>\n                    • Peluang Dasar (38% benar)<br>\n                    • Geometri Bidang (42% benar)\n                  </td>\n                  <td style="font-size: 7.4px; color: #334155; line-height: 1.35;">\n                    <strong style="color: #b42318;">Kritis.</strong> Baru 5 soal di aplikasi. Drill harian dan perkuat konsep dasar di Klinik PR.\n                  </td>\n                </tr>\n                <tr>\n                  <td>\n                    <strong style="color: #0f172a;">Penalaran Umum (PU)</strong>\n                    <div style="font-size: 7px; color: #64748b; margin-top: 0.3mm;">Bobot tinggi di jurusan pilihan (Prioritas #2)</div>\n                  </td>\n                  <td style="text-align: center;">\n                    <div style="font-weight: 800; color: #b42318; font-size: 9.5px;">465</div>\n                    <div style="font-size: 7.2px; color: #b42318; font-weight: 700;">-135</div>\n                  </td>\n                  <td style="text-align: center;">\n                    <strong style="color: #0f172a;">7 sesi</strong><br>\n                    <span style="font-size: 7px; color: #64748b;">35 soal · 63% benar</span>\n                  </td>\n                  <td style="font-size: 7.4px; line-height: 1.3;">\n                    • Penalaran Induktif (32% benar)<br>\n                    • Logika Silogisme (41% benar)<br>\n                    • Penalaran Analitik Simbolik\n                  </td>\n                  <td style="font-size: 7.4px; color: #334155; line-height: 1.35;">\n                    Rutinitas drill sudah terbentuk. Fokus pada ketelitian membaca premis dan pola induktif.\n                  </td>\n                </tr>\n                <tr>\n                  <td>\n                    <strong style="color: #0f172a;">Penalaran Matematika (PM)</strong>\n                    <div style="font-size: 7px; color: #64748b; margin-top: 0.3mm;">Bobot tinggi di jurusan pilihan (Prioritas #3)</div>\n                  </td>\n                  <td style="text-align: center;">\n                    <div style="font-weight: 800; color: #175cd3; font-size: 9.5px;">597</div>\n                    <div style="font-size: 7.2px; color: #175cd3; font-weight: 700;">-3</div>\n                  </td>\n                  <td style="text-align: center;">\n                    <strong style="color: #0f172a;">2 sesi</strong><br>\n                    <span style="font-size: 7px; color: #64748b;">10 soal · 50% benar</span>\n                  </td>\n                  <td style="font-size: 7.4px; line-height: 1.3;">\n                    • Aritmatika Sosial Cerita<br>\n                    • Model Aljabar Kontekstual\n                  </td>\n                  <td style="font-size: 7.4px; color: #334155; line-height: 1.35;">\n                    Skor stabil dan tinggal 3 poin ke target. Jaga ritme drill soal mingguan.\n                  </td>\n                </tr>\n                <tr>\n                  <td>\n                    <strong style="color: #0f172a;">Literasi B. Indo (Saintek) &amp; B. Inggris</strong>\n                    <div style="font-size: 7px; color: #64748b; margin-top: 0.3mm;">Subtes pendukung</div>\n                  </td>\n                  <td style="text-align: center;">\n                    <div style="font-weight: 800; color: #b42318; font-size: 9px;">505 / 543</div>\n                    <div style="font-size: 7.2px; color: #b42318; font-weight: 700;">-95 / -57</div>\n                  </td>\n                  <td style="text-align: center;">\n                    <strong style="color: #b42318;">0 sesi</strong><br>\n                    <span style="font-size: 7px; color: #b42318;">belum ada drill</span>\n                  </td>\n                  <td style="font-size: 7.4px; line-height: 1.3;">\n                    • Wacana Panjang Teks Akademik<br>\n                    • Menemukan Ide Pokok Wacana\n                  </td>\n                  <td style="font-size: 7.4px; color: #334155; line-height: 1.35;">\n                    Belum pernah membuka drill literasi. Biasakan membaca minimal 1 teks ilmiah per hari.\n                  </td>\n                </tr>\n              </tbody>\n            </table>\n            <div style="font-size: 7.2px; color: #64748b; margin-top: 1mm;">\n              Subtes lain: PBM -46 poin dan Literasi B. Indonesia (Soshum) -27 poin, dipantau lewat Tryout 5. PPU sudah di atas 600.\n            </div>\n          </div>\n\n          <!-- 5. RENCANA AKSI SAMPAI TRYOUT 5 -->\n          <div class="profiling-print-section" style="margin-bottom: 2mm;">\n            <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">5.</span>Rencana Aksi Sampai Tryout 5</h2>\n            <ol class="profiling-print-action-list" style="font-size: 8px; line-height: 1.38; padding: 1.8mm 2.5mm 1.8mm 4.5mm;">\n              <li><strong>Drill harian PU dan PK.</strong> 15 soal per hari (Senin–Jumat) di aplikasi Ruangguru, dengan akurasi di atas 65%.</li>\n              <li><strong>Klinik PR tatap muka.</strong> Hadir minimal 2x seminggu di Brain Academy Depok Margonda bersama Master Teacher Matematika &amp; Penalaran, untuk membedah Aljabar dan Penalaran Induktif.</li>\n              <li><strong>Mulai literasi.</strong> Baca 1 teks ilmiah per hari dan buka drill literasi di aplikasi.</li>\n              <li><strong>Target Tryout 5 (November 2026).</strong> Naik bertahap dari skor TO 4 (546) ke rata-rata minimal 585 poin sebagai target antara menuju 600, dengan manajemen waktu per subtes.</li>\n            </ol>\n          </div>\n\n          <!-- 6. LEMBAR KESEPAKATAN BERSAMA 3 PIHAK -->\n          <div class="profiling-print-section" style="margin-bottom: 0;">\n            <h2 class="profiling-print-section-title"><span style="margin-right: 1.8mm;">6.</span>Lembar Kesepakatan Bersama 3 Pihak</h2>\n            <p class="profiling-print-agreement" style="margin-top: 1.5mm; font-size: 7.8px; line-height: 1.35;">\n              "Dengan menandatangani lembar ini, Siswa, Orang Tua / Wali, dan Kakak Asuh Brain Academy menyatakan telah berdiskusi bersama, memahami hasil evaluasi belajar 4 Tryout, dan bersepakat mengenai formulasi pilihan jurusan serta komitmen rencana tindak lanjut belajar Checkpoint 1 demi mencapai target PTN impian."\n            </p>\n            <div style="text-align: right; font-size: 8px; color: #475467; margin-top: 1.5mm; margin-bottom: 1.5mm;">\n              Depok, 10 November 2026\n            </div>\n\n            <!-- 3 Wet Signature Columns -->\n            <div class="profiling-print-signatures" style="padding-top: 12mm; gap: 4mm;">\n              <div>\n                <div class="profiling-print-signature-name">Garuda Mahawira Sena</div>\n                <div class="profiling-print-signature-role">Siswa</div>\n              </div>\n              <div>\n                <div class="profiling-print-signature-name">Bambang Sena</div>\n                <div class="profiling-print-signature-role">Orang Tua / Wali Siswa</div>\n              </div>\n              <div>\n                <div class="profiling-print-signature-name">Nita Ayu Dwiyanti</div>\n                <div class="profiling-print-signature-role">Kakak Asuh Brain Academy</div>\n              </div>\n            </div>\n          </div>\n\n          <!-- Footer Page 2 -->\n          <footer class="profiling-print-footer">\n            <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Dokumen Resmi Hasil Sesi Konsultasi Checkpoint 1</div>\n            <div>Halaman 2 dari 2</div>\n          </footer>\n        </section>\n      </div>';
+const SHORT_CODE_MAP: Record<string, string> = {
+  pu: 'PU',
+  pk: 'PK',
+  lbi_a: 'LBI Saintek',
+  lbi_s: 'LBI Soshum',
+  lbe: 'LBING',
+  pbm: 'PBM',
+  pm: 'PM',
+  ppu: 'PPU'
+};
 
-export const V2PdfModal: React.FC<V2PdfModalProps> = ({ isOpen, onClose }) => {
+function computeMedian(arr: number[]): number {
+  if (!arr.length) return 0;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+function formatIndo(num: number): string {
+  return Number.isInteger(num) ? String(num) : num.toFixed(1).replace('.', ',');
+}
+
+function getStatusBadgeInfo(gap: number): { label: string; className: string; fillClass: string; color: string } {
+  if (gap >= 0) return { label: 'Tercapai', className: 'badge-p-done', fillClass: 'priority-done', color: '#027a48' };
+  if (gap >= -30) return { label: 'Mendekati', className: 'badge-p-low', fillClass: 'priority-low', color: '#175cd3' };
+  if (gap >= -90) return { label: 'Perlu ditingkatkan', className: 'badge-p-med', fillClass: 'priority-med', color: '#b54708' };
+  return { label: 'Prioritas utama', className: 'badge-p-high', fillClass: 'priority-high', color: '#b42318' };
+}
+
+function getDrillGuidance(sub: PrioritySubtest): string {
+  if (sub.rgQuestionsDone === 0) {
+    return 'Belum ada aktivitas drill di aplikasi. Mulai rutinitas drill bertahap & bedah topik dasar di Klinik PR.';
+  }
+  if (sub.rgQuestionsDone <= 10 && sub.gapNum <= -90) {
+    return `Baru ${sub.rgQuestionsDone} soal di aplikasi. Tingkatkan frekuensi drill harian & ikuti Klinik PR tatap muka.`;
+  }
+  if (sub.gapNum >= -15) {
+    return sub.gapNum >= 0
+      ? 'Target 600 sudah tercapai. Pertahankan akurasi lewat evaluasi mingguan agar konsisten.'
+      : 'Skor tinggal selangkah ke 600. Jaga ritme drill soal mingguan & fokus akurasi pengerjaan.';
+  }
+  if (sub.drillSessions >= 6) {
+    return 'Rutinitas drill sudah terbentuk. Fokuskan pembahasan pada 2 topik akurasi terendah.';
+  }
+  return 'Perkuat pemahaman konsep pada topik terendah lewat latihan terarah & sesi Klinik PR.';
+}
+
+function renderTrendArrow(curr: number, prev: number) {
+  if (curr > prev) return <span style={{ fontSize: 7.5, color: '#027a48' }}> ▲</span>;
+  if (curr < prev) return <span style={{ fontSize: 7.5, color: '#b42318' }}> ▼</span>;
+  return null;
+}
+
+export const V2PdfModal: React.FC<V2PdfModalProps> = ({
+  isOpen,
+  onClose,
+  student = CHECKPOINT1_STUDENTS[0],
+  programs
+}) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+
+  const activePrograms = programs && programs.length > 0 ? programs : student.targetPrograms;
+  const { identity, subtests, prioritySubtests } = student;
+
+  const sortedSubtests: SubtestV2[] = [...subtests].sort((a, b) => a.gap - b.gap || a.to4 - b.to4);
+  const above600 = sortedSubtests.filter((s) => s.to4 >= 600);
+  const below600 = sortedSubtests.filter((s) => s.to4 < 600);
+  const lowest3 = below600.slice(0, 3);
+  const to4Score = identity.toScores[identity.toScores.length - 1] ?? 0;
+
+  const avg1 = Math.round(subtests.reduce((acc, s) => acc + s.to1, 0) / subtests.length);
+  const avg2 = Math.round(subtests.reduce((acc, s) => acc + s.to2, 0) / subtests.length);
+  const avg3 = Math.round(subtests.reduce((acc, s) => acc + s.to3, 0) / subtests.length);
+  const avg4 = Math.round(subtests.reduce((acc, s) => acc + s.to4, 0) / subtests.length);
+  const avgAll = Math.round((avg1 + avg2 + avg3 + avg4) / 4);
+  const avgGap = avg4 - 600;
+  const avgFill = Math.max(0, Math.min(100, ((avg4 - 400) / 300) * 100));
+  const avgBadge = getStatusBadgeInfo(avgGap);
+
+  const med1 = computeMedian(subtests.map((s) => s.to1));
+  const med2 = computeMedian(subtests.map((s) => s.to2));
+  const med3 = computeMedian(subtests.map((s) => s.to3));
+  const med4 = computeMedian(subtests.map((s) => s.to4));
+  const medAll = (med1 + med2 + med3 + med4) / 4;
+  const medGap = med4 - 600;
+  const medFill = Math.max(0, Math.min(100, ((med4 - 400) / 300) * 100));
+  const medBadge = getStatusBadgeInfo(medGap);
+
+  const otherSubtests = sortedSubtests.filter(
+    (s) => !prioritySubtests.some((p) => p.id === s.id || (p.id === 'lbi' && (s.id === 'lbi_a' || s.id === 'lbe')))
+  );
+  const otherSummaryText = otherSubtests
+    .slice(0, 3)
+    .map((s) => `${SHORT_CODE_MAP[s.id] || s.name} (${s.gap >= 0 ? `+${s.gap}` : s.gap})`)
+    .join(' · ');
+
+  const homeCity = identity.branch.split('-')[0].trim();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -29,7 +131,8 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({ isOpen, onClose }) => {
 
   const handleDownload = async () => {
     setIsDownloading(true);
-    await downloadPdfFile('Laporan_Konsultasi_Checkpoint_1_Garuda_Mahawira_Sena.pdf');
+    const safeName = identity.name.replace(/\s+/g, '_');
+    await downloadPdfFile(`Laporan_Konsultasi_Checkpoint_1_${safeName}.pdf`);
     setIsDownloading(false);
     setDownloadSuccess(true);
     setTimeout(() => setDownloadSuccess(false), 2500);
@@ -54,9 +157,23 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({ isOpen, onClose }) => {
           <button
             type="button"
             className="btn-pdf-print"
+            onClick={() => window.print()}
+            title="Cetak atau Simpan PDF Langsung dari Tampilan Terkini"
+            style={{
+              background: 'rgba(255,255,255,0.12)',
+              color: '#ffffff',
+              border: '1px solid rgba(255,255,255,0.28)'
+            }}
+          >
+            <Printer size={15} />
+            Cetak / Print A4
+          </button>
+          <button
+            type="button"
+            className="btn-pdf-print"
             onClick={handleDownload}
             disabled={isDownloading}
-            title="Download Dokumen PDF ke Komputer"
+            title="Download File PDF Bawaan ke Komputer"
             style={{
               background: downloadSuccess ? '#027a48' : '#1078ca',
               color: '#ffffff',
@@ -78,8 +195,489 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({ isOpen, onClose }) => {
         onClick={(e) => {
           if (e.target === e.currentTarget) onClose();
         }}
-        dangerouslySetInnerHTML={{ __html: v2SheetsMarkup }}
-      />
+      >
+        <div className="pdf-sheets-container">
+          {/* ================= PAGE 1 ================= */}
+          <section className="profiling-print-page" id="reportPage1">
+            {/* Kop Dokumen */}
+            <header className="profiling-print-document-header">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2mm' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#1078ca', letterSpacing: 0.5 }}>
+                  BRAIN ACADEMY BY RUANGGURU
+                </span>
+                <span style={{ fontSize: 8, color: '#64748b', fontWeight: 700, letterSpacing: 0.3 }}>
+                  DOKUMEN RESMI KONSULTASI SISWA &amp; ORANG TUA
+                </span>
+              </div>
+              <div className="profiling-print-header">
+                <div>
+                  <h1 className="profiling-print-title">LAPORAN KONSULTASI CHECKPOINT 1</h1>
+                  <p className="profiling-print-subtitle">
+                    Hasil 4 Tryout, posisi 8 subtes UTBK, dan peluang ke {activePrograms.length} pilihan jurusan
+                  </p>
+                </div>
+                <div className="profiling-print-pathway">JALUR UTBK-SNBT 2026/2027</div>
+              </div>
+            </header>
+
+            {/* Identitas Siswa */}
+            <div className="profiling-print-section" style={{ marginBottom: '2.4mm' }}>
+              <table className="profiling-print-table" style={{ fontSize: 8.8 }}>
+                <tbody>
+                  <tr>
+                    <td style={{ width: '17%', background: '#edf5f9', fontWeight: 700, color: '#334155' }}>Nama Siswa</td>
+                    <td style={{ width: '33%', fontWeight: 800, color: '#0f172a', fontSize: 9.2 }}>{identity.name}</td>
+                    <td style={{ width: '17%', background: '#edf5f9', fontWeight: 700, color: '#334155' }}>Asal Sekolah</td>
+                    <td style={{ width: '33%' }}>{identity.school}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ background: '#edf5f9', fontWeight: 700, color: '#334155' }}>Cabang / Kelas</td>
+                    <td>{identity.branch} (12 SMA)</td>
+                    <td style={{ background: '#edf5f9', fontWeight: 700, color: '#334155' }}>Kakak Asuh (SA)</td>
+                    <td>{identity.saName}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ background: '#edf5f9', fontWeight: 700, color: '#334155' }}>Skor Reguler</td>
+                    <td colSpan={3}>
+                      <strong style={{ fontSize: 9.5, color: '#0f172a' }}>{identity.toAverage} poin</strong>{' '}
+                      <span style={{ color: '#475467' }}>(Rata-rata 4 TO)</span>
+                      <span style={{ margin: '0 6px', color: '#94a3b8' }}>•</span>
+                      <strong style={{ fontSize: 9.5, color: to4Score >= 600 ? '#027a48' : '#b42318' }}>
+                        {to4Score} poin
+                      </strong>{' '}
+                      <span style={{ color: to4Score >= 600 ? '#027a48' : '#b42318', fontWeight: 700 }}>
+                        (Skor TO 4 Terakhir)
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Ringkasan Posisi Saat Ini (Strip Ringkas Tanpa Duplikasi Daftar 8 Subtes) */}
+            <div
+              style={{
+                background: '#f8fafc',
+                border: '1px solid #cbd5e1',
+                borderRadius: 4,
+                padding: '2mm 2.8mm',
+                marginBottom: '2.8mm'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.4mm' }}>
+                <strong style={{ fontSize: 9, color: '#0f172a' }}>Ringkasan Posisi Saat Ini (Berdasarkan TO 4)</strong>
+                <span style={{ fontSize: 8.2, color: '#1078ca', fontWeight: 700 }}>
+                  Fokus semester ini: seluruh subtes mencapai target dasar 600
+                </span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '0.85fr 1.15fr', gap: '2.4mm' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #a6f4c5', borderLeft: '3px solid #12b76a', borderRadius: 3, padding: '1.4mm 2.2mm' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 8.2, fontWeight: 800, color: '#027a48' }}>DI ATAS TARGET 600 (+)</span>
+                    <span style={{ fontSize: 9.5, fontWeight: 800, color: '#027a48' }}>{above600.length} Subtes</span>
+                  </div>
+                  <div style={{ fontSize: 8.3, color: '#334155', marginTop: '0.7mm' }}>
+                    {above600.length > 0
+                      ? above600.map((s) => `${SHORT_CODE_MAP[s.id] || s.id.toUpperCase()} (${s.to4})`).join(' · ')
+                      : 'Belum ada subtes mencapai 600 pada TO 4'}
+                  </div>
+                </div>
+                <div style={{ background: '#ffffff', border: '1px solid #fecdca', borderLeft: '3px solid #d92d20', borderRadius: 3, padding: '1.4mm 2.2mm' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 8.2, fontWeight: 800, color: '#b42318' }}>DI BAWAH TARGET 600 (-)</span>
+                    <span style={{ fontSize: 9.5, fontWeight: 800, color: '#b42318' }}>{below600.length} Subtes</span>
+                  </div>
+                  <div style={{ fontSize: 8.3, color: '#334155', marginTop: '0.7mm' }}>
+                    {lowest3.length > 0
+                      ? `3 Terendah: ${lowest3.map((s) => `${SHORT_CODE_MAP[s.id] || s.name} (${s.to4})`).join(' · ')}`
+                      : 'Seluruh subtes sudah mencapai batas 600'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 1. CARA MEMBACA DUA SISTEM SKOR DI LAPORAN INI */}
+            <div className="profiling-print-section" style={{ marginBottom: '2.8mm' }}>
+              <h2 className="profiling-print-section-title">
+                <span><span style={{ marginRight: '1.8mm' }}>1.</span>Cara Membaca Dua Sistem Skor di Laporan Ini</span>
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.4mm', marginBottom: '1.6mm' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderTop: '3px solid #1078ca', borderRadius: 4, padding: '1.8mm 2.4mm' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.9mm' }}>
+                    <span style={{ fontSize: 8, fontWeight: 800, background: '#eff8ff', color: '#175cd3', border: '1px solid #b2ddff', padding: '0.3mm 1.6mm', borderRadius: 3 }}>
+                      SKOR IRT REGULER
+                    </span>
+                    <span style={{ fontSize: 7.8, color: '#1e40af', fontWeight: 700 }}>→ Bagian 2</span>
+                  </div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0f172a', marginBottom: '0.5mm' }}>
+                    Nilai tiap subtes, sama untuk semua jurusan
+                  </div>
+                  <p style={{ margin: 0, fontSize: 8.4, color: '#334155', lineHeight: 1.4 }}>
+                    Angka kemampuan murni per subtes. Nilainya tidak berubah saat pilihan jurusan berganti; dipakai memantau target dasar 600.
+                  </p>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderTop: '3px solid #7c3aed', borderRadius: 4, padding: '1.8mm 2.4mm' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.9mm' }}>
+                    <span style={{ fontSize: 8, fontWeight: 800, background: '#f9f5ff', color: '#6941c6', border: '1px solid #e9d7fe', padding: '0.3mm 1.6mm', borderRadius: 3 }}>
+                      SKOR IRT TERBOBOT
+                    </span>
+                    <span style={{ fontSize: 7.8, color: '#6941c6', fontWeight: 700 }}>→ Bagian 3 (Hal. 2)</span>
+                  </div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0f172a', marginBottom: '0.5mm' }}>
+                    Nilai yang dihitung sesuai bobot jurusan
+                  </div>
+                  <p style={{ margin: 0, fontSize: 8.4, color: '#334155', lineHeight: 1.4 }}>
+                    Skor dihitung ulang memakai bobot subtes tiap prodi, sehingga angkanya berbeda antar pilihan untuk melihat jarak ke skor lolos.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderLeft: '3px solid #eab308', borderRadius: 3, padding: '1.4mm 2.4mm', fontSize: 8.3, color: '#713f12', lineHeight: 1.4 }}>
+                <strong>Mengapa semua subtes dikejar ke 600?</strong> Tiap jurusan memberi bobot berbeda pada subtes tertentu. Jika seluruh subtes sudah menyentuh 600, tidak ada lagi subtes lemah yang menarik turun skor terbobot di pilihan mana pun.
+              </div>
+            </div>
+
+            {/* 2. SKOR IRT REGULER: POSISI 8 SUBTES TERHADAP TARGET 600 */}
+            <div className="profiling-print-section" style={{ marginBottom: 0 }}>
+              <h2 className="profiling-print-section-title">
+                <span><span style={{ marginRight: '1.8mm' }}>2.</span>Skor IRT Reguler: Posisi 8 Subtes Terhadap Target 600</span>
+                <span style={{ fontSize: 7.8, fontWeight: 600, color: '#475467', textTransform: 'none', letterSpacing: 0 }}>
+                  Diurutkan dari jarak terdalam
+                </span>
+              </h2>
+
+              <table className="profiling-print-table" style={{ fontSize: 8.5 }}>
+                <thead>
+                  <tr>
+                    <th style={{ width: '4%', textAlign: 'center' }}>#</th>
+                    <th style={{ width: '25%' }}>Subtes UTBK</th>
+                    <th style={{ width: '7.5%', textAlign: 'center' }}>
+                      TO 1<br />
+                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>30 Agu</span>
+                    </th>
+                    <th style={{ width: '8%', textAlign: 'center' }}>
+                      TO 2<br />
+                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>14 Sep</span>
+                    </th>
+                    <th style={{ width: '8%', textAlign: 'center' }}>
+                      TO 3<br />
+                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>28 Sep</span>
+                    </th>
+                    <th style={{ width: '8.5%', textAlign: 'center' }}>
+                      TO 4<br />
+                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>30 Okt</span>
+                    </th>
+                    <th style={{ width: '7.5%', textAlign: 'center' }}>Median</th>
+                    <th style={{ width: '13%', textAlign: 'center' }}>
+                      Posisi vs 600
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 7.5, fontWeight: 600, marginTop: 1, color: '#e0f2fe' }}>
+                        <span>400</span><span>600</span><span>700</span>
+                      </div>
+                    </th>
+                    <th style={{ width: '6.5%', textAlign: 'center' }}>Selisih</th>
+                    <th style={{ width: '12%', textAlign: 'center' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedSubtests.map((sub, idx) => {
+                    const badge = getStatusBadgeInfo(sub.gap);
+                    return (
+                      <tr key={sub.id}>
+                        <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{idx + 1}</td>
+                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{sub.name}</td>
+                        <td style={{ textAlign: 'center' }}>{sub.to1}</td>
+                        <td style={{ textAlign: 'center' }}>{sub.to2}{renderTrendArrow(sub.to2, sub.to1)}</td>
+                        <td style={{ textAlign: 'center' }}>{sub.to3}{renderTrendArrow(sub.to3, sub.to2)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: badge.color }}>
+                          {sub.to4}{renderTrendArrow(sub.to4, sub.to3)}
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 700 }}>{sub.median}</td>
+                        <td>
+                          <div className="v2-progress-track">
+                            <div className={`v2-progress-fill ${badge.fillClass}`} style={{ width: `${sub.fillPct}%` }} />
+                            <div className="v2-progress-target-line" />
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 8.8, color: badge.color }}>
+                          {sub.gap >= 0 ? `+${sub.gap}` : sub.gap}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <span className={badge.className}>{badge.label}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {/* Separated Summary Table (Aligned Columns) */}
+              <table className="profiling-print-table" style={{ marginTop: '2mm', marginBottom: 0, fontSize: 8.4 }}>
+                <thead>
+                  <tr>
+                    <th style={{ width: '29%', background: '#edf5f9', color: '#0f172a' }}>Ringkasan 8 Subtes</th>
+                    <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 1</th>
+                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 2</th>
+                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 3</th>
+                    <th style={{ width: '8.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 4</th>
+                    <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Rata-rata</th>
+                    <th style={{ width: '13%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Posisi vs 600</th>
+                    <th style={{ width: '6.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Selisih</th>
+                    <th style={{ width: '12%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ fontWeight: 700, color: '#0f172a' }}>Rata-rata 8 subtes</td>
+                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{avg1}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{avg2}{renderTrendArrow(avg2, avg1)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{avg3}{renderTrendArrow(avg3, avg2)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, color: avgBadge.color }}>{avg4}{renderTrendArrow(avg4, avg3)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, color: '#1078ca' }}>{avgAll}</td>
+                    <td>
+                      <div className="v2-progress-track">
+                        <div className={`v2-progress-fill ${avgBadge.fillClass}`} style={{ width: `${avgFill}%` }} />
+                        <div className="v2-progress-target-line" />
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, color: avgBadge.color }}>
+                      {avgGap >= 0 ? `+${avgGap}` : avgGap}
+                    </td>
+                    <td style={{ textAlign: 'center' }}><span className={avgBadge.className}>{avgBadge.label}</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 700, color: '#475467' }}>Median 8 subtes</td>
+                    <td style={{ textAlign: 'center', color: '#475467' }}>{formatIndo(med1)}</td>
+                    <td style={{ textAlign: 'center', color: '#475467' }}>{formatIndo(med2)}{renderTrendArrow(med2, med1)}</td>
+                    <td style={{ textAlign: 'center', color: '#475467' }}>{formatIndo(med3)}{renderTrendArrow(med3, med2)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, color: medBadge.color }}>{formatIndo(med4)}{renderTrendArrow(med4, med3)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#475467' }}>{formatIndo(medAll)}</td>
+                    <td>
+                      <div className="v2-progress-track">
+                        <div className={`v2-progress-fill ${medBadge.fillClass}`} style={{ width: `${medFill}%` }} />
+                        <div className="v2-progress-target-line" />
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, color: medBadge.color }}>
+                      {medGap >= 0 ? `+${formatIndo(medGap)}` : formatIndo(medGap)}
+                    </td>
+                    <td style={{ textAlign: 'center' }}><span className={medBadge.className}>{medBadge.label}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div style={{ display: 'flex', gap: '4mm', alignItems: 'center', marginTop: '1.8mm', fontSize: 7.8, color: '#334155', flexWrap: 'wrap' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
+                  <span style={{ width: 8, height: 8, background: '#d92d20', display: 'inline-block', borderRadius: 2 }} /> Prioritas utama (-91 ke bawah)
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
+                  <span style={{ width: 8, height: 8, background: '#f79009', display: 'inline-block', borderRadius: 2 }} /> Perlu ditingkatkan (-31 s.d. -90)
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
+                  <span style={{ width: 8, height: 8, background: '#2e90fa', display: 'inline-block', borderRadius: 2 }} /> Mendekati (-30 s.d. -1)
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
+                  <span style={{ width: 8, height: 8, background: '#12b76a', display: 'inline-block', borderRadius: 2 }} /> Tercapai (600+)
+                </span>
+              </div>
+            </div>
+
+            <footer className="profiling-print-footer">
+              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Dokumen Resmi Hasil Konsultasi Checkpoint 1</div>
+              <div>Halaman 1 dari 2</div>
+            </footer>
+          </section>
+
+          {/* ================= PAGE 2 ================= */}
+          <section className="profiling-print-page" id="reportPage2">
+            <header className="profiling-print-document-header">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2mm' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#1078ca', letterSpacing: 0.5 }}>
+                  BRAIN ACADEMY BY RUANGGURU
+                </span>
+                <span style={{ fontSize: 8, color: '#64748b', fontWeight: 700, letterSpacing: 0.3 }}>
+                  DOKUMEN RESMI KONSULTASI SISWA &amp; ORANG TUA
+                </span>
+              </div>
+              <div className="profiling-print-header">
+                <div>
+                  <h1 className="profiling-print-title">LAPORAN KONSULTASI CHECKPOINT 1</h1>
+                  <p className="profiling-print-subtitle">
+                    Peluang per jurusan, fokus drill soal, dan lembar kesepakatan bersama
+                  </p>
+                </div>
+                <div className="profiling-print-pathway">{identity.name.toUpperCase()}</div>
+              </div>
+            </header>
+
+            {/* 3. SKOR IRT TERBOBOT */}
+            <div className="profiling-print-section" style={{ marginBottom: '3mm' }}>
+              <h2 className="profiling-print-section-title">
+                <span><span style={{ marginRight: '1.8mm' }}>3.</span>Skor IRT Terbobot: Jarak ke Target Acuan Tiap Pilihan Jurusan</span>
+              </h2>
+              <table className="profiling-print-table" style={{ fontSize: 8.8 }}>
+                <thead>
+                  <tr>
+                    <th style={{ width: '13%' }}>Pilihan</th>
+                    <th style={{ width: '47%' }}>Program Studi &amp; Perguruan Tinggi</th>
+                    <th style={{ width: '14%', textAlign: 'center' }}>
+                      Target Acuan<br />
+                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>(Terbobot)</span>
+                    </th>
+                    <th style={{ width: '14%', textAlign: 'center' }}>
+                      Skor Siswa<br />
+                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>(TO 4)</span>
+                    </th>
+                    <th style={{ width: '12%', textAlign: 'center' }}>Selisih</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activePrograms.map((prog, idx) => {
+                    const gapColor = prog.gap >= 0 ? '#027a48' : prog.gap >= -70 ? '#b54708' : '#b42318';
+                    return (
+                      <tr key={`${prog.prodi}-${idx}`}>
+                        <td style={{ fontWeight: 700, color: '#1078ca' }}>{prog.priority}</td>
+                        <td>
+                          <div style={{ fontWeight: 700, fontSize: 9.2, color: '#0f172a' }}>{prog.prodi}</div>
+                          <div style={{ color: '#475467', fontSize: 8.3 }}>{prog.univ}</div>
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 10.5, color: '#0f172a' }}>
+                          {prog.targetScore}
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9.5, color: '#1078ca' }}>
+                          {prog.weightedScore}
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9.5, color: gapColor }}>
+                          {prog.gap >= 0 ? `+${prog.gap}` : prog.gap}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div style={{ fontSize: 8.2, color: '#475467', marginTop: '1.2mm', lineHeight: 1.4 }}>
+                Skor terbobot hanya dibandingkan dengan target acuan jurusan yang bersangkutan. Target 600 per subtes adalah tahap pertama semester ini sebelum mengejar jarak kelolosan di atas.
+              </div>
+            </div>
+
+            {/* 4. SUBTES PRIORITAS & DRILL */}
+            <div className="profiling-print-section" style={{ marginBottom: '3mm' }}>
+              <h2 className="profiling-print-section-title">
+                <span><span style={{ marginRight: '1.8mm' }}>4.</span>Subtes Prioritas: Aktivitas Drill Soal &amp; Arahan Pendampingan</span>
+              </h2>
+              <table className="profiling-print-table" style={{ fontSize: 8.4 }}>
+                <thead>
+                  <tr>
+                    <th style={{ width: '23%' }}>Subtes</th>
+                    <th style={{ width: '12%', textAlign: 'center' }}>
+                      TO 4 &amp;<br />
+                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>Selisih 600</span>
+                    </th>
+                    <th style={{ width: '16%', textAlign: 'center' }}>
+                      Drill Soal<br />
+                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>di Aplikasi RG</span>
+                    </th>
+                    <th style={{ width: '24%' }}>Topik yang Perlu Dibenahi</th>
+                    <th style={{ width: '25%' }}>Arahan Kakak Asuh</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {prioritySubtests.map((sub) => {
+                    const scoreColor = sub.gapNum >= 0 ? '#027a48' : sub.gapNum >= -30 ? '#175cd3' : '#b42318';
+                    return (
+                      <tr key={sub.id}>
+                        <td>
+                          <div style={{ fontWeight: 700, fontSize: 8.8, color: '#0f172a' }}>{sub.name}</div>
+                          <div style={{ fontSize: 7.8, color: '#475467', marginTop: '0.4mm' }}>{sub.priorityLabel}</div>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ fontWeight: 800, fontSize: 9.8, color: scoreColor }}>{sub.toScore}</div>
+                          <div style={{ fontSize: 8.2, fontWeight: 700, color: scoreColor }}>{sub.gapText}</div>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ fontWeight: 700, color: sub.drillSessions === 0 ? '#b42318' : '#0f172a' }}>
+                            {sub.drillSessions} sesi
+                          </div>
+                          <div style={{ fontSize: 7.8, color: sub.drillSessions === 0 ? '#b42318' : '#475467', marginTop: '0.3mm' }}>
+                            {sub.rgQuestionsDone} soal · {sub.drillAccuracyPct}%
+                          </div>
+                        </td>
+                        <td style={{ fontSize: 8.2, lineHeight: 1.38, color: '#1e293b' }}>
+                          {sub.lowestTopics.slice(0, 2).map((t, i) => (
+                            <div key={i}>• {t}</div>
+                          ))}
+                        </td>
+                        <td style={{ fontSize: 8.2, lineHeight: 1.38, color: '#334155' }}>
+                          {getDrillGuidance(sub)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {otherSummaryText && (
+                <div style={{ fontSize: 8, color: '#475467', marginTop: '1.2mm' }}>
+                  Subtes lainnya dipantau berkala menuju Tryout 5: {otherSummaryText}.
+                </div>
+              )}
+            </div>
+
+            {/* 5. RENCANA AKSI SAMPAI TRYOUT 5 */}
+            <div className="profiling-print-section" style={{ marginBottom: '3mm' }}>
+              <h2 className="profiling-print-section-title">
+                <span><span style={{ marginRight: '1.8mm' }}>5.</span>Rencana Aksi Belajar Menuju Tryout 5</span>
+              </h2>
+              <ol className="profiling-print-action-list">
+                <li>
+                  <strong>Drill Soal Harian Subtes Prioritas:</strong> Target minimal 15 soal per hari di aplikasi Ruangguru pada subtes dengan gap terbesar &amp; volume drill terendah.
+                </li>
+                <li>
+                  <strong>Klinik PR Tatap Muka Cabang ({identity.branch}):</strong> Jadwalkan pertemuan klinik bersama Master Teacher untuk membedah topik dengan akurasi terendah pada Tryout terakhir.
+                </li>
+                <li>
+                  <strong>Target Evaluasi Tryout 5:</strong> Tingkatkan rata-rata skor secara bertahap dari <strong>{to4Score}</strong> (TO 4) menuju target 600 dengan manajemen waktu per subtes.
+                </li>
+                <li>
+                  <strong>Dukungan Belajar di Rumah:</strong> Orang tua mendampingi konsistensi jam belajar mandiri dan memastikan kondisi istirahat siswa sebelum jadwal Tryout berikutnya.
+                </li>
+              </ol>
+            </div>
+
+            {/* 6. LEMBAR KESEPAKATAN BERSAMA 3 PIHAK */}
+            <div className="profiling-print-section" style={{ marginBottom: 0 }}>
+              <h2 className="profiling-print-section-title">
+                <span><span style={{ marginRight: '1.8mm' }}>6.</span>Lembar Kesepakatan Bersama 3 Pihak</span>
+              </h2>
+              <p className="profiling-print-agreement">
+                &ldquo;Dengan menandatangani lembar ini, Siswa, Orang Tua / Wali, dan Kakak Asuh Brain Academy menyatakan telah berdiskusi bersama, memahami hasil evaluasi belajar 4 Tryout, dan bersepakat mengenai formulasi pilihan jurusan serta komitmen rencana tindak lanjut belajar Checkpoint 1 demi mencapai target PTN impian.&rdquo;
+              </p>
+              <div style={{ textAlign: 'right', fontSize: 8.5, color: '#334155', fontWeight: 600, marginTop: '1.5mm', marginBottom: '1mm' }}>
+                {homeCity}, {identity.sessionDate}
+              </div>
+
+              <div className="profiling-print-signatures">
+                <div>
+                  <div className="profiling-print-signature-name">{identity.name}</div>
+                  <div className="profiling-print-signature-role">Siswa</div>
+                </div>
+                <div>
+                  <div className="profiling-print-signature-name">{identity.parentName.replace(/\s*\([^)]*\)/, '')}</div>
+                  <div className="profiling-print-signature-role">Orang Tua / Wali Siswa</div>
+                </div>
+                <div>
+                  <div className="profiling-print-signature-name">{identity.saName}</div>
+                  <div className="profiling-print-signature-role">Kakak Asuh Brain Academy</div>
+                </div>
+              </div>
+            </div>
+
+            <footer className="profiling-print-footer">
+              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Dokumen Resmi Hasil Konsultasi Checkpoint 1</div>
+              <div>Halaman 2 dari 2</div>
+            </footer>
+          </section>
+        </div>
+      </div>
     </div>,
     document.body
   );

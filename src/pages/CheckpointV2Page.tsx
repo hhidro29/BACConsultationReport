@@ -1455,13 +1455,13 @@ export const CheckpointV2Page: React.FC = () => {
                     </div>
 
                     <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
                         <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                           <tr>
-                            <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '15%' }}>TANGGAL</th>
-                            <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '24%' }}>MAPEL &amp; PENGAJAR</th>
-                            <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '13%' }}>KEHADIRAN</th>
-                            <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '48%' }}>CATATAN ASLI PENGAJAR</th>
+                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#475467', width: '15%', letterSpacing: 0.3 }}>TANGGAL</th>
+                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#475467', width: '24%', letterSpacing: 0.3 }}>MAPEL &amp; PENGAJAR</th>
+                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#475467', width: '13%', letterSpacing: 0.3 }}>KEHADIRAN</th>
+                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#475467', width: '48%', letterSpacing: 0.3 }}>CATATAN ASLI PENGAJAR</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1840,7 +1840,12 @@ export const CheckpointV2Page: React.FC = () => {
         </section>
       </main>
 
-      <V2PdfModal isOpen={isPdfOpen} onClose={closePdf} />
+      <V2PdfModal
+        isOpen={isPdfOpen}
+        onClose={closePdf}
+        student={activeStudent}
+        programs={targetPrograms}
+      />
     </div>
   );
 };
