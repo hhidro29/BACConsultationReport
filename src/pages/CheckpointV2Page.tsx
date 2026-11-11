@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch, ChevronDown, ChevronUp, GraduationCap } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
 import {
   CHECKPOINT1_STUDENTS,
   ProgramChoice
 } from '../data/garudaData';
+import { STUDENT_CLASSROOM_DATA } from '../data/classroomData';
 import { validateSnbtChoices } from '../data/programCatalog';
 import { useRuleConfig } from '../utils/saRuleStore';
 import {
@@ -93,6 +94,17 @@ export const CheckpointV2Page: React.FC = () => {
     return saved || "Siswa sempat merasa terbebani penurunan nilai dari TO 1 ke TO 4, namun kembali bersemangat setelah melihat Penalaran Matematika (597) sudah di ambang batas 600. Orang tua menyetujui target 15 soal/hari dan akan mendampingi jadwal belajar mandiri di rumah. Fokus pemulihan utama: PU dan PK.";
   });
 
+  const classroomData = STUDENT_CLASSROOM_DATA[activeStudent.id] || STUDENT_CLASSROOM_DATA.garuda;
+  const [showClassDetail, setShowClassDetail] = useState<boolean>(false);
+  const [classFilter, setClassFilter] = useState<'notes' | 'all' | 'absent' | 'evidence'>('notes');
+  const [evidenceIds, setEvidenceIds] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    setShowClassDetail(false);
+    setClassFilter('notes');
+    setEvidenceIds(null);
+  }, [activeStudent.id]);
+
   useEffect(() => {
     const preview = searchParams.get('preview');
     if (preview === '1' || preview === 'true') {
@@ -101,7 +113,7 @@ export const CheckpointV2Page: React.FC = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    const stageIds = ['tahap1', 'tahap2', 'tahap3', 'tahap4'];
+    const stageIds = ['tahap1', 'tahap2', 'tahap3', 'tahap4', 'tahap5'];
     const handleScroll = () => {
       const offset = 160;
       let current = 'tahap1';
@@ -537,7 +549,7 @@ export const CheckpointV2Page: React.FC = () => {
         {/* STICKY QUICK-JUMP SUB-NAV (CONTINUOUS TOP-TO-BOTTOM ALUR) */}
         <nav
           className="jump-nav-container"
-          aria-label="Alur Konsultasi 4 Tahap"
+          aria-label="Alur Konsultasi 5 Tahap"
           style={{
             position: 'sticky',
             top: 68,
@@ -570,7 +582,10 @@ export const CheckpointV2Page: React.FC = () => {
               🛠️ 3. Subtes &amp; Drill Soal
             </a>
             <a href="#tahap4" onClick={(e) => scrollTo(e, '#tahap4')} className={`jump-pill ${activeStage === 'tahap4' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
-              📝 4. Tindak Lanjut Belajar
+              🏫 4. Catatan Pengajar
+            </a>
+            <a href="#tahap5" onClick={(e) => scrollTo(e, '#tahap5')} className={`jump-pill ${activeStage === 'tahap5' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+              📝 5. Tindak Lanjut Belajar
             </a>
           </div>
         </nav>
@@ -582,7 +597,7 @@ export const CheckpointV2Page: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#1e40af', background: '#dbeafe', padding: '3px 10px', borderRadius: 9999 }}>
-                TAHAP 1 DARI 4
+                TAHAP 1 DARI 5
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 🎯 Fondasi 600 &amp; Evaluasi Skor IRT Reguler
@@ -949,7 +964,7 @@ export const CheckpointV2Page: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#0284c7', background: '#e0f2fe', padding: '3px 10px', borderRadius: 9999 }}>
-                TAHAP 2 DARI 4
+                TAHAP 2 DARI 5
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 🏛️ Skor IRT Terbobot &amp; Evaluasi Peluang Jurusan PTN
@@ -1124,7 +1139,7 @@ export const CheckpointV2Page: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#b54708', background: '#fef0c7', padding: '3px 10px', borderRadius: 9999 }}>
-                TAHAP 3 DARI 4
+                TAHAP 3 DARI 5
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 🛠️ 4 Subtes Prioritas &amp; Riil Aktivitas Drill Soal di Ruangguru
@@ -1318,11 +1333,352 @@ export const CheckpointV2Page: React.FC = () => {
         </section>
 
         {/* ========================================================= */}
+        {/* TAHAP 4: AKTIVITAS BELAJAR DI KELAS & CATATAN PENGAJAR    */}
+        {/* ========================================================= */}
         <section id="tahap4" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0', flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#4338ca', background: '#eef2ff', padding: '3px 10px', borderRadius: 9999 }}>
+                TAHAP 4 DARI 5
+              </span>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                🏫 Aktivitas Belajar di Kelas (TMB) &amp; Catatan Pengajar
+              </h2>
+            </div>
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+              Periode {classroomData.periodLabel} · Sumber: Student Tower
+            </span>
+          </div>
+
+          <div className="section-block" id="sec_tahap4_classroom">
+            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+              <h3 className="section-title" style={{ fontSize: 15 }}>1. Ringkasan Kehadiran &amp; Catatan Pengajar Kelas</h3>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{classroomData.capturedLabel}</span>
+            </div>
+
+            {/* 2-Column Metadata Strip */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                  Kehadiran Tatap Muka (TMB)
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>
+                    {classroomData.presentSessions} / {classroomData.totalSessions}
+                  </span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>
+                    sesi ({((classroomData.presentSessions / classroomData.totalSessions) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+                <div style={{ fontSize: 11.5, color: '#475467', marginTop: 4 }}>
+                  {classroomData.presentSessions - classroomData.lateSessions} Hadir · {classroomData.lateSessions} Terlambat · {classroomData.sickSessions} Sakit · {classroomData.excusedSessions} Izin
+                </div>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                  Kelengkapan Catatan Pengajar
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>
+                    {classroomData.notesCount} / {classroomData.totalSessions}
+                  </span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>
+                    sesi bercatatan
+                  </span>
+                </div>
+                <div style={{ fontSize: 11.5, color: '#475467', marginTop: 4 }}>
+                  Ringkasan disusun hanya dari sesi yang memiliki catatan tertulis pengajar
+                </div>
+              </div>
+            </div>
+
+            {/* Summary Statements */}
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '14px 16px' }}>
+              <div style={{ fontSize: 12.5, fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>
+                Ringkasan Catatan Pengajar
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {classroomData.statements.map((stmt, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      gap: 12,
+                      padding: '10px 12px',
+                      background: '#f8fafc',
+                      borderRadius: 6,
+                      border: '1px solid #e2e8f0',
+                      flexWrap: 'wrap'
+                    }}
+                  >
+                    <p style={{ margin: 0, fontSize: 12.5, color: '#1e293b', lineHeight: 1.55, flex: '1 1 320px' }}>
+                      {stmt.text}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowClassDetail(true);
+                        setClassFilter('evidence');
+                        setEvidenceIds(stmt.sessionIds);
+                      }}
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: '#4338ca',
+                        background: '#eef2ff',
+                        border: '1px solid #c7d2fe',
+                        borderRadius: 9999,
+                        padding: '3px 10px',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                      title="Tampilkan sesi pendukung untuk poin ringkasan ini"
+                    >
+                      {stmt.badgeLabel} ›
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Toggle Detail Button */}
+              <div style={{ marginTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    const nextOpen = !showClassDetail;
+                    setShowClassDetail(nextOpen);
+                    if (nextOpen && classFilter === 'evidence') {
+                      setClassFilter('notes');
+                      setEvidenceIds(null);
+                    }
+                  }}
+                  style={{ fontSize: 12, padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  {showClassDetail ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  {showClassDetail
+                    ? 'Tutup Detail Catatan per Sesi'
+                    : `Lihat Detail Catatan per Sesi (${classroomData.sessions.length} Sesi Tercatat)`}
+                </button>
+                <span style={{ fontSize: 11, color: '#64748b' }}>
+                  Klik lencana sesi pendukung atau tombol detail untuk membaca teks asli pengajar
+                </span>
+              </div>
+
+              {/* Expandable Session Notes Drawer */}
+              {showClassDetail && (() => {
+                const notedCount = classroomData.sessions.filter((s) => Boolean(s.noteText)).length;
+                const absentOrLateCount = classroomData.sessions.filter((s) => s.attendance !== 'Hadir').length;
+                const filteredSessions = classroomData.sessions.filter((s) => {
+                  if (classFilter === 'evidence' && evidenceIds) {
+                    return evidenceIds.includes(s.id);
+                  }
+                  if (classFilter === 'notes') return Boolean(s.noteText);
+                  if (classFilter === 'absent') return s.attendance !== 'Hadir';
+                  return true;
+                });
+
+                const getAttBadgeStyle = (att: string) => {
+                  if (att === 'Hadir') return { bg: '#ecfdf3', color: '#027a48', border: '#a6f4c5' };
+                  if (att === 'Terlambat') return { bg: '#fef0c7', color: '#b54708', border: '#fedf89' };
+                  return { bg: '#fee4e2', color: '#b42318', border: '#fecdca' };
+                };
+
+                return (
+                  <div style={{ marginTop: 14, borderTop: '1px solid #e2e8f0', paddingTop: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {[
+                          { id: 'notes' as const, label: `Ada Catatan (${notedCount})` },
+                          { id: 'all' as const, label: `Semua Sesi (${classroomData.sessions.length})` },
+                          { id: 'absent' as const, label: `Sakit / Izin / Terlambat (${absentOrLateCount})` }
+                        ].map((tab) => {
+                          const isActive = classFilter === tab.id;
+                          return (
+                            <button
+                              key={tab.id}
+                              type="button"
+                              onClick={() => {
+                                setClassFilter(tab.id);
+                                setEvidenceIds(null);
+                              }}
+                              style={{
+                                fontSize: 11.5,
+                                fontWeight: isActive ? 700 : 600,
+                                color: isActive ? '#4338ca' : '#475467',
+                                background: isActive ? '#eef2ff' : '#f8fafc',
+                                border: `1px solid ${isActive ? '#c7d2fe' : '#e2e8f0'}`,
+                                borderRadius: 6,
+                                padding: '4px 10px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {tab.label}
+                            </button>
+                          );
+                        })}
+                        {classFilter === 'evidence' && evidenceIds && (
+                          <span
+                            style={{
+                              fontSize: 11.5,
+                              fontWeight: 700,
+                              color: '#4338ca',
+                              background: '#eef2ff',
+                              border: '1px solid #a5b4fc',
+                              borderRadius: 6,
+                              padding: '4px 10px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 6
+                            }}
+                          >
+                            Bukti Ringkasan ({filteredSessions.length} sesi)
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setClassFilter('notes');
+                                setEvidenceIds(null);
+                              }}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                color: '#4338ca',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                padding: 0,
+                                fontSize: 11.5
+                              }}
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 11, color: '#64748b' }}>
+                        Menampilkan {filteredSessions.length} sesi
+                      </span>
+                    </div>
+
+                    <div style={{ maxHeight: 360, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8 }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                        <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 2, borderBottom: '1px solid #e2e8f0' }}>
+                          <tr>
+                            <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '15%' }}>TANGGAL</th>
+                            <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '24%' }}>MAPEL &amp; PENGAJAR</th>
+                            <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '13%' }}>KEHADIRAN</th>
+                            <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: 10.5, color: '#64748b', width: '48%' }}>CATATAN ASLI PENGAJAR</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredSessions.map((ses) => {
+                            const attStyle = getAttBadgeStyle(ses.attendance);
+                            return (
+                              <tr key={ses.id} style={{ borderBottom: '1px solid #f1f5f9', verticalAlign: 'top' }}>
+                                <td style={{ padding: '9px 10px', color: '#334155', whiteSpace: 'nowrap' }}>
+                                  <div style={{ fontWeight: 600 }}>{ses.dateLabel}</div>
+                                  <div style={{ fontSize: 11, color: '#64748b' }}>{ses.timeLabel}</div>
+                                </td>
+                                <td style={{ padding: '9px 10px' }}>
+                                  <div style={{ fontWeight: 700, color: '#0f172a' }}>{ses.subject}</div>
+                                  <div style={{ fontSize: 11, color: '#64748b' }}>{ses.teacher}</div>
+                                </td>
+                                <td style={{ padding: '9px 10px' }}>
+                                  <span
+                                    style={{
+                                      display: 'inline-block',
+                                      fontSize: 10.5,
+                                      fontWeight: 700,
+                                      color: attStyle.color,
+                                      background: attStyle.bg,
+                                      border: `1px solid ${attStyle.border}`,
+                                      borderRadius: 4,
+                                      padding: '2px 7px'
+                                    }}
+                                  >
+                                    {ses.attendance}
+                                  </span>
+                                  {ses.attendanceNote && (
+                                    <div style={{ fontSize: 10.5, color: '#64748b', marginTop: 3 }}>
+                                      {ses.attendanceNote}
+                                    </div>
+                                  )}
+                                </td>
+                                <td style={{ padding: '9px 10px', color: '#334155', lineHeight: 1.5 }}>
+                                  {ses.noteText ? (
+                                    ses.noteText
+                                  ) : (
+                                    <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>
+                                      Belum ada catatan pengajar untuk sesi ini.
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Live Consultation Prompt: Tahap 4 (Aktivitas Kelas & Catatan Pengajar) */}
+          <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #4338ca', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#4338ca', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <GraduationCap size={16} />
+                Panduan Diskusi SA: Mengonfirmasi Konteks Belajar di Kelas TMB
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#4338ca', background: '#eef2ff', padding: '2px 10px', borderRadius: 9999 }}>
+                Target Hasil: Pola kelas &amp; kendala kehadiran terkonfirmasi sebelum rencana aksi
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
+              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#4338ca', marginBottom: 8, letterSpacing: 0.3 }}>
+                  🔍 TUGAS FASILITASI SA:
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                  {classroomData.saTasks.map((task, idx) => (
+                    <li key={idx}>{task}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
+                    <li><strong>Pisahkan sesi dari sifat permanen:</strong> Sampaikan catatan per mapel/tanggal sebagai konteks belajar saat itu, bukan label kepribadian siswa.</li>
+                    <li><strong>Hubungkan dengan kebutuhan Klinik PR:</strong> Gunakan sesi yang mencatat siswa butuh bantuan untuk memprioritaskan topik tatap muka cabang.</li>
+                  </ul>
+                </div>
+
+                <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#b45309', marginBottom: 4 }}>📏 BATAS BACA DATA KELAS:</div>
+                  <p style={{ margin: 0, color: '#334155' }}>
+                    {classroomData.guardrailNote}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================= */}
+        {/* TAHAP 5: RENCANA AKSI MENUJU TO 5 & CATATAN KAKAK ASUH     */}
+        {/* ========================================================= */}
+        <section id="tahap5" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#027a48', background: '#ecfdf3', padding: '3px 10px', borderRadius: 9999 }}>
-                TAHAP 4 DARI 4
+                TAHAP 5 DARI 5
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 📝 Rencana Aksi Menuju TO 5 &amp; Catatan Kakak Asuh
@@ -1333,7 +1689,7 @@ export const CheckpointV2Page: React.FC = () => {
 
 
           {/* Action Plans Cards */}
-          <div className="section-block" id="sec_tahap4_plans">
+          <div className="section-block" id="sec_tahap5_plans">
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 15 }}>1. Kerangka Tindak Lanjut Menuju TO 5</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Disepakati Bersama Siswa &amp; Orang Tua Selama Sesi Konsultasi</span>
@@ -1377,7 +1733,7 @@ export const CheckpointV2Page: React.FC = () => {
 
 
           {/* Catatan Khusus Kakak Asuh (Statement & Wet Signatures Live in PDF Page 2) */}
-          <div className="section-block" id="sec_tahap4_agreement">
+          <div className="section-block" id="sec_tahap5_agreement">
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 15 }}>2. Catatan Khusus Kakak Asuh</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
@@ -1463,8 +1819,8 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
-          {/* Live Consultation Prompt: Tahap 4 (Driven by saGuidelineEngine) */}
-          <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #027a48', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+          {/* Live Consultation Prompt: Tahap 5 (Driven by saGuidelineEngine) */}
+          <div className="sa-prompt-card" id="sec_tahap5_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #027a48', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#027a48', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ShieldCheck size={16} />
