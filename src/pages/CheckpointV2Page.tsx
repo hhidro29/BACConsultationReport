@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, Unlock, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch, ChevronDown, ChevronUp, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Lock, Unlock, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch, ChevronDown, GraduationCap } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
 import {
   CHECKPOINT1_STUDENTS,
@@ -95,14 +95,10 @@ export const CheckpointV2Page: React.FC = () => {
   });
 
   const classroomData = STUDENT_CLASSROOM_DATA[activeStudent.id] || STUDENT_CLASSROOM_DATA.garuda;
-  const [showClassDetail, setShowClassDetail] = useState<boolean>(false);
-  const [classFilter, setClassFilter] = useState<'notes' | 'all' | 'absent' | 'evidence'>('notes');
-  const [evidenceIds, setEvidenceIds] = useState<string[] | null>(null);
+  const [classFilter, setClassFilter] = useState<'notes' | 'all' | 'absent'>('notes');
 
   useEffect(() => {
-    setShowClassDetail(false);
     setClassFilter('notes');
-    setEvidenceIds(null);
   }, [activeStudent.id]);
 
   useEffect(() => {
@@ -1352,7 +1348,7 @@ export const CheckpointV2Page: React.FC = () => {
 
           <div className="section-block" id="sec_tahap4_classroom">
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Ringkasan Kehadiran &amp; Catatan Pengajar Kelas</h3>
+              <h3 className="section-title" style={{ fontSize: 15 }}>1. Kehadiran Kelas &amp; Daftar Catatan Asli Pengajar</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{classroomData.capturedLabel}</span>
             </div>
 
@@ -1388,94 +1384,17 @@ export const CheckpointV2Page: React.FC = () => {
                   </span>
                 </div>
                 <div style={{ fontSize: 11.5, color: '#475467', marginTop: 4 }}>
-                  Ringkasan disusun hanya dari sesi yang memiliki catatan tertulis pengajar
+                  Menampilkan catatan asli pengajar langsung dari Student Tower
                 </div>
               </div>
             </div>
 
-            {/* Summary Statements */}
+            {/* Direct Session Notes List (100% Non-AI Verbatim Source) */}
             <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '14px 16px' }}>
-              <div style={{ fontSize: 12.5, fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>
-                Ringkasan Catatan Pengajar
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {classroomData.statements.map((stmt, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      gap: 12,
-                      padding: '10px 12px',
-                      background: '#f8fafc',
-                      borderRadius: 6,
-                      border: '1px solid #e2e8f0',
-                      flexWrap: 'wrap'
-                    }}
-                  >
-                    <p style={{ margin: 0, fontSize: 12.5, color: '#1e293b', lineHeight: 1.55, flex: '1 1 320px' }}>
-                      {stmt.text}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowClassDetail(true);
-                        setClassFilter('evidence');
-                        setEvidenceIds(stmt.sessionIds);
-                      }}
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: '#4338ca',
-                        background: '#eef2ff',
-                        border: '1px solid #c7d2fe',
-                        borderRadius: 9999,
-                        padding: '3px 10px',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap'
-                      }}
-                      title="Tampilkan sesi pendukung untuk poin ringkasan ini"
-                    >
-                      {stmt.badgeLabel} ›
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {/* Toggle Detail Button */}
-              <div style={{ marginTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() => {
-                    const nextOpen = !showClassDetail;
-                    setShowClassDetail(nextOpen);
-                    if (nextOpen && classFilter === 'evidence') {
-                      setClassFilter('notes');
-                      setEvidenceIds(null);
-                    }
-                  }}
-                  style={{ fontSize: 12, padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                >
-                  {showClassDetail ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  {showClassDetail
-                    ? 'Tutup Detail Catatan per Sesi'
-                    : `Lihat Detail Catatan per Sesi (${classroomData.sessions.length} Sesi Tercatat)`}
-                </button>
-                <span style={{ fontSize: 11, color: '#64748b' }}>
-                  Klik lencana sesi pendukung atau tombol detail untuk membaca teks asli pengajar
-                </span>
-              </div>
-
-              {/* Expandable Session Notes Drawer */}
-              {showClassDetail && (() => {
+              {(() => {
                 const notedCount = classroomData.sessions.filter((s) => Boolean(s.noteText)).length;
                 const absentOrLateCount = classroomData.sessions.filter((s) => s.attendance !== 'Hadir').length;
                 const filteredSessions = classroomData.sessions.filter((s) => {
-                  if (classFilter === 'evidence' && evidenceIds) {
-                    return evidenceIds.includes(s.id);
-                  }
                   if (classFilter === 'notes') return Boolean(s.noteText);
                   if (classFilter === 'absent') return s.attendance !== 'Hadir';
                   return true;
@@ -1488,7 +1407,7 @@ export const CheckpointV2Page: React.FC = () => {
                 };
 
                 return (
-                  <div style={{ marginTop: 14, borderTop: '1px solid #e2e8f0', paddingTop: 14 }}>
+                  <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {[
@@ -1501,10 +1420,7 @@ export const CheckpointV2Page: React.FC = () => {
                             <button
                               key={tab.id}
                               type="button"
-                              onClick={() => {
-                                setClassFilter(tab.id);
-                                setEvidenceIds(null);
-                              }}
+                              onClick={() => setClassFilter(tab.id)}
                               style={{
                                 fontSize: 11.5,
                                 fontWeight: isActive ? 700 : 600,
@@ -1520,49 +1436,13 @@ export const CheckpointV2Page: React.FC = () => {
                             </button>
                           );
                         })}
-                        {classFilter === 'evidence' && evidenceIds && (
-                          <span
-                            style={{
-                              fontSize: 11.5,
-                              fontWeight: 700,
-                              color: '#4338ca',
-                              background: '#eef2ff',
-                              border: '1px solid #a5b4fc',
-                              borderRadius: 6,
-                              padding: '4px 10px',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 6
-                            }}
-                          >
-                            Bukti Ringkasan ({filteredSessions.length} sesi)
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setClassFilter('notes');
-                                setEvidenceIds(null);
-                              }}
-                              style={{
-                                border: 'none',
-                                background: 'transparent',
-                                color: '#4338ca',
-                                fontWeight: 800,
-                                cursor: 'pointer',
-                                padding: 0,
-                                fontSize: 11.5
-                              }}
-                            >
-                              ✕
-                            </button>
-                          </span>
-                        )}
                       </div>
                       <span style={{ fontSize: 11, color: '#64748b' }}>
-                        Menampilkan {filteredSessions.length} sesi
+                        Menampilkan {filteredSessions.length} sesi (teks asli pengajar)
                       </span>
                     </div>
 
-                    <div style={{ maxHeight: 360, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8 }}>
+                    <div style={{ maxHeight: 380, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8 }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                         <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 2, borderBottom: '1px solid #e2e8f0' }}>
                           <tr>

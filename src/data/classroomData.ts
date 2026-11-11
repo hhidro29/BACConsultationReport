@@ -11,12 +11,6 @@ export interface ClassroomSession {
   noteText: string | null;
 }
 
-export interface ClassroomStatement {
-  text: string;
-  badgeLabel: string;
-  sessionIds: string[];
-}
-
 export interface StudentClassroomData {
   studentId: string;
   periodLabel: string;
@@ -27,7 +21,6 @@ export interface StudentClassroomData {
   sickSessions: number;
   excusedSessions: number;
   notesCount: number;
-  statements: ClassroomStatement[];
   sessions: ClassroomSession[];
   saTasks: string[];
   guardrailNote: string;
@@ -91,40 +84,13 @@ export const STUDENT_CLASSROOM_DATA: Record<string, StudentClassroomData> = {
     sickSessions: 6,
     excusedSessions: 2,
     notesCount: 16,
-    statements: [
-      {
-        text: 'Pada 14 dari 16 sesi yang memiliki catatan, pengajar mencatat siswa aktif bertanya, memahami materi sangat baik, dan mengerjakan tugas secara mandiri.',
-        badgeLabel: '14 sesi pendukung',
-        sessionIds: [
-          'REFRESH-CLASS-042',
-          'REFRESH-CLASS-043',
-          'REFRESH-CLASS-044',
-          'REFRESH-CLASS-026',
-          'REFRESH-CLASS-029',
-          'REFRESH-CLASS-032',
-          'REFRESH-CLASS-037',
-          'REFRESH-CLASS-008',
-          'REFRESH-CLASS-016',
-          'REFRESH-CLASS-017',
-          'REFRESH-CLASS-020',
-          'REFRESH-CLASS-001',
-          'REFRESH-CLASS-003',
-          'REFRESH-CLASS-006'
-        ]
-      },
-      {
-        text: 'Pada Fisika (10 Sep), siswa sesekali masih perlu ditunjuk. Pada Dasar-Dasar Linguistik (7 Sep), siswa masih membutuhkan bantuan di beberapa bagian materi.',
-        badgeLabel: '2 catatan khusus',
-        sessionIds: ['REFRESH-CLASS-007', 'REFRESH-CLASS-010']
-      }
-    ],
     sessions: GARUDA_SESSIONS,
     saTasks: [
-      'Apresiasi keaktifan Garuda di kelas TMB (pengajar mencatat antusias di 14 dari 16 sesi bercatatan), lalu gali mengapa kenyamanan di kelas belum sepenuhnya terbawa saat menghadapi soal numerasi/logika berbatas waktu di TO 4.',
-      'Konfirmasi tindak lanjut ketidakhadiran 8 sesi (6 Sakit & 2 Izin UTS): pastikan Garuda sudah mengejar materi Matematika/Bahasa yang sempat terlewat lewat rekaman atau Klinik PR.'
+      'Apresiasi kehadiran Garuda di kelas TMB (36 / 44 sesi) dan cek catatan asli pengajar di tabel atas (khususnya Fisika 10 Sep & Dasar-Dasar Linguistik 7 Sep), lalu gali mengapa kenyamanan di kelas belum sepenuhnya terbawa saat menghadapi soal berbatas waktu di TO 4.',
+      'Konfirmasi tindak lanjut ketidakhadiran 8 sesi (6 Sakit & 2 Izin UTS): pastikan Garuda sudah mengejar materi yang sempat terlewat lewat rekaman atau Klinik PR.'
     ],
     guardrailNote:
-      'Ringkasan ini hanya menyampaikan pengamatan eksplisit pengajar per sesi, bukan penilaian sifat permanen. Dari 44 sesi tercatat, 28 sesi belum memiliki catatan pengajar — artinya belum ada catatan tertulis, bukan berarti siswa pasif.'
+      'Data di atas menampilkan rekaman asli Student Tower per sesi tanpa pemrosesan AI. Dari 44 sesi tercatat, 28 sesi belum memiliki catatan tertulis — artinya belum diisi pengajar, bukan berarti siswa pasif.'
   },
   nadira: {
     studentId: 'nadira',
@@ -136,18 +102,6 @@ export const STUDENT_CLASSROOM_DATA: Record<string, StudentClassroomData> = {
     sickSessions: 2,
     excusedSessions: 0,
     notesCount: 14,
-    statements: [
-      {
-        text: 'Pada 11 dari 14 sesi yang memiliki catatan (didominasi Bahasa Indonesia, Sosiologi, PBM, dan PPU), pengajar mencatat siswa tekun berdiskusi dan mampu memaparkan argumen secara runtut.',
-        badgeLabel: '11 sesi pendukung',
-        sessionIds: ['NAD-CLASS-001', 'NAD-CLASS-002', 'NAD-CLASS-004', 'NAD-CLASS-005']
-      },
-      {
-        text: 'Pada Penalaran Kuantitatif (14 Okt) dan Matematika (07 Okt), pengajar mencatat siswa sudah aktif mencoba soal namun masih memerlukan pendampingan bertahap pada soal aljabar cepat.',
-        badgeLabel: '2 catatan numerasi',
-        sessionIds: ['NAD-CLASS-003', 'NAD-CLASS-006']
-      }
-    ],
     sessions: [
       { id: 'NAD-CLASS-001', dateLabel: '21 Okt 2026', timeLabel: '17:00', subject: 'Pemahaman Bacaan dan Menulis', teacher: 'Muhamad Diky Yulianto', attendance: 'Hadir', noteText: 'Ananda sangat aktif berdiskusi membedah struktur argumen bacaan dan mampu menyelesaikan latihan analisis paragraf dengan cepat dan tepat.' },
       { id: 'NAD-CLASS-002', dateLabel: '17 Okt 2026', timeLabel: '19:00', subject: 'Sosiologi', teacher: 'Rina Kusuma', attendance: 'Hadir', noteText: 'Menunjukkan antusiasme tinggi saat studi kasus perubahan sosial, aktif bertanya, dan mampu menjelaskan kembali konsep inti kepada teman sebangku.' },
@@ -175,18 +129,6 @@ export const STUDENT_CLASSROOM_DATA: Record<string, StudentClassroomData> = {
     sickSessions: 6,
     excusedSessions: 4,
     notesCount: 6,
-    statements: [
-      {
-        text: 'Pada 4 dari 6 sesi yang memiliki catatan (Fisika 12 Okt, PU 08 Okt, PPU 29 Sep, Bahasa Indonesia 22 Sep), pengajar mencatat siswa menyimak materi dengan tenang namun masih perlu dorongan aktif saat sesi tanya jawab.',
-        badgeLabel: '4 sesi pendukung',
-        sessionIds: ['RIZ-CLASS-001', 'RIZ-CLASS-003', 'RIZ-CLASS-005', 'RIZ-CLASS-006']
-      },
-      {
-        text: 'Pada Dasar-Dasar Numerasi (05 Okt) dan Matematika (24 Sep), siswa membutuhkan pendampingan konsep dasar pecahan dan persamaan linear langkah demi langkah.',
-        badgeLabel: '2 catatan fondasi',
-        sessionIds: ['RIZ-CLASS-002', 'RIZ-CLASS-004']
-      }
-    ],
     sessions: [
       { id: 'RIZ-CLASS-001', dateLabel: '12 Okt 2026', timeLabel: '17:00', subject: 'Fisika', teacher: 'Budi Santoso', attendance: 'Hadir', noteText: 'Ananda menyimak penjelasan dengan tenang dan mencatat poin penting, namun masih jarang bertanya jika belum dipancing oleh pengajar.' },
       { id: 'RIZ-CLASS-002', dateLabel: '08 Okt 2026', timeLabel: '19:00', subject: 'Dasar-Dasar Numerasi', teacher: 'Dian Pratiwi', attendance: 'Hadir', noteText: 'Ananda bersedia mencoba latihan, namun masih membutuhkan bimbingan langkah demi langkah pada operasi aljabar dan pecahan dasar.' },
