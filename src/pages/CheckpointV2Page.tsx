@@ -1515,15 +1515,17 @@ export const CheckpointV2Page: React.FC = () => {
                     </div>
 
                     {/* Pagination Bar (per 6 records) */}
-                    {totalPages > 1 && (
+                    {filteredSessions.length > 0 && (
                       <div
                         style={{
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
-                          marginTop: 10,
-                          paddingTop: 10,
-                          borderTop: '1px solid #f1f5f9',
+                          marginTop: 12,
+                          padding: '10px 12px',
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: 8,
                           flexWrap: 'wrap',
                           gap: 8
                         }}
