@@ -692,7 +692,7 @@
       box-sizing: border-box;
       width: 210mm;
       min-height: 297mm;
-      padding: 7.5mm 12mm 11mm;
+      padding: 8mm 12mm 11mm;
       position: relative;
       color: #1d2939;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -701,7 +701,7 @@
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
       border-radius: 4px;
     }
-    .profiling-print-document-header { margin-bottom: 2.2mm; }
+    .profiling-print-document-header { margin-bottom: 3.2mm; }
     .profiling-print-header {
       align-items: center;
       background: #1078ca;
@@ -714,7 +714,15 @@
     .profiling-print-title { color: #ffffff; font-size: 15.5px; font-weight: 800; margin: 0; letter-spacing: -0.2px; }
     .profiling-print-subtitle { color: #eff8ff; font-size: 10px; margin: 0.5mm 0 0; }
     .profiling-print-pathway { background: rgba(255, 255, 255, 0.24); border-radius: 999px; color: #ffffff; font-size: 9.5px; font-weight: 700; padding: 0.9mm 2.6mm; letter-spacing: 0.3px; white-space: nowrap; }
-    .profiling-print-section { break-inside: avoid; margin-bottom: 2.4mm; }
+    .profiling-print-running-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.8mm;
+      margin-bottom: 3.8mm;
+      border-bottom: 1.5px solid #1078ca;
+    }
+    .profiling-print-section { break-inside: avoid; margin-bottom: 3.6mm; }
     .profiling-print-section-title {
       align-items: center;
       background: #edf5f9;
@@ -724,22 +732,22 @@
       justify-content: space-between;
       font-size: 11px;
       font-weight: 800;
-      margin: 0 0 1.6mm;
-      min-height: 5.8mm;
-      padding: 0.9mm 2.6mm;
+      margin: 0 0 1.8mm;
+      min-height: 6mm;
+      padding: 1mm 2.8mm;
       text-transform: uppercase;
       letter-spacing: 0.25px;
     }
-    .profiling-print-table { border-collapse: collapse; table-layout: fixed; width: 100%; font-size: 10px; line-height: 1.35; }
-    .profiling-print-table th, .profiling-print-table td { border: 1px solid #cbd5e1; padding: 1.15mm 1.6mm; text-align: left; vertical-align: middle; }
-    .profiling-print-table th { background: #1078ca; color: #ffffff; font-weight: 700; font-size: 9.8px; }
+    .profiling-print-table { border-collapse: collapse; table-layout: fixed; width: 100%; font-size: 10px; line-height: 1.38; }
+    .profiling-print-table th, .profiling-print-table td { border: 1px solid #cbd5e1; padding: 1.55mm 1.8mm; text-align: left; vertical-align: middle; }
+    .profiling-print-table th { background: #1078ca; color: #ffffff; font-weight: 700; font-size: 9.8px; padding: 1.6mm 1.8mm; }
     .profiling-print-table tbody tr:nth-of-type(even) td { background: #f8fafc; }
     .profiling-print-number { text-align: right; }
-    .profiling-print-action-list { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; margin: 0; padding: 2mm 3.2mm 2mm 5.8mm; font-size: 10px; line-height: 1.42; }
-    .profiling-print-action-list li { margin-bottom: 1.1mm; }
+    .profiling-print-action-list { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; margin: 0; padding: 2.2mm 3.4mm 2.2mm 6mm; font-size: 10px; line-height: 1.44; }
+    .profiling-print-action-list li { margin-bottom: 1.4mm; }
     .profiling-print-action-list li:last-child { margin-bottom: 0; }
     .profiling-print-agreement { color: #334155; font-style: italic; margin-top: 1.6mm; font-size: 10px; line-height: 1.42; }
-    .profiling-print-signatures { display: grid; gap: 5mm; grid-template-columns: repeat(3, 1fr); padding-top: 11mm; text-align: center; }
+    .profiling-print-signatures { display: grid; gap: 5mm; grid-template-columns: repeat(3, 1fr); padding-top: 14mm; text-align: center; }
     .profiling-print-signature-name { border-top: 1px solid #64748b; font-weight: 700; padding-top: 1.4mm; font-size: 10.5px; color: #0f172a; }
     .profiling-print-signature-role { color: #475467; font-size: 9.2px; margin-top: 0.5mm; }
     .profiling-print-footer { border-top: 1px solid #cbd5e1; bottom: 4.5mm; color: #64748b; display: flex; font-size: 9px; justify-content: space-between; left: 12mm; padding-top: 1mm; position: absolute; right: 12mm; }

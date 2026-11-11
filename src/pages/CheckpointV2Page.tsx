@@ -856,14 +856,14 @@ export const CheckpointV2Page: React.FC = () => {
                     <td style={{ textAlign: 'center', fontWeight: 600 }}>{avgTO2}{renderTrend(avgTO2, avgTO1)}</td>
                     <td style={{ textAlign: 'center', fontWeight: 600 }}>{avgTO3}{renderTrend(avgTO3, avgTO2)}</td>
                     <td style={{ textAlign: 'center', fontWeight: 700, color: avgStatus.color }}>{avgTO4}{renderTrend(avgTO4, avgTO3)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#1078ca' }}>{avgOverall}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 15, color: '#1078ca' }}>{avgOverall}</td>
                     <td>
                       <div className="v2-progress-track">
                         <div className="v2-progress-fill" style={{ width: `${avgFillPct.toFixed(1)}%`, background: avgStatus.color }} />
                         <div className="v2-progress-target-line" title="Target 600" />
                       </div>
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: avgStatus.color }}>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14.5, color: avgStatus.color }}>
                       {avgGap > 0 ? `+${avgGap}` : avgGap}
                     </td>
                   </tr>
@@ -873,14 +873,14 @@ export const CheckpointV2Page: React.FC = () => {
                     <td style={{ textAlign: 'center', color: '#475467' }}>{formatNumIndo(medTO2)}{renderTrend(medTO2, medTO1)}</td>
                     <td style={{ textAlign: 'center', color: '#475467' }}>{formatNumIndo(medTO3)}{renderTrend(medTO3, medTO2)}</td>
                     <td style={{ textAlign: 'center', fontWeight: 700, color: medStatus.color }}>{formatNumIndo(medTO4)}{renderTrend(medTO4, medTO3)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: '#475467' }}>{formatNumIndo(medOverall)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 600, fontSize: 13, color: '#475467' }}>{formatNumIndo(medOverall)}</td>
                     <td>
                       <div className="v2-progress-track">
                         <div className="v2-progress-fill" style={{ width: `${medFillPct.toFixed(1)}%`, background: medStatus.color }} />
                         <div className="v2-progress-target-line" title="Target 600" />
                       </div>
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: medStatus.color }}>
+                    <td style={{ textAlign: 'center', fontWeight: 600, fontSize: 13, color: medStatus.color }}>
                       {medGap > 0 ? `+${formatNumIndo(medGap)}` : formatNumIndo(medGap)}
                     </td>
                   </tr>
