@@ -1158,7 +1158,7 @@ export const SimulasiPage: React.FC = () => {
                   Slot Pilihan {focusedSlotIdx + 1} (Baru)
                 </div>
                 <p style={{ fontSize: 11.5, lineHeight: 1.5, margin: 0 }}>
-                  Gunakan filter di bawah lalu klik <strong>Pilih ke Pil. {focusedSlotIdx + 1}</strong> atau bandingkan kandidat terlebih dahulu.
+                  Gunakan filter di bawah lalu klik <strong>Pilih</strong> atau bandingkan kandidat terlebih dahulu.
                 </p>
               </div>
             )}
@@ -1592,7 +1592,7 @@ export const SimulasiPage: React.FC = () => {
                               style={{
                                 fontSize: 11.5,
                                 fontWeight: 700,
-                                padding: '5px 10px',
+                                padding: '5px 12px',
                                 borderRadius: 5,
                                 cursor: 'pointer',
                                 background: '#eff8ff',
@@ -1600,7 +1600,7 @@ export const SimulasiPage: React.FC = () => {
                                 border: '1px solid #b2ddff'
                               }}
                             >
-                              Pilih ke Pil. {focusedSlotIdx + 1}
+                              Pilih
                             </button>
                           </div>
                         </td>
