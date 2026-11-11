@@ -751,7 +751,7 @@ export const CheckpointV2Page: React.FC = () => {
                           }
                         >
                           <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
                               <strong>{sub.name}</strong>
                               {isFocus && (
                                 <span
@@ -766,7 +766,7 @@ export const CheckpointV2Page: React.FC = () => {
                                     whiteSpace: 'nowrap'
                                   }}
                                 >
-                                  Fokus #{focusRank + 1}
+                                  Terendah #{focusRank + 1}
                                 </span>
                               )}
                             </div>
