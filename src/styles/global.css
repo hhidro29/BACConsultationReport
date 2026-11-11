@@ -837,10 +837,14 @@
       background: #0f172a;
       z-index: 3;
     }
-    .badge-p-high { background: #fee4e2; color: #b42318; border: 1px solid #fecdca; font-size: 7.2px; font-weight: 700; padding: 0.4mm 1.4mm; border-radius: 2.5px; display: inline-block; white-space: nowrap; }
-    .badge-p-med { background: #fef0c7; color: #b54708; border: 1px solid #fedf89; font-size: 7.2px; font-weight: 700; padding: 0.4mm 1.4mm; border-radius: 2.5px; display: inline-block; white-space: nowrap; }
-    .badge-p-low { background: #eff8ff; color: #175cd3; border: 1px solid #b2ddff; font-size: 7.2px; font-weight: 700; padding: 0.4mm 1.4mm; border-radius: 2.5px; display: inline-block; white-space: nowrap; }
-    .badge-p-done { background: #ecfdf3; color: #027a48; border: 1px solid #a6f4c5; font-size: 7.2px; font-weight: 700; padding: 0.4mm 1.4mm; border-radius: 2.5px; display: inline-block; white-space: nowrap; }
+    .badge-p-high { background: #fee4e2; color: #b42318; border: 1px solid #fecdca; font-size: 11px; font-weight: 700; padding: 3.5px 9px; border-radius: 5px; display: inline-block; white-space: nowrap; letter-spacing: 0.2px; }
+    .badge-p-med { background: #fef0c7; color: #b54708; border: 1px solid #fedf89; font-size: 11px; font-weight: 700; padding: 3.5px 9px; border-radius: 5px; display: inline-block; white-space: nowrap; letter-spacing: 0.2px; }
+    .badge-p-low { background: #eff8ff; color: #175cd3; border: 1px solid #b2ddff; font-size: 11px; font-weight: 700; padding: 3.5px 9px; border-radius: 5px; display: inline-block; white-space: nowrap; letter-spacing: 0.2px; }
+    .badge-p-done { background: #ecfdf3; color: #027a48; border: 1px solid #a6f4c5; font-size: 11px; font-weight: 700; padding: 3.5px 9px; border-radius: 5px; display: inline-block; white-space: nowrap; letter-spacing: 0.2px; }
+    .profiling-print-page .badge-p-high,
+    .profiling-print-page .badge-p-med,
+    .profiling-print-page .badge-p-low,
+    .profiling-print-page .badge-p-done { font-size: 7.2px; padding: 0.4mm 1.4mm; border-radius: 2.5px; letter-spacing: 0; }
 
     /* Rapor Editor Specifics */
     .info-card {

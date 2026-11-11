@@ -715,15 +715,15 @@ export const CheckpointV2Page: React.FC = () => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '24%' }}>Subtes UTBK SNBT</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>TO 1</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>TO 2</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>TO 3</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>TO 4</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Median</th>
-                    <th style={{ width: '22%' }}>Visual Posisi vs Target 600</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Prioritas</th>
+                    <th style={{ width: '22%' }}>Subtes UTBK SNBT</th>
+                    <th style={{ textAlign: 'center', width: '7%' }}>TO 1</th>
+                    <th style={{ textAlign: 'center', width: '7%' }}>TO 2</th>
+                    <th style={{ textAlign: 'center', width: '7%' }}>TO 3</th>
+                    <th style={{ textAlign: 'center', width: '7%' }}>TO 4</th>
+                    <th style={{ textAlign: 'center', width: '9%' }}>Median</th>
+                    <th style={{ width: '18%' }}>Visual Posisi vs Target 600</th>
+                    <th style={{ textAlign: 'center', width: '8%' }}>Selisih</th>
+                    <th style={{ textAlign: 'center', width: '15%' }}>Prioritas</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -766,15 +766,15 @@ export const CheckpointV2Page: React.FC = () => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '24%' }}>Ringkasan 8 Subtes</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>TO 1</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>TO 2</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>TO 3</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>TO 4</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Rata-rata</th>
-                    <th style={{ width: '22%' }}>Visual Posisi vs Target 600</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Status</th>
+                    <th style={{ width: '22%' }}>Ringkasan 8 Subtes</th>
+                    <th style={{ textAlign: 'center', width: '7%' }}>TO 1</th>
+                    <th style={{ textAlign: 'center', width: '7%' }}>TO 2</th>
+                    <th style={{ textAlign: 'center', width: '7%' }}>TO 3</th>
+                    <th style={{ textAlign: 'center', width: '7%' }}>TO 4</th>
+                    <th style={{ textAlign: 'center', width: '9%' }}>Rata-rata</th>
+                    <th style={{ width: '18%' }}>Visual Posisi vs Target 600</th>
+                    <th style={{ textAlign: 'center', width: '8%' }}>Selisih</th>
+                    <th style={{ textAlign: 'center', width: '15%' }}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
