@@ -65,8 +65,8 @@ function getDrillGuidance(sub: PrioritySubtest): string {
 }
 
 function renderTrendArrow(curr: number, prev: number) {
-  if (curr > prev) return <span style={{ fontSize: 7.5, color: '#027a48' }}> ▲</span>;
-  if (curr < prev) return <span style={{ fontSize: 7.5, color: '#b42318' }}> ▼</span>;
+  if (curr > prev) return <span style={{ fontSize: 9, color: '#027a48' }}> ▲</span>;
+  if (curr < prev) return <span style={{ fontSize: 9, color: '#b42318' }}> ▼</span>;
   return null;
 }
 
@@ -205,11 +205,11 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
           <section className="profiling-print-page" id="reportPage1">
             {/* Kop Dokumen */}
             <header className="profiling-print-document-header">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2mm' }}>
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#1078ca', letterSpacing: 0.5 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1mm' }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#1078ca', letterSpacing: 0.5 }}>
                   BRAIN ACADEMY BY RUANGGURU
                 </span>
-                <span style={{ fontSize: 8, color: '#64748b', fontWeight: 700, letterSpacing: 0.3 }}>
+                <span style={{ fontSize: 9, color: '#64748b', fontWeight: 700, letterSpacing: 0.3 }}>
                   DOKUMEN RESMI KONSULTASI SISWA &amp; ORANG TUA
                 </span>
               </div>
@@ -225,12 +225,12 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             </header>
 
             {/* Identitas Siswa */}
-            <div className="profiling-print-section" style={{ marginBottom: '2.4mm' }}>
-              <table className="profiling-print-table" style={{ fontSize: 8.8 }}>
+            <div className="profiling-print-section" style={{ marginBottom: '2mm' }}>
+              <table className="profiling-print-table" style={{ fontSize: 10 }}>
                 <tbody>
                   <tr>
                     <td style={{ width: '17%', background: '#edf5f9', fontWeight: 700, color: '#334155' }}>Nama Siswa</td>
-                    <td style={{ width: '33%', fontWeight: 800, color: '#0f172a', fontSize: 9.2 }}>{identity.name}</td>
+                    <td style={{ width: '33%', fontWeight: 800, color: '#0f172a', fontSize: 10.5 }}>{identity.name}</td>
                     <td style={{ width: '17%', background: '#edf5f9', fontWeight: 700, color: '#334155' }}>Asal Sekolah</td>
                     <td style={{ width: '33%' }}>{identity.school}</td>
                   </tr>
@@ -243,10 +243,10 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                   <tr>
                     <td style={{ background: '#edf5f9', fontWeight: 700, color: '#334155' }}>Skor Reguler</td>
                     <td colSpan={3}>
-                      <strong style={{ fontSize: 9.5, color: '#0f172a' }}>{identity.toAverage} poin</strong>{' '}
+                      <strong style={{ fontSize: 11, color: '#0f172a' }}>{identity.toAverage} poin</strong>{' '}
                       <span style={{ color: '#475467' }}>(Rata-rata 4 TO)</span>
                       <span style={{ margin: '0 6px', color: '#94a3b8' }}>•</span>
-                      <strong style={{ fontSize: 9.5, color: to4Score >= 600 ? '#027a48' : '#b42318' }}>
+                      <strong style={{ fontSize: 11, color: to4Score >= 600 ? '#027a48' : '#b42318' }}>
                         {to4Score} poin
                       </strong>{' '}
                       <span style={{ color: to4Score >= 600 ? '#027a48' : '#b42318', fontWeight: 700 }}>
@@ -264,34 +264,34 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                 background: '#f8fafc',
                 border: '1px solid #cbd5e1',
                 borderRadius: 4,
-                padding: '2mm 2.8mm',
-                marginBottom: '2.8mm'
+                padding: '1.8mm 2.6mm',
+                marginBottom: '2.2mm'
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.4mm' }}>
-                <strong style={{ fontSize: 9, color: '#0f172a' }}>Ringkasan Posisi Saat Ini (Berdasarkan TO 4)</strong>
-                <span style={{ fontSize: 8.2, color: '#1078ca', fontWeight: 700 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2mm' }}>
+                <strong style={{ fontSize: 10.5, color: '#0f172a' }}>Ringkasan Posisi Saat Ini (Berdasarkan TO 4)</strong>
+                <span style={{ fontSize: 9.5, color: '#1078ca', fontWeight: 700 }}>
                   Fokus semester ini: seluruh subtes mencapai target dasar 600
                 </span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '0.85fr 1.15fr', gap: '2.4mm' }}>
-                <div style={{ background: '#ffffff', border: '1px solid #a6f4c5', borderLeft: '3px solid #12b76a', borderRadius: 3, padding: '1.4mm 2.2mm' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '0.82fr 1.18fr', gap: '2.2mm' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #a6f4c5', borderLeft: '3px solid #12b76a', borderRadius: 3, padding: '1.3mm 2mm' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 8.2, fontWeight: 800, color: '#027a48' }}>DI ATAS TARGET 600 (+)</span>
-                    <span style={{ fontSize: 9.5, fontWeight: 800, color: '#027a48' }}>{above600.length} Subtes</span>
+                    <span style={{ fontSize: 9.5, fontWeight: 800, color: '#027a48' }}>DI ATAS TARGET 600 (+)</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#027a48' }}>{above600.length} Subtes</span>
                   </div>
-                  <div style={{ fontSize: 8.3, color: '#334155', marginTop: '0.7mm' }}>
+                  <div style={{ fontSize: 9.8, color: '#334155', marginTop: '0.5mm' }}>
                     {above600.length > 0
                       ? above600.map((s) => `${SHORT_CODE_MAP[s.id] || s.id.toUpperCase()} (${s.to4})`).join(' · ')
                       : 'Belum ada subtes mencapai 600 pada TO 4'}
                   </div>
                 </div>
-                <div style={{ background: '#ffffff', border: '1px solid #fecdca', borderLeft: '3px solid #d92d20', borderRadius: 3, padding: '1.4mm 2.2mm' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #fecdca', borderLeft: '3px solid #d92d20', borderRadius: 3, padding: '1.3mm 2mm' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 8.2, fontWeight: 800, color: '#b42318' }}>DI BAWAH TARGET 600 (-)</span>
-                    <span style={{ fontSize: 9.5, fontWeight: 800, color: '#b42318' }}>{below600.length} Subtes</span>
+                    <span style={{ fontSize: 9.5, fontWeight: 800, color: '#b42318' }}>DI BAWAH TARGET 600 (-)</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#b42318' }}>{below600.length} Subtes</span>
                   </div>
-                  <div style={{ fontSize: 8.3, color: '#334155', marginTop: '0.7mm' }}>
+                  <div style={{ fontSize: 9.8, color: '#334155', marginTop: '0.5mm' }}>
                     {lowest3.length > 0
                       ? `3 Terendah: ${lowest3.map((s) => `${SHORT_CODE_MAP[s.id] || s.name} (${s.to4})`).join(' · ')}`
                       : 'Seluruh subtes sudah mencapai batas 600'}
@@ -301,44 +301,44 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             </div>
 
             {/* 1. CARA MEMBACA DUA SISTEM SKOR DI LAPORAN INI */}
-            <div className="profiling-print-section" style={{ marginBottom: '2.8mm' }}>
+            <div className="profiling-print-section" style={{ marginBottom: '2.2mm' }}>
               <h2 className="profiling-print-section-title">
                 <span><span style={{ marginRight: '1.8mm' }}>1.</span>Cara Membaca Dua Sistem Skor di Laporan Ini</span>
               </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.4mm', marginBottom: '1.6mm' }}>
-                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderTop: '3px solid #1078ca', borderRadius: 4, padding: '1.8mm 2.4mm' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.9mm' }}>
-                    <span style={{ fontSize: 8, fontWeight: 800, background: '#eff8ff', color: '#175cd3', border: '1px solid #b2ddff', padding: '0.3mm 1.6mm', borderRadius: 3 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.2mm', marginBottom: '1.4mm' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderTop: '3px solid #1078ca', borderRadius: 4, padding: '1.6mm 2.2mm' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8mm' }}>
+                    <span style={{ fontSize: 9.2, fontWeight: 800, background: '#eff8ff', color: '#175cd3', border: '1px solid #b2ddff', padding: '0.3mm 1.6mm', borderRadius: 3 }}>
                       SKOR IRT REGULER
                     </span>
-                    <span style={{ fontSize: 7.8, color: '#1e40af', fontWeight: 700 }}>→ Bagian 2</span>
+                    <span style={{ fontSize: 9, color: '#1e40af', fontWeight: 700 }}>→ Bagian 2</span>
                   </div>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0f172a', marginBottom: '0.5mm' }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 700, color: '#0f172a', marginBottom: '0.4mm' }}>
                     Nilai tiap subtes, sama untuk semua jurusan
                   </div>
-                  <p style={{ margin: 0, fontSize: 8.4, color: '#334155', lineHeight: 1.4 }}>
-                    Angka kemampuan murni per subtes. Nilainya tidak berubah saat pilihan jurusan berganti; dipakai memantau target dasar 600.
+                  <p style={{ margin: 0, fontSize: 10, color: '#334155', lineHeight: 1.38 }}>
+                    Kemampuan murni per subtes. Nilainya tetap saat jurusan berganti; dipakai memantau target dasar 600.
                   </p>
                 </div>
 
-                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderTop: '3px solid #7c3aed', borderRadius: 4, padding: '1.8mm 2.4mm' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.9mm' }}>
-                    <span style={{ fontSize: 8, fontWeight: 800, background: '#f9f5ff', color: '#6941c6', border: '1px solid #e9d7fe', padding: '0.3mm 1.6mm', borderRadius: 3 }}>
+                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderTop: '3px solid #7c3aed', borderRadius: 4, padding: '1.6mm 2.2mm' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8mm' }}>
+                    <span style={{ fontSize: 9.2, fontWeight: 800, background: '#f9f5ff', color: '#6941c6', border: '1px solid #e9d7fe', padding: '0.3mm 1.6mm', borderRadius: 3 }}>
                       SKOR IRT TERBOBOT
                     </span>
-                    <span style={{ fontSize: 7.8, color: '#6941c6', fontWeight: 700 }}>→ Bagian 3 (Hal. 2)</span>
+                    <span style={{ fontSize: 9, color: '#6941c6', fontWeight: 700 }}>→ Bagian 3 (Hal. 2)</span>
                   </div>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0f172a', marginBottom: '0.5mm' }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 700, color: '#0f172a', marginBottom: '0.4mm' }}>
                     Nilai yang dihitung sesuai bobot jurusan
                   </div>
-                  <p style={{ margin: 0, fontSize: 8.4, color: '#334155', lineHeight: 1.4 }}>
-                    Skor dihitung ulang memakai bobot subtes tiap prodi, sehingga angkanya berbeda antar pilihan untuk melihat jarak ke skor lolos.
+                  <p style={{ margin: 0, fontSize: 10, color: '#334155', lineHeight: 1.38 }}>
+                    Dihitung ulang memakai bobot subtes tiap prodi, sehingga hasilnya berbeda untuk melihat jarak ke skor lolos.
                   </p>
                 </div>
               </div>
 
-              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderLeft: '3px solid #eab308', borderRadius: 3, padding: '1.4mm 2.4mm', fontSize: 8.3, color: '#713f12', lineHeight: 1.4 }}>
-                <strong>Mengapa semua subtes dikejar ke 600?</strong> Tiap jurusan memberi bobot berbeda pada subtes tertentu. Jika seluruh subtes sudah menyentuh 600, tidak ada lagi subtes lemah yang menarik turun skor terbobot di pilihan mana pun.
+              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderLeft: '3px solid #eab308', borderRadius: 3, padding: '1.3mm 2.2mm', fontSize: 10, color: '#713f12', lineHeight: 1.38 }}>
+                <strong>Mengapa semua subtes dikejar ke 600?</strong> Tiap jurusan membobot subtes berbeda. Jika seluruh subtes mencapai 600, tidak ada subtes lemah yang menarik turun skor terbobot di pilihan mana pun.
               </div>
             </div>
 
@@ -346,36 +346,36 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             <div className="profiling-print-section" style={{ marginBottom: 0 }}>
               <h2 className="profiling-print-section-title">
                 <span><span style={{ marginRight: '1.8mm' }}>2.</span>Skor IRT Reguler: Posisi 8 Subtes Terhadap Target 600</span>
-                <span style={{ fontSize: 7.6, fontWeight: 600, color: '#475467', textTransform: 'none', letterSpacing: 0 }}>
-                  Diurutkan dari jarak terdalam · Menyorot hingga 3 subtes terendah (&lt; 570)
+                <span style={{ fontSize: 9, fontWeight: 600, color: '#475467', textTransform: 'none', letterSpacing: 0 }}>
+                  Urut gap terdalam · Sorot hingga 3 terendah (&lt; 570)
                 </span>
               </h2>
 
-              <table className="profiling-print-table" style={{ fontSize: 8.6 }}>
+              <table className="profiling-print-table" style={{ fontSize: 10 }}>
                 <thead>
                   <tr>
-                    <th style={{ width: '3.5%', textAlign: 'center' }}>#</th>
-                    <th style={{ width: '30%' }}>Subtes UTBK</th>
+                    <th style={{ width: '4%', textAlign: 'center' }}>#</th>
+                    <th style={{ width: '31%' }}>Subtes UTBK</th>
                     <th style={{ width: '7.5%', textAlign: 'center' }}>
                       TO 1<br />
-                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>30 Agu</span>
+                      <span style={{ fontSize: 9, fontWeight: 500, color: '#e0f2fe' }}>30 Agu</span>
                     </th>
                     <th style={{ width: '8%', textAlign: 'center' }}>
                       TO 2<br />
-                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>14 Sep</span>
+                      <span style={{ fontSize: 9, fontWeight: 500, color: '#e0f2fe' }}>14 Sep</span>
                     </th>
                     <th style={{ width: '8%', textAlign: 'center' }}>
                       TO 3<br />
-                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>28 Sep</span>
+                      <span style={{ fontSize: 9, fontWeight: 500, color: '#e0f2fe' }}>28 Sep</span>
                     </th>
                     <th style={{ width: '8.5%', textAlign: 'center' }}>
                       TO 4<br />
-                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>30 Okt</span>
+                      <span style={{ fontSize: 9, fontWeight: 500, color: '#e0f2fe' }}>30 Okt</span>
                     </th>
                     <th style={{ width: '8%', textAlign: 'center' }}>Median</th>
-                    <th style={{ width: '18.5%', textAlign: 'center' }}>
+                    <th style={{ width: '17%', textAlign: 'center' }}>
                       Posisi vs 600
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 7.5, fontWeight: 600, marginTop: 1, color: '#e0f2fe' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, fontWeight: 600, marginTop: 1, color: '#e0f2fe' }}>
                         <span>400</span><span>600</span><span>700</span>
                       </div>
                     </th>
@@ -399,17 +399,17 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                       >
                         <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{idx + 1}</td>
                         <td>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.6mm' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5mm' }}>
                             <span style={{ fontWeight: 700, color: '#0f172a' }}>{sub.name}</span>
                             {isFocus && (
                               <span
                                 style={{
-                                  fontSize: 7.5,
+                                  fontSize: 9,
                                   fontWeight: 700,
                                   color: isHigh ? '#b42318' : '#b54708',
                                   background: isHigh ? '#fee4e2' : '#fef0c7',
                                   border: `1px solid ${isHigh ? '#fecdca' : '#fedf89'}`,
-                                  padding: '0.25mm 1.3mm',
+                                  padding: '0.2mm 1.3mm',
                                   borderRadius: 3,
                                   lineHeight: 1.2
                                 }}
@@ -422,7 +422,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         <td style={{ textAlign: 'center' }}>{sub.to1}</td>
                         <td style={{ textAlign: 'center' }}>{sub.to2}{renderTrendArrow(sub.to2, sub.to1)}</td>
                         <td style={{ textAlign: 'center' }}>{sub.to3}{renderTrendArrow(sub.to3, sub.to2)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: badge.color }}>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 10.5, color: badge.color }}>
                           {sub.to4}{renderTrendArrow(sub.to4, sub.to3)}
                         </td>
                         <td style={{ textAlign: 'center', fontWeight: 700 }}>{sub.median}</td>
@@ -432,7 +432,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                             <div className="v2-progress-target-line" />
                           </div>
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: badge.color }}>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 10.5, color: badge.color }}>
                           {sub.gap >= 0 ? `+${sub.gap}` : sub.gap}
                         </td>
                       </tr>
@@ -442,16 +442,16 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               </table>
 
               {/* Separated Summary Table (Aligned Columns) */}
-              <table className="profiling-print-table" style={{ marginTop: '2mm', marginBottom: 0, fontSize: 8.5 }}>
+              <table className="profiling-print-table" style={{ marginTop: '1.8mm', marginBottom: 0, fontSize: 10 }}>
                 <thead>
                   <tr>
-                    <th style={{ width: '33.5%', background: '#edf5f9', color: '#0f172a' }}>Ringkasan 8 Subtes</th>
+                    <th style={{ width: '35%', background: '#edf5f9', color: '#0f172a' }}>Ringkasan 8 Subtes</th>
                     <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 1</th>
                     <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 2</th>
                     <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 3</th>
                     <th style={{ width: '8.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 4</th>
                     <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Rata-rata</th>
-                    <th style={{ width: '18.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Posisi vs 600</th>
+                    <th style={{ width: '17%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Posisi vs 600</th>
                     <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Selisih</th>
                   </tr>
                 </thead>
@@ -461,7 +461,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                     <td style={{ textAlign: 'center', fontWeight: 600 }}>{avg1}</td>
                     <td style={{ textAlign: 'center', fontWeight: 600 }}>{avg2}{renderTrendArrow(avg2, avg1)}</td>
                     <td style={{ textAlign: 'center', fontWeight: 600 }}>{avg3}{renderTrendArrow(avg3, avg2)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: avgBadge.color }}>{avg4}{renderTrendArrow(avg4, avg3)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 10.5, color: avgBadge.color }}>{avg4}{renderTrendArrow(avg4, avg3)}</td>
                     <td style={{ textAlign: 'center', fontWeight: 800, color: '#1078ca' }}>{avgAll}</td>
                     <td>
                       <div className="v2-progress-track">
@@ -469,7 +469,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         <div className="v2-progress-target-line" />
                       </div>
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: avgBadge.color }}>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 10.5, color: avgBadge.color }}>
                       {avgGap >= 0 ? `+${avgGap}` : avgGap}
                     </td>
                   </tr>
@@ -478,7 +478,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                     <td style={{ textAlign: 'center', color: '#475467' }}>{formatIndo(med1)}</td>
                     <td style={{ textAlign: 'center', color: '#475467' }}>{formatIndo(med2)}{renderTrendArrow(med2, med1)}</td>
                     <td style={{ textAlign: 'center', color: '#475467' }}>{formatIndo(med3)}{renderTrendArrow(med3, med2)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: medBadge.color }}>{formatIndo(med4)}{renderTrendArrow(med4, med3)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 10.5, color: medBadge.color }}>{formatIndo(med4)}{renderTrendArrow(med4, med3)}</td>
                     <td style={{ textAlign: 'center', fontWeight: 700, color: '#475467' }}>{formatIndo(medAll)}</td>
                     <td>
                       <div className="v2-progress-track">
@@ -486,25 +486,25 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         <div className="v2-progress-target-line" />
                       </div>
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: medBadge.color }}>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 10.5, color: medBadge.color }}>
                       {medGap >= 0 ? `+${formatIndo(medGap)}` : formatIndo(medGap)}
                     </td>
                   </tr>
                 </tbody>
               </table>
 
-              <div style={{ display: 'flex', gap: '3.6mm', alignItems: 'center', marginTop: '1.8mm', fontSize: 7.8, color: '#334155', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '3.2mm', alignItems: 'center', marginTop: '1.5mm', fontSize: 9.2, color: '#334155', flexWrap: 'wrap' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
-                  <span style={{ width: 8, height: 8, background: '#d92d20', display: 'inline-block', borderRadius: 2 }} /> Skor ≤ 509 (-91 ke bawah)
+                  <span style={{ width: 9, height: 9, background: '#d92d20', display: 'inline-block', borderRadius: 2 }} /> Skor ≤ 509 (-91 ke bawah)
                 </span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
-                  <span style={{ width: 8, height: 8, background: '#f79009', display: 'inline-block', borderRadius: 2 }} /> Skor 510–569 (-31 s.d. -90)
+                  <span style={{ width: 9, height: 9, background: '#f79009', display: 'inline-block', borderRadius: 2 }} /> Skor 510–569 (-31 s.d. -90)
                 </span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
-                  <span style={{ width: 8, height: 8, background: '#2e90fa', display: 'inline-block', borderRadius: 2 }} /> Skor 570–599 (-30 s.d. -1)
+                  <span style={{ width: 9, height: 9, background: '#2e90fa', display: 'inline-block', borderRadius: 2 }} /> Skor 570–599 (-30 s.d. -1)
                 </span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
-                  <span style={{ width: 8, height: 8, background: '#12b76a', display: 'inline-block', borderRadius: 2 }} /> Tercapai (600+)
+                  <span style={{ width: 9, height: 9, background: '#12b76a', display: 'inline-block', borderRadius: 2 }} /> Tercapai (600+)
                 </span>
               </div>
             </div>
@@ -518,11 +518,11 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
           {/* ================= PAGE 2 ================= */}
           <section className="profiling-print-page" id="reportPage2">
             <header className="profiling-print-document-header">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2mm' }}>
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#1078ca', letterSpacing: 0.5 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1mm' }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#1078ca', letterSpacing: 0.5 }}>
                   BRAIN ACADEMY BY RUANGGURU
                 </span>
-                <span style={{ fontSize: 8, color: '#64748b', fontWeight: 700, letterSpacing: 0.3 }}>
+                <span style={{ fontSize: 9, color: '#64748b', fontWeight: 700, letterSpacing: 0.3 }}>
                   DOKUMEN RESMI KONSULTASI SISWA &amp; ORANG TUA
                 </span>
               </div>
@@ -538,22 +538,22 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             </header>
 
             {/* 3. SKOR IRT TERBOBOT */}
-            <div className="profiling-print-section" style={{ marginBottom: '3mm' }}>
+            <div className="profiling-print-section" style={{ marginBottom: '2.5mm' }}>
               <h2 className="profiling-print-section-title">
                 <span><span style={{ marginRight: '1.8mm' }}>3.</span>Skor IRT Terbobot: Jarak ke Target Acuan Tiap Pilihan Jurusan</span>
               </h2>
-              <table className="profiling-print-table" style={{ fontSize: 8.8 }}>
+              <table className="profiling-print-table" style={{ fontSize: 10 }}>
                 <thead>
                   <tr>
                     <th style={{ width: '13%' }}>Pilihan</th>
                     <th style={{ width: '47%' }}>Program Studi &amp; Perguruan Tinggi</th>
                     <th style={{ width: '14%', textAlign: 'center' }}>
                       Target Acuan<br />
-                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>(Terbobot)</span>
+                      <span style={{ fontSize: 9, fontWeight: 500, color: '#e0f2fe' }}>(Terbobot)</span>
                     </th>
                     <th style={{ width: '14%', textAlign: 'center' }}>
                       Skor Siswa<br />
-                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>(TO 4)</span>
+                      <span style={{ fontSize: 9, fontWeight: 500, color: '#e0f2fe' }}>(TO 4)</span>
                     </th>
                     <th style={{ width: '12%', textAlign: 'center' }}>Selisih</th>
                   </tr>
@@ -565,16 +565,16 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                       <tr key={`${prog.prodi}-${idx}`}>
                         <td style={{ fontWeight: 700, color: '#1078ca' }}>{prog.priority}</td>
                         <td>
-                          <div style={{ fontWeight: 700, fontSize: 9.2, color: '#0f172a' }}>{prog.prodi}</div>
-                          <div style={{ color: '#475467', fontSize: 8.3 }}>{prog.univ}</div>
+                          <div style={{ fontWeight: 700, fontSize: 10.5, color: '#0f172a' }}>{prog.prodi}</div>
+                          <div style={{ color: '#475467', fontSize: 9.5 }}>{prog.univ}</div>
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 10.5, color: '#0f172a' }}>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 12, color: '#0f172a' }}>
                           {prog.targetScore}
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9.5, color: '#1078ca' }}>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 11, color: '#1078ca' }}>
                           {prog.weightedScore}
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9.5, color: gapColor }}>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 11, color: gapColor }}>
                           {prog.gap >= 0 ? `+${prog.gap}` : prog.gap}
                         </td>
                       </tr>
@@ -582,30 +582,30 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                   })}
                 </tbody>
               </table>
-              <div style={{ fontSize: 8.2, color: '#475467', marginTop: '1.2mm', lineHeight: 1.4 }}>
-                Skor terbobot hanya dibandingkan dengan target acuan jurusan yang bersangkutan. Target 600 per subtes adalah tahap pertama semester ini sebelum mengejar jarak kelolosan di atas.
+              <div style={{ fontSize: 9.2, color: '#475467', marginTop: '1mm', lineHeight: 1.38 }}>
+                Skor terbobot dibandingkan hanya dengan target acuan jurusan yang sama. Target 600 per subtes adalah tahap pertama semester ini sebelum mengejar jarak kelolosan di atas.
               </div>
             </div>
 
             {/* 4. SUBTES PRIORITAS & DRILL */}
-            <div className="profiling-print-section" style={{ marginBottom: '3mm' }}>
+            <div className="profiling-print-section" style={{ marginBottom: '2.5mm' }}>
               <h2 className="profiling-print-section-title">
                 <span><span style={{ marginRight: '1.8mm' }}>4.</span>Subtes Prioritas: Aktivitas Drill Soal &amp; Arahan Pendampingan</span>
               </h2>
-              <table className="profiling-print-table" style={{ fontSize: 8.4 }}>
+              <table className="profiling-print-table" style={{ fontSize: 9.8 }}>
                 <thead>
                   <tr>
                     <th style={{ width: '23%' }}>Subtes</th>
                     <th style={{ width: '12%', textAlign: 'center' }}>
                       TO 4 &amp;<br />
-                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>Selisih 600</span>
+                      <span style={{ fontSize: 9, fontWeight: 500, color: '#e0f2fe' }}>Selisih 600</span>
                     </th>
-                    <th style={{ width: '16%', textAlign: 'center' }}>
+                    <th style={{ width: '15%', textAlign: 'center' }}>
                       Drill Soal<br />
-                      <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>di Aplikasi RG</span>
+                      <span style={{ fontSize: 9, fontWeight: 500, color: '#e0f2fe' }}>di Aplikasi RG</span>
                     </th>
                     <th style={{ width: '24%' }}>Topik yang Perlu Dibenahi</th>
-                    <th style={{ width: '25%' }}>Arahan Kakak Asuh</th>
+                    <th style={{ width: '26%' }}>Arahan Kakak Asuh</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -614,27 +614,27 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                     return (
                       <tr key={sub.id}>
                         <td>
-                          <div style={{ fontWeight: 700, fontSize: 8.8, color: '#0f172a' }}>{sub.name}</div>
-                          <div style={{ fontSize: 7.8, color: '#475467', marginTop: '0.4mm' }}>{sub.priorityLabel}</div>
+                          <div style={{ fontWeight: 700, fontSize: 10, color: '#0f172a' }}>{sub.name}</div>
+                          <div style={{ fontSize: 9, color: '#475467', marginTop: '0.3mm' }}>{sub.priorityLabel}</div>
                         </td>
                         <td style={{ textAlign: 'center' }}>
-                          <div style={{ fontWeight: 800, fontSize: 9.8, color: scoreColor }}>{sub.toScore}</div>
-                          <div style={{ fontSize: 8.2, fontWeight: 700, color: scoreColor }}>{sub.gapText}</div>
+                          <div style={{ fontWeight: 800, fontSize: 11, color: scoreColor }}>{sub.toScore}</div>
+                          <div style={{ fontSize: 9.5, fontWeight: 700, color: scoreColor }}>{sub.gapText}</div>
                         </td>
                         <td style={{ textAlign: 'center' }}>
                           <div style={{ fontWeight: 700, color: sub.drillSessions === 0 ? '#b42318' : '#0f172a' }}>
                             {sub.drillSessions} sesi
                           </div>
-                          <div style={{ fontSize: 7.8, color: sub.drillSessions === 0 ? '#b42318' : '#475467', marginTop: '0.3mm' }}>
+                          <div style={{ fontSize: 9, color: sub.drillSessions === 0 ? '#b42318' : '#475467', marginTop: '0.3mm' }}>
                             {sub.rgQuestionsDone} soal · {sub.drillAccuracyPct}%
                           </div>
                         </td>
-                        <td style={{ fontSize: 8.2, lineHeight: 1.38, color: '#1e293b' }}>
+                        <td style={{ fontSize: 9.5, lineHeight: 1.35, color: '#1e293b' }}>
                           {sub.lowestTopics.slice(0, 2).map((t, i) => (
                             <div key={i}>• {t}</div>
                           ))}
                         </td>
-                        <td style={{ fontSize: 8.2, lineHeight: 1.38, color: '#334155' }}>
+                        <td style={{ fontSize: 9.5, lineHeight: 1.35, color: '#334155' }}>
                           {getDrillGuidance(sub)}
                         </td>
                       </tr>
@@ -643,29 +643,29 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                 </tbody>
               </table>
               {otherSummaryText && (
-                <div style={{ fontSize: 8, color: '#475467', marginTop: '1.2mm' }}>
+                <div style={{ fontSize: 9.2, color: '#475467', marginTop: '1mm' }}>
                   Subtes lainnya dipantau berkala menuju Tryout 5: {otherSummaryText}.
                 </div>
               )}
             </div>
 
             {/* 5. RENCANA AKSI SAMPAI TRYOUT 5 */}
-            <div className="profiling-print-section" style={{ marginBottom: '3mm' }}>
+            <div className="profiling-print-section" style={{ marginBottom: '2.5mm' }}>
               <h2 className="profiling-print-section-title">
                 <span><span style={{ marginRight: '1.8mm' }}>5.</span>Rencana Aksi Belajar Menuju Tryout 5</span>
               </h2>
               <ol className="profiling-print-action-list">
                 <li>
-                  <strong>Drill Soal Harian Subtes Prioritas:</strong> Target minimal 15 soal per hari di aplikasi Ruangguru pada subtes dengan gap terbesar &amp; volume drill terendah.
+                  <strong>Drill Soal Harian Subtes Prioritas:</strong> Target minimal 15 soal/hari di aplikasi Ruangguru pada subtes dengan gap terbesar &amp; volume drill terendah.
                 </li>
                 <li>
-                  <strong>Klinik PR Tatap Muka Cabang ({identity.branch}):</strong> Jadwalkan pertemuan klinik bersama Master Teacher untuk membedah topik dengan akurasi terendah pada Tryout terakhir.
+                  <strong>Klinik PR Tatap Muka Cabang ({identity.branch}):</strong> Jadwalkan klinik bersama Master Teacher untuk membedah topik akurasi terendah pada TO terakhir.
                 </li>
                 <li>
-                  <strong>Target Evaluasi Tryout 5:</strong> Tingkatkan rata-rata skor secara bertahap dari <strong>{to4Score}</strong> (TO 4) menuju target 600 dengan manajemen waktu per subtes.
+                  <strong>Target Evaluasi Tryout 5:</strong> Tingkatkan rata-rata skor bertahap dari <strong>{to4Score}</strong> (TO 4) menuju target 600 dengan manajemen waktu per subtes.
                 </li>
                 <li>
-                  <strong>Dukungan Belajar di Rumah:</strong> Orang tua mendampingi konsistensi jam belajar mandiri dan memastikan kondisi istirahat siswa sebelum jadwal Tryout berikutnya.
+                  <strong>Dukungan Belajar di Rumah:</strong> Orang tua mendampingi konsistensi jam belajar mandiri dan menjaga kondisi istirahat siswa menjelang Tryout berikutnya.
                 </li>
               </ol>
             </div>
@@ -678,7 +678,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               <p className="profiling-print-agreement">
                 &ldquo;Dengan menandatangani lembar ini, Siswa, Orang Tua / Wali, dan Kakak Asuh Brain Academy menyatakan telah berdiskusi bersama, memahami hasil evaluasi belajar 4 Tryout, dan bersepakat mengenai formulasi pilihan jurusan serta komitmen rencana tindak lanjut belajar Checkpoint 1 demi mencapai target PTN impian.&rdquo;
               </p>
-              <div style={{ textAlign: 'right', fontSize: 8.5, color: '#334155', fontWeight: 600, marginTop: '1.5mm', marginBottom: '1mm' }}>
+              <div style={{ textAlign: 'right', fontSize: 9.8, color: '#334155', fontWeight: 600, marginTop: '1.2mm', marginBottom: '0.8mm' }}>
                 {homeCity}, {identity.sessionDate}
               </div>
 
