@@ -708,55 +708,103 @@ export const CheckpointV2Page: React.FC = () => {
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 15 }}>2. Evaluasi Capaian {totalSubtestsCount} Subtes vs Target 600</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                Prioritas intervensi (gap terbesar / terjauh dari 600 di atas) • Skala visual 400 - 700 dengan garis patokan target 600
+                Diurutkan dari gap terdalam • Menyorot hingga 3 subtes terendah yang paling perlu ditingkatkan (skor &lt; 570)
               </span>
             </div>
             <div className="table-container">
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '22%' }}>Subtes UTBK SNBT</th>
-                    <th style={{ textAlign: 'center', width: '7%' }}>TO 1</th>
-                    <th style={{ textAlign: 'center', width: '7%' }}>TO 2</th>
-                    <th style={{ textAlign: 'center', width: '7%' }}>TO 3</th>
-                    <th style={{ textAlign: 'center', width: '7%' }}>TO 4</th>
+                    <th style={{ width: '27%' }}>Subtes UTBK SNBT</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 1</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 2</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 3</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 4</th>
                     <th style={{ textAlign: 'center', width: '9%' }}>Median</th>
-                    <th style={{ width: '18%' }}>Visual Posisi vs Target 600</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>Selisih</th>
-                    <th style={{ textAlign: 'center', width: '15%' }}>Prioritas</th>
+                    <th style={{ width: '24%' }}>Visual Posisi vs Target 600</th>
+                    <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedSubtests.map((sub) => {
-                    const isHigh = sub.status === 'PRIORITAS UTAMA';
-                    const isDone = sub.gap >= 0;
-                    return (
-                      <tr key={sub.id} style={isHigh ? { background: '#fffbfa' } : undefined}>
-                        <td><strong>{sub.name}</strong></td>
-                        <td style={{ textAlign: 'center' }}>{sub.to1}</td>
-                        <td style={{ textAlign: 'center' }}>{sub.to2}{renderTrend(sub.to2, sub.to1)}</td>
-                        <td style={{ textAlign: 'center' }}>{sub.to3}{renderTrend(sub.to3, sub.to2)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 700, color: isDone ? '#027a48' : isHigh ? '#b42318' : '#175cd3' }}>
-                          {sub.to4}{renderTrend(sub.to4, sub.to3)}
-                        </td>
-                        <td style={{ textAlign: 'center', fontWeight: 700 }}>
-                          {sub.median}
-                        </td>
-                        <td>
-                          <div className="v2-progress-track">
-                            <div className="v2-progress-fill" style={{ width: `${sub.fillPct}%`, background: sub.barColor }} />
-                            <div className="v2-progress-target-line" title="Target 600" />
-                          </div>
-                        </td>
-                        <td style={{ textAlign: 'center', fontWeight: 700, color: isDone ? '#027a48' : isHigh ? '#d92d20' : '#b42318' }}>
-                          {sub.gap > 0 ? `+${sub.gap}` : sub.gap}
-                        </td>
-                        <td style={{ textAlign: 'center' }}>
-                          <span className={sub.badgeClass}>{sub.status}</span>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {(() => {
+                    const top3WeakIds = sortedSubtests
+                      .filter((s) => s.gap <= -31)
+                      .slice(0, 3)
+                      .map((s) => s.id);
+
+                    return sortedSubtests.map((sub) => {
+                      const focusRank = top3WeakIds.indexOf(sub.id);
+                      const isFocus = focusRank !== -1;
+                      const isHigh = sub.status === 'PRIORITAS UTAMA';
+                      const isDone = sub.gap >= 0;
+                      const isMed = sub.gap >= -90 && sub.gap <= -31;
+
+                      return (
+                        <tr
+                          key={sub.id}
+                          style={
+                            isFocus
+                              ? {
+                                  background: isHigh ? '#fffbfa' : '#fffcf5'
+                                }
+                              : undefined
+                          }
+                        >
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                              <strong>{sub.name}</strong>
+                              {isFocus && (
+                                <span
+                                  style={{
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                    color: isHigh ? '#b42318' : '#b54708',
+                                    background: isHigh ? '#fee4e2' : '#fef0c7',
+                                    border: `1px solid ${isHigh ? '#fecdca' : '#fedf89'}`,
+                                    padding: '1.5px 6px',
+                                    borderRadius: 4,
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  Fokus #{focusRank + 1}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>{sub.to1}</td>
+                          <td style={{ textAlign: 'center' }}>{sub.to2}{renderTrend(sub.to2, sub.to1)}</td>
+                          <td style={{ textAlign: 'center' }}>{sub.to3}{renderTrend(sub.to3, sub.to2)}</td>
+                          <td
+                            style={{
+                              textAlign: 'center',
+                              fontWeight: 700,
+                              color: isDone ? '#027a48' : isHigh ? '#b42318' : isMed ? '#b54708' : '#175cd3'
+                            }}
+                          >
+                            {sub.to4}{renderTrend(sub.to4, sub.to3)}
+                          </td>
+                          <td style={{ textAlign: 'center', fontWeight: 700 }}>
+                            {sub.median}
+                          </td>
+                          <td>
+                            <div className="v2-progress-track">
+                              <div className="v2-progress-fill" style={{ width: `${sub.fillPct}%`, background: sub.barColor }} />
+                              <div className="v2-progress-target-line" title="Target 600" />
+                            </div>
+                          </td>
+                          <td
+                            style={{
+                              textAlign: 'center',
+                              fontWeight: 700,
+                              color: isDone ? '#027a48' : isHigh ? '#d92d20' : isMed ? '#b54708' : '#175cd3'
+                            }}
+                          >
+                            {sub.gap > 0 ? `+${sub.gap}` : sub.gap}
+                          </td>
+                        </tr>
+                      );
+                    });
+                  })()}
                 </tbody>
               </table>
             </div>
@@ -766,15 +814,14 @@ export const CheckpointV2Page: React.FC = () => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '22%' }}>Ringkasan 8 Subtes</th>
-                    <th style={{ textAlign: 'center', width: '7%' }}>TO 1</th>
-                    <th style={{ textAlign: 'center', width: '7%' }}>TO 2</th>
-                    <th style={{ textAlign: 'center', width: '7%' }}>TO 3</th>
-                    <th style={{ textAlign: 'center', width: '7%' }}>TO 4</th>
+                    <th style={{ width: '27%' }}>Ringkasan 8 Subtes</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 1</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 2</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 3</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 4</th>
                     <th style={{ textAlign: 'center', width: '9%' }}>Rata-rata</th>
-                    <th style={{ width: '18%' }}>Visual Posisi vs Target 600</th>
-                    <th style={{ textAlign: 'center', width: '8%' }}>Selisih</th>
-                    <th style={{ textAlign: 'center', width: '15%' }}>Status</th>
+                    <th style={{ width: '24%' }}>Visual Posisi vs Target 600</th>
+                    <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -794,9 +841,6 @@ export const CheckpointV2Page: React.FC = () => {
                     <td style={{ textAlign: 'center', fontWeight: 700, color: avgStatus.color }}>
                       {avgGap > 0 ? `+${avgGap}` : avgGap}
                     </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <span className={avgStatus.badgeClass}>{avgStatus.label}</span>
-                    </td>
                   </tr>
                   <tr>
                     <td><strong>Median 8 subtes</strong></td>
@@ -813,9 +857,6 @@ export const CheckpointV2Page: React.FC = () => {
                     </td>
                     <td style={{ textAlign: 'center', fontWeight: 700, color: medStatus.color }}>
                       {medGap > 0 ? `+${formatNumIndo(medGap)}` : formatNumIndo(medGap)}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <span className={medStatus.badgeClass}>{medStatus.label}</span>
                     </td>
                   </tr>
                 </tbody>
