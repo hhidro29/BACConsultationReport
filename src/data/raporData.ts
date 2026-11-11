@@ -36,7 +36,13 @@ export function loadStoredRapor(): RaporSubject[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (
+        Array.isArray(parsed) &&
+        parsed.length > 0 &&
+        parsed.every((s) => s && typeof s.id === 'string' && typeof s.name === 'string' && Array.isArray(s.scores))
+      ) {
+        return parsed;
+      }
     }
   } catch (e) {
     console.error("Failed to parse rapor from localStorage", e);

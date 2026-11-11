@@ -296,6 +296,7 @@ export const EngineMatrixPage: React.FC = () => {
   };
 
   const handleResetConfig = () => {
+    if (!window.confirm('Kembalikan semua ambang batas dan wording ke default sistem? Perubahan kustom akan hilang.')) return;
     const def = resetToDefault();
     setDraftConfig(def);
     setSaveToast('Semua ambang batas & wording dikembalikan ke default sistem.');

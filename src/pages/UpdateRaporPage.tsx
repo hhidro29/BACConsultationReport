@@ -60,7 +60,7 @@ export const UpdateRaporPage: React.FC = () => {
                 ✓ Nilai Rapor Tersimpan &amp; Tersinkron!
               </span>
             )}
-            <button type="button" className="btn btn-outline" onClick={resetRapor}>
+            <button type="button" className="btn btn-outline" onClick={() => { if (window.confirm('Kembalikan semua nilai rapor ke data bawaan? Nilai yang sudah disimpan akan tertimpa.')) resetRapor(); }}>
               <RotateCcw size={14} /> Reset Bawaan
             </button>
             <button type="button" className="btn btn-primary" onClick={handleSave}>
@@ -86,7 +86,7 @@ export const UpdateRaporPage: React.FC = () => {
 
         {/* Info Banner */}
         <div className="info-card">
-          <strong>Petunjuk Pengisian Rapor Super CMS:</strong> Masukkan nilai rapor skala 0–100 untuk 20 mata pelajaran standar dari Semester 1 hingga Semester 5. Mata pelajaran yang tidak diambil oleh siswa dapat diisi <strong>0</strong> (otomatis tidak ikut dalam pembagi rata-rata). Perubahan akan langsung tersinkronisasi ke halaman Dashboard Konsultasi.
+          <strong>Petunjuk Pengisian Rapor Super CMS:</strong> Masukkan nilai rapor skala 0–100 untuk 20 mata pelajaran standar dari Semester 1 hingga Semester 5. Mata pelajaran yang tidak diambil oleh siswa dapat diisi <strong>0</strong> (otomatis tidak ikut dalam pembagi rata-rata). Klik <strong>Simpan</strong> agar nilai tersimpan di browser ini dan terbaca di halaman Checkpoint V1 (perubahan yang belum disimpan hilang saat halaman dimuat ulang).
         </div>
 
         {/* Dynamic Summary Cards */}

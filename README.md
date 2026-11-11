@@ -1,46 +1,56 @@
-# Report Konsultasi SA
+# Report Konsultasi SA (Brain Academy Checkpoint 1)
 
-Prototype report konsultasi untuk SA. Project ini terpisah dari prototype chatbot TestCenter Knowledge SA.
+Laporan konsultasi Checkpoint 1 dan simulasi pilihan PTN (SNBT) untuk Kakak Asuh / Smart Advisor, siswa kelas 12, dan orang tua. Stack: React, TypeScript, Vite, React Router (HashRouter), Lucide React.
 
-Repository: git@github.com:hhidro29/SAKnowledge2.git
+Repository: git@github.com:hhidro29/BACConsultationReport.git
 
 ## Jalankan lokal
 
-Memerlukan Python 3. Dari folder project ini:
+Memerlukan Node.js 20 atau lebih baru.
 
 ```bash
-python3 -m http.server 8788 --bind 127.0.0.1
+npm install
+npm run dev        # dev server Vite (port 5173)
+npm run build      # build produksi ke dist/
+npm start          # preview hasil build di http://127.0.0.1:8788/ (jalankan build dulu)
 ```
 
-Buka <http://127.0.0.1:8788/>. Alternatif: `npm start`. Tidak perlu menginstal dependency atau mengisi API key.
+## Rute
 
-Pada sesi pemisahan, server port 8787 juga diarahkan ke folder report ini agar tab dan tautan lokal lama tetap berfungsi. Port 8788 menjadi alamat utama untuk menjalankan project secara mandiri.
+| Rute | Halaman |
+|---|---|
+| `/#/v2` | Checkpoint V2 (default), 5 tahap konsultasi + cetak PDF A4 |
+| `/#/v1` | Checkpoint V1 (versi lama) |
+| `/#/simulasi` | Simulasi 1–4 pilihan prodi SNBT |
+| `/#/rapor` | Update nilai rapor |
+| `/#/engine` | Matriks rule-engine dan pengaturan ambang |
 
-## File utama
+Shortcut query: `/?v=2`, `/?v=simulasi&student=nadira`, `/?v=1&preview=1`.
 
-- [Report Garuda](Consultation%20Brief%20-%20Garuda%20Mahawira%20Sena%20-%20Guided%20Report.html)
-- [Mode meeting](Consultation%20Brief%20-%20Garuda%20Mahawira%20Sena%20-%20Meeting%20Mode.html)
-- [Simulator wording](Simulasi%20Wording%20SA%20-%20Tryout.html)
-- [Draft revisi](Report%20Konsultasi%20-%20Draft%20Revisi%202026-10-23.md)
-- [Prompt ringkasan kelas](Report%20Konsultasi%20-%20Prompt%20Ringkasan%20Kelas.md)
+## Struktur kode
 
-Kedua HTML Garuda memuat data dan logika runtime di dalam file. `report-logic/` menyimpan sumber aturan, `samples/` menyimpan contoh, dan `outputs/` menyimpan snapshot data, bukti sumber, serta hasil verifikasi. Varian HTML lainnya adalah eksplorasi desain atau versi share sebelumnya; perubahan terbaru ada pada kedua file utama di atas.
+- `src/pages/` halaman; `src/components/` modal PDF dan `ChoiceReviewModal`.
+- `src/utils/saGuidelineEngine.ts` rule-engine deterministik (tanpa AI); `saRuleStore.ts` menyimpan konfigurasi aturan di localStorage; `safeStorage.ts` helper localStorage yang aman.
+- `src/data/` data siswa, katalog prodi (`programCatalog.ts`), kelas, dan rapor.
+- localStorage: `bac_v2_active_student_v1`, `bac_v2_custom_programs_v1`, `bac_v2_sa_notes_<id>`, `bac_v1_sa_notes`, `bac_sa_engine_config_v1`, `bac_rapor_garuda`.
 
 ## Verifikasi
 
-Memerlukan Node.js 20 atau lebih baru:
-
 ```bash
+npx tsc --noEmit
+npm run build
 npm run check
 ```
 
-Pemeriksaan mencakup konsistensi data sumber dan kedua mode report, median, urutan prioritas subtes, akurasi drill, batas 75%, serta isolasi referensi leaderboard per sesi.
+`npm run check` memeriksa `report-logic/` dan snapshot HTML Garuda versi lama (prototype sebelum migrasi React).
 
 ## Deployment
 
-Prototype ini siap dipublish sebagai static site tanpa build step. Lihat [DEPLOYMENT.md](DEPLOYMENT.md) untuk langkah Vercel atau Netlify.
+Lihat [DEPLOYMENT.md](DEPLOYMENT.md). Deploy hanya atas instruksi eksplisit pemilik proyek.
 
-Script `update-*` adalah migrasi historis, bukan langkah wajib saat menjalankan report. Jangan jalankan ulang pada setiap start; sebagian membangun ulang HTML dari backup versi lama.
+## Arsip prototype lama
+
+File `Consultation Brief - *.html`, `Report Konsultasi - *.md`, `report-logic/`, `samples/`, dan `outputs/` di root adalah artefak fase prototype HTML sebelum migrasi ke React. Dipertahankan sebagai referensi; aplikasi utama ada di `src/`. Script `scripts/update-*` adalah migrasi historis, jangan dijalankan ulang.
 
 ## Pemisahan project
 

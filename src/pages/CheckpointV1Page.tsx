@@ -5,6 +5,7 @@ import { V1PdfModal } from '../components/V1PdfModal';
 import { useRapor } from '../context/RaporContext';
 import { studentIdentity } from '../data/garudaData';
 import { studentToSeriesV1, programCatalogV1 } from '../data/v1Data';
+import { safeSetItem } from '../utils/safeStorage';
 
 type MainTab = 'overview' | 'p1' | 'p2' | 'p3';
 
@@ -67,7 +68,7 @@ export const CheckpointV1Page: React.FC = () => {
   };
 
   const handleSaveNotes = () => {
-    localStorage.setItem('bac_v1_sa_notes', JSON.stringify(saNotes));
+    safeSetItem('bac_v1_sa_notes', JSON.stringify(saNotes));
     setDraftSavedToast(true);
     setTimeout(() => setDraftSavedToast(false), 2400);
   };

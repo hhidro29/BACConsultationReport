@@ -17,6 +17,7 @@ import {
   analyzeStage4,
   analyzeStageClassroom
 } from '../utils/saGuidelineEngine';
+import { safeGetItem, safeSetItem, loadCustomPrograms } from '../utils/safeStorage';
 
 export const CheckpointV2Page: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,7 +27,7 @@ export const CheckpointV2Page: React.FC = () => {
     if (fromParam && CHECKPOINT1_STUDENTS.some((s) => s.id === fromParam)) {
       return fromParam;
     }
-    const saved = localStorage.getItem('bac_v2_active_student_v1');
+    const saved = safeGetItem('bac_v2_active_student_v1');
     if (saved && CHECKPOINT1_STUDENTS.some((s) => s.id === saved)) {
       return saved;
     }
@@ -37,7 +38,7 @@ export const CheckpointV2Page: React.FC = () => {
     const fromParam = searchParams.get('student');
     if (fromParam && CHECKPOINT1_STUDENTS.some((s) => s.id === fromParam)) {
       setSelectedStudentId(fromParam);
-      localStorage.setItem('bac_v2_active_student_v1', fromParam);
+      safeSetItem('bac_v2_active_student_v1', fromParam);
     }
   }, [searchParams]);
 
@@ -60,24 +61,18 @@ export const CheckpointV2Page: React.FC = () => {
   const studentIdentity = activeStudent.identity;
   const subtestsV2Data = activeStudent.subtests;
 
-  const [customProgramsByStudent, setCustomProgramsByStudent] = useState<Record<string, ProgramChoice[]>>(() => {
-    try {
-      const saved = localStorage.getItem('bac_v2_custom_programs_v1');
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
+  const [customProgramsByStudent, setCustomProgramsByStudent] = useState<Record<string, ProgramChoice[]>>(() => loadCustomPrograms());
 
   const customPrograms = customProgramsByStudent[activeStudent.id];
   const targetPrograms = customPrograms || activeStudent.targetPrograms;
   const isProgramsCustomized = Boolean(customPrograms);
 
   const handleResetPrograms = () => {
+    if (!window.confirm('Kembalikan pilihan jurusan ke data awal siswa? Perubahan dari Simulasi akan dihapus.')) return;
     setCustomProgramsByStudent((prev) => {
       const next = { ...prev };
       delete next[activeStudent.id];
-      localStorage.setItem('bac_v2_custom_programs_v1', JSON.stringify(next));
+      safeSetItem('bac_v2_custom_programs_v1', JSON.stringify(next));
       return next;
     });
   };
@@ -93,7 +88,7 @@ export const CheckpointV2Page: React.FC = () => {
   const classroomData = STUDENT_CLASSROOM_DATA[activeStudent.id] || STUDENT_CLASSROOM_DATA.garuda;
   const saNotesStorageKey = `bac_v2_sa_notes_${activeStudent.id}`;
   const [saNotes, setSaNotes] = useState<string>(() => {
-    return localStorage.getItem(`bac_v2_sa_notes_${activeStudent.id}`) || '';
+    return safeGetItem(`bac_v2_sa_notes_${activeStudent.id}`) || '';
   });
   const [classFilter, setClassFilter] = useState<'notes' | 'all' | 'absent'>('notes');
   const [classPage, setClassPage] = useState<number>(1);
@@ -101,7 +96,7 @@ export const CheckpointV2Page: React.FC = () => {
   useEffect(() => {
     setClassFilter('notes');
     setClassPage(1);
-    setSaNotes(localStorage.getItem(`bac_v2_sa_notes_${activeStudent.id}`) || '');
+    setSaNotes(safeGetItem(`bac_v2_sa_notes_${activeStudent.id}`) || '');
   }, [activeStudent.id]);
 
   useEffect(() => {
@@ -133,7 +128,7 @@ export const CheckpointV2Page: React.FC = () => {
   }, []);
 
   const handleSaveNotes = () => {
-    localStorage.setItem(saNotesStorageKey, saNotes);
+    safeSetItem(saNotesStorageKey, saNotes);
     setDraftSavedToast(true);
     setTimeout(() => setDraftSavedToast(false), 3000);
   };
@@ -330,7 +325,7 @@ export const CheckpointV2Page: React.FC = () => {
       hasConflictOrLocationCheck:
         activeStudent.familyAlignment === 'different_major' ||
         activeStudent.familyAlignment === 'location_limit' ||
-        stage2Out.conditionLabel.includes('Campuran'),
+        stage2Out.isConflict,
       hasMissingDrill: activeStudent.prioritySubtests.some(
         (s) => s.rgQuestionsDone <= ruleConfig.thresholds.drillMismatchLowQ
       ),
@@ -505,7 +500,7 @@ export const CheckpointV2Page: React.FC = () => {
                           type="button"
                           onClick={() => {
                             setSelectedStudentId(st.id);
-                            localStorage.setItem('bac_v2_active_student_v1', st.id);
+                            safeSetItem('bac_v2_active_student_v1', st.id);
                             setSearchParams({ student: st.id });
                             setIsStudentMenuOpen(false);
                           }}
@@ -1737,9 +1732,10 @@ export const CheckpointV2Page: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => {
+                          if (saNotes.trim() && !window.confirm('Catatan SA yang sudah ditulis akan diganti dengan template. Lanjutkan?')) return;
                           const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill soal harian [.. soal/hari] + Klinik PR cabang [hari & jam]\n3) Cek Ulang Sesi Berikutnya: [progres subtes fokus & akurasi TO 5]';
                           setSaNotes(val);
-                          localStorage.setItem(saNotesStorageKey, val);
+                          safeSetItem(saNotesStorageKey, val);
                         }}
                         style={{
                           fontSize: 11,
@@ -1761,7 +1757,7 @@ export const CheckpointV2Page: React.FC = () => {
                             ? saNotes
                             : `${saNotes.trim() ? `${saNotes.trim()}\n` : ''}• [Cek Ulang Sesi Berikutnya]: `;
                           setSaNotes(val);
-                          localStorage.setItem(saNotesStorageKey, val);
+                          safeSetItem(saNotesStorageKey, val);
                         }}
                         style={{
                           fontSize: 11,
@@ -1786,7 +1782,7 @@ export const CheckpointV2Page: React.FC = () => {
                   placeholder="Tulis hasil kesepakatan prodi/lokasi, jadwal drill soal atau Klinik PR yang disepakati, dan pengingat untuk evaluasi TO 5..."
                   onChange={(e) => {
                     setSaNotes(e.target.value);
-                    localStorage.setItem(saNotesStorageKey, e.target.value);
+                    safeSetItem(saNotesStorageKey, e.target.value);
                   }}
                   style={{
                     width: '100%',

@@ -461,6 +461,8 @@ export interface Stage2Input {
 
 export interface Stage2Output {
   conditionLabel: string;
+  /** true when program rumpun are mixed or the family chose a different major */
+  isConflict: boolean;
   observation: string;
   saTasks: string[];
   guardrailNote: string;
@@ -480,9 +482,10 @@ export function analyzeStage2(
   // Dynamic generic calculation from programs if present
   let hasMixed = input.hasMixedRumpun ?? false;
   let hasOutOfTown = false;
-  let minGap = input.minGapToTarget ?? 0;
-  let maxGap = input.maxGapToTarget ?? 0;
-  let minParticipants = input.minParticipantsCount ?? 999;
+  // null = unknown. Unknown values must not be read as "target reached" (gap 0) or as "enough participants".
+  let minGap: number | null = input.minGapToTarget ?? null;
+  let maxGap: number | null = input.maxGapToTarget ?? null;
+  let minParticipants: number | null = input.minParticipantsCount ?? null;
 
   if (input.programs && input.programs.length > 0) {
     const rumpuns = input.programs.map((p) => p.rumpun).filter(Boolean);
@@ -495,12 +498,18 @@ export function analyzeStage2(
         (input.studentHomeCity && p.city && p.city.toLowerCase() !== input.studentHomeCity.toLowerCase())
     );
 
-    const gaps = input.programs.map((p) => p.gap ?? 0);
-    minGap = Math.min(...gaps);
-    maxGap = Math.max(...gaps);
+    const gaps = input.programs
+      .map((p) => p.gap)
+      .filter((g): g is number => typeof g === 'number' && Number.isFinite(g));
+    if (gaps.length > 0) {
+      minGap = Math.min(...gaps);
+      maxGap = Math.max(...gaps);
+    }
 
-    const counts = input.programs.map((p) => p.participantsCount ?? 999);
-    minParticipants = Math.min(...counts);
+    const counts = input.programs
+      .map((p) => p.participantsCount)
+      .filter((c): c is number => typeof c === 'number' && Number.isFinite(c));
+    if (counts.length > 0) minParticipants = Math.min(...counts);
   }
 
   const isConflict = hasMixed || input.familyAlignment === 'different_major';
@@ -539,11 +548,14 @@ export function analyzeStage2(
     effect: needsLocation ? 'Tambahkan tugas konfirmasi izin lokasi/merantau' : 'Tidak perlu tugas khusus lokasi'
   });
 
-  const isWideGap = minGap <= th.wideWeightedGapPts;
-  if (isWideGap) {
+  const gapKnown = minGap !== null;
+  const isWideGap = gapKnown && (minGap as number) <= th.wideWeightedGapPts;
+  if (!gapKnown) {
+    // no gap data: make no claim about the target
+  } else if (isWideGap) {
     flags.push('Gap Masih Lebar');
     saTasks.push(tpl.wideGap);
-  } else if (minGap < 0) {
+  } else if ((minGap as number) < 0) {
     saTasks.push(tpl.remainingGap);
   } else {
     flags.push('Melampaui Target Acuan');
@@ -552,26 +564,35 @@ export function analyzeStage2(
   traces.push({
     ruleId: 's2_gap',
     ruleName: `Band Gap Skor Terbobot (Batas ≤ ${th.wideWeightedGapPts})`,
-    expression: `minGap (${minGap}) vs batas (${th.wideWeightedGapPts})`,
-    matched: true,
-    effect: isWideGap
+    expression: gapKnown
+      ? `minGap (${minGap}) vs batas (${th.wideWeightedGapPts})`
+      : 'minGap tidak tersedia (data gap kosong)',
+    matched: gapKnown,
+    effect: !gapKnown
+      ? 'Data gap tidak tersedia → tidak ada klaim terhadap target'
+      : isWideGap
       ? 'Gap lebar → fokus bangun komitmen tanpa memaksa turun prodi di CP1'
-      : minGap < 0
+      : (minGap as number) < 0
       ? 'Gap moderat → bandingkan progres subtes bobot utama'
       : 'Sudah melampaui target → tawarkan eksplorasi Simulasi jika minat'
   });
 
-  const lowSample = minParticipants < th.minBenchmarkParticipants;
+  const lowSample = minParticipants !== null && minParticipants < th.minBenchmarkParticipants;
   const guardrailNote = lowSample
     ? tpl.lowParticipantsWarning
-        .replace('{count}', String(minParticipants))
-        .replace('{limit}', String(th.minBenchmarkParticipants))
+        .split('{count}')
+        .join(String(minParticipants))
+        .split('{limit}')
+        .join(String(th.minBenchmarkParticipants))
     : tpl.defaultBenchmarkNote;
 
   traces.push({
     ruleId: 's2_sample',
     ruleName: `Kecukupan Pembanding (< ${th.minBenchmarkParticipants})`,
-    expression: `minParticipants (${minParticipants}) < ${th.minBenchmarkParticipants}`,
+    expression:
+      minParticipants === null
+        ? 'minParticipants tidak tersedia'
+        : `minParticipants (${minParticipants}) < ${th.minBenchmarkParticipants}`,
     matched: lowSample,
     effect: lowSample
       ? 'Aktifkan peringatan jumlah pembanding terlalu kecil'
@@ -580,7 +601,11 @@ export function analyzeStage2(
 
   return {
     conditionLabel: flags.join(' · '),
-    observation: `Jarak skor terbobot terhadap target acuan berada pada rentang ${maxGap} s.d. ${minGap} poin.`,
+    isConflict,
+    observation:
+      minGap !== null && maxGap !== null
+        ? `Jarak skor terbobot terhadap target acuan berada pada rentang ${maxGap} s.d. ${minGap} poin.`
+        : 'Data jarak skor terbobot terhadap target acuan belum tersedia.',
     saTasks,
     guardrailNote,
     traces
@@ -818,16 +843,32 @@ export function analyzeStage4(
 
   // Dynamic Holistic Action Plans for Checkpoint 1
   const pSub = studentInput?.prioritySubtests || [];
-  const largestGapSub = pSub[0]?.name || 'Subtes Prioritas #1';
-  const lowestDrillSub = [...pSub].sort((a, b) => a.rgQuestionsDone - b.rgQuestionsDone)[0]?.name || 'Subtes Minim Drill Soal';
-  const weakTopics = pSub.flatMap((s) => s.lowestTopics || []).slice(0, 3);
+  // gapNum is negative when below target, so the largest gap is the most negative value
+  const largestGapEntry = [...pSub].sort((a, b) => a.gapNum - b.gapNum)[0];
+  const largestGapSub = largestGapEntry?.name || 'Subtes Prioritas #1';
+  // pick the lowest-drill subtest that is not the same subtest, so the sentence never reads "PK dan PK"
+  const lowestDrillEntry =
+    [...pSub]
+      .filter((s) => s.id !== largestGapEntry?.id)
+      .sort((a, b) => a.rgQuestionsDone - b.rgQuestionsDone)[0] ||
+    [...pSub].sort((a, b) => a.rgQuestionsDone - b.rgQuestionsDone)[0];
+  const lowestDrillSub = lowestDrillEntry?.name || 'Subtes Minim Drill Soal';
+  const sameSub = Boolean(largestGapEntry && lowestDrillEntry && largestGapEntry.id === lowestDrillEntry.id);
+  // weak topics come from the two subtests named in plan 1 first, then the rest
+  const topicSources = [largestGapEntry, lowestDrillEntry].filter(
+    (s, i, arr): s is NonNullable<typeof s> => Boolean(s) && arr.indexOf(s) === i
+  );
+  const otherSources = pSub.filter((s) => !topicSources.includes(s));
+  const weakTopics = [...topicSources, ...otherSources].flatMap((s) => s.lowestTopics || []).slice(0, 3);
   const topicsSummary = weakTopics.length ? weakTopics.map((t) => t.split('(')[0].trim()).join(', ') : 'materi dasar subtes prioritas';
 
   const actionPlans: ActionPlanItem[] = [
     {
       num: 1,
       title: 'Kesepakatan Drill Soal Mandiri Subtes Prioritas',
-      desc: `Sepakati target jumlah soal & jadwal drill soal mandiri di aplikasi untuk ${largestGapSub} dan ${lowestDrillSub} yang memiliki gap terbesar atau riwayat drill soal terendah.`,
+      desc: sameSub
+        ? `Sepakati target jumlah soal & jadwal drill soal mandiri di aplikasi untuk ${largestGapSub} yang memiliki gap terbesar sekaligus riwayat drill soal terendah.`
+        : `Sepakati target jumlah soal & jadwal drill soal mandiri di aplikasi untuk ${largestGapSub} dan ${lowestDrillSub} yang memiliki gap terbesar atau riwayat drill soal terendah.`,
       pic: `${studentInput?.studentName || 'Siswa'} (dipantau bersama ${studentInput?.saName || 'Kakak Asuh'})`,
       accentColor: '#1078ca'
     },
@@ -900,13 +941,17 @@ export function analyzeStageClassroom(
   const attendancePct = total > 0 ? (input.presentSessions / total) * 100 : 0;
   const pctLabel = attendancePct.toFixed(1).replace('.', ',');
   const absentCount = input.sickSessions + input.excusedSessions;
-  const notesPct = total > 0 ? Math.round((input.notesCount / total) * 100) : 0;
+  const notesRatioPct = total > 0 ? (input.notesCount / total) * 100 : 0;
+  const notesPct = Math.round(notesRatioPct);
   const emptyNotesCount = Math.max(0, total - input.notesCount);
 
   const saTasks: string[] = [];
-  const lowAttendance = attendancePct < th.attendanceWarnPct;
+  const noSessions = total === 0;
+  const lowAttendance = !noSessions && attendancePct < th.attendanceWarnPct;
 
-  if (lowAttendance) {
+  if (noSessions) {
+    saTasks.push('Belum ada sesi kelas TMB yang tercatat pada periode ini; kehadiran belum dapat dinilai.');
+  } else if (lowAttendance) {
     saTasks.push(
       `Kehadiran kelas TMB tercatat ${pctLabel}% (${input.presentSessions}/${total} sesi). Gali kendala jadwal, kesehatan, atau perjalanan terlebih dahulu sebelum menambah target belajar baru.`
     );
@@ -923,12 +968,12 @@ export function analyzeStageClassroom(
     );
   }
 
-  const lowNotesCoverage = input.notesCount === 0 || notesPct < 25;
+  const lowNotesCoverage = input.notesCount === 0 || notesRatioPct < 25;
   if (input.notesCount === 0) {
     saTasks.push(
       'Belum ada catatan tertulis pengajar pada periode ini; tanyakan langsung ke siswa materi kelas mana yang masih terasa sulit.'
     );
-  } else if (notesPct < 25) {
+  } else if (notesRatioPct < 25) {
     saTasks.push(
       `Baru ${input.notesCount} dari ${total} sesi (${notesPct}%) yang memiliki catatan tertulis pengajar. Jangan menyimpulkan siswa pasif dari sedikitnya catatan; validasi langsung bersama siswa.`
     );

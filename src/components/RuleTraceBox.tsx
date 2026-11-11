@@ -24,6 +24,7 @@ export const RuleTraceBox: React.FC<RuleTraceBoxProps> = ({
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
             style={{
               background: open ? '#eff8ff' : '#ffffff',
               border: '1px solid #cbd5e1',

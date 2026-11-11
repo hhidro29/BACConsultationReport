@@ -31,6 +31,7 @@ import {
   validateSnbtChoices,
   SUBTEST_LABELS
 } from '../data/programCatalog';
+import { safeGetItem, safeSetItem, loadCustomPrograms } from '../utils/safeStorage';
 
 type RumpunFilter = 'all' | StudentTowerRumpun;
 type OpportunityFilter = 'all' | 'realistic' | OpportunityZone;
@@ -82,7 +83,7 @@ export const SimulasiPage: React.FC = () => {
     if (fromParam && CHECKPOINT1_STUDENTS.some((s) => s.id === fromParam)) {
       return fromParam;
     }
-    const saved = localStorage.getItem(STORAGE_KEY_STUDENT);
+    const saved = safeGetItem(STORAGE_KEY_STUDENT);
     if (saved && CHECKPOINT1_STUDENTS.some((s) => s.id === saved)) {
       return saved;
     }
@@ -104,16 +105,18 @@ export const SimulasiPage: React.FC = () => {
     }
   }, [isStudentMenuOpen]);
 
+  // Keep the selected student in sync with ?student= (back/forward navigation, direct links)
+  useEffect(() => {
+    const fromParam = searchParams.get('student');
+    if (fromParam && CHECKPOINT1_STUDENTS.some((st) => st.id === fromParam)) {
+      setSelectedStudentId(fromParam);
+      safeSetItem(STORAGE_KEY_STUDENT, fromParam);
+    }
+  }, [searchParams]);
+
   const student = CHECKPOINT1_STUDENTS.find((s) => s.id === selectedStudentId) || CHECKPOINT1_STUDENTS[0];
 
-  const [customProgramsByStudent, setCustomProgramsByStudent] = useState<Record<string, ProgramChoice[]>>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_PROGRAMS);
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
+  const [customProgramsByStudent, setCustomProgramsByStudent] = useState<Record<string, ProgramChoice[]>>(() => loadCustomPrograms());
 
   const activePrograms = customProgramsByStudent[student.id] || student.targetPrograms;
   const isCustomized = Boolean(customProgramsByStudent[student.id]);
@@ -158,7 +161,7 @@ export const SimulasiPage: React.FC = () => {
 
   const handleSelectStudent = (id: string) => {
     setSelectedStudentId(id);
-    localStorage.setItem(STORAGE_KEY_STUDENT, id);
+    safeSetItem(STORAGE_KEY_STUDENT, id);
     setSearchParams({ student: id });
     setIsStudentMenuOpen(false);
     setProvinceFilter('all');
@@ -191,6 +194,18 @@ export const SimulasiPage: React.FC = () => {
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [slotToRemove, setSlotToRemove] = useState<{ idx: number; choice: ProgramChoice } | null>(null);
 
+  // Esc closes the reset / remove confirmation dialogs
+  useEffect(() => {
+    if (!isResetConfirmOpen && !slotToRemove) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setIsResetConfirmOpen(false);
+      setSlotToRemove(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isResetConfirmOpen, slotToRemove]);
+
   const scoreBasisLabel = useMemo(() => {
     switch (scoreBasis) {
       case 'to4':
@@ -211,7 +226,7 @@ export const SimulasiPage: React.FC = () => {
     }));
     setCustomProgramsByStudent((prev) => {
       const next = { ...prev, [student.id]: normalized };
-      localStorage.setItem(STORAGE_KEY_PROGRAMS, JSON.stringify(next));
+      safeSetItem(STORAGE_KEY_PROGRAMS, JSON.stringify(next));
       return next;
     });
   };
@@ -224,7 +239,7 @@ export const SimulasiPage: React.FC = () => {
     setCustomProgramsByStudent((prev) => {
       const next = { ...prev };
       delete next[student.id];
-      localStorage.setItem(STORAGE_KEY_PROGRAMS, JSON.stringify(next));
+      safeSetItem(STORAGE_KEY_PROGRAMS, JSON.stringify(next));
       return next;
     });
     setFocusedSlotIdx(0);
@@ -559,11 +574,21 @@ export const SimulasiPage: React.FC = () => {
                 lineHeight: 1.4
               }}
             >
-              {targetDelta > 0
-                ? `↓ Target lebih ringan ${targetDelta} poin · Peluang membaik +${gapDelta} poin`
-                : targetDelta < 0
-                ? `↑ Target lebih tinggi ${Math.abs(targetDelta)} poin`
-                : 'Target acuan setara dengan pilihan saat ini'}
+              {(() => {
+                const targetText =
+                  targetDelta > 0
+                    ? `↓ Target lebih ringan ${targetDelta} poin`
+                    : targetDelta < 0
+                    ? `↑ Target lebih tinggi ${Math.abs(targetDelta)} poin`
+                    : 'Target acuan setara dengan pilihan saat ini';
+                const gapText =
+                  gapDelta > 0
+                    ? ` · Selisih ke target menyempit ${gapDelta} poin`
+                    : gapDelta < 0
+                    ? ` · Selisih ke target melebar ${Math.abs(gapDelta)} poin`
+                    : '';
+                return targetText + gapText;
+              })()}
             </div>
           )}
 
@@ -945,7 +970,12 @@ export const SimulasiPage: React.FC = () => {
                   tabIndex={0}
                   onClick={() => setFocusedSlotIdx(slot.slotIndex)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') setFocusedSlotIdx(slot.slotIndex);
+                    // ignore keys that bubble up from the nested buttons
+                    if (e.target !== e.currentTarget) return;
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setFocusedSlotIdx(slot.slotIndex);
+                    }
                   }}
                   style={{
                     background: isFocused ? '#f0f9ff' : '#ffffff',
@@ -1667,6 +1697,9 @@ export const SimulasiPage: React.FC = () => {
             onClick={() => setIsResetConfirmOpen(false)}
           >
             <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Konfirmasi reset pilihan jurusan"
               style={{
                 background: '#ffffff',
                 borderRadius: 12,
@@ -1763,6 +1796,9 @@ export const SimulasiPage: React.FC = () => {
             onClick={() => setSlotToRemove(null)}
           >
             <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Konfirmasi hapus slot pilihan"
               style={{
                 background: '#ffffff',
                 borderRadius: 12,

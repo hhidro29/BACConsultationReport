@@ -967,11 +967,21 @@ export function matchCatalogProgram(choice: ProgramChoice): CatalogProgram | und
   const cProdi = normalize(choice.prodi);
   const cUniv = normalize(choice.univ);
 
-  return PROGRAM_CATALOG.find((p) => {
-    const pProdi = normalize(p.prodi);
+  if (!cProdi) return undefined;
+  const sameProdi = PROGRAM_CATALOG.filter((p) => normalize(p.prodi) === cProdi);
+
+  // 1) Exact university name or exact short code ("UI", "UIN SGD") wins first.
+  const exact = sameProdi.find(
+    (p) => normalize(p.univ) === cUniv || (cUniv !== '' && normalize(p.shortUniv) === cUniv)
+  );
+  if (exact) return exact;
+
+  // 2) Loose fallback only for a reasonably long university string; short substrings such as
+  // "ui" must never match "uin..." and an empty university must never match the first entry.
+  if (cUniv.length < 6) return undefined;
+  return sameProdi.find((p) => {
     const pUniv = normalize(p.univ);
-    const pShort = normalize(p.shortUniv);
-    return pProdi === cProdi && (pUniv === cUniv || cUniv.includes(pShort) || pUniv.includes(cUniv));
+    return pUniv.includes(cUniv) || cUniv.includes(pUniv);
   });
 }
 
@@ -1005,6 +1015,42 @@ export function validateSnbtChoices(programs: ProgramChoice[]): SnbtValidationRe
       d3Count,
       patternLabel,
       message: 'Minimal pilih 1 program studi.',
+      needsVokasiFilter: false,
+      needsD3Only: false
+    };
+  }
+
+  const unknownDegree = degrees.find((d) => d !== 'S1' && d !== 'D4' && d !== 'D3');
+  if (unknownDegree) {
+    return {
+      isValid: false,
+      total,
+      s1Count,
+      d4Count,
+      d3Count,
+      patternLabel,
+      message: `Jenjang "${unknownDegree}" tidak dikenali. Gunakan S1, D4, atau D3.`,
+      needsVokasiFilter: false,
+      needsD3Only: false
+    };
+  }
+
+  const seen = new Set<string>();
+  const hasDuplicate = programs.some((p) => {
+    const key = `${p.prodi}|${p.univ}`.toLowerCase().replace(/[^a-z0-9|]/g, '');
+    if (seen.has(key)) return true;
+    seen.add(key);
+    return false;
+  });
+  if (hasDuplicate) {
+    return {
+      isValid: false,
+      total,
+      s1Count,
+      d4Count,
+      d3Count,
+      patternLabel,
+      message: 'Program studi yang sama tidak boleh dipilih lebih dari satu kali.',
       needsVokasiFilter: false,
       needsD3Only: false
     };

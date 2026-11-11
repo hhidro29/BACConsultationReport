@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   X,
   CheckCircle2,
@@ -60,6 +60,20 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
     setTargetIdx(initialTargetIdx);
   }, [initialTargetIdx, isOpen]);
 
+  // Move focus into the dialog, lock page scroll, and restore both on close
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialogRef.current?.focus();
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      previouslyFocused?.focus?.();
+    };
+  }, [isOpen]);
+
   // Handle escape key
   useEffect(() => {
     if (!isOpen) return;
@@ -108,6 +122,13 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
     return null;
   }, [proposedPrograms]);
 
+  // Block saving the same prodi twice (in a different slot than the one being replaced)
+  const normKey = (p: { prodi: string; univ: string }) =>
+    `${p.prodi}|${p.univ}`.toLowerCase().replace(/[^a-z0-9|]/g, '');
+  const isDuplicateChoice = activePrograms.some(
+    (p, idx) => idx !== targetIdx && normKey(p) === normKey(newChoice)
+  );
+
   if (!isOpen) return null;
 
   const newTheme = getZoneTheme(newProgram.zone);
@@ -115,6 +136,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
   const targetDelta = oldChoice ? newProgram.catalog.targetScore - oldChoice.targetScore : null;
 
   const handleConfirm = () => {
+    if (isDuplicateChoice) return;
     onConfirmApply(targetIdx, newChoice);
     onClose();
   };
@@ -138,7 +160,13 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
       }}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Review perubahan pilihan jurusan"
+        tabIndex={-1}
         style={{
+          outline: 'none',
           background: '#ffffff',
           borderRadius: 12,
           maxWidth: 760,
@@ -203,6 +231,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Tutup"
             style={{
               background: 'transparent',
               border: 'none',
@@ -511,17 +540,18 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                 )}
                 <div>
                   <strong>Analisis Perubahan:</strong>{' '}
-                  {gapDelta !== null && gapDelta > 0 ? (
-                    <span>
-                      Gap skor terpangkas <strong>+{gapDelta} poin</strong> (dari {oldChoice.gap} menjadi {newProgram.gap}). Target acuan lebih realistis untuk dikejar.
-                    </span>
-                  ) : gapDelta !== null && gapDelta < 0 ? (
-                    <span>
-                      Pilihan baru lebih kompetitif, target acuan lebih tinggi <strong>+{Math.abs(targetDelta || 0)} poin</strong>. Siswa butuh tambahan peningkatan skor terbobot.
-                    </span>
-                  ) : (
-                    <span>Target acuan dan selisih skor setara dengan pilihan sebelumnya.</span>
-                  )}
+                  <span>
+                    {targetDelta === 0 || targetDelta === null
+                      ? 'Target acuan setara dengan pilihan sebelumnya'
+                      : targetDelta < 0
+                      ? `Target acuan lebih rendah ${Math.abs(targetDelta)} poin`
+                      : `Target acuan lebih tinggi ${targetDelta} poin`}
+                    {gapDelta === null || gapDelta === 0
+                      ? '; selisih skor terbobot terhadap target tidak berubah.'
+                      : gapDelta > 0
+                      ? `; selisih skor terbobot terhadap target menyempit ${gapDelta} poin (dari ${oldChoice.gap} menjadi ${newProgram.gap}).`
+                      : `; selisih skor terbobot terhadap target melebar ${Math.abs(gapDelta)} poin (dari ${oldChoice.gap} menjadi ${newProgram.gap}), siswa butuh tambahan peningkatan skor.`}
+                  </span>
                   {oldChoice.isOutOfTown && !newProgram.isOutOfTown && (
                     <span style={{ marginLeft: 4 }}>
                       • <em>Kampus baru berada di dalam kota (selaras preferensi orang tua).</em>
@@ -661,8 +691,10 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
             alignItems: 'center'
           }}
         >
-          <div style={{ fontSize: 11, color: '#64748b' }}>
-            Perubahan akan otomatis tersinkron ke Laporan Konsultasi &amp; Cetak PDF A4.
+          <div style={{ fontSize: 11, color: isDuplicateChoice ? '#b42318' : '#64748b', fontWeight: isDuplicateChoice ? 700 : 400 }}>
+            {isDuplicateChoice
+              ? 'Prodi ini sudah dipilih di slot lain. Pilih prodi yang berbeda.'
+              : 'Perubahan akan otomatis tersinkron'} ke Laporan Konsultasi &amp; Cetak PDF A4.
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
@@ -686,15 +718,17 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
             <button
               type="button"
               onClick={handleConfirm}
+              disabled={isDuplicateChoice}
+              title={isDuplicateChoice ? 'Prodi ini sudah ada di slot pilihan lain' : undefined}
               style={{
                 padding: '8px 18px',
                 borderRadius: 6,
                 fontSize: 12.5,
                 fontWeight: 700,
                 color: '#ffffff',
-                background: '#1078ca',
-                border: '1px solid #1078ca',
-                cursor: 'pointer',
+                background: isDuplicateChoice ? '#98a2b3' : '#1078ca',
+                border: `1px solid ${isDuplicateChoice ? '#98a2b3' : '#1078ca'}`,
+                cursor: isDuplicateChoice ? 'not-allowed' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
