@@ -350,33 +350,33 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               <table className="profiling-print-table" style={{ fontSize: 8.5 }}>
                 <thead>
                   <tr>
-                    <th style={{ width: '4%', textAlign: 'center' }}>#</th>
-                    <th style={{ width: '25%' }}>Subtes UTBK</th>
-                    <th style={{ width: '7.5%', textAlign: 'center' }}>
+                    <th style={{ width: '3.5%', textAlign: 'center' }}>#</th>
+                    <th style={{ width: '24.5%' }}>Subtes UTBK</th>
+                    <th style={{ width: '7%', textAlign: 'center' }}>
                       TO 1<br />
                       <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>30 Agu</span>
                     </th>
-                    <th style={{ width: '8%', textAlign: 'center' }}>
+                    <th style={{ width: '7.5%', textAlign: 'center' }}>
                       TO 2<br />
                       <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>14 Sep</span>
                     </th>
-                    <th style={{ width: '8%', textAlign: 'center' }}>
+                    <th style={{ width: '7.5%', textAlign: 'center' }}>
                       TO 3<br />
                       <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>28 Sep</span>
                     </th>
-                    <th style={{ width: '8.5%', textAlign: 'center' }}>
+                    <th style={{ width: '8%', textAlign: 'center' }}>
                       TO 4<br />
                       <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>30 Okt</span>
                     </th>
                     <th style={{ width: '7.5%', textAlign: 'center' }}>Median</th>
-                    <th style={{ width: '13%', textAlign: 'center' }}>
+                    <th style={{ width: '12%', textAlign: 'center' }}>
                       Posisi vs 600
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 7.5, fontWeight: 600, marginTop: 1, color: '#e0f2fe' }}>
                         <span>400</span><span>600</span><span>700</span>
                       </div>
                     </th>
                     <th style={{ width: '6.5%', textAlign: 'center' }}>Selisih</th>
-                    <th style={{ width: '12%', textAlign: 'center' }}>Status</th>
+                    <th style={{ width: '16%', textAlign: 'center' }}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -402,7 +402,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 8.8, color: badge.color }}>
                           {sub.gap >= 0 ? `+${sub.gap}` : sub.gap}
                         </td>
-                        <td style={{ textAlign: 'center' }}>
+                        <td style={{ textAlign: 'center', padding: '1.2mm 1mm' }}>
                           <span className={badge.className}>{badge.label}</span>
                         </td>
                       </tr>
@@ -415,15 +415,15 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               <table className="profiling-print-table" style={{ marginTop: '2mm', marginBottom: 0, fontSize: 8.4 }}>
                 <thead>
                   <tr>
-                    <th style={{ width: '29%', background: '#edf5f9', color: '#0f172a' }}>Ringkasan 8 Subtes</th>
-                    <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 1</th>
-                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 2</th>
-                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 3</th>
-                    <th style={{ width: '8.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 4</th>
+                    <th style={{ width: '28%', background: '#edf5f9', color: '#0f172a' }}>Ringkasan 8 Subtes</th>
+                    <th style={{ width: '7%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 1</th>
+                    <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 2</th>
+                    <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 3</th>
+                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 4</th>
                     <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Rata-rata</th>
-                    <th style={{ width: '13%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Posisi vs 600</th>
+                    <th style={{ width: '12%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Posisi vs 600</th>
                     <th style={{ width: '6.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Selisih</th>
-                    <th style={{ width: '12%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Status</th>
+                    <th style={{ width: '16%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -443,7 +443,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                     <td style={{ textAlign: 'center', fontWeight: 800, color: avgBadge.color }}>
                       {avgGap >= 0 ? `+${avgGap}` : avgGap}
                     </td>
-                    <td style={{ textAlign: 'center' }}><span className={avgBadge.className}>{avgBadge.label}</span></td>
+                    <td style={{ textAlign: 'center', padding: '1.2mm 1mm' }}><span className={avgBadge.className}>{avgBadge.label}</span></td>
                   </tr>
                   <tr>
                     <td style={{ fontWeight: 700, color: '#475467' }}>Median 8 subtes</td>
@@ -461,7 +461,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                     <td style={{ textAlign: 'center', fontWeight: 800, color: medBadge.color }}>
                       {medGap >= 0 ? `+${formatIndo(medGap)}` : formatIndo(medGap)}
                     </td>
-                    <td style={{ textAlign: 'center' }}><span className={medBadge.className}>{medBadge.label}</span></td>
+                    <td style={{ textAlign: 'center', padding: '1.2mm 1mm' }}><span className={medBadge.className}>{medBadge.label}</span></td>
                   </tr>
                 </tbody>
               </table>

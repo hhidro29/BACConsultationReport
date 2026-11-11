@@ -845,7 +845,7 @@
     .profiling-print-page .badge-p-high,
     .profiling-print-page .badge-p-med,
     .profiling-print-page .badge-p-low,
-    .profiling-print-page .badge-p-done { font-size: 7.8px; padding: 0.55mm 1.7mm; border-radius: 3px; letter-spacing: 0; }
+    .profiling-print-page .badge-p-done { font-size: 7.5px; padding: 0.45mm 1.35mm; border-radius: 3px; letter-spacing: 0; }
 
     /* Rapor Editor Specifics */
     .info-card {
