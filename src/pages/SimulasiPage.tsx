@@ -14,6 +14,7 @@ import {
   X
 } from 'lucide-react';
 import { CHECKPOINT1_STUDENTS, ProgramChoice } from '../data/garudaData';
+import { ChoiceReviewModal } from '../components/ChoiceReviewModal';
 import {
   PROGRAM_CATALOG,
   CATALOG_PROVINCES,
@@ -181,6 +182,28 @@ export const SimulasiPage: React.FC = () => {
     setTimeout(() => setActionToast(null), 3200);
   };
 
+  // Choice Review & Confirmation States
+  const [reviewTarget, setReviewTarget] = useState<{
+    program: SimulatedProgramResult;
+    slotIdx: number;
+  } | null>(null);
+
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [slotToRemove, setSlotToRemove] = useState<{ idx: number; choice: ProgramChoice } | null>(null);
+
+  const scoreBasisLabel = useMemo(() => {
+    switch (scoreBasis) {
+      case 'to4':
+        return 'TO 4 Terakhir';
+      case 'median':
+        return 'Median 4 TO';
+      case 'avg':
+        return 'Rata-rata 4 TO';
+      default:
+        return 'TO 4';
+    }
+  }, [scoreBasis]);
+
   const handleApplyPrograms = (newPrograms: ProgramChoice[]) => {
     const normalized = newPrograms.map((p, idx) => ({
       ...p,
@@ -193,7 +216,11 @@ export const SimulasiPage: React.FC = () => {
     });
   };
 
-  const handleResetPrograms = () => {
+  const handleRequestResetPrograms = () => {
+    setIsResetConfirmOpen(true);
+  };
+
+  const handleConfirmResetPrograms = () => {
     setCustomProgramsByStudent((prev) => {
       const next = { ...prev };
       delete next[student.id];
@@ -201,18 +228,26 @@ export const SimulasiPage: React.FC = () => {
       return next;
     });
     setFocusedSlotIdx(0);
+    setIsResetConfirmOpen(false);
     showToast('Pilihan jurusan dikembalikan ke data awal siswa.');
   };
 
-  const handleRemoveSlot = (idxToRemove: number, e: React.MouseEvent) => {
+  const handleRequestRemoveSlot = (idxToRemove: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (activePrograms.length <= 1) return;
-    const next = activePrograms.filter((_, idx) => idx !== idxToRemove);
+    const choice = activePrograms[idxToRemove];
+    setSlotToRemove({ idx: idxToRemove, choice });
+  };
+
+  const handleConfirmRemoveSlot = () => {
+    if (!slotToRemove) return;
+    const next = activePrograms.filter((_, idx) => idx !== slotToRemove.idx);
     handleApplyPrograms(next);
     if (focusedSlotIdx >= next.length) {
       setFocusedSlotIdx(Math.max(0, next.length - 1));
     }
-    showToast(`Pilihan ${idxToRemove + 1} dihapus dari formulasi.`);
+    showToast(`Pilihan ${slotToRemove.idx + 1} (${slotToRemove.choice.prodi}) dihapus dari formulasi.`);
+    setSlotToRemove(null);
   };
 
   // Pre-compute simulation results for all catalog programs
@@ -319,17 +354,25 @@ export const SimulasiPage: React.FC = () => {
     return null;
   };
 
-  const handleApplyToFocusedSlot = (sim: SimulatedProgramResult) => {
-    const targetIdx = focusedSlotIdx;
-    const priorityLabel = `Pilihan ${targetIdx + 1}`;
+  const handleApplyToFocusedSlot = (sim: SimulatedProgramResult, targetIdx: number = focusedSlotIdx) => {
+    // Open Change Review process before executing
+    setReviewTarget({
+      program: sim,
+      slotIdx: targetIdx
+    });
+  };
+
+  const handleConfirmApplyFromModal = (confirmedSlotIdx: number, newChoice: ProgramChoice) => {
     const updated = [...activePrograms];
-    if (targetIdx < updated.length) {
-      updated[targetIdx] = sim.asProgramChoice(priorityLabel);
+    if (confirmedSlotIdx < updated.length) {
+      updated[confirmedSlotIdx] = newChoice;
     } else {
-      updated.push(sim.asProgramChoice(priorityLabel));
+      updated.push(newChoice);
     }
     handleApplyPrograms(updated);
-    showToast(`${priorityLabel} diterapkan: ${sim.catalog.prodi} — ${sim.catalog.shortUniv}`);
+    setFocusedSlotIdx(confirmedSlotIdx);
+    showToast(`✓ Pilihan ${confirmedSlotIdx + 1} berhasil diperbarui: ${newChoice.prodi} — ${newChoice.univ}`);
+    setReviewTarget(null);
   };
 
   // Cascading Universities based on Provinsi & Rumpun
@@ -709,7 +752,7 @@ export const SimulasiPage: React.FC = () => {
               <button
                 type="button"
                 className="btn btn-outline"
-                onClick={handleResetPrograms}
+                onClick={handleRequestResetPrograms}
                 style={{ padding: '7px 13px', fontSize: 12.5, color: '#b54708', borderColor: '#fedf89', background: '#fffcf5' }}
               >
                 <RotateCcw size={14} /> Reset Pilihan Awal
@@ -936,7 +979,7 @@ export const SimulasiPage: React.FC = () => {
                     {activePrograms.length > 1 && (
                       <button
                         type="button"
-                        onClick={(e) => handleRemoveSlot(slot.slotIndex, e)}
+                        onClick={(e) => handleRequestRemoveSlot(slot.slotIndex, e)}
                         title={`Hapus Pilihan ${slot.slotIndex + 1}`}
                         style={{
                           background: 'transparent',
@@ -1592,6 +1635,212 @@ export const SimulasiPage: React.FC = () => {
             <strong>Disclaimer Acuan Internal:</strong> Angka target acuan dan posisi peringkat di atas merupakan benchmark peserta internal Ruangguru (bukan passing grade resmi SNPMB atau jaminan kelolosan personal). Gunakan perbandingan fokus per pilihan ini bersama siswa &amp; orang tua untuk menyepakati kombinasi SNBT yang sah dan realistis.
           </div>
         </div>
+
+        {/* Choice Review Modal before execute */}
+        {reviewTarget && (
+          <ChoiceReviewModal
+            isOpen={Boolean(reviewTarget)}
+            onClose={() => setReviewTarget(null)}
+            student={student}
+            activePrograms={activePrograms}
+            initialTargetIdx={reviewTarget.slotIdx}
+            newProgram={reviewTarget.program}
+            scoreBasisLabel={scoreBasisLabel}
+            onConfirmApply={handleConfirmApplyFromModal}
+          />
+        )}
+
+        {/* Reset Confirmation Dialog */}
+        {isResetConfirmOpen && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99999,
+              background: 'rgba(15, 23, 42, 0.7)',
+              backdropFilter: 'blur(3px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 16
+            }}
+            onClick={() => setIsResetConfirmOpen(false)}
+          >
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: 12,
+                maxWidth: 460,
+                width: '100%',
+                padding: '20px 22px',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+                border: '1px solid #e2e8f0'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 8,
+                    background: '#fef3f2',
+                    border: '1px solid #fee4e2',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#d92d20'
+                  }}
+                >
+                  <RotateCcw size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>
+                    Kembalikan ke Pilihan Awal?
+                  </div>
+                  <div style={{ fontSize: 11.5, color: '#64748b' }}>
+                    Siswa: {student.name}
+                  </div>
+                </div>
+              </div>
+
+              <p style={{ fontSize: 12.5, color: '#334155', lineHeight: 1.5, margin: '0 0 16px' }}>
+                Seluruh perubahan formulasi hasil simulasi untuk <strong>{student.name}</strong> akan dihapus dan dikembalikan ke 3 pilihan awal siswa saat sesi konsultasi dibuka.
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setIsResetConfirmOpen(false)}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: 6,
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    color: '#344054',
+                    background: '#ffffff',
+                    border: '1px solid #d0d5dd',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmResetPrograms}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: 6,
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    color: '#ffffff',
+                    background: '#b42318',
+                    border: '1px solid #b42318',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Ya, Kembalikan ke Data Awal
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Remove Slot Confirmation Dialog */}
+        {slotToRemove && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99999,
+              background: 'rgba(15, 23, 42, 0.7)',
+              backdropFilter: 'blur(3px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 16
+            }}
+            onClick={() => setSlotToRemove(null)}
+          >
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: 12,
+                maxWidth: 460,
+                width: '100%',
+                padding: '20px 22px',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+                border: '1px solid #e2e8f0'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 8,
+                    background: '#fef3f2',
+                    border: '1px solid #fee4e2',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#d92d20'
+                  }}
+                >
+                  <AlertTriangle size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>
+                    Hapus Pilihan {slotToRemove.idx + 1}?
+                  </div>
+                  <div style={{ fontSize: 11.5, color: '#64748b' }}>
+                    {slotToRemove.choice.prodi} — {slotToRemove.choice.univ}
+                  </div>
+                </div>
+              </div>
+
+              <p style={{ fontSize: 12.5, color: '#334155', lineHeight: 1.5, margin: '0 0 16px' }}>
+                Apakah Anda yakin ingin menghapus <strong>{slotToRemove.choice.prodi} ({slotToRemove.choice.univ})</strong> dari formulasi pilihan {student.name}? Urutan pilihan di bawahnya akan digeser secara otomatis.
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setSlotToRemove(null)}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: 6,
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    color: '#344054',
+                    background: '#ffffff',
+                    border: '1px solid #d0d5dd',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmRemoveSlot}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: 6,
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    color: '#ffffff',
+                    background: '#b42318',
+                    border: '1px solid #b42318',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Ya, Hapus Pilihan
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
