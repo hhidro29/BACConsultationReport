@@ -86,6 +86,10 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   const above600 = sortedSubtests.filter((s) => s.to4 >= 600);
   const below600 = sortedSubtests.filter((s) => s.to4 < 600);
   const lowest3 = below600.slice(0, 3);
+  const top3WeakIds = sortedSubtests
+    .filter((s) => s.gap <= -31)
+    .slice(0, 3)
+    .map((s) => s.id);
   const to4Score = identity.toScores[identity.toScores.length - 1] ?? 0;
 
   const avg1 = Math.round(subtests.reduce((acc, s) => acc + s.to1, 0) / subtests.length);
@@ -342,50 +346,79 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             <div className="profiling-print-section" style={{ marginBottom: 0 }}>
               <h2 className="profiling-print-section-title">
                 <span><span style={{ marginRight: '1.8mm' }}>2.</span>Skor IRT Reguler: Posisi 8 Subtes Terhadap Target 600</span>
-                <span style={{ fontSize: 7.8, fontWeight: 600, color: '#475467', textTransform: 'none', letterSpacing: 0 }}>
-                  Diurutkan dari jarak terdalam
+                <span style={{ fontSize: 7.6, fontWeight: 600, color: '#475467', textTransform: 'none', letterSpacing: 0 }}>
+                  Diurutkan dari jarak terdalam · Menyorot hingga 3 subtes terendah (&lt; 570)
                 </span>
               </h2>
 
-              <table className="profiling-print-table" style={{ fontSize: 8.5 }}>
+              <table className="profiling-print-table" style={{ fontSize: 8.6 }}>
                 <thead>
                   <tr>
                     <th style={{ width: '3.5%', textAlign: 'center' }}>#</th>
-                    <th style={{ width: '24.5%' }}>Subtes UTBK</th>
-                    <th style={{ width: '7%', textAlign: 'center' }}>
+                    <th style={{ width: '30%' }}>Subtes UTBK</th>
+                    <th style={{ width: '7.5%', textAlign: 'center' }}>
                       TO 1<br />
                       <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>30 Agu</span>
                     </th>
-                    <th style={{ width: '7.5%', textAlign: 'center' }}>
+                    <th style={{ width: '8%', textAlign: 'center' }}>
                       TO 2<br />
                       <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>14 Sep</span>
                     </th>
-                    <th style={{ width: '7.5%', textAlign: 'center' }}>
+                    <th style={{ width: '8%', textAlign: 'center' }}>
                       TO 3<br />
                       <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>28 Sep</span>
                     </th>
-                    <th style={{ width: '8%', textAlign: 'center' }}>
+                    <th style={{ width: '8.5%', textAlign: 'center' }}>
                       TO 4<br />
                       <span style={{ fontSize: 7.5, fontWeight: 500, color: '#e0f2fe' }}>30 Okt</span>
                     </th>
-                    <th style={{ width: '7.5%', textAlign: 'center' }}>Median</th>
-                    <th style={{ width: '12%', textAlign: 'center' }}>
+                    <th style={{ width: '8%', textAlign: 'center' }}>Median</th>
+                    <th style={{ width: '18.5%', textAlign: 'center' }}>
                       Posisi vs 600
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 7.5, fontWeight: 600, marginTop: 1, color: '#e0f2fe' }}>
                         <span>400</span><span>600</span><span>700</span>
                       </div>
                     </th>
-                    <th style={{ width: '6.5%', textAlign: 'center' }}>Selisih</th>
-                    <th style={{ width: '16%', textAlign: 'center' }}>Status</th>
+                    <th style={{ width: '8%', textAlign: 'center' }}>Selisih</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sortedSubtests.map((sub, idx) => {
                     const badge = getStatusBadgeInfo(sub.gap);
+                    const focusRank = top3WeakIds.indexOf(sub.id);
+                    const isFocus = focusRank !== -1;
+                    const isHigh = sub.gap <= -91;
                     return (
-                      <tr key={sub.id}>
+                      <tr
+                        key={sub.id}
+                        style={
+                          isFocus
+                            ? { background: isHigh ? '#fffbfa' : '#fffcf5' }
+                            : undefined
+                        }
+                      >
                         <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{idx + 1}</td>
-                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{sub.name}</td>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.6mm' }}>
+                            <span style={{ fontWeight: 700, color: '#0f172a' }}>{sub.name}</span>
+                            {isFocus && (
+                              <span
+                                style={{
+                                  fontSize: 7.5,
+                                  fontWeight: 700,
+                                  color: isHigh ? '#b42318' : '#b54708',
+                                  background: isHigh ? '#fee4e2' : '#fef0c7',
+                                  border: `1px solid ${isHigh ? '#fecdca' : '#fedf89'}`,
+                                  padding: '0.25mm 1.3mm',
+                                  borderRadius: 3,
+                                  lineHeight: 1.2
+                                }}
+                              >
+                                Terendah #{focusRank + 1}
+                              </span>
+                            )}
+                          </div>
+                        </td>
                         <td style={{ textAlign: 'center' }}>{sub.to1}</td>
                         <td style={{ textAlign: 'center' }}>{sub.to2}{renderTrendArrow(sub.to2, sub.to1)}</td>
                         <td style={{ textAlign: 'center' }}>{sub.to3}{renderTrendArrow(sub.to3, sub.to2)}</td>
@@ -399,11 +432,8 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                             <div className="v2-progress-target-line" />
                           </div>
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 8.8, color: badge.color }}>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: badge.color }}>
                           {sub.gap >= 0 ? `+${sub.gap}` : sub.gap}
-                        </td>
-                        <td style={{ textAlign: 'center', padding: '1.2mm 1mm' }}>
-                          <span className={badge.className}>{badge.label}</span>
                         </td>
                       </tr>
                     );
@@ -412,18 +442,17 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               </table>
 
               {/* Separated Summary Table (Aligned Columns) */}
-              <table className="profiling-print-table" style={{ marginTop: '2mm', marginBottom: 0, fontSize: 8.4 }}>
+              <table className="profiling-print-table" style={{ marginTop: '2mm', marginBottom: 0, fontSize: 8.5 }}>
                 <thead>
                   <tr>
-                    <th style={{ width: '28%', background: '#edf5f9', color: '#0f172a' }}>Ringkasan 8 Subtes</th>
-                    <th style={{ width: '7%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 1</th>
-                    <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 2</th>
-                    <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 3</th>
-                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 4</th>
-                    <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Rata-rata</th>
-                    <th style={{ width: '12%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Posisi vs 600</th>
-                    <th style={{ width: '6.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Selisih</th>
-                    <th style={{ width: '16%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Status</th>
+                    <th style={{ width: '33.5%', background: '#edf5f9', color: '#0f172a' }}>Ringkasan 8 Subtes</th>
+                    <th style={{ width: '7.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 1</th>
+                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 2</th>
+                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 3</th>
+                    <th style={{ width: '8.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>TO 4</th>
+                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Rata-rata</th>
+                    <th style={{ width: '18.5%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Posisi vs 600</th>
+                    <th style={{ width: '8%', textAlign: 'center', background: '#edf5f9', color: '#334155' }}>Selisih</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -432,7 +461,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                     <td style={{ textAlign: 'center', fontWeight: 600 }}>{avg1}</td>
                     <td style={{ textAlign: 'center', fontWeight: 600 }}>{avg2}{renderTrendArrow(avg2, avg1)}</td>
                     <td style={{ textAlign: 'center', fontWeight: 600 }}>{avg3}{renderTrendArrow(avg3, avg2)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, color: avgBadge.color }}>{avg4}{renderTrendArrow(avg4, avg3)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: avgBadge.color }}>{avg4}{renderTrendArrow(avg4, avg3)}</td>
                     <td style={{ textAlign: 'center', fontWeight: 800, color: '#1078ca' }}>{avgAll}</td>
                     <td>
                       <div className="v2-progress-track">
@@ -440,17 +469,16 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         <div className="v2-progress-target-line" />
                       </div>
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, color: avgBadge.color }}>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: avgBadge.color }}>
                       {avgGap >= 0 ? `+${avgGap}` : avgGap}
                     </td>
-                    <td style={{ textAlign: 'center', padding: '1.2mm 1mm' }}><span className={avgBadge.className}>{avgBadge.label}</span></td>
                   </tr>
                   <tr>
                     <td style={{ fontWeight: 700, color: '#475467' }}>Median 8 subtes</td>
                     <td style={{ textAlign: 'center', color: '#475467' }}>{formatIndo(med1)}</td>
                     <td style={{ textAlign: 'center', color: '#475467' }}>{formatIndo(med2)}{renderTrendArrow(med2, med1)}</td>
                     <td style={{ textAlign: 'center', color: '#475467' }}>{formatIndo(med3)}{renderTrendArrow(med3, med2)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, color: medBadge.color }}>{formatIndo(med4)}{renderTrendArrow(med4, med3)}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: medBadge.color }}>{formatIndo(med4)}{renderTrendArrow(med4, med3)}</td>
                     <td style={{ textAlign: 'center', fontWeight: 700, color: '#475467' }}>{formatIndo(medAll)}</td>
                     <td>
                       <div className="v2-progress-track">
@@ -458,23 +486,22 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         <div className="v2-progress-target-line" />
                       </div>
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, color: medBadge.color }}>
+                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 9, color: medBadge.color }}>
                       {medGap >= 0 ? `+${formatIndo(medGap)}` : formatIndo(medGap)}
                     </td>
-                    <td style={{ textAlign: 'center', padding: '1.2mm 1mm' }}><span className={medBadge.className}>{medBadge.label}</span></td>
                   </tr>
                 </tbody>
               </table>
 
-              <div style={{ display: 'flex', gap: '4mm', alignItems: 'center', marginTop: '1.8mm', fontSize: 7.8, color: '#334155', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '3.6mm', alignItems: 'center', marginTop: '1.8mm', fontSize: 7.8, color: '#334155', flexWrap: 'wrap' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
-                  <span style={{ width: 8, height: 8, background: '#d92d20', display: 'inline-block', borderRadius: 2 }} /> Prioritas utama (-91 ke bawah)
+                  <span style={{ width: 8, height: 8, background: '#d92d20', display: 'inline-block', borderRadius: 2 }} /> Skor ≤ 509 (-91 ke bawah)
                 </span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
-                  <span style={{ width: 8, height: 8, background: '#f79009', display: 'inline-block', borderRadius: 2 }} /> Perlu ditingkatkan (-31 s.d. -90)
+                  <span style={{ width: 8, height: 8, background: '#f79009', display: 'inline-block', borderRadius: 2 }} /> Skor 510–569 (-31 s.d. -90)
                 </span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
-                  <span style={{ width: 8, height: 8, background: '#2e90fa', display: 'inline-block', borderRadius: 2 }} /> Mendekati (-30 s.d. -1)
+                  <span style={{ width: 8, height: 8, background: '#2e90fa', display: 'inline-block', borderRadius: 2 }} /> Skor 570–599 (-30 s.d. -1)
                 </span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
                   <span style={{ width: 8, height: 8, background: '#12b76a', display: 'inline-block', borderRadius: 2 }} /> Tercapai (600+)
