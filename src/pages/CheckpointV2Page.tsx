@@ -1012,7 +1012,7 @@ export const CheckpointV2Page: React.FC = () => {
                       <td>
                         <strong>{prog.prodi}</strong><br />
                         <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                          {prog.univ} · {prog.city} ({prog.isOutOfTown ? 'Luar Kota' : 'Satu Wilayah'}) · Keketatan: {prog.tightness}
+                          {prog.univ} · {prog.city} · Keketatan: {prog.tightness}
                         </span>
                       </td>
                       <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{prog.targetScore}</td>

@@ -468,7 +468,7 @@ export const SimulasiPage: React.FC = () => {
                   gap: 3
                 }}
               >
-                <MapPin size={10} /> {sim.isOutOfTown ? 'Luar Kota' : 'Satu Wilayah'}
+                <MapPin size={10} /> {sim.catalog.province}
               </span>
               {opts.onRemoveCandidate && (
                 <button
@@ -521,7 +521,6 @@ export const SimulasiPage: React.FC = () => {
                 : targetDelta < 0
                 ? `↑ Target lebih tinggi ${Math.abs(targetDelta)} poin`
                 : 'Target acuan setara dengan pilihan saat ini'}
-              {baseline.isOutOfTown && !sim.isOutOfTown && ' · 🏠 Satu wilayah'}
             </div>
           )}
 
@@ -1522,7 +1521,7 @@ export const SimulasiPage: React.FC = () => {
                             <strong>{sim.catalog.tightness}</strong> · {sim.catalog.quota2026} kursi
                           </div>
                           <div style={{ color: '#64748b', marginTop: 2 }}>
-                            {sim.catalog.province} ({sim.isOutOfTown ? 'Luar Kota' : 'Satu Wilayah'})
+                            {sim.catalog.city}, {sim.catalog.province}
                           </div>
                         </td>
                         <td style={{ textAlign: 'right' }}>
