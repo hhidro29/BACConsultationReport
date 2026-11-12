@@ -1,20 +1,43 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Save, RotateCcw } from 'lucide-react';
 import { useRapor } from '../context/RaporContext';
-import { studentIdentity } from '../data/garudaData';
+import { CHECKPOINT1_STUDENTS, ProgramChoice } from '../data/garudaData';
+import { getStudentBaselinePrograms } from '../data/programCatalog';
+import { loadCustomPrograms, safeGetItem } from '../utils/safeStorage';
 
 export const UpdateRaporPage: React.FC = () => {
   const navigate = useNavigate();
-  const { raporData, updateSubjectScore, saveAllRapor, resetRapor, getMetrics } = useRapor();
+  const [searchParams] = useSearchParams();
+  const { getRapor, updateSubjectScore, saveAllRapor, resetRapor, getMetrics } = useRapor();
   const [savedToast, setSavedToast] = useState(false);
 
-  const generalMetrics = getMetrics([]);
-  const farmasiMetrics = getMetrics(["Kimia", "Biologi"]);
-  const mesinMetrics = getMetrics(["Fisika", "Matematika Tingkat Lanjut"]);
+  const requestedId = searchParams.get('student') || safeGetItem('bac_v2_active_student_v1') || 'garuda';
+  const student = CHECKPOINT1_STUDENTS.find((s) => s.id === requestedId) || CHECKPOINT1_STUDENTS[0];
+  const studentId = student.id;
+  const studentIdentity = student.identity;
+  const raporData = getRapor(studentId);
+
+  // Mapel pendukung mengikuti pilihan jurusan aktif siswa (termasuk perubahan dari Simulasi).
+  const programs: ProgramChoice[] = loadCustomPrograms()[studentId] || getStudentBaselinePrograms(student);
+  const supportGroups: { key: string; subjects: string[]; label: string; prodi: string; univs: string[] }[] = [];
+  programs.forEach((prog, idx) => {
+    const key = [...prog.supportSubjects].sort().join('|');
+    const existing = supportGroups.find((g) => g.key === key);
+    const univShort = prog.univ.match(/\(([^)]+)\)/)?.[1] || prog.univ;
+    if (existing) {
+      existing.label += ` & ${idx + 1}`;
+      existing.univs.push(univShort);
+    } else {
+      supportGroups.push({ key, subjects: prog.supportSubjects, label: `Pil. ${idx + 1}`, prodi: prog.prodi, univs: [univShort] });
+    }
+  });
+  const supportCards = supportGroups.slice(0, 2);
+
+  const generalMetrics = getMetrics(studentId, []);
 
   const handleSave = () => {
-    saveAllRapor();
+    saveAllRapor(studentId);
     setSavedToast(true);
     setTimeout(() => {
       setSavedToast(false);
@@ -60,7 +83,7 @@ export const UpdateRaporPage: React.FC = () => {
                 ✓ Nilai Rapor Tersimpan &amp; Tersinkron!
               </span>
             )}
-            <button type="button" className="btn btn-outline" onClick={() => { if (window.confirm('Kembalikan semua nilai rapor ke data bawaan? Nilai yang sudah disimpan akan tertimpa.')) resetRapor(); }}>
+            <button type="button" className="btn btn-outline" onClick={() => { if (window.confirm('Kembalikan semua nilai rapor ke data bawaan? Nilai yang sudah disimpan akan tertimpa.')) resetRapor(studentId); }}>
               <RotateCcw size={14} /> Reset Bawaan
             </button>
             <button type="button" className="btn btn-primary" onClick={handleSave}>
@@ -101,25 +124,20 @@ export const UpdateRaporPage: React.FC = () => {
             <div className="summary-val" style={{ color: '#1078ca' }}>{generalMetrics.overallAvg}</div>
           </div>
 
-          <div className="summary-card">
-            <div>
-              <div className="summary-label">Mapel Pendukung Farmasi (P1 &amp; P2)</div>
-              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
-                Kimia &amp; Biologi (UGM / UI)
+          {supportCards.map((g, i) => {
+            const m = getMetrics(studentId, g.subjects);
+            return (
+              <div className="summary-card" key={g.key}>
+                <div>
+                  <div className="summary-label">Mapel Pendukung {g.prodi.replace(/^S1 /, '')} ({g.label})</div>
+                  <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
+                    {g.subjects.join(' & ')} ({g.univs.join(' / ')})
+                  </div>
+                </div>
+                <div className="summary-val" style={{ color: i === 0 ? '#027a48' : '#b54708' }}>{m.supportAvg}</div>
               </div>
-            </div>
-            <div className="summary-val" style={{ color: '#027a48' }}>{farmasiMetrics.supportAvg}</div>
-          </div>
-
-          <div className="summary-card">
-            <div>
-              <div className="summary-label">Mapel Pendukung Teknik Mesin (P3)</div>
-              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
-                Fisika &amp; Matematika Lanjut (ITB)
-              </div>
-            </div>
-            <div className="summary-val" style={{ color: '#b54708' }}>{mesinMetrics.supportAvg}</div>
-          </div>
+            );
+          })}
         </div>
 
         {/* 20 Subjects Table */}
@@ -161,7 +179,7 @@ export const UpdateRaporPage: React.FC = () => {
                             max={100}
                             className={`table-input${isZero ? ' empty-zero' : ''}`}
                             value={val}
-                            onChange={(e) => updateSubjectScore(subj.id, sIdx, parseFloat(e.target.value))}
+                            onChange={(e) => updateSubjectScore(studentId, subj.id, sIdx, parseFloat(e.target.value))}
                           />
                         </td>
                       );
@@ -177,7 +195,7 @@ export const UpdateRaporPage: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 22 }}>
-          <Link to="/v2" className="btn btn-back">
+          <Link to={`/v2?student=${studentId}`} className="btn btn-back">
             ← Kembali ke Versi 2
           </Link>
           <button type="button" className="btn btn-primary" onClick={handleSave}>

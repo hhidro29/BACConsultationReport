@@ -10,7 +10,8 @@ import {
 } from '../data/garudaData';
 import {
   derivePrioritySubtestsForChoice1,
-  DerivedPrioritySubtest
+  DerivedPrioritySubtest,
+  getStudentBaselinePrograms
 } from '../data/programCatalog';
 import {
   DEFAULT_ENGINE_CONFIG,
@@ -93,7 +94,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
-  const activePrograms = programs && programs.length > 0 ? programs : student.targetPrograms;
+  const activePrograms = programs && programs.length > 0 ? programs : getStudentBaselinePrograms(student);
   const { identity, subtests } = student;
   const prioritySubtests = derivePrioritySubtestsForChoice1(
     student,
@@ -509,7 +510,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             </div>
 
             <footer className="profiling-print-footer">
-              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Dokumen Resmi Hasil Konsultasi Checkpoint 1</div>
+              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Hasil Konsultasi Checkpoint 1 • Target adalah acuan latihan internal, bukan jaminan kelulusan SNPMB</div>
               <div>Halaman 1 dari 2</div>
             </footer>
           </section>
@@ -754,7 +755,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             </div>
 
             <footer className="profiling-print-footer">
-              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Dokumen Resmi Hasil Konsultasi Checkpoint 1</div>
+              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Hasil Konsultasi Checkpoint 1 • Target adalah acuan latihan internal, bukan jaminan kelulusan SNPMB</div>
               <div>Halaman 2 dari 2</div>
             </footer>
           </section>

@@ -99,7 +99,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     foundationScoreTarget: 600,
     subtestSwingPts: 100,
     attendanceWarnPct: 80,
-    wideWeightedGapPts: -100,
+    wideWeightedGapPts: -90,
     remainingEpisodesToNextConsult: 3,
     remainingEpisodesToUtbk: 6,
     planBGainThresholdPts: 35,

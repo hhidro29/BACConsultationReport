@@ -29,11 +29,21 @@ export const defaultRaporData: RaporSubject[] = [
   { id: "sosiologi", name: "Sosiologi", scores: [0, 0, 0, 0, 0] }
 ];
 
-export const STORAGE_KEY = "bac_rapor_garuda";
+/** Garuda keeps the legacy key so rapor saved before per-student storage is still read. */
+export function raporStorageKey(studentId: string): string {
+  return studentId === "garuda" ? "bac_rapor_garuda" : `bac_rapor_${studentId}`;
+}
 
-export function loadStoredRapor(): RaporSubject[] {
+/** Garuda has demo rapor values; other students start empty (0 = belum diisi) instead of showing Garuda's scores. */
+export function getDefaultRapor(studentId: string): RaporSubject[] {
+  const fresh: RaporSubject[] = JSON.parse(JSON.stringify(defaultRaporData));
+  if (studentId === "garuda") return fresh;
+  return fresh.map((s) => ({ ...s, scores: [0, 0, 0, 0, 0] }));
+}
+
+export function loadStoredRapor(studentId: string = "garuda"): RaporSubject[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(raporStorageKey(studentId));
     if (raw) {
       const parsed = JSON.parse(raw);
       if (
@@ -47,16 +57,18 @@ export function loadStoredRapor(): RaporSubject[] {
   } catch (e) {
     console.error("Failed to parse rapor from localStorage", e);
   }
-  return JSON.parse(JSON.stringify(defaultRaporData));
+  return getDefaultRapor(studentId);
 }
 
-export function saveStoredRapor(data: RaporSubject[]) {
+export function saveStoredRapor(data: RaporSubject[], studentId: string = "garuda") {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(raporStorageKey(studentId), JSON.stringify(data));
   } catch (e) {
     console.error("Failed to save rapor to localStorage", e);
   }
 }
+
+const normalizeSubjectName = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, '');
 
 export function calculateRaporMetrics(raporList: RaporSubject[], supportSubjectNames: string[] = []) {
   let filledCount = 0;
@@ -75,7 +87,7 @@ export function calculateRaporMetrics(raporList: RaporSubject[], supportSubjectN
 
   const supportValidScores: number[] = [];
   raporList.forEach(s => {
-    if (supportSubjectNames.includes(s.name)) {
+    if (supportSubjectNames.some((n) => normalizeSubjectName(s.name).includes(normalizeSubjectName(n)))) {
       s.scores.forEach(v => {
         if (Number(v) > 0) supportValidScores.push(Number(v));
       });

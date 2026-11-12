@@ -10,7 +10,8 @@ import { STUDENT_CLASSROOM_DATA, STUDENT_SA_HISTORY_NOTES } from '../data/classr
 import {
   validateSnbtChoices,
   derivePrioritySubtestsForChoice1,
-  matchCatalogProgram
+  matchCatalogProgram,
+  getStudentBaselinePrograms
 } from '../data/programCatalog';
 import { useRuleConfig } from '../utils/saRuleStore';
 import {
@@ -70,7 +71,7 @@ export const CheckpointV2Page: React.FC = () => {
   const [customProgramsByStudent, setCustomProgramsByStudent] = useState<Record<string, ProgramChoice[]>>(() => loadCustomPrograms());
 
   const customPrograms = customProgramsByStudent[activeStudent.id];
-  const targetPrograms = customPrograms || activeStudent.targetPrograms;
+  const targetPrograms = customPrograms || getStudentBaselinePrograms(activeStudent);
   const isProgramsCustomized = Boolean(customPrograms);
 
   const handleResetPrograms = () => {
@@ -123,6 +124,12 @@ export const CheckpointV2Page: React.FC = () => {
   useEffect(() => {
     const stageIds = ['tahap1', 'tahap2', 'tahap3', 'tahap4', 'tahap5'];
     const handleScroll = () => {
+      const nearBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 40;
+      if (nearBottom) {
+        setActiveStage('tahap5');
+        return;
+      }
       const offset = 160;
       let current = 'tahap1';
       for (const id of stageIds) {
@@ -153,7 +160,8 @@ export const CheckpointV2Page: React.FC = () => {
     setActiveStage(targetId);
     const el = document.getElementById(targetId);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY - 132);
+      window.scrollTo({ top, behavior: 'smooth' });
     }
   };
 
@@ -232,6 +240,61 @@ export const CheckpointV2Page: React.FC = () => {
     const rangeA = Math.max(a.to1, a.to2, a.to3, a.to4) - Math.min(a.to1, a.to2, a.to3, a.to4);
     return rangeB - rangeA;
   })[0] || subtestsV2Data[0];
+
+  const renderSaHistoryBlock = (sectionId: string, heading: string, subtitle: string) => (
+    <div className="section-block" id={sectionId} style={{ marginBottom: 20 }}>
+      <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+        <h3 className="section-title" style={{ fontSize: 15 }}>{heading}</h3>
+        <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{subtitle}</span>
+      </div>
+
+      {saHistoryNotes.length > 0 ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+          {saHistoryNotes.map((note) => (
+            <div
+              key={note.id}
+              style={{
+                background: '#f2f8f7',
+                border: '1px solid #a7d7dc',
+                borderRadius: 8,
+                padding: '12px 14px',
+                fontSize: 12,
+                lineHeight: 1.5
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <strong style={{ color: '#245f5a' }}>{note.topicTag}</strong>
+                  <span style={{ fontSize: 11, color: '#64748b' }}>· {note.dateLabel}</span>
+                </div>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: '1.5px 7px',
+                    borderRadius: 9999,
+                    background: note.followUpStatus === 'Selesai' ? '#ecfdf3' : '#fef0c7',
+                    color: note.followUpStatus === 'Selesai' ? '#027a48' : '#b54708',
+                    border: `1px solid ${note.followUpStatus === 'Selesai' ? '#a6f4c5' : '#fedf89'}`
+                  }}
+                >
+                  {note.followUpStatus}
+                </span>
+              </div>
+              <p style={{ margin: '0 0 6px', color: '#1e293b' }}>{note.summary}</p>
+              <div style={{ fontSize: 11, color: '#475467' }}>
+                Dicatat oleh: <strong>{note.author}</strong>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ fontSize: 12, color: '#64748b', fontStyle: 'italic' }}>
+          Belum ada riwayat catatan Kakak Asuh di Student Tower untuk siswa ini.
+        </div>
+      )}
+    </div>
+  );
 
   // 3-Warna Kartu Subtes Prioritas (Hijau / Oranye / Merah)
   const getCardTheme = (gapToTarget: number, toLatestNum: number) => {
@@ -410,7 +473,7 @@ export const CheckpointV2Page: React.FC = () => {
               <Compass size={14} /> Simulasi
             </Link>
             <Link
-              to="/rapor"
+              to={`/rapor?student=${activeStudent.id}`}
               className="btn btn-outline"
               style={{ padding: '7px 14px', fontSize: 12.5, whiteSpace: 'nowrap' }}
               title="Lihat & Update Nilai Rapor Semester 1–5"
@@ -586,21 +649,21 @@ export const CheckpointV2Page: React.FC = () => {
             🧭 <span>Alur:</span>
           </div>
           <div className="jump-nav-links" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <a href="#tahap1" onClick={(e) => scrollTo(e, '#tahap1')} className={`jump-pill ${activeStage === 'tahap1' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap1')} className={`jump-pill ${activeStage === 'tahap1' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
               🎯 1. Evaluasi Tryout
-            </a>
-            <a href="#tahap2" onClick={(e) => scrollTo(e, '#tahap2')} className={`jump-pill ${activeStage === 'tahap2' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+            </button>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap2')} className={`jump-pill ${activeStage === 'tahap2' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
               🏛️ 2. Analisis Jurusan
-            </a>
-            <a href="#tahap3" onClick={(e) => scrollTo(e, '#tahap3')} className={`jump-pill ${activeStage === 'tahap3' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+            </button>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap3')} className={`jump-pill ${activeStage === 'tahap3' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
               🛠️ 3. Subtes &amp; Drill Soal
-            </a>
-            <a href="#tahap4" onClick={(e) => scrollTo(e, '#tahap4')} className={`jump-pill ${activeStage === 'tahap4' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
-              🏫 4. Catatan Pengajar
-            </a>
-            <a href="#tahap5" onClick={(e) => scrollTo(e, '#tahap5')} className={`jump-pill ${activeStage === 'tahap5' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+            </button>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap4')} className={`jump-pill ${activeStage === 'tahap4' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+              🏫 4. Catatan Pengajar &amp; SA
+            </button>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap5')} className={`jump-pill ${activeStage === 'tahap5' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
               📝 5. Tindak Lanjut Belajar
-            </a>
+            </button>
           </div>
         </nav>
 
@@ -1218,6 +1281,13 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
+          <div
+            role="note"
+            style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#b54708', lineHeight: 1.5, marginTop: 16 }}
+          >
+            <strong>Catatan:</strong> Target dan jarak skor adalah acuan latihan internal Ruangguru, bukan passing grade resmi dan bukan jaminan kelulusan SNPMB.
+          </div>
+
           {/* Live Consultation Prompt: Tahap 2 (Driven by saGuidelineEngine) */}
           <div className="sa-prompt-card" id="sec_tahap2_guide" style={{ background: '#f2f8f7', border: '1px solid #a7d7dc', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
@@ -1530,60 +1600,11 @@ export const CheckpointV2Page: React.FC = () => {
             </span>
           </div>
 
-          <div className="section-block" id="sec_tahap4_sa_history" style={{ marginBottom: 20 }}>
-            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Riwayat Catatan Kakak Asuh (Student Tower)</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                Diambil langsung dari log Student Tower · Tidak perlu pindah tab saat sesi konsultasi
-              </span>
-            </div>
-
-            {saHistoryNotes.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
-                {saHistoryNotes.map((note) => (
-                  <div
-                    key={note.id}
-                    style={{
-                      background: '#f2f8f7',
-                      border: '1px solid #a7d7dc',
-                      borderRadius: 8,
-                      padding: '12px 14px',
-                      fontSize: 12,
-                      lineHeight: 1.5
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <strong style={{ color: '#245f5a' }}>{note.topicTag}</strong>
-                        <span style={{ fontSize: 11, color: '#64748b' }}>· {note.dateLabel}</span>
-                      </div>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 700,
-                          padding: '1.5px 7px',
-                          borderRadius: 9999,
-                          background: note.followUpStatus === 'Selesai' ? '#ecfdf3' : '#fef0c7',
-                          color: note.followUpStatus === 'Selesai' ? '#027a48' : '#b54708',
-                          border: `1px solid ${note.followUpStatus === 'Selesai' ? '#a6f4c5' : '#fedf89'}`
-                        }}
-                      >
-                        {note.followUpStatus}
-                      </span>
-                    </div>
-                    <p style={{ margin: '0 0 6px', color: '#1e293b' }}>{note.summary}</p>
-                    <div style={{ fontSize: 11, color: '#475467' }}>
-                      Dicatat oleh: <strong>{note.author}</strong>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ fontSize: 12, color: '#64748b', fontStyle: 'italic' }}>
-                Belum ada riwayat catatan Kakak Asuh di Student Tower untuk siswa ini.
-              </div>
-            )}
-          </div>
+          {renderSaHistoryBlock(
+            'sec_tahap4_sa_history',
+            '1. Riwayat Catatan Kakak Asuh (Student Tower)',
+            'Diambil langsung dari log Student Tower · Tidak perlu pindah tab saat sesi konsultasi'
+          )}
 
           <div className="section-block" id="sec_tahap4_classroom">
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
@@ -1942,10 +1963,17 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
 
+          {/* Riwayat Catatan Kakak Asuh Sebelumnya */}
+          {renderSaHistoryBlock(
+            'sec_tahap5_sa_history',
+            '2. Riwayat Catatan Kakak Asuh Sebelumnya (Student Tower)',
+            'Menjadi acuan kesinambungan sebelum menuliskan catatan sesi hari ini'
+          )}
+
           {/* Catatan Khusus Kakak Asuh (Statement & Wet Signatures Live in PDF Page 2) */}
           <div className="section-block" id="sec_tahap5_agreement">
             <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>2. Catatan Khusus Kakak Asuh</h3>
+              <h3 className="section-title" style={{ fontSize: 15 }}>3. Catatan Khusus Kakak Asuh (Sesi Ini)</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
                 Pengingat sesi berikutnya · Lembar pernyataan &amp; tanda tangan 3 pihak tersedia di Halaman 2 PDF
               </span>

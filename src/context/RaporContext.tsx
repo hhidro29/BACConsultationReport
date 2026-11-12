@@ -1,58 +1,62 @@
-import React, { createContext, useContext, useState } from 'react';
-import { RaporSubject, defaultRaporData, loadStoredRapor, saveStoredRapor, calculateRaporMetrics } from '../data/raporData';
+import React, { createContext, useCallback, useContext, useState } from 'react';
+import { RaporSubject, getDefaultRapor, loadStoredRapor, saveStoredRapor, calculateRaporMetrics } from '../data/raporData';
+
+type RaporMetrics = ReturnType<typeof calculateRaporMetrics>;
 
 interface RaporContextType {
-  raporData: RaporSubject[];
-  updateSubjectScore: (subjId: string, smtIdx: number, value: number) => void;
-  saveAllRapor: () => void;
-  resetRapor: () => void;
-  getMetrics: (supportSubjectNames?: string[]) => {
-    filledCount: number;
-    totalSubjects: number;
-    overallAvg: string;
-    supportAvg: string;
-  };
+  getRapor: (studentId: string) => RaporSubject[];
+  updateSubjectScore: (studentId: string, subjId: string, smtIdx: number, value: number) => void;
+  saveAllRapor: (studentId: string) => void;
+  resetRapor: (studentId: string) => void;
+  getMetrics: (studentId: string, supportSubjectNames?: string[]) => RaporMetrics;
 }
 
 const RaporContext = createContext<RaporContextType | undefined>(undefined);
 
+/**
+ * Rapor is stored per student. Edits live in memory until saved; each student's data is loaded
+ * lazily from localStorage the first time it is read.
+ */
 export const RaporProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [raporData, setRaporData] = useState<RaporSubject[]>(() => loadStoredRapor());
+  const [byStudent, setByStudent] = useState<Record<string, RaporSubject[]>>({});
 
-  const updateSubjectScore = (subjId: string, smtIdx: number, value: number) => {
+  const getRapor = useCallback(
+    (studentId: string): RaporSubject[] => byStudent[studentId] ?? loadStoredRapor(studentId),
+    [byStudent]
+  );
+
+  const updateSubjectScore = (studentId: string, subjId: string, smtIdx: number, value: number) => {
     let cleanVal = isNaN(value) ? 0 : value;
     if (cleanVal < 0) cleanVal = 0;
     if (cleanVal > 100) cleanVal = 100;
 
-    setRaporData(prev => {
-      const next = prev.map(subj => {
-        if (subj.id === subjId) {
-          const updatedScores = [...subj.scores];
-          updatedScores[smtIdx] = cleanVal;
-          return { ...subj, scores: updatedScores };
-        }
-        return subj;
+    setByStudent((prev) => {
+      const base = prev[studentId] ?? loadStoredRapor(studentId);
+      const next = base.map((subj) => {
+        if (subj.id !== subjId) return subj;
+        const updatedScores = [...subj.scores];
+        updatedScores[smtIdx] = cleanVal;
+        return { ...subj, scores: updatedScores };
       });
-      return next;
+      return { ...prev, [studentId]: next };
     });
   };
 
-  const saveAllRapor = () => {
-    saveStoredRapor(raporData);
+  const saveAllRapor = (studentId: string) => {
+    saveStoredRapor(getRapor(studentId), studentId);
   };
 
-  const resetRapor = () => {
-    const fresh = JSON.parse(JSON.stringify(defaultRaporData));
-    setRaporData(fresh);
-    saveStoredRapor(fresh);
+  const resetRapor = (studentId: string) => {
+    const fresh = getDefaultRapor(studentId);
+    setByStudent((prev) => ({ ...prev, [studentId]: fresh }));
+    saveStoredRapor(fresh, studentId);
   };
 
-  const getMetrics = (supportSubjectNames: string[] = []) => {
-    return calculateRaporMetrics(raporData, supportSubjectNames);
-  };
+  const getMetrics = (studentId: string, supportSubjectNames: string[] = []) =>
+    calculateRaporMetrics(getRapor(studentId), supportSubjectNames);
 
   return (
-    <RaporContext.Provider value={{ raporData, updateSubjectScore, saveAllRapor, resetRapor, getMetrics }}>
+    <RaporContext.Provider value={{ getRapor, updateSubjectScore, saveAllRapor, resetRapor, getMetrics }}>
       {children}
     </RaporContext.Provider>
   );

@@ -266,6 +266,7 @@
     .jump-pill {
       font-size: 12px;
       font-weight: 600;
+      font-family: inherit;
       color: #475467;
       background: #f8fafc;
       border: 1px solid var(--border);
@@ -277,6 +278,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      cursor: pointer;
     }
     .jump-pill:hover { background: #e6f4f2; color: var(--primary); border-color: #a7d7dc; }
     .jump-pill.active {

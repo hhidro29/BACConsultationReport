@@ -28,6 +28,9 @@ import {
   matchCatalogProgram,
   getStudentSubtestScoreMap,
   getZoneFromGap,
+  getStudentBaselinePrograms,
+  ZONE_NEAR_GAP,
+  ZONE_WIDE_GAP,
   validateSnbtChoices,
   SUBTEST_LABELS
 } from '../data/programCatalog';
@@ -119,7 +122,7 @@ export const SimulasiPage: React.FC = () => {
 
   const [customProgramsByStudent, setCustomProgramsByStudent] = useState<Record<string, ProgramChoice[]>>(() => loadCustomPrograms());
 
-  const activePrograms = customProgramsByStudent[student.id] || student.targetPrograms;
+  const activePrograms = customProgramsByStudent[student.id] || getStudentBaselinePrograms(student);
   const isCustomized = Boolean(customProgramsByStudent[student.id]);
 
   // Determine student's primary Student Tower Rumpun from Pilihan 1
@@ -1387,11 +1390,11 @@ export const SimulasiPage: React.FC = () => {
                 }}
               >
                 <option value="all">Semua peluang</option>
-                <option value="realistic">Sudah &amp; hampir tercapai (≥ -30)</option>
+                <option value="realistic">Sudah &amp; hampir tercapai (≥ {ZONE_NEAR_GAP})</option>
                 <option value="safe">Sudah tercapai (≥ 0)</option>
-                <option value="near">Hampir tercapai (-1 s.d. -30)</option>
-                <option value="target">Dicapai bertahap (-31 s.d. -90)</option>
-                <option value="reach">Perlu usaha besar (&lt; -90)</option>
+                <option value="near">Hampir tercapai (-1 s.d. {ZONE_NEAR_GAP})</option>
+                <option value="target">Dicapai bertahap ({ZONE_NEAR_GAP - 1} s.d. {ZONE_WIDE_GAP + 1})</option>
+                <option value="reach">Perlu usaha besar (≤ {ZONE_WIDE_GAP})</option>
               </select>
             </div>
           </div>

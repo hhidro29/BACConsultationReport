@@ -1,4 +1,9 @@
 import { Checkpoint1Student, ProgramChoice, SubtestV2 } from './garudaData';
+import { DEFAULT_ENGINE_CONFIG } from '../utils/saGuidelineEngine';
+
+// Batas zona peluang mengikuti ambang default rule-engine agar katalog, Simulasi, dan Tahap 2 satu sumber.
+export const ZONE_NEAR_GAP = DEFAULT_ENGINE_CONFIG.thresholds.nearTargetGapPts;
+export const ZONE_WIDE_GAP = DEFAULT_ENGINE_CONFIG.thresholds.wideWeightedGapPts;
 
 export type SubtestKey = 'pu' | 'ppu' | 'pbm' | 'pk' | 'lbi_a' | 'lbi_s' | 'lbe' | 'pm';
 
@@ -923,14 +928,14 @@ export function getZoneFromGap(gap: number): {
       statusText: 'Melampaui target acuan'
     };
   }
-  if (gap >= -30) {
+  if (gap >= ZONE_NEAR_GAP) {
     return {
       zone: 'near',
       zoneLabel: 'Hampir tercapai',
       statusText: 'Mendekati target acuan'
     };
   }
-  if (gap >= -90) {
+  if (gap > ZONE_WIDE_GAP) {
     return {
       zone: 'target',
       zoneLabel: 'Dicapai bertahap',
@@ -942,6 +947,25 @@ export function getZoneFromGap(gap: number): {
     zoneLabel: 'Perlu usaha besar',
     statusText: 'Perlu peningkatan besar'
   };
+}
+
+const baselineProgramsCache = new WeakMap<Checkpoint1Student, ProgramChoice[]>();
+
+/**
+ * Pilihan jurusan awal siswa dengan skor terbobot, jarak, dan status yang dihitung ulang dari
+ * rule-engine (basis TO 4), sehingga angkanya sama dengan Simulasi. Pilihan yang tidak ada di
+ * katalog dikembalikan apa adanya.
+ */
+export function getStudentBaselinePrograms(student: Checkpoint1Student): ProgramChoice[] {
+  const cached = baselineProgramsCache.get(student);
+  if (cached) return cached;
+  const result = student.targetPrograms.map((choice) => {
+    const catalog = matchCatalogProgram(choice);
+    if (!catalog) return choice;
+    return computeSimulatedProgram(student, catalog, 'to4').asProgramChoice(choice.priority);
+  });
+  baselineProgramsCache.set(student, result);
+  return result;
 }
 
 export function computeSimulatedProgram(

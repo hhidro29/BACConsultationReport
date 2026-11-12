@@ -73,7 +73,7 @@ export const CheckpointV1Page: React.FC = () => {
     setTimeout(() => setDraftSavedToast(false), 2400);
   };
 
-  const raporGeneral = getMetrics([]);
+  const raporGeneral = getMetrics('garuda', []);
 
   // SVG Trend Chart Renderer
   const renderSvgChart = (subKey: string, targetScore?: number) => {
@@ -136,7 +136,7 @@ export const CheckpointV1Page: React.FC = () => {
   };
 
   const currentChoiceProg = activeTab !== 'overview' ? programCatalogV1[selectedPrograms[activeTab]] : null;
-  const currentChoiceRapor = currentChoiceProg ? getMetrics(currentChoiceProg.supportSubjects) : raporGeneral;
+  const currentChoiceRapor = currentChoiceProg ? getMetrics('garuda', currentChoiceProg.supportSubjects) : raporGeneral;
 
   return (
     <div>
