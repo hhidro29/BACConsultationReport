@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { RaporProvider } from './context/RaporContext';
 import { CheckpointV2Page } from './pages/CheckpointV2Page';
 import { CheckpointV1Page } from './pages/CheckpointV1Page';
@@ -60,10 +60,21 @@ const RootRedirect: React.FC = () => {
   return <Navigate to={target} replace />;
 };
 
+// Pindah halaman selalu mulai dari atas. Hanya pathname yang dipantau, jadi ganti siswa
+// (?student=) atau filter di halaman yang sama tidak menggulung ulang.
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
 export const App: React.FC = () => {
   return (
     <RaporProvider>
       <HashRouter>
+        <ScrollToTop />
         <QueryParamRedirector />
         <Routes>
           <Route path="/" element={<RootRedirect />} />

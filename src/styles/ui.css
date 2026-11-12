@@ -1,22 +1,21 @@
 /*
   Design tokens + komponen dasar bergaya Super CMS (Chakra, Inter).
   Semua class berawalan "rg-" dan semua token berawalan "--rg-" supaya tidak bentrok dengan
-  global.css maupun gaya cetak PDF (.profiling-print-*). Belum dipakai oleh halaman manapun
-  sampai fase migrasi per halaman.
+  global.css maupun gaya cetak PDF (.profiling-print-*). Token --rg-* adalah alias ke token di global.css (satu sumber kebenaran).
 */
 :root {
-  --rg-ink: #1d2939;
-  --rg-ink-strong: #101828;
-  --rg-muted: #64748b;
-  --rg-subtle: #94a3b8;
-  --rg-divider: #e2e8f0;
-  --rg-surface: #ffffff;
-  --rg-surface-alt: #f8fafc;
+  --rg-ink: var(--ink);
+  --rg-ink-strong: var(--ink-strong);
+  --rg-muted: var(--muted);
+  --rg-subtle: var(--subtle);
+  --rg-divider: var(--border);
+  --rg-surface: var(--card-bg);
+  --rg-surface-alt: var(--page-bg);
 
-  --rg-primary: #398896;
-  --rg-primary-hover: #2c6d78;
-  --rg-primary-soft: #e6f4f2;
-  --rg-primary-line: #a7d7dc;
+  --rg-primary: var(--primary);
+  --rg-primary-hover: var(--primary-hover);
+  --rg-primary-soft: var(--primary-light);
+  --rg-primary-line: var(--primary-border);
 
   /* zona selisih skor (3 warna utama + tosca) */
   --rg-done: #027a48;  --rg-done-bg: #ecfdf3;  --rg-done-line: #a6f4c5;

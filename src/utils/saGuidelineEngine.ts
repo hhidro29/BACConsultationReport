@@ -1021,7 +1021,7 @@ export function analyzeStage4(
         ? `Sepakati target jumlah soal & jadwal drill soal mandiri di aplikasi untuk ${largestGapSub} yang memiliki gap terbesar sekaligus riwayat drill soal terendah.`
         : `Sepakati target jumlah soal & jadwal drill soal mandiri di aplikasi untuk ${largestGapSub} dan ${lowestDrillSub} yang memiliki gap terbesar atau riwayat drill soal terendah.`,
       pic: `${studentInput?.studentName || 'Siswa'} (dipantau bersama ${studentInput?.saName || 'Kakak Asuh'})`,
-      accentColor: '#58aebd'
+      accentColor: '#2d7684'
     },
     {
       num: 2,
@@ -1030,7 +1030,7 @@ export function analyzeStage4(
         ? `Jadwalkan klinik pengayaan/bedah soal HOTS bersama Master Teacher pada topik akurasi terendah (${topicsSummary}) untuk menjaga konsistensi skor.`
         : `Jadwalkan sesi klinik tatap muka bersama Master Teacher / Kakak Asuh untuk membedah topik akurasi terendah di TO: ${topicsSummary} sesuai ketersediaan waktu siswa.`,
       pic: `${studentInput?.saName || 'Kakak Asuh'} & Siswa`,
-      accentColor: '#398896'
+      accentColor: '#245f5a'
     },
     {
       num: 3,
@@ -1041,7 +1041,7 @@ export function analyzeStage4(
         ? `Pertahankan performa puncak serta perlebar selisih skor di atas passing grade acuan untuk mengantisipasi kenaikan persaingan hingga akhir sesi TO.`
         : `Prioritaskan penahanan tren turun dan kenaikan bertahap agar skor melewati passing grade acuan pada konsultasi berikutnya.`,
       pic: 'Siswa & Tim Akademik Cabang',
-      accentColor: '#f79009'
+      accentColor: '#b54708'
     },
     {
       num: 4,

@@ -33,14 +33,14 @@ export interface ChoiceReviewModalProps {
 const getZoneTheme = (zone: OpportunityZone) => {
   switch (zone) {
     case 'safe':
-      return { textColor: '#027a48', borderColor: '#a6f4c5', boxBg: '#ecfdf3', boxBorder: '#a6f4c5' };
+      return { textColor: 'var(--green-ink)', borderColor: '#a6f4c5', boxBg: '#ecfdf3', boxBorder: '#a6f4c5' };
     case 'near':
       return { textColor: '#175cd3', borderColor: '#b2ddff', boxBg: '#eff8ff', boxBorder: '#b2ddff' };
     case 'target':
-      return { textColor: '#b54708', borderColor: '#fedf89', boxBg: '#fffcf5', boxBorder: '#fef0c7' };
+      return { textColor: 'var(--amber-ink)', borderColor: '#fedf89', boxBg: '#fffcf5', boxBorder: '#fef0c7' };
     case 'reach':
     default:
-      return { textColor: '#b42318', borderColor: '#fecdca', boxBg: '#fffbfa', boxBorder: '#fee4e2' };
+      return { textColor: 'var(--red-ink)', borderColor: '#fecdca', boxBg: '#fffbfa', boxBorder: '#fee4e2' };
   }
 };
 
@@ -182,13 +182,13 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
         {/* Modal Header */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            background: 'linear-gradient(135deg, var(--ink-strong) 0%, #1e293b 100%)',
             color: '#ffffff',
             padding: '14px 20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #334155'
+            borderBottom: '1px solid var(--ink-soft)'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -212,9 +212,9 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                 Review Perubahan Pilihan SNBT
                 <span
                   style={{
-                    background: '#1078ca',
+                    background: 'var(--primary)',
                     color: '#ffffff',
-                    fontSize: 10.5,
+                    fontSize: 12,
                     fontWeight: 700,
                     padding: '2px 8px',
                     borderRadius: 999
@@ -223,8 +223,8 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                   {priorityLabel}
                 </span>
               </div>
-              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>
-                Siswa: <strong style={{ color: '#f8fafc' }}>{student.name}</strong> • Basis skor: {scoreBasisLabel}
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>
+                Siswa: <strong style={{ color: 'var(--page-bg)' }}>{student.name}</strong> • Basis skor: {scoreBasisLabel}
               </div>
             </div>
           </div>
@@ -254,7 +254,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
         <div style={{ padding: '18px 20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Target Slot Selector */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#475467', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--slate-600)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
               Terapkan pilihan baru ke slot:
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -271,9 +271,9 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                       fontSize: 12,
                       fontWeight: 700,
                       cursor: 'pointer',
-                      border: isSelected ? '1.5px solid #1078ca' : '1px solid #d0d5dd',
-                      background: isSelected ? '#eff8ff' : '#f8fafc',
-                      color: isSelected ? '#1078ca' : '#475467',
+                      border: isSelected ? '1.5px solid var(--primary)' : '1px solid #d0d5dd',
+                      background: isSelected ? '#eff8ff' : 'var(--page-bg)',
+                      color: isSelected ? 'var(--primary)' : 'var(--slate-600)',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6,
@@ -281,7 +281,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                     }}
                   >
                     <span>Pilihan {idx + 1}</span>
-                    <span style={{ fontSize: 11, fontWeight: 500, color: isSelected ? '#175cd3' : '#64748b' }}>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: isSelected ? '#175cd3' : 'var(--muted)' }}>
                       ({prog.prodi})
                     </span>
                   </button>
@@ -298,16 +298,16 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: 'pointer',
-                    border: targetIdx === activePrograms.length ? '1.5px solid #1078ca' : '1px dashed #cbd5e1',
+                    border: targetIdx === activePrograms.length ? '1.5px solid var(--primary)' : '1px dashed var(--border-strong)',
                     background: targetIdx === activePrograms.length ? '#eff8ff' : '#ffffff',
-                    color: targetIdx === activePrograms.length ? '#1078ca' : '#64748b',
+                    color: targetIdx === activePrograms.length ? 'var(--primary)' : 'var(--muted)',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 6
                   }}
                 >
                   <span>+ Tambah Pilihan {activePrograms.length + 1}</span>
-                  <span style={{ fontSize: 10.5, fontWeight: 500 }}>
+                  <span style={{ fontSize: 12, fontWeight: 500 }}>
                     ({activePrograms.length >= 2 ? 'Vokasi' : 'Baru'})
                   </span>
                 </button>
@@ -317,15 +317,15 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
 
           {/* Side-by-side Diff Comparison */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#475467', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--slate-600)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
               Perbandingan sebelum dan sesudah perubahan ({priorityLabel}):
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {/* Sisi Kiri: Sebelum (Saat Ini) */}
               <div
                 style={{
-                  background: '#f8fafc',
-                  border: '1px solid #cbd5e1',
+                  background: 'var(--page-bg)',
+                  border: '1px solid var(--border-strong)',
                   borderRadius: 8,
                   padding: 12,
                   display: 'flex',
@@ -336,9 +336,9 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span
                     style={{
-                      fontSize: 10.5,
+                      fontSize: 12,
                       fontWeight: 700,
-                      color: '#475467',
+                      color: 'var(--slate-600)',
                       background: '#eaecf0',
                       padding: '2px 8px',
                       borderRadius: 4
@@ -346,7 +346,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                   >
                     PILIHAN SAAT INI
                   </span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#64748b' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>
                     {oldChoice ? oldChoice.priority : `Slot kosong`}
                   </span>
                 </div>
@@ -354,20 +354,20 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                 {oldChoice ? (
                   <>
                     <div>
-                      <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0f172a' }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--ink-strong)' }}>
                         {oldChoice.prodi}
                       </div>
-                      <div style={{ fontSize: 11.5, color: '#475467', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                        <School size={13} color="#64748b" />
+                      <div style={{ fontSize: 12, color: 'var(--slate-600)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                        <School size={13} color="var(--muted)" />
                         <span>{oldChoice.univ}</span>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', fontSize: 10.5 }}>
-                      <span style={{ background: '#e2e8f0', color: '#334155', padding: '1.5px 6px', borderRadius: 4, fontWeight: 600 }}>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', fontSize: 12 }}>
+                      <span style={{ background: 'var(--border)', color: 'var(--ink-soft)', padding: '1.5px 6px', borderRadius: 4, fontWeight: 600 }}>
                         {oldChoice.degree || 'S1'} • {oldChoice.rumpun?.toUpperCase() || 'SAINTEK'}
                       </span>
-                      <span style={{ background: '#f1f5f9', color: '#475467', padding: '1.5px 6px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                      <span style={{ background: '#f1f5f9', color: 'var(--slate-600)', padding: '1.5px 6px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                         <MapPin size={11} /> {oldChoice.city || student.identity.branch.split('-')[0].trim()} ({oldChoice.isOutOfTown ? 'Luar Kota' : 'Dalam Kota'})
                       </span>
                     </div>
@@ -375,7 +375,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                     <div
                       style={{
                         background: '#ffffff',
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--border)',
                         borderRadius: 6,
                         padding: '8px 10px',
                         display: 'grid',
@@ -385,24 +385,24 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: 10, color: '#64748b' }}>Target acuan</div>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>{oldChoice.targetScore}</div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)' }}>Target acuan</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--ink-strong)' }}>{oldChoice.targetScore}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 10, color: '#64748b' }}>Skor terbobot</div>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#1078ca' }}>{oldChoice.weightedScore}</div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)' }}>Skor terbobot</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--primary)' }}>{oldChoice.weightedScore}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 10, color: '#64748b' }}>Jarak target</div>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: oldChoice.gap >= 0 ? '#027a48' : '#b42318' }}>
+                        <div style={{ fontSize: 12, color: 'var(--muted)' }}>Jarak target</div>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: oldChoice.gap >= 0 ? 'var(--green-ink)' : 'var(--red-ink)' }}>
                           {oldChoice.gap > 0 ? `+${oldChoice.gap}` : oldChoice.gap}
                         </div>
                       </div>
                     </div>
 
-                    <div style={{ fontSize: 11, color: '#475467', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <div style={{ fontSize: 12, color: 'var(--slate-600)', display: 'flex', alignItems: 'center', gap: 5 }}>
                       <span>Status kesiapan:</span>
-                      <strong style={{ color: oldChoice.gap >= 0 ? '#027a48' : '#b42318' }}>
+                      <strong style={{ color: oldChoice.gap >= 0 ? 'var(--green-ink)' : 'var(--red-ink)' }}>
                         {oldChoice.status || (oldChoice.gap >= 0 ? 'Sudah tercapai' : 'Perlu diperkuat')}
                       </strong>
                     </div>
@@ -411,11 +411,11 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                   <div
                     style={{
                       background: '#ffffff',
-                      border: '1px dashed #cbd5e1',
+                      border: '1px dashed var(--border-strong)',
                       borderRadius: 6,
                       padding: 24,
                       textAlign: 'center',
-                      color: '#64748b',
+                      color: 'var(--muted)',
                       fontSize: 12
                     }}
                   >
@@ -428,7 +428,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
               <div
                 style={{
                   background: '#f0f9ff',
-                  border: '1.5px solid #1078ca',
+                  border: '1.5px solid var(--primary)',
                   borderRadius: 8,
                   padding: 12,
                   display: 'flex',
@@ -440,32 +440,32 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span
                     style={{
-                      fontSize: 10.5,
+                      fontSize: 12,
                       fontWeight: 800,
                       color: '#ffffff',
-                      background: '#1078ca',
+                      background: 'var(--primary)',
                       padding: '2px 8px',
                       borderRadius: 4
                     }}
                   >
                     PILIHAN BARU
                   </span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#1078ca' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
                     {priorityLabel}
                   </span>
                 </div>
 
                 <div>
-                  <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0f172a' }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--ink-strong)' }}>
                     {newProgram.catalog.prodi}
                   </div>
-                  <div style={{ fontSize: 11.5, color: '#475467', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                    <School size={13} color="#1078ca" />
+                  <div style={{ fontSize: 12, color: 'var(--slate-600)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                    <School size={13} color="var(--primary)" />
                     <span>{newProgram.catalog.univ} ({newProgram.catalog.shortUniv})</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', fontSize: 10.5 }}>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', fontSize: 12 }}>
                   <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '1.5px 6px', borderRadius: 4, fontWeight: 700 }}>
                     {newProgram.catalog.degree} • {newProgram.catalog.rumpunName}
                   </span>
@@ -487,29 +487,29 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>Target acuan</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>
+                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>Target acuan</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--ink-strong)' }}>
                       {newProgram.catalog.targetScore}
                       {targetDelta !== null && targetDelta !== 0 && (
-                        <span style={{ fontSize: 10, fontWeight: 700, color: targetDelta < 0 ? '#027a48' : '#b42318', marginLeft: 3 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: targetDelta < 0 ? 'var(--green-ink)' : 'var(--red-ink)', marginLeft: 3 }}>
                           ({targetDelta > 0 ? `+${targetDelta}` : targetDelta})
                         </span>
                       )}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>Skor terbobot</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#1078ca' }}>{newProgram.weightedScore}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>Skor terbobot</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--primary)' }}>{newProgram.weightedScore}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>Jarak target</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>Jarak target</div>
                     <div style={{ fontSize: 12, fontWeight: 800, color: newTheme.textColor }}>
                       {newProgram.gap > 0 ? `+${newProgram.gap}` : newProgram.gap}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ fontSize: 11, color: '#475467', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <div style={{ fontSize: 12, color: 'var(--slate-600)', display: 'flex', alignItems: 'center', gap: 5 }}>
                   <span>Status kesiapan:</span>
                   <strong style={{ color: newTheme.textColor }}>
                     {newProgram.statusText} ({newProgram.zoneLabel})
@@ -527,11 +527,11 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                   borderRadius: 6,
                   background: gapDelta !== null && gapDelta >= 0 ? '#ecfdf3' : '#fffcf5',
                   border: `1px solid ${gapDelta !== null && gapDelta >= 0 ? '#a6f4c5' : '#fedf89'}`,
-                  fontSize: 11.5,
+                  fontSize: 12,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
-                  color: gapDelta !== null && gapDelta >= 0 ? '#027a48' : '#b54708'
+                  color: gapDelta !== null && gapDelta >= 0 ? 'var(--green-ink)' : 'var(--amber-ink)'
                 }}
               >
                 {gapDelta !== null && gapDelta >= 0 ? (
@@ -565,7 +565,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
 
           {/* Proposed Complete List Preview (1..4) */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#475467', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--slate-600)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
               Pratinjau seluruh formulasi pilihan setelah perubahan ({proposedPrograms.length} pilihan):
             </div>
 
@@ -588,15 +588,15 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                         key={`${prog.priority}_${prog.prodi}`}
                         className={isUpdatedSlot ? 'is-selected' : undefined}
                       >
-                        <td style={{ fontWeight: 700, color: '#1078ca' }}>
+                        <td style={{ fontWeight: 700, color: 'var(--primary)' }}>
                           {prog.priority}
                           {isUpdatedSlot && (
                             <span
                               style={{
                                 marginLeft: 4,
-                                background: '#1078ca',
+                                background: 'var(--primary)',
                                 color: '#ffffff',
-                                fontSize: 9.5,
+                                fontSize: 12,
                                 padding: '1px 5px',
                                 borderRadius: 3,
                                 fontWeight: 700
@@ -607,13 +607,13 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                           )}
                         </td>
                         <td>
-                          <strong style={{ color: isUpdatedSlot ? '#0f172a' : '#1e293b' }}>{prog.prodi}</strong>
-                          <span style={{ color: '#64748b', fontSize: 11, marginLeft: 4 }}>— {prog.univ}</span>
+                          <strong style={{ color: isUpdatedSlot ? 'var(--ink-strong)' : '#1e293b' }}>{prog.prodi}</strong>
+                          <span style={{ color: 'var(--muted)', fontSize: 12, marginLeft: 4 }}>— {prog.univ}</span>
                         </td>
                         <td style={{ textAlign: 'center', fontWeight: 700 }}>
                           {prog.targetScore}
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 700, color: '#1078ca' }}>
+                        <td style={{ textAlign: 'center', fontWeight: 700, color: 'var(--primary)' }}>
                           {prog.weightedScore}
                         </td>
                         <td style={{ textAlign: 'center' }}>
@@ -637,10 +637,10 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                   gap: 7,
                   padding: '7px 10px',
                   borderRadius: 6,
-                  fontSize: 11,
+                  fontSize: 12,
                   background: snbtValidation.isValid ? '#ecfdf3' : '#fff7ed',
                   border: `1px solid ${snbtValidation.isValid ? '#a6f4c5' : '#fed7aa'}`,
-                  color: snbtValidation.isValid ? '#027a48' : '#9a3412',
+                  color: snbtValidation.isValid ? 'var(--green-ink)' : '#9a3412',
                   fontWeight: 600
                 }}
               >
@@ -658,7 +658,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                     gap: 7,
                     padding: '7px 10px',
                     borderRadius: 6,
-                    fontSize: 11,
+                    fontSize: 12,
                     background: '#fffbeb',
                     border: '1px solid #fde68a',
                     color: '#92400e',
@@ -676,15 +676,15 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
         {/* Modal Footer / Action Bar */}
         <div
           style={{
-            background: '#f8fafc',
-            borderTop: '1px solid #e2e8f0',
+            background: 'var(--page-bg)',
+            borderTop: '1px solid var(--border)',
             padding: '12px 20px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}
         >
-          <div style={{ fontSize: 11, color: isDuplicateChoice ? '#b42318' : '#64748b', fontWeight: isDuplicateChoice ? 700 : 400 }}>
+          <div style={{ fontSize: 12, color: isDuplicateChoice ? 'var(--red-ink)' : 'var(--muted)', fontWeight: isDuplicateChoice ? 700 : 400 }}>
             {isDuplicateChoice
               ? 'Program studi ini sudah dipilih di slot lain. Pilih program studi yang berbeda.'
               : 'Perubahan akan otomatis tersinkron ke laporan konsultasi dan lembar cetak PDF A4.'}

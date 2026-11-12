@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { AppTopbar } from '../components/AppTopbar';
 import { ArrowLeft, Lock, Unlock, Save, FileText, Download, Info, HelpCircle, X } from 'lucide-react';
 import { V1PdfModal } from '../components/V1PdfModal';
 import { useRapor } from '../context/RaporContext';
@@ -97,12 +98,12 @@ export const CheckpointV1Page: React.FC = () => {
     const yTicks = [minY, Math.round((minY + maxY) / 2), maxY];
 
     return (
-      <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: 'auto', display: 'block', background: '#f8fafc', borderRadius: 8, border: '1px solid var(--border-light)' }}>
+      <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: 'auto', display: 'block', background: 'var(--page-bg)', borderRadius: 8, border: '1px solid var(--border-light)' }}>
         {/* Grid lines */}
         {yTicks.map(tick => (
           <g key={tick}>
-            <line x1={leftX} y1={getY(tick)} x2={rightX} y2={getY(tick)} stroke="#e2e8f0" strokeDasharray="4 4" />
-            <text x={leftX - 8} y={getY(tick) + 4} textAnchor="end" fontSize="11" fill="#64748b">{tick}</text>
+            <line x1={leftX} y1={getY(tick)} x2={rightX} y2={getY(tick)} stroke="var(--border)" strokeDasharray="4 4" />
+            <text x={leftX - 8} y={getY(tick) + 4} textAnchor="end" fontSize="11" fill="var(--muted)">{tick}</text>
           </g>
         ))}
 
@@ -117,16 +118,16 @@ export const CheckpointV1Page: React.FC = () => {
         )}
 
         {/* Line Path */}
-        <polyline fill="none" stroke="#1078ca" strokeWidth="3" points={points} />
+        <polyline fill="none" stroke="var(--primary)" strokeWidth="3" points={points} />
 
         {/* Data points & labels */}
         {scores.map((v, i) => (
           <g key={i}>
-            <circle cx={getX(i)} cy={getY(v)} r="5.5" fill="#ffffff" stroke="#1078ca" strokeWidth="3" />
-            <text x={getX(i)} y={getY(v) - 10} textAnchor="middle" fontSize="12" fontWeight="700" fill="#0f172a">
+            <circle cx={getX(i)} cy={getY(v)} r="5.5" fill="#ffffff" stroke="var(--primary)" strokeWidth="3" />
+            <text x={getX(i)} y={getY(v) - 10} textAnchor="middle" fontSize="12" fontWeight="700" fill="var(--ink-strong)">
               {v}
             </text>
-            <text x={getX(i)} y={botY + 20} textAnchor="middle" fontSize="11" fill="#475467">
+            <text x={getX(i)} y={botY + 20} textAnchor="middle" fontSize="11" fill="var(--slate-600)">
               {studentIdentity.toLabels[i]}
             </text>
           </g>
@@ -141,21 +142,15 @@ export const CheckpointV1Page: React.FC = () => {
   return (
     <div>
       {/* Topbar */}
-      <header className="topbar">
-        <div className="topbar-inner">
-          <nav aria-label="breadcrumb" className="breadcrumbs">
-            <a href="#home">Home</a>
-            <span className="crumb-sep">›</span>
-            <a href="#checkpoint">Konsultasi - Checkpoint</a>
-            <span className="crumb-sep">›</span>
-            <span className="crumb-current">Detail Checkpoint 1</span>
-          </nav>
-          <div className="user-pill">
-            <span>{studentIdentity.saName} · {studentIdentity.saEmail}</span>
-            <div className="user-avatar">WC</div>
-          </div>
-        </div>
-      </header>
+      <AppTopbar
+        crumbs={[
+          { label: 'Home', to: '/v2' },
+          { label: 'Konsultasi - Checkpoint', to: '/v2' },
+          { label: 'Detail Checkpoint 1' }
+        ]}
+        saName={studentIdentity.saName}
+        saEmail={studentIdentity.saEmail}
+      />
 
       <main className="container">
         {/* Action Bar */}
@@ -167,7 +162,7 @@ export const CheckpointV1Page: React.FC = () => {
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             {draftSavedToast && (
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#027a48', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '4px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '4px 10px', borderRadius: 9999 }}>
                 ✓ Draft tersimpan!
               </span>
             )}
@@ -251,7 +246,7 @@ export const CheckpointV1Page: React.FC = () => {
                     <Info size={15} />
                     Panduan SA: Pembuka &amp; Evaluasi Tren 4 Tryout (V1 Baseline)
                   </span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af' }}>Orientasi Siswa &amp; Ortu</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>Orientasi Siswa &amp; Ortu</span>
                 </div>
                 <ul className="sa-prompt-list">
                   <li><strong>Pertanyaan ke Siswa:</strong> <em>&quot;Dari hasil 4 TO terakhir, bagian mana yang menurutmu paling menantang dan paling ingin kita bedah solusinya hari ini?&quot;</em></li>
@@ -265,22 +260,22 @@ export const CheckpointV1Page: React.FC = () => {
               <div className="metrics-grid">
                 <div className="metric-card">
                   <div className="metric-card-label">Rata-rata Tryout</div>
-                  <div className="metric-card-val" style={{ color: '#1078ca' }}>571</div>
+                  <div className="metric-card-val" style={{ color: 'var(--primary)' }}>571</div>
                   <div className="metric-card-hint">TO 1: 601 • TO 2: 576 • TO 3: 561</div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-card-label">Skor TO 4 (Terbaru)</div>
-                  <div className="metric-card-val" style={{ color: '#b42318' }}>546</div>
-                  <div className="metric-card-hint" style={{ color: '#b42318', fontWeight: 600 }}>↓ Turun 15 poin dari TO 3</div>
+                  <div className="metric-card-val" style={{ color: 'var(--red-ink)' }}>546</div>
+                  <div className="metric-card-hint" style={{ color: 'var(--red-ink)', fontWeight: 600 }}>↓ Turun 15 poin dari TO 3</div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-card-label">Rata-rata Rapor (Smt 1–5)</div>
-                  <div className="metric-card-val" style={{ color: '#027a48' }}>{raporGeneral.overallAvg}</div>
+                  <div className="metric-card-val" style={{ color: 'var(--green-ink)' }}>{raporGeneral.overallAvg}</div>
                   <div className="metric-card-hint">{raporGeneral.filledCount} mapel aktif terisi</div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-card-label">Kehadiran Kelas di Cabang</div>
-                  <div className="metric-card-val" style={{ color: '#027a48' }}>{studentIdentity.attendanceRate}</div>
+                  <div className="metric-card-val" style={{ color: 'var(--green-ink)' }}>{studentIdentity.attendanceRate}</div>
                   <div className="metric-card-hint">{studentIdentity.attendanceDetail}</div>
                 </div>
               </div>
@@ -291,7 +286,7 @@ export const CheckpointV1Page: React.FC = () => {
               <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h2 className="section-title">1. Grafik Pergerakan Nilai Tryout (TO 1 – TO 4)</h2>
-                  <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Klik subtes untuk melihat detail tren per mata uji</span>
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>Klik subtes untuk melihat detail tren per mata uji</span>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {['total', 'pu', 'pk', 'pm', 'ppu', 'pbm', 'lbi_a', 'lbe'].map(k => (
@@ -299,7 +294,7 @@ export const CheckpointV1Page: React.FC = () => {
                       key={k}
                       type="button"
                       className={`btn ${ovChartKey === k ? 'btn-primary' : 'btn-outline'}`}
-                      style={{ padding: '4px 10px', fontSize: 11 }}
+                      style={{ padding: '4px 10px', fontSize: 12 }}
                       onClick={() => setOvChartKey(k)}
                     >
                       {k === 'total' ? 'Rata-rata' : k.toUpperCase()}
@@ -308,7 +303,7 @@ export const CheckpointV1Page: React.FC = () => {
                 </div>
               </div>
               <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink-strong)', marginBottom: 8 }}>
                   Menampilkan Seri: {(studentToSeriesV1[ovChartKey] || studentToSeriesV1.total).name}
                 </div>
                 {renderSvgChart(ovChartKey)}
@@ -337,13 +332,13 @@ export const CheckpointV1Page: React.FC = () => {
                       const prog = programCatalogV1[selectedPrograms[slot]];
                       return (
                         <tr key={slot}>
-                          <td><span style={{ fontWeight: 700, color: i === 0 ? '#1078ca' : i === 1 ? '#0284c7' : '#b54708' }}>Pilihan {i + 1}</span></td>
+                          <td><span style={{ fontWeight: 700, color: i === 0 ? 'var(--primary)' : i === 1 ? '#0284c7' : 'var(--amber-ink)' }}>Pilihan {i + 1}</span></td>
                           <td><strong>{prog.fullTitle}</strong></td>
                           <td style={{ textAlign: 'center' }}><strong>{prog.targetScore}</strong></td>
-                          <td style={{ textAlign: 'center' }}><span className="badge" style={{ background: '#fef3f2', color: '#b42318' }}>{prog.tightness}</span></td>
-                          <td style={{ textAlign: 'center', color: '#1078ca', fontWeight: 700 }}>{prog.leaderboardRank}</td>
+                          <td style={{ textAlign: 'center' }}><span className="badge" style={{ background: '#fef3f2', color: 'var(--red-ink)' }}>{prog.tightness}</span></td>
+                          <td style={{ textAlign: 'center', color: 'var(--primary)', fontWeight: 700 }}>{prog.leaderboardRank}</td>
                           <td style={{ textAlign: 'center' }}>
-                            <button type="button" className="btn btn-outline" style={{ fontSize: 11, padding: '3px 10px' }} onClick={() => switchTab(slot)}>
+                            <button type="button" className="btn btn-outline" style={{ fontSize: 12, padding: '3px 10px' }} onClick={() => switchTab(slot)}>
                               Buka Tab P{i + 1} ➔
                             </button>
                           </td>
@@ -414,7 +409,7 @@ export const CheckpointV1Page: React.FC = () => {
             <section className="section-block">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
                 <div>
-                  <span className="badge" style={{ background: '#eff8ff', color: '#1078ca', marginBottom: 4 }}>
+                  <span className="badge" style={{ background: '#eff8ff', color: 'var(--primary)', marginBottom: 4 }}>
                     Analisis {activeTab.toUpperCase()} • {currentChoiceProg.rumpun}
                   </span>
                   <h2 className="section-title" style={{ marginTop: 4 }}>{currentChoiceProg.fullTitle}</h2>
@@ -446,22 +441,22 @@ export const CheckpointV1Page: React.FC = () => {
               <div className="metrics-grid">
                 <div className="metric-card">
                   <div className="metric-card-label">Target Skor Lolos</div>
-                  <div className="metric-card-val" style={{ color: '#0f172a' }}>{currentChoiceProg.targetScore}</div>
+                  <div className="metric-card-val" style={{ color: 'var(--ink-strong)' }}>{currentChoiceProg.targetScore}</div>
                   <div className="metric-card-hint">Keketatan: {currentChoiceProg.tightness} • Kursi: {currentChoiceProg.quota2026}</div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-card-label">Gap vs Skor TO 4 (546)</div>
-                  <div className="metric-card-val" style={{ color: '#b42318' }}>{546 - currentChoiceProg.targetScore}</div>
+                  <div className="metric-card-val" style={{ color: 'var(--red-ink)' }}>{546 - currentChoiceProg.targetScore}</div>
                   <div className="metric-card-hint">Butuh peningkatan bertahap tiap TO</div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-card-label">Peringkat Peminat RG</div>
-                  <div className="metric-card-val" style={{ color: '#1078ca', fontSize: 18 }}>{currentChoiceProg.leaderboardRank}</div>
+                  <div className="metric-card-val" style={{ color: 'var(--primary)', fontSize: 18 }}>{currentChoiceProg.leaderboardRank}</div>
                   <div className="metric-card-hint">{currentChoiceProg.leaderboardPercentile}</div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-card-label">Rapor Pendukung Prodi</div>
-                  <div className="metric-card-val" style={{ color: '#027a48' }}>{currentChoiceRapor.supportAvg}</div>
+                  <div className="metric-card-val" style={{ color: 'var(--green-ink)' }}>{currentChoiceRapor.supportAvg}</div>
                   <div className="metric-card-hint">Mapel: {currentChoiceProg.supportSubjects.join(', ')}</div>
                 </div>
               </div>
@@ -472,7 +467,7 @@ export const CheckpointV1Page: React.FC = () => {
               <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h2 className="section-title">1. Tren Subtes Penentu Prodi</h2>
-                  <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Pilih subtes penentu untuk dibandingkan dengan target prodi ini</span>
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>Pilih subtes penentu untuk dibandingkan dengan target prodi ini</span>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   {currentChoiceProg.prioritySubtests.map((sub: string) => (
@@ -480,7 +475,7 @@ export const CheckpointV1Page: React.FC = () => {
                       key={sub}
                       type="button"
                       className={`btn ${chChartKey === sub ? 'btn-primary' : 'btn-outline'}`}
-                      style={{ padding: '4px 10px', fontSize: 11.5 }}
+                      style={{ padding: '4px 10px', fontSize: 12 }}
                       onClick={() => setChChartKey(sub)}
                     >
                       {sub.toUpperCase()} (Target {currentChoiceProg.pgSubtests[sub]})
@@ -518,13 +513,13 @@ export const CheckpointV1Page: React.FC = () => {
                         <tr key={pid} style={pid === currentChoiceProg.id ? { background: '#eff8ff' } : undefined}>
                           <td><strong>{peer.fullTitle}</strong></td>
                           <td style={{ textAlign: 'center', fontWeight: 700 }}>{peer.targetScore}</td>
-                          <td style={{ textAlign: 'center', fontWeight: 700, color: diff >= -60 ? '#027a48' : '#b42318' }}>{diff}</td>
+                          <td style={{ textAlign: 'center', fontWeight: 700, color: diff >= -60 ? 'var(--green-ink)' : 'var(--red-ink)' }}>{diff}</td>
                           <td style={{ textAlign: 'center' }}>{peer.tightness}</td>
                           <td style={{ textAlign: 'center' }}>
                             <button
                               type="button"
                               className="btn btn-outline"
-                              style={{ fontSize: 11, padding: '3px 10px' }}
+                              style={{ fontSize: 12, padding: '3px 10px' }}
                               onClick={() => {
                                 setSelectedPrograms(prev => ({ ...prev, [activeTab]: pid }));
                               }}

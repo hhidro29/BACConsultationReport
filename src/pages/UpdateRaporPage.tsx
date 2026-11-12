@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { AppTopbar } from '../components/AppTopbar';
 import { ArrowLeft, Save, RotateCcw } from 'lucide-react';
 import { useRapor } from '../context/RaporContext';
 import { CHECKPOINT1_STUDENTS, ProgramChoice } from '../data/garudaData';
 import { getStudentBaselinePrograms } from '../data/programCatalog';
 import { loadCustomPrograms, safeGetItem } from '../utils/safeStorage';
+import { isReportLocked } from '../utils/reportLock';
+import { LockBanner } from '../components/LockBanner';
 
 export const UpdateRaporPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +19,7 @@ export const UpdateRaporPage: React.FC = () => {
   const student = CHECKPOINT1_STUDENTS.find((s) => s.id === requestedId) || CHECKPOINT1_STUDENTS[0];
   const studentId = student.id;
   const studentIdentity = student.identity;
+  const isLocked = isReportLocked(studentId);
   const raporData = getRapor(studentId);
 
   // Mapel pendukung mengikuti pilihan jurusan aktif siswa (termasuk perubahan dari Simulasi).
@@ -47,23 +51,16 @@ export const UpdateRaporPage: React.FC = () => {
   return (
     <div>
       {/* Topbar Super CMS */}
-      <header className="topbar">
-        <div className="topbar-inner">
-          <nav aria-label="breadcrumb" className="breadcrumbs">
-            <a href="#home">Home</a>
-            <span className="crumb-sep">›</span>
-            <Link to="/v2">Konsultasi - Checkpoint</Link>
-            <span className="crumb-sep">›</span>
-            <Link to="/v2">Detail Checkpoint 1</Link>
-            <span className="crumb-sep">›</span>
-            <span className="crumb-current">Update Nilai Rapor</span>
-          </nav>
-          <div className="user-pill">
-            <span>{studentIdentity.saName} · {studentIdentity.saEmail}</span>
-            <div className="user-avatar">WC</div>
-          </div>
-        </div>
-      </header>
+      <AppTopbar
+        crumbs={[
+          { label: 'Home', to: `/v2?student=${studentId}` },
+          { label: 'Konsultasi - Checkpoint', to: `/v2?student=${studentId}` },
+          { label: 'Detail Checkpoint 1', to: `/v2?student=${studentId}` },
+          { label: 'Update Nilai Rapor' }
+        ]}
+        saName={studentIdentity.saName}
+        saEmail={studentIdentity.saEmail}
+      />
 
       <main className="container">
         {/* Action Bar */}
@@ -79,18 +76,20 @@ export const UpdateRaporPage: React.FC = () => {
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             {savedToast && (
-              <span style={{ fontSize: 12.5, fontWeight: 700, color: '#027a48', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '5px 12px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--green-ink)', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '5px 12px', borderRadius: 9999 }}>
                 ✓ Nilai Rapor Tersimpan &amp; Tersinkron!
               </span>
             )}
-            <button type="button" className="btn btn-outline" onClick={() => { if (window.confirm('Kembalikan semua nilai rapor ke data bawaan? Nilai yang sudah disimpan akan tertimpa.')) resetRapor(studentId); }}>
+            <button type="button" className="btn btn-outline" disabled={isLocked} onClick={() => { if (window.confirm('Kembalikan semua nilai rapor ke data bawaan? Nilai yang sudah disimpan akan tertimpa.')) resetRapor(studentId); }}>
               <RotateCcw size={14} /> Reset Bawaan
             </button>
-            <button type="button" className="btn btn-primary" onClick={handleSave}>
+            <button type="button" className="btn btn-primary" disabled={isLocked} onClick={handleSave}>
               <Save size={15} /> Simpan Perubahan Rapor
             </button>
           </div>
         </div>
+
+        {isLocked && <LockBanner studentId={studentId} actionLabel="Ke Laporan untuk Buka Kunci" />}
 
         {/* Student Header */}
         <div className="student-header" style={{ padding: '4px 0 14px' }}>
@@ -117,11 +116,11 @@ export const UpdateRaporPage: React.FC = () => {
           <div className="summary-card">
             <div>
               <div className="summary-label">Rata-Rata Kumulatif (20 Mapel)</div>
-              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
                 {generalMetrics.filledCount} / {generalMetrics.totalSubjects} mapel terisi
               </div>
             </div>
-            <div className="summary-val" style={{ color: '#1078ca' }}>{generalMetrics.overallAvg}</div>
+            <div className="summary-val" style={{ color: 'var(--primary)' }}>{generalMetrics.overallAvg}</div>
           </div>
 
           {supportCards.map((g, i) => {
@@ -130,18 +129,18 @@ export const UpdateRaporPage: React.FC = () => {
               <div className="summary-card" key={g.key}>
                 <div>
                   <div className="summary-label">Mapel Pendukung {g.prodi.replace(/^S1 /, '')} ({g.label})</div>
-                  <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
                     {g.subjects.join(' & ')} ({g.univs.join(' / ')})
                   </div>
                 </div>
-                <div className="summary-val" style={{ color: i === 0 ? '#027a48' : '#b54708' }}>{m.supportAvg}</div>
+                <div className="summary-val" style={{ color: i === 0 ? 'var(--green-ink)' : 'var(--amber-ink)' }}>{m.supportAvg}</div>
               </div>
             );
           })}
         </div>
 
         {/* 20 Subjects Table */}
-        <div className="table-container">
+        <div className={isLocked ? 'table-container locked-region' : 'table-container'} inert={isLocked}>
           <table className="data-table">
             <thead>
               <tr>
@@ -165,9 +164,9 @@ export const UpdateRaporPage: React.FC = () => {
 
                 return (
                   <tr key={subj.id} style={isFilled ? undefined : { color: '#94a3b8', background: '#fafafa' }}>
-                    <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{idx + 1}</td>
+                    <td style={{ textAlign: 'center', color: 'var(--muted)', fontWeight: 600 }}>{idx + 1}</td>
                     <td>
-                      <strong style={{ color: isFilled ? 'var(--ink)' : '#64748b' }}>{subj.name}</strong>
+                      <strong style={{ color: isFilled ? 'var(--ink)' : 'var(--muted)' }}>{subj.name}</strong>
                     </td>
                     {subj.scores.map((val, sIdx) => {
                       const isZero = Number(val) === 0;
@@ -184,7 +183,7 @@ export const UpdateRaporPage: React.FC = () => {
                         </td>
                       );
                     })}
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: isFilled ? '#1078ca' : '#94a3b8' }}>
+                    <td style={{ textAlign: 'center', fontWeight: 700, color: isFilled ? 'var(--primary)' : '#94a3b8' }}>
                       {avg}
                     </td>
                   </tr>
@@ -198,7 +197,7 @@ export const UpdateRaporPage: React.FC = () => {
           <Link to={`/v2?student=${studentId}`} className="btn btn-back">
             ← Kembali ke Versi 2
           </Link>
-          <button type="button" className="btn btn-primary" onClick={handleSave}>
+          <button type="button" className="btn btn-primary" disabled={isLocked} onClick={handleSave}>
             <Save size={15} /> Simpan Perubahan Rapor
           </button>
         </div>

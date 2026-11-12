@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { AppTopbar } from '../components/AppTopbar';
 import {
   ArrowLeft,
   Info,
@@ -15,6 +16,8 @@ import {
 } from 'lucide-react';
 import { CHECKPOINT1_STUDENTS, ProgramChoice } from '../data/garudaData';
 import { ChoiceReviewModal } from '../components/ChoiceReviewModal';
+import { LockBanner } from '../components/LockBanner';
+import { isReportLocked } from '../utils/reportLock';
 import {
   PROGRAM_CATALOG,
   CATALOG_PROVINCES,
@@ -48,7 +51,7 @@ const getZoneTheme = (zone: OpportunityZone) => {
   switch (zone) {
     case 'safe':
       return {
-        textColor: '#027a48',
+        textColor: 'var(--green-ink)',
         borderColor: '#a6f4c5',
         boxBg: '#ecfdf3',
         boxBorder: '#a6f4c5'
@@ -62,7 +65,7 @@ const getZoneTheme = (zone: OpportunityZone) => {
       };
     case 'target':
       return {
-        textColor: '#b54708',
+        textColor: 'var(--amber-ink)',
         borderColor: '#fedf89',
         boxBg: '#fffcf5',
         boxBorder: '#fef0c7'
@@ -70,7 +73,7 @@ const getZoneTheme = (zone: OpportunityZone) => {
     case 'reach':
     default:
       return {
-        textColor: '#b42318',
+        textColor: 'var(--red-ink)',
         borderColor: '#fecdca',
         boxBg: '#fffbfa',
         boxBorder: '#fee4e2'
@@ -119,6 +122,7 @@ export const SimulasiPage: React.FC = () => {
   }, [searchParams]);
 
   const student = CHECKPOINT1_STUDENTS.find((s) => s.id === selectedStudentId) || CHECKPOINT1_STUDENTS[0];
+  const isLocked = isReportLocked(student.id);
 
   const [customProgramsByStudent, setCustomProgramsByStudent] = useState<Record<string, ProgramChoice[]>>(() => loadCustomPrograms());
 
@@ -478,7 +482,7 @@ export const SimulasiPage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <span
                 style={{
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 800,
                   color: theme.textColor,
                   background: theme.boxBg,
@@ -492,9 +496,9 @@ export const SimulasiPage: React.FC = () => {
               </span>
               <span
                 style={{
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 700,
-                  color: '#334155',
+                  color: 'var(--ink-soft)',
                   background: '#f1f5f9',
                   padding: '2px 6px',
                   borderRadius: 4
@@ -507,11 +511,11 @@ export const SimulasiPage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <span
                 style={{
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: '#475569',
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--page-bg)',
+                  border: '1px solid var(--border)',
                   padding: '2px 7px',
                   borderRadius: 4,
                   display: 'inline-flex',
@@ -544,7 +548,7 @@ export const SimulasiPage: React.FC = () => {
 
           {/* Prodi & Kampus */}
           <div style={{ minHeight: 46 }}>
-            <div style={{ fontSize: 14.5, fontWeight: 800, color: '#0f172a', lineHeight: 1.25 }}>
+            <div style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--ink-strong)', lineHeight: 1.25 }}>
               {sim.catalog.prodi}
             </div>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginTop: 2 }}>
@@ -559,10 +563,10 @@ export const SimulasiPage: React.FC = () => {
                 marginTop: 8,
                 padding: '6px 9px',
                 borderRadius: 6,
-                background: gapDelta > 0 ? '#ecfdf3' : '#f8fafc',
-                border: `1px solid ${gapDelta > 0 ? '#a6f4c5' : '#e2e8f0'}`,
-                fontSize: 11,
-                color: gapDelta > 0 ? '#027a48' : '#475569',
+                background: gapDelta > 0 ? '#ecfdf3' : 'var(--page-bg)',
+                border: `1px solid ${gapDelta > 0 ? '#a6f4c5' : 'var(--border)'}`,
+                fontSize: 12,
+                color: gapDelta > 0 ? 'var(--green-ink)' : '#475569',
                 fontWeight: 600,
                 lineHeight: 1.4
               }}
@@ -588,8 +592,8 @@ export const SimulasiPage: React.FC = () => {
           {/* Neutral Score Box */}
           <div
             style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: 'var(--page-bg)',
+              border: '1px solid var(--border)',
               borderRadius: 6,
               padding: '9px 11px',
               marginTop: 9,
@@ -598,29 +602,29 @@ export const SimulasiPage: React.FC = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <div>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Skor terbobot</div>
-                <div style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{sim.weightedScore}</div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Skor terbobot</div>
+                <div style={{ fontSize: 19, fontWeight: 800, color: 'var(--ink-strong)', lineHeight: 1.1 }}>{sim.weightedScore}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Target acuan</div>
-                <div style={{ fontSize: 14.5, fontWeight: 700, color: '#334155', lineHeight: 1.2 }}>{sim.catalog.targetScore}</div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Target acuan</div>
+                <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--ink-soft)', lineHeight: 1.2 }}>{sim.catalog.targetScore}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Jarak target</div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Jarak target</div>
                 <div style={{ fontSize: 13, fontWeight: 800, color: theme.textColor, lineHeight: 1.2 }}>
                   {sim.gap > 0 ? `+${sim.gap}` : sim.gap}
                 </div>
               </div>
             </div>
-            <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#475569' }}>
-              <span>Keketatan: <strong style={{ color: '#0f172a' }}>{sim.catalog.tightness.replace('.', ',')}</strong></span>
-              <span>Kuota: <strong style={{ color: '#0f172a' }}>{sim.catalog.quota2026} kursi</strong></span>
+            <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed var(--border)', display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569' }}>
+              <span>Keketatan: <strong style={{ color: 'var(--ink-strong)' }}>{sim.catalog.tightness.replace('.', ',')}</strong></span>
+              <span>Kuota: <strong style={{ color: 'var(--ink-strong)' }}>{sim.catalog.quota2026} kursi</strong></span>
             </div>
           </div>
 
           {/* 3 Subtes Pembobot Utama */}
-          <div style={{ fontSize: 11, marginBottom: 10 }}>
-            <div style={{ fontWeight: 700, color: '#334155', marginBottom: 4 }}>
+          <div style={{ fontSize: 12, marginBottom: 10 }}>
+            <div style={{ fontWeight: 700, color: 'var(--ink-soft)', marginBottom: 4 }}>
               3 Subtes Pembobot Utama (Skor Anda):
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -631,16 +635,16 @@ export const SimulasiPage: React.FC = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    background: '#f8fafc',
+                    background: 'var(--page-bg)',
                     padding: '3.5px 8px',
                     borderRadius: 4,
                     border: '1px solid #f1f5f9'
                   }}
                 >
                   <span style={{ color: '#475569' }}>
-                    <strong style={{ color: '#0f172a' }}>{sub.shortLabel}</strong> · {sub.name}
+                    <strong style={{ color: 'var(--ink-strong)' }}>{sub.shortLabel}</strong> · {sub.name}
                   </span>
-                  <span style={{ fontWeight: 700, color: sub.studentScore >= 600 ? '#027a48' : '#0f172a' }}>
+                  <span style={{ fontWeight: 700, color: sub.studentScore >= 600 ? 'var(--green-ink)' : 'var(--ink-strong)' }}>
                     {sub.studentScore}
                   </span>
                 </div>
@@ -650,9 +654,9 @@ export const SimulasiPage: React.FC = () => {
         </div>
 
         {/* Bottom CTA or Info */}
-        <div style={{ paddingTop: 8, borderTop: '1px dashed #e2e8f0', fontSize: 11, color: '#475569' }}>
+        <div style={{ paddingTop: 8, borderTop: '1px dashed var(--border)', fontSize: 12, color: '#475569' }}>
           <div style={{ marginBottom: opts.isCandidate ? 8 : 4 }}>
-            Rapor SNBP: <strong style={{ color: '#0f172a' }}>{sim.catalog.supportSubjects.join(', ')}</strong>
+            Rapor SNBP: <strong style={{ color: 'var(--ink-strong)' }}>{sim.catalog.supportSubjects.join(', ')}</strong>
           </div>
           {opts.isCandidate ? (
             <Button
@@ -666,7 +670,7 @@ export const SimulasiPage: React.FC = () => {
           ) : (
             <span
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 700,
                 color: theme.textColor,
                 background: theme.boxBg,
@@ -687,44 +691,17 @@ export const SimulasiPage: React.FC = () => {
   return (
     <div>
       {/* Topbar Super CMS */}
-      <header className="topbar">
-        <div className="topbar-inner">
-          <nav aria-label="breadcrumb" className="breadcrumbs">
-            <Link to={`/v2?student=${student.id}`}>Home</Link>
-            <span className="crumb-sep">›</span>
-            <Link to={`/v2?student=${student.id}`}>Konsultasi - Checkpoint</Link>
-            <span className="crumb-sep">›</span>
-            <Link to={`/v2?student=${student.id}`}>Detail Checkpoint 1</Link>
-            <span className="crumb-sep">›</span>
-            <span className="crumb-current">Simulasi &amp; Komparasi Prodi PTN</span>
-          </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link
-              to="/engine"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '5px 12px',
-                borderRadius: 6,
-                fontSize: 12,
-                fontWeight: 600,
-                background: '#f8fafc',
-                color: '#334155',
-                border: '1px solid #cbd5e1',
-                textDecoration: 'none'
-              }}
-            >
-              <GitBranch size={13} color="#1078ca" />
-              <span>Engine Aturan</span>
-            </Link>
-            <div className="user-pill">
-              <span>{student.identity.saName} · {student.identity.saEmail}</span>
-              <div className="user-avatar">WC</div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppTopbar
+        crumbs={[
+          { label: 'Home', to: `/v2?student=${student.id}` },
+          { label: 'Konsultasi - Checkpoint', to: `/v2?student=${student.id}` },
+          { label: 'Detail Checkpoint 1', to: `/v2?student=${student.id}` },
+          { label: 'Simulasi & Komparasi Prodi PTN' }
+        ]}
+        saName={student.identity.saName}
+        saEmail={student.identity.saEmail}
+        engine={{ customized: false }}
+      />
 
       <main className="container">
         {/* Action Bar */}
@@ -742,7 +719,7 @@ export const SimulasiPage: React.FC = () => {
                   gap: 5,
                   fontSize: 12,
                   fontWeight: 700,
-                  color: '#027a48',
+                  color: 'var(--green-ink)',
                   background: '#ecfdf3',
                   border: '1px solid #a6f4c5',
                   padding: '5px 12px',
@@ -752,7 +729,7 @@ export const SimulasiPage: React.FC = () => {
                 <CheckCircle2 size={14} /> {actionToast}
               </span>
             )}
-            {isCustomized && (
+            {isCustomized && !isLocked && (
               <Button variant="warn" icon={<RotateCcw size={14} />} onClick={handleRequestResetPrograms}>
                 Reset Pilihan Awal
               </Button>
@@ -762,6 +739,8 @@ export const SimulasiPage: React.FC = () => {
             </Button>
           </div>
         </div>
+
+        {isLocked && <LockBanner studentId={student.id} actionLabel="Ke Laporan untuk Buka Kunci" />}
 
         {/* Minimalist Header & Context Bar */}
         <div
@@ -777,12 +756,12 @@ export const SimulasiPage: React.FC = () => {
           }}
         >
           <div>
-            <h1 style={{ margin: 0, fontSize: 18.5, fontWeight: 800, color: '#0f172a', letterSpacing: -0.2 }}>
+            <h1 style={{ margin: 0, fontSize: 18.5, fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: -0.2 }}>
               Simulasi &amp; Komparasi Prodi PTN
             </h1>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, flexWrap: 'wrap', fontSize: 12.5, color: '#64748b' }}>
-              <span style={{ fontWeight: 600, color: '#334155' }}>{student.identity.name}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, flexWrap: 'wrap', fontSize: 12.5, color: 'var(--muted)' }}>
+              <span style={{ fontWeight: 600, color: 'var(--ink-soft)' }}>{student.identity.name}</span>
 
               <div style={{ position: 'relative' }} ref={studentMenuRef}>
                 <button
@@ -793,10 +772,10 @@ export const SimulasiPage: React.FC = () => {
                     alignItems: 'center',
                     gap: 4,
                     padding: '2px 8px',
-                    fontSize: 11.5,
+                    fontSize: 12,
                     fontWeight: 600,
-                    color: '#1078ca',
-                    background: isStudentMenuOpen ? '#eff8ff' : '#f8fafc',
+                    color: 'var(--primary)',
+                    background: isStudentMenuOpen ? '#eff8ff' : 'var(--page-bg)',
                     border: '1px solid #d0d5dd',
                     borderRadius: 5,
                     cursor: 'pointer'
@@ -822,13 +801,13 @@ export const SimulasiPage: React.FC = () => {
                       background: '#ffffff',
                       borderRadius: 8,
                       boxShadow: '0 12px 28px -4px rgba(15, 23, 42, 0.15), 0 6px 12px -4px rgba(15, 23, 42, 0.08)',
-                      border: '1px solid #e2e8f0',
+                      border: '1px solid var(--border)',
                       padding: 6,
                       minWidth: 320,
                       zIndex: 9999
                     }}
                   >
-                    <div style={{ padding: '6px 10px 4px', fontSize: 10.5, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                    <div style={{ padding: '6px 10px 4px', fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                       Pilih Profil Siswa Checkpoint 1
                     </div>
                     {CHECKPOINT1_STUDENTS.map((st) => {
@@ -849,19 +828,19 @@ export const SimulasiPage: React.FC = () => {
                             display: 'block'
                           }}
                           onMouseEnter={(e) => {
-                            if (!isSelected) e.currentTarget.style.background = '#f8fafc';
+                            if (!isSelected) e.currentTarget.style.background = 'var(--page-bg)';
                           }}
                           onMouseLeave={(e) => {
                             if (!isSelected) e.currentTarget.style.background = 'transparent';
                           }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: 12.5, fontWeight: isSelected ? 700 : 600, color: isSelected ? '#1078ca' : '#1e293b' }}>
+                            <span style={{ fontSize: 12.5, fontWeight: isSelected ? 700 : 600, color: isSelected ? 'var(--primary)' : '#1e293b' }}>
                               {st.name}
                             </span>
-                            {isSelected && <span style={{ fontSize: 11, fontWeight: 700, color: '#1078ca' }}>✓ Aktif</span>}
+                            {isSelected && <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>✓ Aktif</span>}
                           </div>
-                          <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{st.tagline}</div>
+                          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{st.tagline}</div>
                         </button>
                       );
                     })}
@@ -878,7 +857,7 @@ export const SimulasiPage: React.FC = () => {
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 11.5, fontWeight: 600, color: '#64748b' }}>Basis skor terbobot:</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>Basis skor terbobot:</span>
               <SegmentedControl<ScoreBasis>
                 ariaLabel="Basis skor"
                 value={scoreBasis}
@@ -890,7 +869,7 @@ export const SimulasiPage: React.FC = () => {
                 ]}
               />
             </div>
-            <span style={{ fontSize: 11, color: '#245f5a', fontWeight: 600 }}>
+            <span style={{ fontSize: 12, color: 'var(--tosca-dark)', fontWeight: 600 }}>
               {scoreBasis === 'to4'
                 ? `Aktif: Dihitung berdasarkan skor TO 4 terbaru (${latestTO4}), bukan rata-rata 4 TO`
                 : scoreBasis === 'median'
@@ -900,16 +879,17 @@ export const SimulasiPage: React.FC = () => {
           </div>
         </div>
 
+        <div inert={isLocked} className={isLocked ? 'locked-region' : undefined}>
         {/* ========================================================= */}
         {/* BAGIAN 1: STRIP FORMULASI SNBT (1-4 SLOT RINGKAS)         */}
         {/* ========================================================= */}
         <Card as="section" style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
-            <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0f172a' }}>
-              1. Formulasi Pilihan SNBT Siswa <span style={{ fontWeight: 500, color: '#64748b', fontSize: 12 }}>(Klik salah satu pilihan untuk dievaluasi &amp; dibandingkan)</span>
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--ink-strong)' }}>
+              1. Formulasi Pilihan SNBT Siswa <span style={{ fontWeight: 500, color: 'var(--muted)', fontSize: 12 }}>(Klik salah satu pilihan untuk dievaluasi &amp; dibandingkan)</span>
             </div>
-            <span style={{ fontSize: 11.5, fontWeight: 600, color: '#475467' }}>
-              Komposisi: <strong style={{ color: '#0f172a' }}>{snbtValidation.patternLabel}</strong>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--slate-600)' }}>
+              Komposisi: <strong style={{ color: 'var(--ink-strong)' }}>{snbtValidation.patternLabel}</strong>
             </span>
           </div>
 
@@ -934,7 +914,7 @@ export const SimulasiPage: React.FC = () => {
                     }
                   }}
                   style={{
-                    background: isFocused ? '#e6f4f2' : '#ffffff',
+                    background: isFocused ? 'var(--primary-light)' : '#ffffff',
                     border: isFocused ? '2px solid #58aebd' : `1px solid ${theme.borderColor}`,
                     borderRadius: 8,
                     padding: '9px 11px',
@@ -947,17 +927,17 @@ export const SimulasiPage: React.FC = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <span
                         style={{
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 800,
-                          color: isFocused ? '#ffffff' : '#334155',
-                          background: isFocused ? '#398896' : '#f1f5f9',
+                          color: isFocused ? '#ffffff' : 'var(--ink-soft)',
+                          background: isFocused ? 'var(--primary)' : '#f1f5f9',
                           padding: '1.5px 6px',
                           borderRadius: 4
                         }}
                       >
                         Pilihan {slot.slotIndex + 1}
                       </span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#475569' }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>
                         {slot.sim.catalog.degree}
                       </span>
                     </div>
@@ -982,16 +962,16 @@ export const SimulasiPage: React.FC = () => {
                     )}
                   </div>
 
-                  <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink-strong)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {slot.sim.catalog.prodi}
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {slot.sim.catalog.shortUniv} · {slot.sim.catalog.city}
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, paddingTop: 5, borderTop: '1px dashed #e2e8f0', fontSize: 11 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, paddingTop: 5, borderTop: '1px dashed var(--border)', fontSize: 12 }}>
                     <span style={{ color: '#475569' }}>
-                      Skor <strong style={{ color: '#0f172a' }}>{slot.sim.weightedScore}</strong>
+                      Skor <strong style={{ color: 'var(--ink-strong)' }}>{slot.sim.weightedScore}</strong>
                     </span>
                     <span style={{ fontWeight: 800, color: theme.textColor }}>
                       {slot.sim.gap > 0 ? `+${slot.sim.gap}` : slot.sim.gap}
@@ -1012,8 +992,8 @@ export const SimulasiPage: React.FC = () => {
                   }
                 }}
                 style={{
-                  background: focusedSlotIdx === activePrograms.length ? '#e6f4f2' : '#f8fafc',
-                  border: focusedSlotIdx === activePrograms.length ? '2px dashed #58aebd' : '1.5px dashed #cbd5e1',
+                  background: focusedSlotIdx === activePrograms.length ? 'var(--primary-light)' : 'var(--page-bg)',
+                  border: focusedSlotIdx === activePrograms.length ? '2px dashed #58aebd' : '1.5px dashed var(--border-strong)',
                   borderRadius: 8,
                   padding: '10px 12px',
                   cursor: 'pointer',
@@ -1022,14 +1002,14 @@ export const SimulasiPage: React.FC = () => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   textAlign: 'center',
-                  color: focusedSlotIdx === activePrograms.length ? '#245f5a' : '#64748b'
+                  color: focusedSlotIdx === activePrograms.length ? 'var(--tosca-dark)' : 'var(--muted)'
                 }}
               >
                 <Plus size={16} />
-                <div style={{ fontSize: 11.5, fontWeight: 700, marginTop: 3 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, marginTop: 3 }}>
                   Tambah Pilihan {activePrograms.length + 1}
                 </div>
-                <div style={{ fontSize: 10, marginTop: 1 }}>
+                <div style={{ fontSize: 12, marginTop: 1 }}>
                   {activePrograms.length >= 2 ? 'Vokasi (D4 / D3)' : 'Opsional s.d. 4 pilihan'}
                 </div>
               </button>
@@ -1064,11 +1044,11 @@ export const SimulasiPage: React.FC = () => {
         <Card as="section" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
             <div>
-              <h2 style={{ fontSize: 15.5, fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
-                <ArrowRightLeft size={16} color="#398896" />
+              <h2 style={{ fontSize: 15.5, fontWeight: 800, color: 'var(--ink-strong)', margin: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
+                <ArrowRightLeft size={16} color="var(--primary)" />
                 2. Meja Bandingkan: Fokus Pilihan {focusedSlotIdx + 1}
               </h2>
-              <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>
+              <p style={{ fontSize: 12, color: 'var(--muted)', margin: '3px 0 0' }}>
                 {focusedSlot
                   ? `Membandingkan ${focusedSlot.sim.catalog.prodi} (${focusedSlot.sim.catalog.shortUniv}) dengan maksimal 2 alternatif dari katalog di bawah.`
                   : `Pilih salah satu prodi dari katalog di bawah untuk mengisi Slot Pilihan ${focusedSlotIdx + 1}.`}
@@ -1094,8 +1074,8 @@ export const SimulasiPage: React.FC = () => {
             ) : (
               <div
                 style={{
-                  background: '#f8fafc',
-                  border: '1.5px dashed #1078ca',
+                  background: 'var(--page-bg)',
+                  border: '1.5px dashed var(--primary)',
                   borderRadius: 10,
                   padding: 18,
                   display: 'flex',
@@ -1106,10 +1086,10 @@ export const SimulasiPage: React.FC = () => {
                   color: '#475569'
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1078ca', marginBottom: 6 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)', marginBottom: 6 }}>
                   Slot Pilihan {focusedSlotIdx + 1} (Baru)
                 </div>
-                <p style={{ fontSize: 11.5, lineHeight: 1.5, margin: 0 }}>
+                <p style={{ fontSize: 12, lineHeight: 1.5, margin: 0 }}>
                   Gunakan filter di bawah lalu klik <strong>Pilih</strong> atau bandingkan kandidat terlebih dahulu.
                 </p>
               </div>
@@ -1135,8 +1115,8 @@ export const SimulasiPage: React.FC = () => {
                 <div
                   key={`empty_cand_${candIdx}`}
                   style={{
-                    background: '#f8fafc',
-                    border: '1.5px dashed #cbd5e1',
+                    background: 'var(--page-bg)',
+                    border: '1.5px dashed var(--border-strong)',
                     borderRadius: 10,
                     padding: 18,
                     display: 'flex',
@@ -1144,7 +1124,7 @@ export const SimulasiPage: React.FC = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     textAlign: 'center',
-                    color: '#64748b'
+                    color: 'var(--muted)'
                   }}
                 >
                   <div
@@ -1152,7 +1132,7 @@ export const SimulasiPage: React.FC = () => {
                       width: 38,
                       height: 38,
                       borderRadius: '50%',
-                      background: '#e2e8f0',
+                      background: 'var(--border)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1161,10 +1141,10 @@ export const SimulasiPage: React.FC = () => {
                   >
                     <Plus size={18} color="#475569" />
                   </div>
-                  <div style={{ fontSize: 12.5, fontWeight: 700, color: '#334155', marginBottom: 4 }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink-soft)', marginBottom: 4 }}>
                     Alternatif {candIdx + 1}
                   </div>
-                  <p style={{ fontSize: 11.5, lineHeight: 1.45, margin: 0 }}>
+                  <p style={{ fontSize: 12, lineHeight: 1.45, margin: 0 }}>
                     Klik tombol <strong>+ Bandingkan</strong> di katalog bawah untuk menimbang prodi ini terhadap Pilihan {focusedSlotIdx + 1}.
                   </p>
                 </div>
@@ -1179,10 +1159,10 @@ export const SimulasiPage: React.FC = () => {
         <Card as="section" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
             <div>
-              <h2 style={{ fontSize: 15.5, fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <h2 style={{ fontSize: 15.5, fontWeight: 700, color: 'var(--ink-strong)', margin: 0 }}>
                 Cari kampus dan program studi
               </h2>
-              <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>
+              <p style={{ fontSize: 12, color: 'var(--muted)', margin: '3px 0 0' }}>
                 UTBK-SNBT maksimal 4 pilihan (maks. 2 S1; pilihan ke-3/4 kombinasi Vokasi D4/D3). Tersedia {filteredCatalog.length} prodi sesuai filter.
               </p>
             </div>
@@ -1205,10 +1185,10 @@ export const SimulasiPage: React.FC = () => {
                   type="button"
                   onClick={handleResetFilters}
                   style={{
-                    fontSize: 11.5,
+                    fontSize: 12,
                     fontWeight: 600,
-                    color: '#475467',
-                    background: '#f8fafc',
+                    color: 'var(--slate-600)',
+                    background: 'var(--page-bg)',
                     border: '1px solid #d0d5dd',
                     borderRadius: 6,
                     padding: '5px 10px',
@@ -1235,7 +1215,7 @@ export const SimulasiPage: React.FC = () => {
           >
             {/* 1. Provinsi kampus */}
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-soft)', marginBottom: 5 }}>
                 Provinsi kampus
               </label>
               <select
@@ -1245,7 +1225,7 @@ export const SimulasiPage: React.FC = () => {
                   width: '100%',
                   padding: '8px 10px',
                   fontSize: 12.5,
-                  color: provinceFilter === 'all' ? '#64748b' : '#0f172a',
+                  color: provinceFilter === 'all' ? 'var(--muted)' : 'var(--ink-strong)',
                   background: '#ffffff',
                   border: '1px solid #d0d5dd',
                   borderRadius: 6,
@@ -1264,7 +1244,7 @@ export const SimulasiPage: React.FC = () => {
 
             {/* 2. Rumpun */}
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-soft)', marginBottom: 5 }}>
                 Rumpun
               </label>
               <select
@@ -1274,7 +1254,7 @@ export const SimulasiPage: React.FC = () => {
                   width: '100%',
                   padding: '8px 10px',
                   fontSize: 12.5,
-                  color: rumpunFilter === 'all' ? '#64748b' : '#0f172a',
+                  color: rumpunFilter === 'all' ? 'var(--muted)' : 'var(--ink-strong)',
                   background: '#ffffff',
                   border: '1px solid #d0d5dd',
                   borderRadius: 6,
@@ -1293,7 +1273,7 @@ export const SimulasiPage: React.FC = () => {
 
             {/* 3. Universitas */}
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-soft)', marginBottom: 5 }}>
                 Universitas
               </label>
               <select
@@ -1303,7 +1283,7 @@ export const SimulasiPage: React.FC = () => {
                   width: '100%',
                   padding: '8px 10px',
                   fontSize: 12.5,
-                  color: universityFilter === 'all' ? '#64748b' : '#0f172a',
+                  color: universityFilter === 'all' ? 'var(--muted)' : 'var(--ink-strong)',
                   background: '#ffffff',
                   border: '1px solid #d0d5dd',
                   borderRadius: 6,
@@ -1322,7 +1302,7 @@ export const SimulasiPage: React.FC = () => {
 
             {/* 4. Tier (Empty matching existing Student Tower) */}
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-soft)', marginBottom: 5 }}>
                 Tier
               </label>
               <select
@@ -1334,8 +1314,8 @@ export const SimulasiPage: React.FC = () => {
                   padding: '8px 10px',
                   fontSize: 12.5,
                   color: '#94a3b8',
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--page-bg)',
+                  border: '1px solid var(--border)',
                   borderRadius: 6,
                   outline: 'none',
                   cursor: 'not-allowed'
@@ -1347,7 +1327,7 @@ export const SimulasiPage: React.FC = () => {
 
             {/* 5. Kampus atau jurusan */}
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-soft)', marginBottom: 5 }}>
                 Kampus atau jurusan
               </label>
               <input
@@ -1363,7 +1343,7 @@ export const SimulasiPage: React.FC = () => {
                   borderRadius: 6,
                   outline: 'none',
                   background: '#ffffff',
-                  color: '#0f172a',
+                  color: 'var(--ink-strong)',
                   boxSizing: 'border-box'
                 }}
               />
@@ -1371,7 +1351,7 @@ export const SimulasiPage: React.FC = () => {
 
             {/* 6. Peluang */}
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-soft)', marginBottom: 5 }}>
                 Peluang
               </label>
               <select
@@ -1381,7 +1361,7 @@ export const SimulasiPage: React.FC = () => {
                   width: '100%',
                   padding: '8px 10px',
                   fontSize: 12.5,
-                  color: opportunityFilter === 'all' ? '#64748b' : '#0f172a',
+                  color: opportunityFilter === 'all' ? 'var(--muted)' : 'var(--ink-strong)',
                   background: '#ffffff',
                   border: '1px solid #d0d5dd',
                   borderRadius: 6,
@@ -1414,7 +1394,7 @@ export const SimulasiPage: React.FC = () => {
               <tbody>
                 {filteredCatalog.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ textAlign: 'center', padding: 28, color: '#64748b', fontSize: 13 }}>
+                    <td colSpan={6} style={{ textAlign: 'center', padding: 28, color: 'var(--muted)', fontSize: 13 }}>
                       Tidak ada program studi yang sesuai dengan kombinasi filter saat ini. Coba ubah filter atau klik Reset filter.
                     </td>
                   </tr>
@@ -1428,21 +1408,21 @@ export const SimulasiPage: React.FC = () => {
                       <tr
                         key={sim.catalog.id}
                         style={{
-                          background: isCompared ? '#f0f9ff' : activeLabel ? '#f8fafc' : undefined
+                          background: isCompared ? '#f0f9ff' : activeLabel ? 'var(--page-bg)' : undefined
                         }}
                       >
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                            <strong style={{ color: '#0f172a', fontSize: 13 }}>
+                            <strong style={{ color: 'var(--ink-strong)', fontSize: 13 }}>
                               {sim.catalog.prodi} — {sim.catalog.shortUniv}
                             </strong>
                             <span
                               style={{
-                                fontSize: 9.5,
+                                fontSize: 12,
                                 fontWeight: 700,
                                 background: sim.catalog.degree === 'S1' ? '#f1f5f9' : '#ecfdf3',
-                                color: sim.catalog.degree === 'S1' ? '#475569' : '#027a48',
-                                border: `1px solid ${sim.catalog.degree === 'S1' ? '#e2e8f0' : '#a6f4c5'}`,
+                                color: sim.catalog.degree === 'S1' ? '#475569' : 'var(--green-ink)',
+                                border: `1px solid ${sim.catalog.degree === 'S1' ? 'var(--border)' : '#a6f4c5'}`,
                                 padding: '1px 5px',
                                 borderRadius: 4
                               }}
@@ -1452,7 +1432,7 @@ export const SimulasiPage: React.FC = () => {
                             {activeLabel && (
                               <span
                                 style={{
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: 700,
                                   background: '#dbeafe',
                                   color: '#1e40af',
@@ -1464,11 +1444,11 @@ export const SimulasiPage: React.FC = () => {
                               </span>
                             )}
                           </div>
-                          <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 2 }}>
+                          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
                             {sim.catalog.rumpunName} · Pembobot: {sim.prioritySubtestDetails.map((d) => d.shortLabel).join(', ')}
                           </div>
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: '#0f172a' }}>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: 'var(--ink-strong)' }}>
                           {sim.weightedScore}
                         </td>
                         <td style={{ textAlign: 'center', fontWeight: 700, fontSize: 13.5, color: '#475569' }}>
@@ -1479,11 +1459,11 @@ export const SimulasiPage: React.FC = () => {
                             {sim.gap > 0 ? `+${sim.gap}` : sim.gap}
                           </Pill>
                         </td>
-                        <td style={{ textAlign: 'center', fontSize: 11.5, color: '#334155' }}>
+                        <td style={{ textAlign: 'center', fontSize: 12, color: 'var(--ink-soft)' }}>
                           <div>
                             <strong>{sim.catalog.tightness.replace('.', ',')}</strong> · {sim.catalog.quota2026} kursi
                           </div>
-                          <div style={{ color: '#64748b', marginTop: 2 }}>
+                          <div style={{ color: 'var(--muted)', marginTop: 2 }}>
                             {sim.catalog.city}, {sim.catalog.province}
                           </div>
                         </td>
@@ -1509,6 +1489,8 @@ export const SimulasiPage: React.FC = () => {
             </table>
           </div>
         </Card>
+
+        </div>
 
         {/* Mandatory Disclaimer */}
         <Callout tone="warn" icon={<Info size={17} />} style={{ marginBottom: 24 }}>
@@ -1545,7 +1527,7 @@ export const SimulasiPage: React.FC = () => {
           }
         >
           <p className="rg-note" style={{ marginBottom: 8 }}>Siswa: {student.name}</p>
-          <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, margin: 0 }}>
+          <p style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.5, margin: 0 }}>
             Seluruh perubahan formulasi hasil simulasi untuk <strong>{student.name}</strong> akan dihapus dan dikembalikan ke 3 pilihan awal siswa saat sesi konsultasi dibuka.
           </p>
         </Dialog>
@@ -1568,7 +1550,7 @@ export const SimulasiPage: React.FC = () => {
               <p className="rg-note" style={{ marginBottom: 8 }}>
                 {slotToRemove.choice.prodi} — {slotToRemove.choice.univ}
               </p>
-              <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, margin: 0 }}>
+              <p style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.5, margin: 0 }}>
                 Apakah Anda yakin ingin menghapus <strong>{slotToRemove.choice.prodi} ({slotToRemove.choice.univ})</strong> dari formulasi pilihan {student.name}? Urutan pilihan di bawahnya akan digeser secara otomatis.
               </p>
             </>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { AppTopbar } from '../components/AppTopbar';
 import {
   ArrowLeft,
   GitBranch,
@@ -369,48 +370,28 @@ export const EngineMatrixPage: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', paddingBottom: 64 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--page-bg)', paddingBottom: 64 }}>
       {/* Topbar */}
-      <header className="topbar">
-        <div className="topbar-inner">
-          <nav aria-label="breadcrumb" className="breadcrumbs">
-            <Link to="/v2">Detail Checkpoint 1</Link>
-            <span className="crumb-sep">›</span>
-            <span className="crumb-current">Kontrol Engine Panduan SA (White-Box)</span>
-          </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {isCustomized && (
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#b54708',
-                  background: '#fef0c7',
-                  border: '1px solid #fedf89',
-                  padding: '3px 10px',
-                  borderRadius: 9999
-                }}
-              >
-                Aturan Custom Aktif
-              </span>
-            )}
-            <Link
-              to="/v2"
-              className="btn btn-outline"
-              style={{ padding: '6px 12px', fontSize: 12, textDecoration: 'none' }}
-            >
-              <ArrowLeft size={14} /> Kembali ke Dashboard V2
-            </Link>
-          </div>
-        </div>
-      </header>
+      <AppTopbar
+        crumbs={[
+          { label: 'Home', to: '/v2' },
+          { label: 'Konsultasi - Checkpoint', to: '/v2' },
+          { label: 'Detail Checkpoint 1', to: '/v2' },
+          { label: 'Kontrol Engine Panduan SA (White-Box)' }
+        ]}
+      >
+        {isCustomized && <span className="engine-chip engine-chip--custom">Aturan Custom Aktif</span>}
+        <Link to="/v2" className="btn btn-outline" style={{ padding: '6px 12px', fontSize: 12, textDecoration: 'none' }}>
+          <ArrowLeft size={14} /> Kembali ke Dashboard V2
+        </Link>
+      </AppTopbar>
 
       <main className="container" style={{ paddingTop: 20 }}>
         {/* Header Banner */}
         <div
           style={{
             background: '#ffffff',
-            border: '1px solid #cbd5e1',
+            border: '1px solid var(--border-strong)',
             borderRadius: 12,
             padding: '18px 22px',
             marginBottom: 20,
@@ -425,22 +406,22 @@ export const EngineMatrixPage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 800,
-                  color: '#245f5a',
-                  background: '#e6f4f2',
-                  border: '1px solid #a7d7dc',
+                  color: 'var(--tosca-dark)',
+                  background: 'var(--primary-light)',
+                  border: '1px solid var(--primary-border)',
                   padding: '2px 10px',
                   borderRadius: 9999
                 }}
               >
                 WHITE-BOX · DETERMINISTIK · TERKONTROL
               </span>
-              <span style={{ fontSize: 11.5, color: '#64748b' }}>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>
                 Inspeksi alasan tiap aturan terpicu sekaligus ubah ambang batas &amp; output wording secara langsung
               </span>
             </div>
-            <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+            <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--ink-strong)', margin: 0 }}>
               Engine Panduan SA: Simulator, Jejak Aturan &amp; Kontrol Output
             </h1>
           </div>
@@ -459,7 +440,7 @@ export const EngineMatrixPage: React.FC = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                background: activeTab === 'simulator' ? '#398896' : 'transparent',
+                background: activeTab === 'simulator' ? 'var(--primary)' : 'transparent',
                 color: activeTab === 'simulator' ? '#ffffff' : '#475569'
               }}
             >
@@ -478,7 +459,7 @@ export const EngineMatrixPage: React.FC = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                background: activeTab === 'controls' ? '#398896' : 'transparent',
+                background: activeTab === 'controls' ? 'var(--primary)' : 'transparent',
                 color: activeTab === 'controls' ? '#ffffff' : '#475569'
               }}
             >
@@ -497,7 +478,7 @@ export const EngineMatrixPage: React.FC = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                background: activeTab === 'matrix' ? '#398896' : 'transparent',
+                background: activeTab === 'matrix' ? 'var(--primary)' : 'transparent',
                 color: activeTab === 'matrix' ? '#ffffff' : '#475569'
               }}
             >
@@ -510,9 +491,9 @@ export const EngineMatrixPage: React.FC = () => {
               style={{
                 padding: '6px 12px',
                 fontSize: 12,
-                color: '#245f5a',
-                background: '#e6f4f2',
-                borderColor: '#a7d7dc'
+                color: 'var(--tosca-dark)',
+                background: 'var(--primary-light)',
+                borderColor: 'var(--primary-border)'
               }}
               title="Ekspor seluruh rule & template teks ke file CSV siap buka di Google Sheets / Excel"
             >
@@ -526,7 +507,7 @@ export const EngineMatrixPage: React.FC = () => {
             style={{
               background: '#ecfdf3',
               border: '1px solid #a6f4c5',
-              color: '#027a48',
+              color: 'var(--green-ink)',
               padding: '10px 14px',
               borderRadius: 8,
               fontSize: 12.5,
@@ -556,16 +537,16 @@ export const EngineMatrixPage: React.FC = () => {
                       style={{
                         textAlign: 'left',
                         background: isActive ? '#eff8ff' : '#ffffff',
-                        border: isActive ? '1.5px solid #1078ca' : '1px solid #cbd5e1',
+                        border: isActive ? '1.5px solid var(--primary)' : '1px solid var(--border-strong)',
                         borderRadius: 8,
                         padding: '10px 12px',
                         cursor: 'pointer'
                       }}
                     >
-                      <div style={{ fontSize: 12.5, fontWeight: 800, color: isActive ? '#1078ca' : '#0f172a', marginBottom: 4 }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 800, color: isActive ? 'var(--primary)' : 'var(--ink-strong)', marginBottom: 4 }}>
                         {p.label}
                       </div>
-                      <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4 }}>{p.desc}</div>
+                      <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>{p.desc}</div>
                     </button>
                   );
                 })}
@@ -578,7 +559,7 @@ export const EngineMatrixPage: React.FC = () => {
               <div
                 style={{
                   background: '#ffffff',
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid var(--border-strong)',
                   borderRadius: 10,
                   padding: 16,
                   display: 'flex',
@@ -587,13 +568,13 @@ export const EngineMatrixPage: React.FC = () => {
                 }}
               >
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: '#1078ca', marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--primary)', marginBottom: 8 }}>
                     1. DATA TAHAP 1 (TRYOUT &amp; KEHADIRAN)
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 8 }}>
                     {toScores.map((val, idx) => (
                       <div key={idx}>
-                        <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                        <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                           TO {idx + 1}
                         </label>
                         <input
@@ -606,14 +587,14 @@ export const EngineMatrixPage: React.FC = () => {
                             setToScores(next);
                             setSelectedPreset('custom');
                           }}
-                          style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12.5 }}
+                          style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12.5 }}
                         />
                       </div>
                     ))}
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     <div>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                         Subtes ≥ {targetBasis}
                       </label>
                       <input
@@ -622,11 +603,11 @@ export const EngineMatrixPage: React.FC = () => {
                         max={8}
                         value={aboveTargetCount}
                         onChange={(e) => setAboveTargetCount(Math.max(0, Math.min(8, Number(e.target.value) || 0)))}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12.5 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12.5 }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                         Kehadiran Kelas (%)
                       </label>
                       <input
@@ -635,11 +616,11 @@ export const EngineMatrixPage: React.FC = () => {
                         max={100}
                         value={attendanceRatePct}
                         onChange={(e) => setAttendanceRatePct(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12.5 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12.5 }}
                       />
                     </div>
                   </div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: '#334155', marginTop: 8, cursor: 'pointer' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-soft)', marginTop: 8, cursor: 'pointer' }}>
                     <input
                       type="checkbox"
                       checked={hasLargeSubtestSwing}
@@ -649,24 +630,24 @@ export const EngineMatrixPage: React.FC = () => {
                   </label>
                 </div>
 
-                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
+                <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#0284c7', marginBottom: 8 }}>
                     2. DATA TAHAP 2 (JURUSAN &amp; KELUARGA)
                   </div>
-                  <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                     Keselarasan Pilihan Siswa &amp; Orang Tua
                   </label>
                   <select
                     value={familyAlignment}
                     onChange={(e) => setFamilyAlignment(e.target.value as PresetConfig['familyAlignment'])}
-                    style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, marginBottom: 8 }}
+                    style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12, marginBottom: 8 }}
                   >
                     <option value="different_major">Konflik / Beda Rumpun Prodi</option>
                     <option value="aligned">Selaras antara Siswa &amp; Ortu</option>
                     <option value="location_limit">Terbatas Izin Lokasi / Luar Kota</option>
                     <option value="unconfirmed">Belum Terkonfirmasi Keluarga</option>
                   </select>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: '#334155', marginBottom: 8, cursor: 'pointer' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-soft)', marginBottom: 8, cursor: 'pointer' }}>
                     <input
                       type="checkbox"
                       checked={hasMixedRumpun}
@@ -676,48 +657,48 @@ export const EngineMatrixPage: React.FC = () => {
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     <div>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                         Gap Terbobot Terlebar
                       </label>
                       <input
                         type="number"
                         value={minGapToTarget}
                         onChange={(e) => setMinGapToTarget(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                         Min. Pembanding (Peserta)
                       </label>
                       <input
                         type="number"
                         value={minParticipantsCount}
                         onChange={(e) => setMinParticipantsCount(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                       />
                     </div>
                   </div>
                 </div>
 
-                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: '#b54708', marginBottom: 8 }}>
+                <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--amber-ink)', marginBottom: 8 }}>
                     3. DATA TAHAP 3 (SUBTES &amp; DRILL)
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     <div>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                         Skor TO Subtes
                       </label>
                       <input
                         type="number"
                         value={toLatest}
                         onChange={(e) => setToLatest(Number(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                         Soal Drill Selesai
                       </label>
                       <input
@@ -725,11 +706,11 @@ export const EngineMatrixPage: React.FC = () => {
                         min={0}
                         value={drillQuestions}
                         onChange={(e) => setDrillQuestions(Math.max(0, Number(e.target.value) || 0))}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                         Jumlah Sesi Drill
                       </label>
                       <input
@@ -737,11 +718,11 @@ export const EngineMatrixPage: React.FC = () => {
                         min={0}
                         value={drillSessions}
                         onChange={(e) => setDrillSessions(Math.max(0, Number(e.target.value) || 0))}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: 3 }}>
                         Akurasi Drill (%)
                       </label>
                       <input
@@ -750,7 +731,7 @@ export const EngineMatrixPage: React.FC = () => {
                         max={100}
                         value={drillAccuracyPct}
                         onChange={(e) => setDrillAccuracyPct(Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                       />
                     </div>
                   </div>
@@ -760,27 +741,27 @@ export const EngineMatrixPage: React.FC = () => {
               {/* Right Live Deterministic Output Panel WITH Transparent Trace */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {/* Stage 1 Output */}
-                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderLeft: '4px solid #1078ca', borderRadius: 10, padding: '14px 18px' }}>
+                <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--primary)', borderRadius: 10, padding: '14px 18px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#1e40af', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                       <Info size={16} /> Output Tahap 1: Mengulas Tren Skor &amp; Fondasi {targetBasis}
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 9999 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 9999 }}>
                       Pola: {stage1Out.patternLabel}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#0f172a', background: '#f8fafc', padding: '8px 10px', borderRadius: 6, marginBottom: 10 }}>
+                  <div style={{ fontSize: 12, color: 'var(--ink-strong)', background: 'var(--page-bg)', padding: '8px 10px', borderRadius: 6, marginBottom: 10 }}>
                     <strong>Temuan Numerik:</strong> {stage1Out.observation}
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
-                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 6, padding: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
+                    <div style={{ background: '#ffffff', border: '1px solid var(--border)', borderRadius: 6, padding: 10 }}>
                       <div><strong>• Ke Siswa:</strong> {stage1Out.studentTask}</div>
                       <div style={{ marginTop: 6 }}><strong>• Ke Orang Tua:</strong> {stage1Out.parentTask}</div>
                     </div>
-                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 6, padding: 10 }}>
+                    <div style={{ background: '#ffffff', border: '1px solid var(--border)', borderRadius: 6, padding: 10 }}>
                       <div><strong>• Langkah Lanjutan:</strong> {stage1Out.nextStep}</div>
                       {stage1Out.extraNotes.length > 0 && (
-                        <ul style={{ margin: '6px 0 0', paddingLeft: 16, fontSize: 11.5, color: '#475569' }}>
+                        <ul style={{ margin: '6px 0 0', paddingLeft: 16, fontSize: 12, color: '#475569' }}>
                           {stage1Out.extraNotes.map((note, idx) => (
                             <li key={idx}>{note}</li>
                           ))}
@@ -792,21 +773,21 @@ export const EngineMatrixPage: React.FC = () => {
                 </div>
 
                 {/* Stage 2 Output */}
-                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderLeft: '4px solid #0284c7', borderRadius: 10, padding: '14px 18px' }}>
+                <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderLeft: '4px solid #0284c7', borderRadius: 10, padding: '14px 18px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#0284c7', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                       <Building2 size={16} /> Output Tahap 2: Keselarasan Jurusan &amp; Keluarga
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '2px 10px', borderRadius: 9999 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '2px 10px', borderRadius: 9999 }}>
                       {stage2Out.conditionLabel}
                     </span>
                   </div>
-                  <ul style={{ margin: '0 0 8px', paddingLeft: 18, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                  <ul style={{ margin: '0 0 8px', paddingLeft: 18, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
                     {stage2Out.saTasks.map((t, i) => (
                       <li key={i}>{t}</li>
                     ))}
                   </ul>
-                  <div style={{ fontSize: 11.5, color: minParticipantsCount < activeEvalConfig.thresholds.minBenchmarkParticipants ? '#b42318' : '#175cd3', background: minParticipantsCount < activeEvalConfig.thresholds.minBenchmarkParticipants ? '#fef3f2' : '#eff8ff', border: `1px solid ${minParticipantsCount < activeEvalConfig.thresholds.minBenchmarkParticipants ? '#fecdca' : '#b2ddff'}`, borderRadius: 6, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 12, color: minParticipantsCount < activeEvalConfig.thresholds.minBenchmarkParticipants ? 'var(--red-ink)' : '#175cd3', background: minParticipantsCount < activeEvalConfig.thresholds.minBenchmarkParticipants ? '#fef3f2' : '#eff8ff', border: `1px solid ${minParticipantsCount < activeEvalConfig.thresholds.minBenchmarkParticipants ? '#fecdca' : '#b2ddff'}`, borderRadius: 6, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <AlertTriangle size={14} />
                     <span>{stage2Out.guardrailNote}</span>
                   </div>
@@ -814,21 +795,21 @@ export const EngineMatrixPage: React.FC = () => {
                 </div>
 
                 {/* Stage 3 Output */}
-                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderLeft: '4px solid #b54708', borderRadius: 10, padding: '14px 18px' }}>
+                <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--amber-ink)', borderRadius: 10, padding: '14px 18px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#b54708', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--amber-ink)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                       <Wrench size={16} /> Output Tahap 3: Subtes ({subtestName}) &amp; Pola Drill
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#b54708', background: '#fef0c7', padding: '2px 10px', borderRadius: 9999 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--amber-ink)', background: '#fef0c7', padding: '2px 10px', borderRadius: 9999 }}>
                       {stage3SubOut.conditionLabel}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#0f172a', background: '#fffcf5', border: '1px solid #fef0c7', padding: '8px 10px', borderRadius: 6, marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: 'var(--ink-strong)', background: '#fffcf5', border: '1px solid #fef0c7', padding: '8px 10px', borderRadius: 6, marginBottom: 8 }}>
                     <div><strong>Observasi Subtes:</strong> {stage3SubOut.observation}</div>
                     <div style={{ marginTop: 4 }}><strong>Tugas SA di Kartu Subtes:</strong> {stage3SubOut.saTask}</div>
                   </div>
                   {stage3OverallOut.mismatchNote && (
-                    <div style={{ fontSize: 11.5, color: '#9a3412', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 6, padding: '6px 10px', marginBottom: 8 }}>
+                    <div style={{ fontSize: 12, color: '#9a3412', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 6, padding: '6px 10px', marginBottom: 8 }}>
                       <strong>Deteksi Ketimpangan Drill:</strong> {stage3OverallOut.mismatchNote}
                     </div>
                   )}
@@ -840,11 +821,11 @@ export const EngineMatrixPage: React.FC = () => {
                 </div>
 
                 {/* Stage 4 Output */}
-                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderLeft: '4px solid #027a48', borderRadius: 10, padding: '14px 18px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 13, fontWeight: 800, color: '#027a48' }}>
+                <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--green-ink)', borderRadius: 10, padding: '14px 18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 13, fontWeight: 800, color: 'var(--green-ink)' }}>
                     <ShieldCheck size={16} /> Output Tahap 4: Penutupan Komitmen &amp; Checklist SA
                   </div>
-                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#334155', lineHeight: 1.55 }}>
+                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.55 }}>
                     {stage4Out.saTasks.map((t, i) => (
                       <li key={i}>{t}</li>
                     ))}
@@ -862,7 +843,7 @@ export const EngineMatrixPage: React.FC = () => {
             <div
               style={{
                 background: '#ffffff',
-                border: '1px solid #cbd5e1',
+                border: '1px solid var(--border-strong)',
                 borderRadius: 10,
                 padding: '12px 18px',
                 display: 'flex',
@@ -872,14 +853,14 @@ export const EngineMatrixPage: React.FC = () => {
                 flexWrap: 'wrap'
               }}
             >
-              <div style={{ fontSize: 12.5, color: '#334155' }}>
+              <div style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>
                 <strong>Panel Kontrol Engine:</strong> Ubah ambang batas atau teks output di bawah, lalu klik <strong>Simpan &amp; Terapkan</strong> agar langsung mengubah panduan di Dashboard V2 dan Simulator.
                 {hasUnsavedDraft && (
-                  <span style={{ marginLeft: 8, color: '#b54708', fontWeight: 800 }}>• Ada perubahan belum disimpan</span>
+                  <span style={{ marginLeft: 8, color: 'var(--amber-ink)', fontWeight: 800 }}>• Ada perubahan belum disimpan</span>
                 )}
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <button type="button" className="btn btn-outline" onClick={handleExportCsv} style={{ fontSize: 12, padding: '6px 12px', color: '#245f5a', borderColor: '#a7d7dc', background: '#e6f4f2' }}>
+                <button type="button" className="btn btn-outline" onClick={handleExportCsv} style={{ fontSize: 12, padding: '6px 12px', color: 'var(--tosca-dark)', borderColor: 'var(--primary-border)', background: 'var(--primary-light)' }}>
                   <Download size={14} /> Export CSV (Spreadsheet)
                 </button>
                 <button type="button" className="btn btn-outline" onClick={handleExportJson} style={{ fontSize: 12, padding: '6px 12px' }}>
@@ -900,7 +881,7 @@ export const EngineMatrixPage: React.FC = () => {
                   type="button"
                   className="btn btn-primary"
                   onClick={handleSaveConfig}
-                  style={{ fontSize: 12, padding: '6px 14px', background: '#398896', borderColor: '#398896' }}
+                  style={{ fontSize: 12, padding: '6px 14px', background: 'var(--primary)', borderColor: 'var(--primary)' }}
                 >
                   <Save size={14} /> Simpan &amp; Terapkan ke V2
                 </button>
@@ -908,14 +889,14 @@ export const EngineMatrixPage: React.FC = () => {
             </div>
 
             {showImportBox && (
-              <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 14 }}>
+              <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderRadius: 10, padding: 14 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Tempel JSON Konfigurasi Engine:</div>
                 <textarea
                   value={importJsonText}
                   onChange={(e) => setImportJsonText(e.target.value)}
                   rows={5}
                   placeholder='{ "thresholds": { "toTolerancePts": 10 } }'
-                  style={{ width: '100%', padding: 10, fontFamily: 'monospace', fontSize: 11.5, border: '1px solid #cbd5e1', borderRadius: 6 }}
+                  style={{ width: '100%', padding: 10, fontFamily: 'monospace', fontSize: 12, border: '1px solid var(--border-strong)', borderRadius: 6 }}
                 />
                 <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
                   <button type="button" className="btn btn-primary" onClick={handleImportJson} style={{ fontSize: 12, padding: '6px 12px' }}>
@@ -929,11 +910,11 @@ export const EngineMatrixPage: React.FC = () => {
             )}
 
             {/* Section A: Threshold Controls */}
-            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 18 }}>
-              <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
+            <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderRadius: 10, padding: 18 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink-strong)', margin: '0 0 4px' }}>
                 A. Kontrol Ambang Batas Kondisi (Thresholds)
               </h2>
-              <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 14px' }}>
+              <p style={{ fontSize: 12, color: 'var(--muted)', margin: '0 0 14px' }}>
                 Menentukan kapan sebuah kondisi dianggap terpicu oleh sistem.
               </p>
 
@@ -962,22 +943,22 @@ export const EngineMatrixPage: React.FC = () => {
                     <div
                       key={f.key}
                       style={{
-                        background: changed ? '#fffbeb' : '#f8fafc',
-                        border: `1px solid ${changed ? '#fde68a' : '#e2e8f0'}`,
+                        background: changed ? '#fffbeb' : 'var(--page-bg)',
+                        border: `1px solid ${changed ? '#fde68a' : 'var(--border)'}`,
                         borderRadius: 8,
                         padding: '10px 12px'
                       }}
                     >
-                      <label style={{ fontSize: 11, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-soft)', display: 'block', marginBottom: 4 }}>
                         {f.label}
                       </label>
                       <input
                         type="number"
                         value={val}
                         onChange={(e) => updateThreshold(k, Number(e.target.value))}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, fontWeight: 700 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 13, fontWeight: 700 }}
                       />
-                      <div style={{ fontSize: 10.5, color: '#64748b', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
                         Default: <strong>{f.def}</strong> {changed && <span style={{ color: '#b45309' }}>· Diubah</span>}
                       </div>
                     </div>
@@ -987,13 +968,13 @@ export const EngineMatrixPage: React.FC = () => {
             </div>
 
             {/* Section B: Output Wording Template Editor */}
-            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 18 }}>
+            <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderRadius: 10, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
                 <div>
-                  <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
+                  <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink-strong)', margin: '0 0 4px' }}>
                     B. Editor Output Wording per Kondisi
                   </h2>
-                  <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
+                  <p style={{ fontSize: 12, color: 'var(--muted)', margin: 0 }}>
                     Edit langsung teks panduan SA yang muncul ketika suatu kondisi terpenuhi.
                   </p>
                 </div>
@@ -1013,10 +994,10 @@ export const EngineMatrixPage: React.FC = () => {
                         border: 'none',
                         borderRadius: 6,
                         padding: '6px 10px',
-                        fontSize: 11.5,
+                        fontSize: 12,
                         fontWeight: 700,
                         cursor: 'pointer',
-                        background: editorStage === s.id ? '#0f172a' : 'transparent',
+                        background: editorStage === s.id ? 'var(--ink-strong)' : 'transparent',
                         color: editorStage === s.id ? '#ffffff' : '#475569'
                       }}
                     >
@@ -1041,20 +1022,20 @@ export const EngineMatrixPage: React.FC = () => {
                             textAlign: 'left',
                             padding: '8px 10px',
                             borderRadius: 6,
-                            border: active ? '1.5px solid #1078ca' : '1px solid #e2e8f0',
+                            border: active ? '1.5px solid var(--primary)' : '1px solid var(--border)',
                             background: active ? '#eff8ff' : '#ffffff',
                             cursor: 'pointer'
                           }}
                         >
-                          <div style={{ fontSize: 12, fontWeight: 700, color: active ? '#1078ca' : '#0f172a' }}>{tpl.label}</div>
-                          <div style={{ fontSize: 10.5, color: '#64748b' }}>{p.condition}</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: active ? 'var(--primary)' : 'var(--ink-strong)' }}>{tpl.label}</div>
+                          <div style={{ fontSize: 12, color: 'var(--muted)' }}>{p.condition}</div>
                         </button>
                       );
                     })}
                   </div>
 
-                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 800, color: '#1078ca' }}>
+                  <div style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--primary)' }}>
                       Edit Output Pola: {selectedPatternEdit}
                     </div>
                     {[
@@ -1066,7 +1047,7 @@ export const EngineMatrixPage: React.FC = () => {
                       const fk = item.field as 'label' | 'student' | 'parent' | 'nextStep';
                       return (
                         <div key={item.field}>
-                          <label style={{ fontSize: 11, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                          <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-soft)', display: 'block', marginBottom: 4 }}>
                             {item.title}
                           </label>
                           <textarea
@@ -1085,7 +1066,7 @@ export const EngineMatrixPage: React.FC = () => {
                                 }
                               }));
                             }}
-                            style={{ width: '100%', padding: '7px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                            style={{ width: '100%', padding: '7px 10px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                           />
                         </div>
                       );
@@ -1108,8 +1089,8 @@ export const EngineMatrixPage: React.FC = () => {
                       { key: 'lowParticipantsWarning', title: 'Peringatan Pembanding < Batas ({count}, {limit})' }
                     ] as const
                   ).map((item) => (
-                    <div key={item.key} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 10 }}>
-                      <label style={{ fontSize: 11.5, fontWeight: 700, color: '#0284c7', display: 'block', marginBottom: 4 }}>
+                    <div key={item.key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: '#0284c7', display: 'block', marginBottom: 4 }}>
                         {item.title}
                       </label>
                       <textarea
@@ -1122,7 +1103,7 @@ export const EngineMatrixPage: React.FC = () => {
                             stage2Templates: { ...prev.stage2Templates, [item.key]: v }
                           }));
                         }}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                       />
                     </div>
                   ))}
@@ -1143,10 +1124,10 @@ export const EngineMatrixPage: React.FC = () => {
                     ] as { id: Stage3ConditionId; desc: string }[]
                   ).map((cond) => (
                     <div key={cond.id} style={{ background: '#fffcf5', border: '1px solid #fde68a', borderRadius: 8, padding: 12 }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: '#b54708', marginBottom: 6 }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--amber-ink)', marginBottom: 6 }}>
                         Kondisi: {cond.desc} ({cond.id})
                       </div>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 3 }}>
                         Label Badge
                       </label>
                       <input
@@ -1162,9 +1143,9 @@ export const EngineMatrixPage: React.FC = () => {
                             }
                           }));
                         }}
-                        style={{ width: '100%', padding: '5px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, marginBottom: 8 }}
+                        style={{ width: '100%', padding: '5px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12, marginBottom: 8 }}
                       />
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 3 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 3 }}>
                         Output Panduan SA
                       </label>
                       <textarea
@@ -1180,7 +1161,7 @@ export const EngineMatrixPage: React.FC = () => {
                             }
                           }));
                         }}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                       />
                     </div>
                   ))}
@@ -1197,8 +1178,8 @@ export const EngineMatrixPage: React.FC = () => {
                       { key: 'conflictOrLocationTask', title: 'Tugas Tambahan Jika Ada Konflik Prodi/Lokasi' }
                     ] as const
                   ).map((item) => (
-                    <div key={item.key} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 10 }}>
-                      <label style={{ fontSize: 11.5, fontWeight: 700, color: '#027a48', display: 'block', marginBottom: 4 }}>
+                    <div key={item.key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', display: 'block', marginBottom: 4 }}>
                         {item.title}
                       </label>
                       <textarea
@@ -1211,7 +1192,7 @@ export const EngineMatrixPage: React.FC = () => {
                             stage4Templates: { ...prev.stage4Templates, [item.key]: v }
                           }));
                         }}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
                       />
                     </div>
                   ))}
@@ -1223,11 +1204,11 @@ export const EngineMatrixPage: React.FC = () => {
 
         {activeTab === 'matrix' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 10, padding: 18 }}>
-              <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
+            <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderRadius: 10, padding: 18 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink-strong)', margin: '0 0 4px' }}>
                 Matriks Tahap 1 — 15 Pola Riwayat Skor Tryout (Toleransi Aktif ±{activeEvalConfig.thresholds.toTolerancePts} Poin)
               </h2>
-              <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 12px' }}>
+              <p style={{ fontSize: 12, color: 'var(--muted)', margin: '0 0 12px' }}>
                 Tabel ini otomatis membaca konfigurasi &amp; wording aktif yang sedang diatur di Tab 2.
               </p>
               <table className="data-table">
@@ -1252,12 +1233,12 @@ export const EngineMatrixPage: React.FC = () => {
                     return (
                       <tr key={row.pattern}>
                         <td><strong>{res.patternLabel}</strong></td>
-                        <td style={{ fontSize: 11.5, color: '#475569' }}>{row.condition}</td>
-                        <td><code style={{ fontSize: 11 }}>{row.scoresExample}</code></td>
-                        <td style={{ fontSize: 11.5, lineHeight: 1.45 }}>
+                        <td style={{ fontSize: 12, color: '#475569' }}>{row.condition}</td>
+                        <td><code style={{ fontSize: 12 }}>{row.scoresExample}</code></td>
+                        <td style={{ fontSize: 12, lineHeight: 1.45 }}>
                           <div><strong>Siswa:</strong> {res.studentTask}</div>
                           <div><strong>Ortu:</strong> {res.parentTask}</div>
-                          <div style={{ color: '#1078ca' }}><strong>Tindak lanjut:</strong> {res.nextStep}</div>
+                          <div style={{ color: 'var(--primary)' }}><strong>Tindak lanjut:</strong> {res.nextStep}</div>
                         </td>
                       </tr>
                     );

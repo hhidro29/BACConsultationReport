@@ -25,6 +25,9 @@ import {
   classifySubtestPattern
 } from '../utils/saGuidelineEngine';
 import { safeGetItem, safeSetItem, loadCustomPrograms } from '../utils/safeStorage';
+import { isReportLocked, setReportLocked } from '../utils/reportLock';
+import { LockBanner } from '../components/LockBanner';
+import { AppTopbar } from '../components/AppTopbar';
 
 export const CheckpointV2Page: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -93,7 +96,7 @@ export const CheckpointV2Page: React.FC = () => {
   const [isPdfOpen, setIsPdfOpen] = useState<boolean>(
     searchParams.get('preview') === '1' || searchParams.get('preview') === 'true'
   );
-  const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [isLocked, setIsLocked] = useState<boolean>(() => isReportLocked(activeStudent.id));
   const [lockErrorMsg, setLockErrorMsg] = useState<string | null>(null);
   const [draftSavedToast, setDraftSavedToast] = useState<boolean>(false);
   const [activeStage, setActiveStage] = useState<string>('tahap1');
@@ -111,6 +114,7 @@ export const CheckpointV2Page: React.FC = () => {
     setClassFilter('notes');
     setClassPage(1);
     setLockErrorMsg(null);
+    setIsLocked(isReportLocked(activeStudent.id));
     setSaNotes(safeGetItem(`bac_v2_sa_notes_${activeStudent.id}`) || '');
   }, [activeStudent.id]);
 
@@ -200,8 +204,8 @@ export const CheckpointV2Page: React.FC = () => {
 
   // Render helper for TO score trends
   const renderTrend = (curr: number, prev: number) => {
-    if (curr > prev) return <span style={{ color: '#027a48', fontSize: 10 }}> ▲</span>;
-    if (curr < prev) return <span style={{ color: '#b42318', fontSize: 10 }}> ▼</span>;
+    if (curr > prev) return <span style={{ color: 'var(--green-ink)', fontSize: 12 }}> ▲</span>;
+    if (curr < prev) return <span style={{ color: 'var(--red-ink)', fontSize: 12 }}> ▼</span>;
     return null;
   };
 
@@ -219,9 +223,9 @@ export const CheckpointV2Page: React.FC = () => {
 
   // 3-Warna Status Subtes: Hijau (>= 600), Merah (di bawah 600 & prioritas 1-3), Oranye (di bawah 600 di luar prioritas 1-3)
   const getSubtestStatus = (gap: number, isPriorityTop3: boolean = gap < 0) => {
-    if (gap >= 0) return { label: 'Tercapai', badgeClass: 'badge badge-success', color: '#12b76a', textColor: '#027a48' };
-    if (isPriorityTop3) return { label: 'Prioritas perbaikan', badgeClass: 'badge badge-danger', color: '#d92d20', textColor: '#b42318' };
-    return { label: 'Perlu penguatan', badgeClass: 'badge badge-warn', color: '#f79009', textColor: '#b54708' };
+    if (gap >= 0) return { label: 'Tercapai', badgeClass: 'badge badge-success', color: '#12b76a', textColor: 'var(--green-ink)' };
+    if (isPriorityTop3) return { label: 'Prioritas perbaikan', badgeClass: 'badge badge-danger', color: '#d92d20', textColor: 'var(--red-ink)' };
+    return { label: 'Perlu penguatan', badgeClass: 'badge badge-warn', color: '#f79009', textColor: 'var(--amber-ink)' };
   };
 
   // Dynamic Ringkasan 8 Subtes (Median 8 subtes saja)
@@ -245,7 +249,7 @@ export const CheckpointV2Page: React.FC = () => {
     <div className="section-block" id={sectionId} style={{ marginBottom: 20 }}>
       <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
         <h3 className="section-title" style={{ fontSize: 15 }}>{heading}</h3>
-        <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{subtitle}</span>
+        <span style={{ fontSize: 12, color: 'var(--muted)' }}>{subtitle}</span>
       </div>
 
       {saHistoryNotes.length > 0 ? (
@@ -255,7 +259,7 @@ export const CheckpointV2Page: React.FC = () => {
               key={note.id}
               style={{
                 background: '#f2f8f7',
-                border: '1px solid #a7d7dc',
+                border: '1px solid var(--primary-border)',
                 borderRadius: 8,
                 padding: '12px 14px',
                 fontSize: 12,
@@ -264,17 +268,17 @@ export const CheckpointV2Page: React.FC = () => {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <strong style={{ color: '#245f5a' }}>{note.topicTag}</strong>
-                  <span style={{ fontSize: 11, color: '#64748b' }}>· {note.dateLabel}</span>
+                  <strong style={{ color: 'var(--tosca-dark)' }}>{note.topicTag}</strong>
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>· {note.dateLabel}</span>
                 </div>
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: 700,
                     padding: '1.5px 7px',
                     borderRadius: 9999,
                     background: note.followUpStatus === 'Selesai' ? '#ecfdf3' : '#fef0c7',
-                    color: note.followUpStatus === 'Selesai' ? '#027a48' : '#b54708',
+                    color: note.followUpStatus === 'Selesai' ? 'var(--green-ink)' : 'var(--amber-ink)',
                     border: `1px solid ${note.followUpStatus === 'Selesai' ? '#a6f4c5' : '#fedf89'}`
                   }}
                 >
@@ -282,14 +286,14 @@ export const CheckpointV2Page: React.FC = () => {
                 </span>
               </div>
               <p style={{ margin: '0 0 6px', color: '#1e293b' }}>{note.summary}</p>
-              <div style={{ fontSize: 11, color: '#475467' }}>
+              <div style={{ fontSize: 12, color: 'var(--slate-600)' }}>
                 Dicatat oleh: <strong>{note.author}</strong>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div style={{ fontSize: 12, color: '#64748b', fontStyle: 'italic' }}>
+        <div style={{ fontSize: 12, color: 'var(--muted)', fontStyle: 'italic' }}>
           Belum ada riwayat catatan Kakak Asuh di Student Tower untuk siswa ini.
         </div>
       )}
@@ -301,7 +305,7 @@ export const CheckpointV2Page: React.FC = () => {
     if (gapToTarget >= 0) {
       return {
         status: 'Tercapai',
-        textColor: '#027a48',
+        textColor: 'var(--green-ink)',
         borderColor: '#a6f4c5',
         boxBg: '#ecfdf3',
         boxBorder: '#a6f4c5',
@@ -311,7 +315,7 @@ export const CheckpointV2Page: React.FC = () => {
     if (toLatestNum >= 600 || gapToTarget >= -60) {
       return {
         status: 'Perlu penguatan',
-        textColor: '#b54708',
+        textColor: 'var(--amber-ink)',
         borderColor: '#fedf89',
         boxBg: '#fffcf5',
         boxBorder: '#fef0c7',
@@ -320,7 +324,7 @@ export const CheckpointV2Page: React.FC = () => {
     }
     return {
       status: 'Prioritas utama',
-      textColor: '#b42318',
+      textColor: 'var(--red-ink)',
       borderColor: '#fecdca',
       boxBg: '#fffbfa',
       boxBorder: '#fee4e2',
@@ -329,9 +333,9 @@ export const CheckpointV2Page: React.FC = () => {
   };
 
   const getProgramGapColor = (gap: number) => {
-    if (gap >= 0) return '#027a48';
-    if (gap >= -70) return '#b54708';
-    return '#b42318';
+    if (gap >= 0) return 'var(--green-ink)';
+    if (gap >= -70) return 'var(--amber-ink)';
+    return 'var(--red-ink)';
   };
 
   // Deterministic, White-Box SA Guideline Engine (Controllable via /engine)
@@ -406,49 +410,24 @@ export const CheckpointV2Page: React.FC = () => {
       return;
     }
     setLockErrorMsg(null);
-    setIsLocked(!isLocked);
+    const next = !isLocked;
+    setReportLocked(activeStudent.id, next);
+    setIsLocked(next);
   };
 
   return (
     <div>
       {/* Topbar */}
-      <header className="topbar">
-        <div className="topbar-inner">
-          <nav aria-label="breadcrumb" className="breadcrumbs">
-            <Link to="/">Home</Link>
-            <span className="crumb-sep">›</span>
-            <Link to="/">Konsultasi - Checkpoint</Link>
-            <span className="crumb-sep">›</span>
-            <span className="crumb-current">Detail Checkpoint 1</span>
-          </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link
-              to="/engine"
-              title="Buka Simulator, Jejak Aturan & Kontrol Engine Panduan Kakak Asuh"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 5,
-                fontSize: 11.5,
-                fontWeight: 700,
-                color: isRuleCustomized ? '#b54708' : '#245f5a',
-                background: isRuleCustomized ? '#fef0c7' : '#e6f4f2',
-                border: `1px solid ${isRuleCustomized ? '#fedf89' : '#a7d7dc'}`,
-                padding: '4px 10px',
-                borderRadius: 9999,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              <GitBranch size={12} /> {isRuleCustomized ? 'Engine Aturan · Custom' : 'Engine Aturan'}
-            </Link>
-            <div className="user-pill">
-              <span>{studentIdentity.saName} · {studentIdentity.saEmail}</span>
-              <div className="user-avatar">WC</div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppTopbar
+        crumbs={[
+          { label: 'Home', to: '/v2' },
+          { label: 'Konsultasi - Checkpoint', to: '/v2' },
+          { label: 'Detail Checkpoint 1' }
+        ]}
+        saName={studentIdentity.saName}
+        saEmail={studentIdentity.saEmail}
+        engine={{ customized: isRuleCustomized }}
+      />
 
       <main className="container" style={{ paddingBottom: 60 }}>
         {/* Action Bar (Aligned with Super CMS Profiling Layout) */}
@@ -497,8 +476,8 @@ export const CheckpointV2Page: React.FC = () => {
                 padding: '7px 16px',
                 fontSize: 12.5,
                 whiteSpace: 'nowrap',
-                background: isLocked ? '#475467' : '#398896',
-                borderColor: isLocked ? '#475467' : '#398896'
+                background: isLocked ? 'var(--slate-600)' : 'var(--primary)',
+                borderColor: isLocked ? 'var(--slate-600)' : 'var(--primary)'
               }}
             >
               {isLocked ? <Unlock size={14} /> : <Lock size={14} />}
@@ -506,6 +485,12 @@ export const CheckpointV2Page: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {isLocked && (
+          <LockBanner studentId={activeStudent.id} hideAction>
+            Pilihan jurusan, nilai rapor, dan catatan Kakak Asuh dibekukan sebagai versi final. Klik <strong>Buka Kunci</strong> untuk mengedit lagi.
+          </LockBanner>
+        )}
 
         {/* Student Header */}
         <div className="student-header" style={{ marginBottom: 16 }}>
@@ -535,7 +520,7 @@ export const CheckpointV2Page: React.FC = () => {
                   }}
                   title="Pilih profil siswa Checkpoint 1"
                 >
-                  <span style={{ color: '#245f5a', fontWeight: 700 }}>Ganti Siswa</span>
+                  <span style={{ color: 'var(--tosca-dark)', fontWeight: 700 }}>Ganti Siswa</span>
                   <ChevronDown
                     size={13}
                     color="#667085"
@@ -555,13 +540,13 @@ export const CheckpointV2Page: React.FC = () => {
                       background: '#ffffff',
                       borderRadius: 8,
                       boxShadow: '0 12px 28px -4px rgba(15, 23, 42, 0.15), 0 6px 12px -4px rgba(15, 23, 42, 0.08)',
-                      border: '1px solid #e2e8f0',
+                      border: '1px solid var(--border)',
                       padding: '6px',
                       minWidth: 320,
                       zIndex: 9999
                     }}
                   >
-                    <div style={{ padding: '6px 10px 4px', fontSize: 10.5, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                    <div style={{ padding: '6px 10px 4px', fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                       Pilih Profil Siswa Checkpoint 1
                     </div>
                     {CHECKPOINT1_STUDENTS.map((st) => {
@@ -579,7 +564,7 @@ export const CheckpointV2Page: React.FC = () => {
                           style={{
                             width: '100%',
                             textAlign: 'left',
-                            background: isSelected ? '#e6f4f2' : 'transparent',
+                            background: isSelected ? 'var(--primary-light)' : 'transparent',
                             border: 'none',
                             padding: '8px 10px',
                             borderRadius: 6,
@@ -588,19 +573,19 @@ export const CheckpointV2Page: React.FC = () => {
                             transition: 'background 0.1s'
                           }}
                           onMouseEnter={(e) => {
-                            if (!isSelected) e.currentTarget.style.background = '#f8fafc';
+                            if (!isSelected) e.currentTarget.style.background = 'var(--page-bg)';
                           }}
                           onMouseLeave={(e) => {
                             if (!isSelected) e.currentTarget.style.background = 'transparent';
                           }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: 12.5, fontWeight: isSelected ? 700 : 600, color: isSelected ? '#245f5a' : '#1e293b' }}>
+                            <span style={{ fontSize: 12.5, fontWeight: isSelected ? 700 : 600, color: isSelected ? 'var(--tosca-dark)' : '#1e293b' }}>
                               {st.name}
                             </span>
-                            {isSelected && <span style={{ fontSize: 11, fontWeight: 700, color: '#245f5a' }}>✓ Aktif</span>}
+                            {isSelected && <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)' }}>✓ Aktif</span>}
                           </div>
-                          <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
                             {st.tagline}
                           </div>
                         </button>
@@ -633,7 +618,7 @@ export const CheckpointV2Page: React.FC = () => {
             zIndex: 40,
             background: 'rgba(255, 255, 255, 0.96)',
             backdropFilter: 'blur(8px)',
-            border: '1px solid #cbd5e1',
+            border: '1px solid var(--border-strong)',
             borderRadius: 10,
             padding: '8px 16px',
             marginBottom: 28,
@@ -645,23 +630,23 @@ export const CheckpointV2Page: React.FC = () => {
             flexWrap: 'wrap'
           }}
         >
-          <div className="jump-nav-label" style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>
+          <div className="jump-nav-label" style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-strong)', whiteSpace: 'nowrap' }}>
             🧭 <span>Alur:</span>
           </div>
           <div className="jump-nav-links" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <button type="button" onClick={(e) => scrollTo(e, '#tahap1')} className={`jump-pill ${activeStage === 'tahap1' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap1')} className={`jump-pill ${activeStage === 'tahap1' ? 'active' : ''}`} style={{ fontSize: 12, padding: '4px 10px' }}>
               🎯 1. Evaluasi Tryout
             </button>
-            <button type="button" onClick={(e) => scrollTo(e, '#tahap2')} className={`jump-pill ${activeStage === 'tahap2' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap2')} className={`jump-pill ${activeStage === 'tahap2' ? 'active' : ''}`} style={{ fontSize: 12, padding: '4px 10px' }}>
               🏛️ 2. Analisis Jurusan
             </button>
-            <button type="button" onClick={(e) => scrollTo(e, '#tahap3')} className={`jump-pill ${activeStage === 'tahap3' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap3')} className={`jump-pill ${activeStage === 'tahap3' ? 'active' : ''}`} style={{ fontSize: 12, padding: '4px 10px' }}>
               🛠️ 3. Subtes &amp; Drill Soal
             </button>
-            <button type="button" onClick={(e) => scrollTo(e, '#tahap4')} className={`jump-pill ${activeStage === 'tahap4' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap4')} className={`jump-pill ${activeStage === 'tahap4' ? 'active' : ''}`} style={{ fontSize: 12, padding: '4px 10px' }}>
               🏫 4. Catatan Pengajar &amp; SA
             </button>
-            <button type="button" onClick={(e) => scrollTo(e, '#tahap5')} className={`jump-pill ${activeStage === 'tahap5' ? 'active' : ''}`} style={{ fontSize: 11.5, padding: '4px 10px' }}>
+            <button type="button" onClick={(e) => scrollTo(e, '#tahap5')} className={`jump-pill ${activeStage === 'tahap5' ? 'active' : ''}`} style={{ fontSize: 12, padding: '4px 10px' }}>
               📝 5. Tindak Lanjut Belajar
             </button>
           </div>
@@ -671,12 +656,12 @@ export const CheckpointV2Page: React.FC = () => {
         {/* TAHAP 1: FONDASI 600 & EVALUASI SKOR IRT REGULER          */}
         {/* ========================================================= */}
         <section id="tahap1" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '3px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', background: 'var(--primary-light)', border: '1px solid var(--primary-border)', padding: '3px 10px', borderRadius: 9999 }}>
                 Tahap 1
               </span>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--ink-strong)', margin: 0 }}>
                 Kemampuan dasar di 8 subtes
               </h2>
             </div>
@@ -690,7 +675,7 @@ export const CheckpointV2Page: React.FC = () => {
               <h3 className="section-title" style={{ fontSize: 15 }}>
                 1. Ringkasan Evaluasi Skor Reguler Siswa — Tryout Episode {latestToEpisode}
               </h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Acuan Skor Tryout Terakhir (TO {latestToEpisode})</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>Acuan Skor Tryout Terakhir (TO {latestToEpisode})</span>
             </div>
             
             {/* Minimalist 4-Column KPI Summary Strip (100% Data-Driven from Latest TO) */}
@@ -698,8 +683,8 @@ export const CheckpointV2Page: React.FC = () => {
               className="metrics-grid"
               style={{
                 gap: 1,
-                background: '#e2e8f0',
-                border: '1px solid #e2e8f0',
+                background: 'var(--border)',
+                border: '1px solid var(--border)',
                 borderRadius: 8,
                 overflow: 'hidden',
                 marginBottom: 16
@@ -707,67 +692,67 @@ export const CheckpointV2Page: React.FC = () => {
             >
               {/* Metric 1 */}
               <div title={`Riwayat TO 1–${latestToEpisode}: ${toScoresList.join(' → ')}`} style={{ background: '#ffffff', padding: '12px 16px' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Skor TO {latestToEpisode} (Terakhir)
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#245f5a', lineHeight: 1.2, marginTop: 4 }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--tosca-dark)', lineHeight: 1.2, marginTop: 4 }}>
                   {latestToScore}
                 </div>
               </div>
 
               {/* Metric 2 */}
               <div title={aboveTooltip || undefined} style={{ background: '#ffffff', padding: '12px 16px' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Di Atas Target 600
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#027a48', lineHeight: 1.2, marginTop: 4 }}>
-                  {aboveTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ {totalSubtestsCount} subtes</span>
+                <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--green-ink)', lineHeight: 1.2, marginTop: 4 }}>
+                  {aboveTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--muted)' }}>/ {totalSubtestsCount} subtes</span>
                 </div>
               </div>
 
               {/* Metric 3 */}
               <div title={belowTooltip || undefined} style={{ background: '#ffffff', padding: '12px 16px' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Di Bawah Target 600
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#b42318', lineHeight: 1.2, marginTop: 4 }}>
-                  {belowTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>/ {totalSubtestsCount} subtes</span>
+                <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--red-ink)', lineHeight: 1.2, marginTop: 4 }}>
+                  {belowTargetSubtests.length} <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--muted)' }}>/ {totalSubtestsCount} subtes</span>
                 </div>
               </div>
 
               {/* Metric 4 */}
               <div title={studentIdentity.attendanceDetail} style={{ background: '#ffffff', padding: '12px 16px' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Kehadiran Kelas
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', lineHeight: 1.2, marginTop: 4 }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink-strong)', lineHeight: 1.2, marginTop: 4 }}>
                   {studentIdentity.attendanceRate}
                 </div>
               </div>
             </div>
 
             {/* Panduan Edukasi Dua Sistem Skor (Matching PDF Styling) */}
-            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 8, padding: '14px 18px', marginTop: 14 }}>
+            <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderRadius: 8, padding: '14px 18px', marginTop: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-                <BookOpen size={16} color="#398896" />
-                <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                <BookOpen size={16} color="var(--primary)" />
+                <h4 style={{ fontSize: 13, fontWeight: 800, color: 'var(--ink-strong)', margin: 0 }}>
                   Cara membaca dua jenis skor
                 </h4>
-                <span style={{ fontSize: 11, color: '#64748b', marginLeft: 'auto' }}>Diselaraskan dengan Halaman 1 Laporan Resmi PDF</span>
+                <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 'auto' }}>Diselaraskan dengan Halaman 1 Laporan Resmi PDF</span>
               </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                 {/* Skor per subtes */}
-                <div style={{ background: '#f2f8f7', border: '1px solid #a7d7dc', borderTop: '3px solid #58aebd', borderRadius: 6, padding: '12px 14px' }}>
+                <div style={{ background: '#f2f8f7', border: '1px solid var(--primary-border)', borderTop: '3px solid #58aebd', borderRadius: 6, padding: '12px 14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#245f5a' }}>Skor per subtes</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#245f5a', background: '#e6f4f2', padding: '1.5px 6px', borderRadius: 4 }}>Skor IRT Reguler</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)' }}>Skor per subtes</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', background: 'var(--primary-light)', padding: '1.5px 6px', borderRadius: 4 }}>Skor IRT Reguler</span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic', marginBottom: 6 }}>Kemampuan dasar di 8 subtes, sama untuk semua jurusan</div>
-                  <p style={{ fontSize: 11.5, color: '#334155', margin: '0 0 8px', lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', fontStyle: 'italic', marginBottom: 6 }}>Kemampuan dasar di 8 subtes, sama untuk semua jurusan</div>
+                  <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 8px', lineHeight: 1.5 }}>
                     Setiap subtes dinilai dengan satu cara hitung yang sama. Angkanya tidak berubah saat pilihan jurusan berganti.
                   </p>
-                  <div style={{ fontSize: 11, color: '#245f5a', background: '#e6f4f2', padding: '5px 8px', borderRadius: 4 }}>
+                  <div style={{ fontSize: 12, color: 'var(--tosca-dark)', background: 'var(--primary-light)', padding: '5px 8px', borderRadius: 4 }}>
                     <strong>Dipakai untuk:</strong> Memantau fondasi tiap subtes dan target Semester 1 (seluruh subtes minimal 600).
                   </div>
                 </div>
@@ -776,20 +761,20 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderTop: '3px solid #7c3aed', borderRadius: 6, padding: '12px 14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 800, color: '#6b21a8' }}>Skor sesuai jurusan</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6b21a8', background: '#f3e8ff', padding: '1.5px 6px', borderRadius: 4 }}>Skor IRT Terbobot</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#6b21a8', background: '#f3e8ff', padding: '1.5px 6px', borderRadius: 4 }}>Skor IRT Terbobot</span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic', marginBottom: 6 }}>Nilai yang dihitung sesuai bobot jurusan tujuan</div>
-                  <p style={{ fontSize: 11.5, color: '#334155', margin: '0 0 8px', lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', fontStyle: 'italic', marginBottom: 6 }}>Nilai yang dihitung sesuai bobot jurusan tujuan</div>
+                  <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 8px', lineHeight: 1.5 }}>
                     Skor dihitung ulang dengan bobot subtes milik tiap program studi, sehingga hasilnya berbeda untuk setiap pilihan jurusan.
                   </p>
-                  <div style={{ fontSize: 11, color: '#581c87', background: '#f5f3ff', padding: '5px 8px', borderRadius: 4 }}>
+                  <div style={{ fontSize: 12, color: '#581c87', background: '#f5f3ff', padding: '5px 8px', borderRadius: 4 }}>
                     <strong>Dipakai untuk:</strong> Melihat jarak ke skor lolos jurusan impian (di Tahap 3).
                   </div>
                 </div>
               </div>
 
               {/* Bottom Yellow Callout */}
-              <div style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 6, padding: '9px 13px', fontSize: 11.5, color: '#b54708', lineHeight: 1.5 }}>
+              <div style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 6, padding: '9px 13px', fontSize: 12, color: 'var(--amber-ink)', lineHeight: 1.5 }}>
                 💡 <strong>Mengapa semua subtes dikejar ke 600?</strong> Bobot subtes berbeda di tiap jurusan. Subtes yang tertinggal jauh (&lt;500) akan menarik jatuh skor satu jurusan lebih jauh dibanding jurusan lain. Dengan fondasi 600 di seluruh 8 subtes, tidak ada subtes yang menjadi titik lemah di jurusan mana pun.
               </div>
             </div>
@@ -806,11 +791,11 @@ export const CheckpointV2Page: React.FC = () => {
                 </h3>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 700,
-                    color: '#245f5a',
-                    background: '#e6f4f2',
-                    border: '1px solid #a7d7dc',
+                    color: 'var(--tosca-dark)',
+                    background: 'var(--primary-light)',
+                    border: '1px solid var(--primary-border)',
                     padding: '2px 10px',
                     borderRadius: 9999
                   }}
@@ -818,7 +803,7 @@ export const CheckpointV2Page: React.FC = () => {
                   Pola Terdeteksi: {stage1Out.patternLabel}
                 </span>
               </div>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>
                 Diurutkan dari jarak terdalam • Menyorot hingga 3 subtes prioritas perbaikan (&lt; 600)
               </span>
             </div>
@@ -861,9 +846,9 @@ export const CheckpointV2Page: React.FC = () => {
                             {isFocus && (
                               <span
                                 style={{
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: 700,
-                                  color: '#b42318',
+                                  color: 'var(--red-ink)',
                                   background: '#fee4e2',
                                   border: '1px solid #fecdca',
                                   padding: '1.5px 6px',
@@ -896,7 +881,7 @@ export const CheckpointV2Page: React.FC = () => {
                             <span
                               style={{
                                 display: 'inline-block',
-                                fontSize: 10.5,
+                                fontSize: 12,
                                 fontWeight: 700,
                                 color: subPattern.color,
                                 background: subPattern.bg,
@@ -957,16 +942,16 @@ export const CheckpointV2Page: React.FC = () => {
                     return (
                       <tr>
                         <td><strong>Median 8 subtes</strong></td>
-                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#334155' }}>{formatNumIndo(medTO1)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#334155' }}>{formatNumIndo(medTO2)}{renderTrend(medTO2, medTO1)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#334155' }}>{formatNumIndo(medTO3)}{renderTrend(medTO3, medTO2)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{formatNumIndo(medTO1)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{formatNumIndo(medTO2)}{renderTrend(medTO2, medTO1)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{formatNumIndo(medTO3)}{renderTrend(medTO3, medTO2)}</td>
                         <td style={{ textAlign: 'center', fontWeight: 800, color: medStatus.textColor }}>{formatNumIndo(medTO4)}{renderTrend(medTO4, medTO3)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: '#245f5a' }}>{formatNumIndo(medOverall)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: 'var(--tosca-dark)' }}>{formatNumIndo(medOverall)}</td>
                         <td style={{ textAlign: 'center' }}>
                           <span
                             style={{
                               display: 'inline-block',
-                              fontSize: 10.5,
+                              fontSize: 12,
                               fontWeight: 700,
                               color: medPattern.color,
                               background: medPattern.bg,
@@ -996,7 +981,7 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
 
             {/* 3-Color Legend */}
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 10, fontSize: 12, color: '#475467', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 10, fontSize: 12, color: 'var(--slate-600)', flexWrap: 'wrap' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 10, height: 10, background: '#d92d20', display: 'inline-block', borderRadius: 2 }}></span> Prioritas perbaikan (&lt; 600 · Terendah 1–3)
               </span>
@@ -1011,47 +996,47 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
           {/* Live Consultation Prompt: Tahap 1 (Driven by saGuidelineEngine) */}
-          <div className="sa-prompt-card" id="sec_tahap1_guide" style={{ background: '#f2f8f7', border: '1px solid #a7d7dc', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+          <div className="sa-prompt-card" id="sec_tahap1_guide" style={{ background: '#f2f8f7', border: '1px solid var(--primary-border)', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#245f5a', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Info size={16} />
                 Panduan Kakak Asuh: Mengulas Tren Skor &amp; Fondasi 600
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Link to="/engine" style={{ fontSize: 11, fontWeight: 700, color: '#245f5a', textDecoration: 'none' }}>
+                <Link to="/engine" style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', textDecoration: 'none' }}>
                   Lihat &amp; Kontrol Engine →
                 </Link>
               </div>
             </div>
 
-            <div style={{ fontSize: 12, color: '#0f172a', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
+            <div style={{ fontSize: 12, color: 'var(--ink-strong)', background: '#ffffff', border: '1px solid var(--border)', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
               <strong>Temuan Data:</strong> {stage1Out.observation}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
               {/* Kolom Kiri: Panduan Kakak Asuh */}
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#245f5a', marginBottom: 8, letterSpacing: 0.3 }}>
+              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 8, letterSpacing: 0.3 }}>
                   🔍 PANDUAN KAKAK ASUH:
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
                   <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Siswa:</strong> {stage1Out.studentTask}
+                    <strong style={{ color: 'var(--ink-strong)' }}>• Ke Siswa:</strong> {stage1Out.studentTask}
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a' }}>• Ke Orang Tua:</strong> {stage1Out.parentTask}
+                    <strong style={{ color: 'var(--ink-strong)' }}>• Ke Orang Tua:</strong> {stage1Out.parentTask}
                   </div>
                   <div>
-                    <strong style={{ color: '#0f172a' }}>• Arah Tindak Lanjut:</strong> {stage1Out.nextStep}
+                    <strong style={{ color: 'var(--ink-strong)' }}>• Arah Tindak Lanjut:</strong> {stage1Out.nextStep}
                   </div>
                 </div>
               </div>
 
               {/* Kolom Kanan: Rambu Komunikasi & Catatan Tambahan */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 CATATAN KONDISI &amp; RAMBU:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
+                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 CATATAN KONDISI &amp; RAMBU:</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
                     {stage1Out.extraNotes.map((note, idx) => (
                       <li key={idx}>{note}</li>
                     ))}
@@ -1059,9 +1044,9 @@ export const CheckpointV2Page: React.FC = () => {
                   </ul>
                 </div>
 
-                <div style={{ background: '#e6f4f2', padding: '10px 12px', borderRadius: 6, border: '1px solid #a7d7dc', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#245f5a', marginBottom: 4 }}>📊 KONTEKS DATA (MEDIAN PRIBADI):</div>
-                  <p style={{ margin: 0, color: '#334155' }}>
+                <div style={{ background: 'var(--primary-light)', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--primary-border)', fontSize: 12, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 4 }}>📊 KONTEKS DATA (MEDIAN PRIBADI):</div>
+                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
                     Median (contoh {maxFluctSub.name} <code>{maxFluctSub.to1}→{maxFluctSub.to2}→{maxFluctSub.to3}→{maxFluctSub.to4}</code> = <strong>{maxFluctSub.median}</strong>) berasal dari <strong>riwayat pribadi siswa</strong> untuk melihat skor tipikal saat hasil berfluktuasi, bukan ranking nasional.
                   </p>
                 </div>
@@ -1072,12 +1057,12 @@ export const CheckpointV2Page: React.FC = () => {
 
         {/* ========================================================= */}
         <section id="tahap2" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '3px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', background: 'var(--primary-light)', border: '1px solid var(--primary-border)', padding: '3px 10px', borderRadius: 9999 }}>
                 Tahap 2
               </span>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--ink-strong)', margin: 0 }}>
                 🏛️ Skor IRT Terbobot &amp; Evaluasi Peluang Jurusan PTN
               </h2>
             </div>
@@ -1098,9 +1083,9 @@ export const CheckpointV2Page: React.FC = () => {
                     <span
                       title={snbtCheck.message}
                       style={{
-                        fontSize: 10.5,
+                        fontSize: 12,
                         fontWeight: 700,
-                        color: snbtCheck.isValid ? '#027a48' : '#b54708',
+                        color: snbtCheck.isValid ? 'var(--green-ink)' : 'var(--amber-ink)',
                         background: snbtCheck.isValid ? '#ecfdf3' : '#fff7ed',
                         border: `1px solid ${snbtCheck.isValid ? '#a6f4c5' : '#fed7aa'}`,
                         padding: '2px 8px',
@@ -1114,9 +1099,9 @@ export const CheckpointV2Page: React.FC = () => {
                 {stage2Out.isConflict && (
                   <span
                     style={{
-                      fontSize: 10.5,
+                      fontSize: 12,
                       fontWeight: 700,
-                      color: '#b54708',
+                      color: 'var(--amber-ink)',
                       background: '#fffbeb',
                       border: '1px solid #fde68a',
                       padding: '2px 8px',
@@ -1129,11 +1114,11 @@ export const CheckpointV2Page: React.FC = () => {
                 {isProgramsCustomized && (
                   <span
                     style={{
-                      fontSize: 10.5,
+                      fontSize: 12,
                       fontWeight: 700,
-                      color: '#245f5a',
-                      background: '#e6f4f2',
-                      border: '1px solid #a7d7dc',
+                      color: 'var(--tosca-dark)',
+                      background: 'var(--primary-light)',
+                      border: '1px solid var(--primary-border)',
                       padding: '2px 8px',
                       borderRadius: 9999
                     }}
@@ -1148,11 +1133,11 @@ export const CheckpointV2Page: React.FC = () => {
                     type="button"
                     onClick={handleResetPrograms}
                     style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 600,
-                      color: '#64748b',
+                      color: 'var(--muted)',
                       background: '#ffffff',
-                      border: '1px solid #cbd5e1',
+                      border: '1px solid var(--border-strong)',
                       borderRadius: 6,
                       padding: '4px 9px',
                       cursor: 'pointer'
@@ -1164,9 +1149,9 @@ export const CheckpointV2Page: React.FC = () => {
                 <Link
                   to={`/simulasi?student=${activeStudent.id}`}
                   className="btn btn-outline"
-                  style={{ fontSize: 11.5, padding: '4px 10px', display: 'inline-flex', alignItems: 'center', gap: 5 }}
+                  style={{ fontSize: 12, padding: '4px 10px', display: 'inline-flex', alignItems: 'center', gap: 5 }}
                 >
-                  <Compass size={13} color="#398896" />
+                  <Compass size={13} color="var(--primary)" />
                   Bandingkan / Ubah via Simulasi
                 </Link>
               </div>
@@ -1178,10 +1163,10 @@ export const CheckpointV2Page: React.FC = () => {
                   <tr>
                     <th style={{ width: '10%' }}>Pilihan</th>
                     <th style={{ width: '34%' }}>Program Studi &amp; Perguruan Tinggi</th>
-                    <th style={{ width: '13%', textAlign: 'center' }}>Target Acuan<br /><span style={{ fontSize: 10, fontWeight: 500 }}>(Terbobot)</span></th>
-                    <th style={{ width: '13%', textAlign: 'center' }}>Skor Siswa (TO {latestToEpisode})<br /><span style={{ fontSize: 10, fontWeight: 500 }}>(Terbobot)</span></th>
+                    <th style={{ width: '13%', textAlign: 'center' }}>Target Acuan<br /><span style={{ fontSize: 12, fontWeight: 500 }}>(Terbobot)</span></th>
+                    <th style={{ width: '13%', textAlign: 'center' }}>Skor Siswa (TO {latestToEpisode})<br /><span style={{ fontSize: 12, fontWeight: 500 }}>(Terbobot)</span></th>
                     <th style={{ width: '11%', textAlign: 'center' }}>Jarak Target</th>
-                    <th style={{ width: '19%', textAlign: 'center' }}>Target Kenaikan / TO<br /><span style={{ fontSize: 10, fontWeight: 500 }}>(Kejar Acuan · {ruleConfig.thresholds.remainingEpisodesToNextConsult} TO)</span></th>
+                    <th style={{ width: '19%', textAlign: 'center' }}>Target Kenaikan / TO<br /><span style={{ fontSize: 12, fontWeight: 500 }}>(Kejar Acuan · {ruleConfig.thresholds.remainingEpisodesToNextConsult} TO)</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1191,26 +1176,26 @@ export const CheckpointV2Page: React.FC = () => {
                     return (
                       <tr key={`${prog.priority}_${prog.prodi}_${prog.univ}`}>
                         <td>
-                          <span style={{ fontWeight: 700, color: '#245f5a' }}>
+                          <span style={{ fontWeight: 700, color: 'var(--tosca-dark)' }}>
                             {prog.priority}
                           </span>
                         </td>
                         <td>
                           <strong>{prog.prodi}</strong><br />
-                          <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                          <span style={{ fontSize: 12, color: 'var(--muted)' }}>
                             {prog.univ} · {prog.city} · Keketatan: {prog.tightness}
                             {catalogMatch ? ` (${catalogMatch.quota2026} kursi / ${catalogMatch.applicants2025.toLocaleString('id-ID')} peminat)` : ''}
                           </span>
                         </td>
-                        <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{prog.targetScore}</td>
-                        <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#245f5a' }}>{prog.weightedScore}</td>
+                        <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'var(--ink-strong)' }}>{prog.targetScore}</td>
+                        <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'var(--tosca-dark)' }}>{prog.weightedScore}</td>
                         <td style={{ textAlign: 'center', fontWeight: 700, color: getProgramGapColor(prog.gap) }}>
                           {prog.gap > 0 ? `+${prog.gap}` : prog.gap}
                         </td>
                         <td style={{ textAlign: 'center' }}>
                           {pacing.isAchieved ? (
                             <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                              <span style={{ fontSize: 11, fontWeight: 700, color: '#027a48', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '2px 8px', borderRadius: 9999 }}>
+                              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '2px 8px', borderRadius: 9999 }}>
                                 Target terlewati
                               </span>
                             </div>
@@ -1219,15 +1204,15 @@ export const CheckpointV2Page: React.FC = () => {
                               style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
                               title={`Target TO ${latestToEpisode + 1}: ≥ ${pacing.nextToTargetScore} (dari skor TO ${latestToEpisode}: ${prog.weightedScore})`}
                             >
-                              <strong style={{ fontSize: 13, color: pacing.needsPlanB ? '#b42318' : '#245f5a' }}>
+                              <strong style={{ fontSize: 13, color: pacing.needsPlanB ? 'var(--red-ink)' : 'var(--tosca-dark)' }}>
                                 +{pacing.gainPerToNextConsult} poin / TO
                               </strong>
                               {pacing.needsPlanB ? (
-                                <span style={{ fontSize: 10, fontWeight: 700, color: '#b42318', background: '#fee4e2', border: '1px solid #fecdca', padding: '1.5px 7px', borderRadius: 9999 }}>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--red-ink)', background: '#fee4e2', border: '1px solid #fecdca', padding: '1.5px 7px', borderRadius: 9999 }}>
                                   Berat · Siapkan Plan B
                                 </span>
                               ) : (
-                                <span style={{ fontSize: 10, fontWeight: 700, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '1.5px 7px', borderRadius: 9999 }}>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', background: 'var(--primary-light)', border: '1px solid var(--primary-border)', padding: '1.5px 7px', borderRadius: 9999 }}>
                                   Realistis dikejar
                                 </span>
                               )}
@@ -1250,7 +1235,7 @@ export const CheckpointV2Page: React.FC = () => {
                   style={{
                     marginTop: 12,
                     background: highestPacing.isAchieved ? '#ecfdf3' : '#f2f8f7',
-                    border: `1px solid ${highestPacing.isAchieved ? '#a6f4c5' : '#a7d7dc'}`,
+                    border: `1px solid ${highestPacing.isAchieved ? '#a6f4c5' : 'var(--primary-border)'}`,
                     borderRadius: 8,
                     padding: '9px 14px',
                     fontSize: 12,
@@ -1264,13 +1249,13 @@ export const CheckpointV2Page: React.FC = () => {
                 >
                   {highestPacing.isAchieved ? (
                     <span>
-                      🎯 <strong style={{ color: '#027a48' }}>Target Acuan Tertinggi ({highestProg.prodi} · {highestProg.univ}: {highestProg.targetScore}) sudah terlewati</strong> (skor saat ini {highestProg.weightedScore}) — fokus perlebar margin aman di atas pesaing.
+                      🎯 <strong style={{ color: 'var(--green-ink)' }}>Target Acuan Tertinggi ({highestProg.prodi} · {highestProg.univ}: {highestProg.targetScore}) sudah terlewati</strong> (skor saat ini {highestProg.weightedScore}) — fokus perlebar margin aman di atas pesaing.
                     </span>
                   ) : (
                     <span>
-                      🎯 <strong style={{ color: '#245f5a' }}>Ringkasan Target TO {latestToEpisode + 1} (Acuan Tertinggi — {highestProg.prodi} · {highestProg.univ}):</strong>{' '}
+                      🎯 <strong style={{ color: 'var(--tosca-dark)' }}>Ringkasan Target TO {latestToEpisode + 1} (Acuan Tertinggi — {highestProg.prodi} · {highestProg.univ}):</strong>{' '}
                       kejar skor terbobot minimal <strong>≥ {highestPacing.nextToTargetScore}</strong>{' '}
-                      <span style={{ color: '#475467' }}>
+                      <span style={{ color: 'var(--slate-600)' }}>
                         (+{highestPacing.gainPerToNextConsult} poin dari {highestProg.weightedScore} agar tetap di jalur melewati {highestProg.targetScore} dalam {ruleConfig.thresholds.remainingEpisodesToNextConsult} TO).
                       </span>
                     </span>
@@ -1283,34 +1268,34 @@ export const CheckpointV2Page: React.FC = () => {
 
           <div
             role="note"
-            style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#b54708', lineHeight: 1.5, marginTop: 16 }}
+            style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: 'var(--amber-ink)', lineHeight: 1.5, marginTop: 16 }}
           >
             <strong>Catatan:</strong> Target dan jarak skor adalah acuan latihan internal Ruangguru, bukan passing grade resmi dan bukan jaminan kelulusan SNPMB.
           </div>
 
           {/* Live Consultation Prompt: Tahap 2 (Driven by saGuidelineEngine) */}
-          <div className="sa-prompt-card" id="sec_tahap2_guide" style={{ background: '#f2f8f7', border: '1px solid #a7d7dc', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+          <div className="sa-prompt-card" id="sec_tahap2_guide" style={{ background: '#f2f8f7', border: '1px solid var(--primary-border)', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#245f5a', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Building2 size={16} />
                 Panduan Kakak Asuh: Menyelaraskan Pilihan Jurusan &amp; Progres Menuju UTBK
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '2px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', background: 'var(--primary-light)', border: '1px solid var(--primary-border)', padding: '2px 10px', borderRadius: 9999 }}>
                 Kondisi: {stage2Out.conditionLabel}
               </span>
             </div>
 
-            <div style={{ fontSize: 12, color: '#0f172a', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
+            <div style={{ fontSize: 12, color: 'var(--ink-strong)', background: '#ffffff', border: '1px solid var(--border)', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
               <strong>Temuan Data:</strong> {stage2Out.observation}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
               {/* Kolom Kiri: Panduan Kakak Asuh */}
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#245f5a', marginBottom: 8, letterSpacing: 0.3 }}>
+              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 8, letterSpacing: 0.3 }}>
                   🔍 PANDUAN KAKAK ASUH:
                 </div>
-                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
                   {stage2Out.saTasks.map((task, idx) => (
                     <li key={idx}>{task}</li>
                   ))}
@@ -1319,17 +1304,17 @@ export const CheckpointV2Page: React.FC = () => {
 
               {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU PROGRES HOLISTIK:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
+                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 RAMBU PROGRES HOLISTIK:</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
                     <li><strong>CP1 → CP2 → UTBK:</strong> Di CP1 bangun laju kenaikan; di konsultasi berikutnya arahkan melewati target acuan; di konsultasi terakhir maksimalkan margin di atas pesaing.</li>
                     <li><strong>Makna Plan B:</strong> Jika selisih masih lebar, jadikan Pilihan 2–4 sebagai pengaman portofolio tanpa mematahkan motivasi di Pilihan 1.</li>
                   </ul>
                 </div>
 
-                <div style={{ background: '#e6f4f2', padding: '10px 12px', borderRadius: 6, border: '1px solid #a7d7dc', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#245f5a', marginBottom: 4 }}>ℹ️ KONTEKS TARGET &amp; PERSAINGAN:</div>
-                  <p style={{ margin: 0, color: '#334155' }}>
+                <div style={{ background: 'var(--primary-light)', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--primary-border)', fontSize: 12, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 4 }}>ℹ️ KONTEKS TARGET &amp; PERSAINGAN:</div>
+                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
                     {stage2Out.guardrailNote}
                   </p>
                 </div>
@@ -1340,12 +1325,12 @@ export const CheckpointV2Page: React.FC = () => {
 
         {/* ========================================================= */}
         <section id="tahap3" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#b54708', background: '#fef0c7', padding: '3px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--amber-ink)', background: '#fef0c7', padding: '3px 10px', borderRadius: 9999 }}>
                 Tahap 3
               </span>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--ink-strong)', margin: 0 }}>
                 🛠️ 3 Subtes Prioritas (Acuan Pilihan 1) &amp; Aktivitas Drill Soal
               </h2>
             </div>
@@ -1353,7 +1338,7 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
           {/* Disclaimer ulang mengapa target semester 1 adalah 600 */}
-          <div style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#b54708', lineHeight: 1.5, marginBottom: 16 }}>
+          <div style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: 'var(--amber-ink)', lineHeight: 1.5, marginBottom: 16 }}>
             💡 <strong>Mengapa target dasar Semester 1 adalah 600?</strong> Subtes prioritas dikunci ke <strong>Pilihan 1 ({targetPrograms[0]?.prodi || 'Prodi Utama'})</strong>. Jika target subtes pada jurusan pilihan berada di bawah 600, batas minimum <strong>600 tetap dipertahankan</strong> agar tidak ada titik lemah; jika target jurusan sudah di atas 600, acuan mengikuti target jurusan yang lebih tinggi tersebut.
           </div>
 
@@ -1363,7 +1348,7 @@ export const CheckpointV2Page: React.FC = () => {
               <h3 className="section-title" style={{ fontSize: 15 }}>
                 1. Ringkasan 3 Subtes Prioritas ({targetPrograms[0]?.prodi} · {targetPrograms[0]?.univ})
               </h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>
                 Dipilih dari 3 bobot tertinggi Pilihan 1 · Periode drill 3 bulan terakhir
               </span>
             </div>
@@ -1409,7 +1394,7 @@ export const CheckpointV2Page: React.FC = () => {
                           <div>
                             <span
                               style={{
-                                fontSize: 10,
+                                fontSize: 12,
                                 fontWeight: 700,
                                 color: theme.textColor,
                                 background: theme.boxBg,
@@ -1423,19 +1408,19 @@ export const CheckpointV2Page: React.FC = () => {
                             >
                               {item.priorityLabel}
                             </span>
-                            <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginTop: 5, marginBottom: 0 }}>
+                            <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink-strong)', marginTop: 5, marginBottom: 0 }}>
                               {item.name}
                             </h4>
-                            <div style={{ fontSize: 10.5, color: '#64748b', marginTop: 2 }}>
+                            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
                               Target: <strong>{item.targetScore}</strong>
                               {item.rawProgramTarget < ruleConfig.thresholds.foundationScoreTarget && ' (min. 600)'}
                             </div>
                           </div>
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                            <div style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
+                            <div style={{ fontSize: 19, fontWeight: 800, color: 'var(--ink-strong)', lineHeight: 1.1 }}>
                               {item.toScore}
                             </div>
-                            <div style={{ fontSize: 10.5, color: theme.textColor, fontWeight: 700, marginTop: 3 }}>
+                            <div style={{ fontSize: 12, color: theme.textColor, fontWeight: 700, marginTop: 3 }}>
                               {item.gapNum > 0 ? `+${item.gapNum}` : item.gapNum}
                             </div>
                           </div>
@@ -1447,28 +1432,28 @@ export const CheckpointV2Page: React.FC = () => {
                             display: 'grid',
                             gridTemplateColumns: '1fr 1fr',
                             gap: 8,
-                            background: '#f8fafc',
-                            border: '1px solid #e2e8f0',
+                            background: 'var(--page-bg)',
+                            border: '1px solid var(--border)',
                             borderRadius: 6,
                             padding: '8px 10px',
                             marginBottom: 10,
-                            fontSize: 11.5
+                            fontSize: 12
                           }}
                         >
                           <div>
-                            <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Drill Aplikasi</div>
-                            <strong style={{ color: '#0f172a' }}>
+                            <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Drill Aplikasi</div>
+                            <strong style={{ color: 'var(--ink-strong)' }}>
                               {item.rgQuestionsDone} soal · {item.drillSessions} sesi
                             </strong>
                           </div>
                           <div>
-                            <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Akurasi Drill</div>
-                            <strong style={{ color: '#0f172a' }}>{item.drillAccuracyPct}% benar</strong>
+                            <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Akurasi Drill</div>
+                            <strong style={{ color: 'var(--ink-strong)' }}>{item.drillAccuracyPct}% benar</strong>
                           </div>
                         </div>
 
                         {/* 3 Topik Akurasi Terendah */}
-                        <div style={{ fontSize: 11.5, color: '#334155', lineHeight: 1.45, marginBottom: 10, flex: 1 }}>
+                        <div style={{ fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.45, marginBottom: 10, flex: 1 }}>
                           <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>
                             Topik Fokus Klinik PR:
                           </div>
@@ -1480,10 +1465,10 @@ export const CheckpointV2Page: React.FC = () => {
                     </div>
 
                         {/* Diagnosa Ringkas */}
-                        <div style={{ paddingTop: 8, borderTop: '1px dashed #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
+                        <div style={{ paddingTop: 8, borderTop: '1px dashed var(--border)', fontSize: 12, lineHeight: 1.45 }}>
                           <span
                             style={{
-                              fontSize: 10.5,
+                              fontSize: 12,
                               fontWeight: 700,
                               color: theme.textColor,
                               background: theme.boxBg,
@@ -1496,7 +1481,7 @@ export const CheckpointV2Page: React.FC = () => {
                             {subRule.conditionLabel}
                           </span>
                           {!allSameCondition && (
-                            <div style={{ color: '#334155', marginTop: 5 }}>
+                            <div style={{ color: 'var(--ink-soft)', marginTop: 5 }}>
                               {subRule.saTask}
                             </div>
                           )}
@@ -1514,7 +1499,7 @@ export const CheckpointV2Page: React.FC = () => {
                         borderRadius: 8,
                         padding: '9px 13px',
                         fontSize: 12,
-                        color: '#334155',
+                        color: 'var(--ink-soft)',
                         lineHeight: 1.5
                       }}
                     >
@@ -1531,13 +1516,13 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
           {/* Live Consultation Prompt: Tahap 3 (Driven by saGuidelineEngine) */}
-          <div className="sa-prompt-card" id="sec_tahap3_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #b54708', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+          <div className="sa-prompt-card" id="sec_tahap3_guide" style={{ background: 'var(--page-bg)', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--amber-ink)', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#b54708', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--amber-ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Wrench size={16} />
                 Panduan Kakak Asuh: Audit Kebiasaan Drill Soal &amp; Prioritas Materi Klinik PR
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#b54708', background: '#fef0c7', padding: '2px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--amber-ink)', background: '#fef0c7', padding: '2px 10px', borderRadius: 9999 }}>
                 Target Hasil: Sepakati topik Klinik PR &amp; perbaikan pola drill soal
               </span>
             </div>
@@ -1550,11 +1535,11 @@ export const CheckpointV2Page: React.FC = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
               {/* Kolom Kiri: Panduan Kakak Asuh */}
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#b54708', marginBottom: 8, letterSpacing: 0.3 }}>
+              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--amber-ink)', marginBottom: 8, letterSpacing: 0.3 }}>
                   🔍 PANDUAN KAKAK ASUH:
                 </div>
-                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
                   {stage3OverallOut.saTasks.map((task, idx) => (
                     <li key={idx}>{task}</li>
                   ))}
@@ -1563,17 +1548,17 @@ export const CheckpointV2Page: React.FC = () => {
 
               {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
+                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
                     <li><strong>Hindari drill semu:</strong> Apresiasi konsistensi di subtes yang sudah aktif, lalu ajak mengalihkan porsi drill soal ke subtes dengan gap terbesar.</li>
                     <li><strong>Jangan menyimpulkan &quot;malas&quot; dari angka 0:</strong> Data kosong hanya berarti belum tercatat di aplikasi—gali dulu kendala atau drill soal mandiri di luar sistem.</li>
                   </ul>
                 </div>
 
-                <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 11.5, lineHeight: 1.45 }}>
+                <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 12, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#b45309', marginBottom: 4 }}>📏 CARA BACA METRIK SESI DRILL:</div>
-                  <p style={{ margin: 0, color: '#334155' }}>
+                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
                     {stage3OverallOut.guardrailNote}
                   </p>
                 </div>
@@ -1586,12 +1571,12 @@ export const CheckpointV2Page: React.FC = () => {
         {/* TAHAP 4: AKTIVITAS BELAJAR DI KELAS & CATATAN PENGAJAR    */}
         {/* ========================================================= */}
         <section id="tahap4" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0', flexWrap: 'wrap', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid var(--border)', flexWrap: 'wrap', gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '3px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', background: 'var(--primary-light)', border: '1px solid var(--primary-border)', padding: '3px 10px', borderRadius: 9999 }}>
                 Tahap 4
               </span>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--ink-strong)', margin: 0 }}>
                 🏫 Aktivitas Belajar di Kelas (TMB) &amp; Catatan Pengajar
               </h2>
             </div>
@@ -1609,48 +1594,48 @@ export const CheckpointV2Page: React.FC = () => {
           <div className="section-block" id="sec_tahap4_classroom">
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
               <h3 className="section-title" style={{ fontSize: 15 }}>2. Kehadiran Kelas &amp; Daftar Catatan Asli Pengajar</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{classroomData.capturedLabel}</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>{classroomData.capturedLabel}</span>
             </div>
 
             {/* 2-Column Metadata Strip */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 14px' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+              <div style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Kehadiran Tatap Muka (TMB)
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
-                  <span style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--ink-strong)' }}>
                     {classroomData.presentSessions} / {classroomData.totalSessions}
                   </span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>
                     sesi ({((classroomData.presentSessions / classroomData.totalSessions) * 100).toFixed(1)}%)
                   </span>
                 </div>
-                <div style={{ fontSize: 11.5, color: '#475467', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: 'var(--slate-600)', marginTop: 4 }}>
                   {classroomData.presentSessions - classroomData.lateSessions} Hadir · {classroomData.lateSessions} Terlambat · {classroomData.sickSessions} Sakit · {classroomData.excusedSessions} Izin
                 </div>
               </div>
 
-              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 14px' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+              <div style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                   Kelengkapan Catatan Pengajar
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
-                  <span style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--ink-strong)' }}>
                     {classroomData.notesCount} / {classroomData.totalSessions}
                   </span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>
                     sesi bercatatan
                   </span>
                 </div>
-                <div style={{ fontSize: 11.5, color: '#475467', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: 'var(--slate-600)', marginTop: 4 }}>
                   Menampilkan catatan asli pengajar langsung dari Student Tower
                 </div>
               </div>
             </div>
 
             {/* Direct Session Notes List (100% Non-AI Verbatim Source) */}
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '14px 16px' }}>
+            <div style={{ background: '#ffffff', border: '1px solid var(--border)', borderRadius: 8, padding: '14px 16px' }}>
               {(() => {
                 const notedCount = classroomData.sessions.filter((s) => Boolean(s.noteText)).length;
                 const absentOrLateCount = classroomData.sessions.filter((s) => s.attendance !== 'Hadir').length;
@@ -1668,9 +1653,9 @@ export const CheckpointV2Page: React.FC = () => {
                 const pagedSessions = filteredSessions.slice(startIdx, endIdx);
 
                 const getAttBadgeStyle = (att: string) => {
-                  if (att === 'Hadir') return { bg: '#ecfdf3', color: '#027a48', border: '#a6f4c5' };
-                  if (att === 'Terlambat') return { bg: '#fef0c7', color: '#b54708', border: '#fedf89' };
-                  return { bg: '#fee4e2', color: '#b42318', border: '#fecdca' };
+                  if (att === 'Hadir') return { bg: '#ecfdf3', color: 'var(--green-ink)', border: '#a6f4c5' };
+                  if (att === 'Terlambat') return { bg: '#fef0c7', color: 'var(--amber-ink)', border: '#fedf89' };
+                  return { bg: '#fee4e2', color: 'var(--red-ink)', border: '#fecdca' };
                 };
 
                 return (
@@ -1692,11 +1677,11 @@ export const CheckpointV2Page: React.FC = () => {
                                 setClassPage(1);
                               }}
                               style={{
-                                fontSize: 11.5,
+                                fontSize: 12,
                                 fontWeight: isActive ? 700 : 600,
-                                color: isActive ? '#245f5a' : '#475467',
-                                background: isActive ? '#e6f4f2' : '#f8fafc',
-                                border: `1px solid ${isActive ? '#a7d7dc' : '#e2e8f0'}`,
+                                color: isActive ? 'var(--tosca-dark)' : 'var(--slate-600)',
+                                background: isActive ? 'var(--primary-light)' : 'var(--page-bg)',
+                                border: `1px solid ${isActive ? 'var(--primary-border)' : 'var(--border)'}`,
                                 borderRadius: 6,
                                 padding: '4px 10px',
                                 cursor: 'pointer'
@@ -1707,19 +1692,19 @@ export const CheckpointV2Page: React.FC = () => {
                           );
                         })}
                       </div>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>
+                      <span style={{ fontSize: 12, color: 'var(--muted)' }}>
                         Menampilkan {filteredSessions.length === 0 ? 0 : `${startIdx + 1}–${endIdx}`} dari {filteredSessions.length} sesi (teks asli pengajar)
                       </span>
                     </div>
 
-                    <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+                    <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
-                        <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <thead style={{ background: 'var(--page-bg)', borderBottom: '1px solid var(--border)' }}>
                           <tr>
-                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#475467', width: '15%', letterSpacing: 0.3 }}>TANGGAL</th>
-                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#475467', width: '24%', letterSpacing: 0.3 }}>MAPEL &amp; PENGAJAR</th>
-                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#475467', width: '13%', letterSpacing: 0.3 }}>KEHADIRAN</th>
-                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#475467', width: '48%', letterSpacing: 0.3 }}>CATATAN ASLI PENGAJAR</th>
+                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 12, fontWeight: 700, color: 'var(--slate-600)', width: '15%', letterSpacing: 0.3 }}>TANGGAL</th>
+                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 12, fontWeight: 700, color: 'var(--slate-600)', width: '24%', letterSpacing: 0.3 }}>MAPEL &amp; PENGAJAR</th>
+                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 12, fontWeight: 700, color: 'var(--slate-600)', width: '13%', letterSpacing: 0.3 }}>KEHADIRAN</th>
+                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 12, fontWeight: 700, color: 'var(--slate-600)', width: '48%', letterSpacing: 0.3 }}>CATATAN ASLI PENGAJAR</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1727,19 +1712,19 @@ export const CheckpointV2Page: React.FC = () => {
                             const attStyle = getAttBadgeStyle(ses.attendance);
                             return (
                               <tr key={ses.id} style={{ borderBottom: '1px solid #f1f5f9', verticalAlign: 'top' }}>
-                                <td style={{ padding: '9px 10px', color: '#334155', whiteSpace: 'nowrap' }}>
+                                <td style={{ padding: '9px 10px', color: 'var(--ink-soft)', whiteSpace: 'nowrap' }}>
                                   <div style={{ fontWeight: 600 }}>{ses.dateLabel}</div>
-                                  <div style={{ fontSize: 11, color: '#64748b' }}>{ses.timeLabel}</div>
+                                  <div style={{ fontSize: 12, color: 'var(--muted)' }}>{ses.timeLabel}</div>
                                 </td>
                                 <td style={{ padding: '9px 10px' }}>
-                                  <div style={{ fontWeight: 700, color: '#0f172a' }}>{ses.subject}</div>
-                                  <div style={{ fontSize: 11, color: '#64748b' }}>{ses.teacher}</div>
+                                  <div style={{ fontWeight: 700, color: 'var(--ink-strong)' }}>{ses.subject}</div>
+                                  <div style={{ fontSize: 12, color: 'var(--muted)' }}>{ses.teacher}</div>
                                 </td>
                                 <td style={{ padding: '9px 10px' }}>
                                   <span
                                     style={{
                                       display: 'inline-block',
-                                      fontSize: 10.5,
+                                      fontSize: 12,
                                       fontWeight: 700,
                                       color: attStyle.color,
                                       background: attStyle.bg,
@@ -1751,12 +1736,12 @@ export const CheckpointV2Page: React.FC = () => {
                                     {ses.attendance}
                                   </span>
                                   {ses.attendanceNote && (
-                                    <div style={{ fontSize: 10.5, color: '#64748b', marginTop: 3 }}>
+                                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>
                                       {ses.attendanceNote}
                                     </div>
                                   )}
                                 </td>
-                                <td style={{ padding: '9px 10px', color: '#334155', lineHeight: 1.5 }}>
+                                <td style={{ padding: '9px 10px', color: 'var(--ink-soft)', lineHeight: 1.5 }}>
                                   {ses.noteText ? (
                                     ses.noteText
                                   ) : (
@@ -1781,14 +1766,14 @@ export const CheckpointV2Page: React.FC = () => {
                           alignItems: 'center',
                           marginTop: 12,
                           padding: '10px 12px',
-                          background: '#f8fafc',
-                          border: '1px solid #e2e8f0',
+                          background: 'var(--page-bg)',
+                          border: '1px solid var(--border)',
                           borderRadius: 8,
                           flexWrap: 'wrap',
                           gap: 8
                         }}
                       >
-                        <span style={{ fontSize: 11.5, color: '#64748b' }}>
+                        <span style={{ fontSize: 12, color: 'var(--muted)' }}>
                           Halaman <strong>{safePage}</strong> dari <strong>{totalPages}</strong> (6 sesi per halaman)
                         </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
@@ -1797,13 +1782,13 @@ export const CheckpointV2Page: React.FC = () => {
                             disabled={safePage <= 1}
                             onClick={() => setClassPage(safePage - 1)}
                             style={{
-                              fontSize: 11.5,
+                              fontSize: 12,
                               fontWeight: 600,
                               padding: '4px 9px',
                               borderRadius: 6,
-                              border: '1px solid #e2e8f0',
-                              background: safePage <= 1 ? '#f8fafc' : '#ffffff',
-                              color: safePage <= 1 ? '#94a3b8' : '#334155',
+                              border: '1px solid var(--border)',
+                              background: safePage <= 1 ? 'var(--page-bg)' : '#ffffff',
+                              color: safePage <= 1 ? '#94a3b8' : 'var(--ink-soft)',
                               cursor: safePage <= 1 ? 'not-allowed' : 'pointer'
                             }}
                           >
@@ -1817,14 +1802,14 @@ export const CheckpointV2Page: React.FC = () => {
                                 type="button"
                                 onClick={() => setClassPage(pageNum)}
                                 style={{
-                                  fontSize: 11.5,
+                                  fontSize: 12,
                                   fontWeight: isCurr ? 700 : 600,
                                   minWidth: 28,
                                   padding: '4px 8px',
                                   borderRadius: 6,
-                                  border: `1px solid ${isCurr ? '#a7d7dc' : '#e2e8f0'}`,
-                                  background: isCurr ? '#e6f4f2' : '#ffffff',
-                                  color: isCurr ? '#245f5a' : '#334155',
+                                  border: `1px solid ${isCurr ? 'var(--primary-border)' : 'var(--border)'}`,
+                                  background: isCurr ? 'var(--primary-light)' : '#ffffff',
+                                  color: isCurr ? 'var(--tosca-dark)' : 'var(--ink-soft)',
                                   cursor: 'pointer'
                                 }}
                               >
@@ -1837,13 +1822,13 @@ export const CheckpointV2Page: React.FC = () => {
                             disabled={safePage >= totalPages}
                             onClick={() => setClassPage(safePage + 1)}
                             style={{
-                              fontSize: 11.5,
+                              fontSize: 12,
                               fontWeight: 600,
                               padding: '4px 9px',
                               borderRadius: 6,
-                              border: '1px solid #e2e8f0',
-                              background: safePage >= totalPages ? '#f8fafc' : '#ffffff',
-                              color: safePage >= totalPages ? '#94a3b8' : '#334155',
+                              border: '1px solid var(--border)',
+                              background: safePage >= totalPages ? 'var(--page-bg)' : '#ffffff',
+                              color: safePage >= totalPages ? '#94a3b8' : 'var(--ink-soft)',
                               cursor: safePage >= totalPages ? 'not-allowed' : 'pointer'
                             }}
                           >
@@ -1859,23 +1844,23 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
           {/* Live Consultation Prompt: Tahap 4 (Aktivitas Kelas & Catatan Pengajar) */}
-          <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f2f8f7', border: '1px solid #a7d7dc', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+          <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f2f8f7', border: '1px solid var(--primary-border)', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#245f5a', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GraduationCap size={16} />
                 Panduan Kakak Asuh: Mengonfirmasi Konteks Belajar di Kelas TMB
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#245f5a', background: '#e6f4f2', padding: '2px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', background: 'var(--primary-light)', padding: '2px 10px', borderRadius: 9999 }}>
                 Target Hasil: Pola kelas &amp; kendala kehadiran terkonfirmasi sebelum rencana aksi
               </span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#245f5a', marginBottom: 8, letterSpacing: 0.3 }}>
+              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 8, letterSpacing: 0.3 }}>
                   🔍 PANDUAN KAKAK ASUH:
                 </div>
-                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
                   {stageClassroomOut.saTasks.map((task, idx) => (
                     <li key={idx}>{task}</li>
                   ))}
@@ -1883,17 +1868,17 @@ export const CheckpointV2Page: React.FC = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
+                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
                     <li><strong>Pisahkan sesi dari sifat permanen:</strong> Sampaikan catatan per mapel/tanggal sebagai konteks belajar saat itu, bukan label kepribadian siswa.</li>
                     <li><strong>Hubungkan dengan kebutuhan Klinik PR:</strong> Gunakan sesi yang mencatat siswa butuh bantuan untuk memprioritaskan topik tatap muka cabang.</li>
                   </ul>
                 </div>
 
-                <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 11.5, lineHeight: 1.45 }}>
+                <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 12, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: '#b45309', marginBottom: 4 }}>📏 BATAS BACA DATA KELAS:</div>
-                  <p style={{ margin: 0, color: '#334155' }}>
+                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
                     {stageClassroomOut.guardrailNote}
                   </p>
                 </div>
@@ -1906,12 +1891,12 @@ export const CheckpointV2Page: React.FC = () => {
         {/* TAHAP 5: RENCANA AKSI MENUJU TO 5 & CATATAN KAKAK ASUH     */}
         {/* ========================================================= */}
         <section id="tahap5" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#027a48', background: '#ecfdf3', padding: '3px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--green-ink)', background: '#ecfdf3', padding: '3px 10px', borderRadius: 9999 }}>
                 Tahap 5
               </span>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--ink-strong)', margin: 0 }}>
                 📝 Rencana Aksi Menuju TO 5 &amp; Catatan Kakak Asuh
               </h2>
             </div>
@@ -1923,7 +1908,7 @@ export const CheckpointV2Page: React.FC = () => {
           <div className="section-block" id="sec_tahap5_plans">
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 15 }}>1. Kerangka Tindak Lanjut Menuju TO 5</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Disepakati Bersama Siswa &amp; Orang Tua Selama Sesi Konsultasi</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>Disepakati Bersama Siswa &amp; Orang Tua Selama Sesi Konsultasi</span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -1931,7 +1916,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div
                   key={plan.num}
                   style={{
-                    background: '#f8fafc',
+                    background: 'var(--page-bg)',
                     border: '1px solid var(--border)',
                     borderLeft: `4px solid ${plan.accentColor}`,
                     borderRadius: 8,
@@ -1942,7 +1927,7 @@ export const CheckpointV2Page: React.FC = () => {
                     <span style={{
                       background: plan.accentColor,
                       color: '#fff',
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       width: 22,
                       height: 22,
@@ -1955,8 +1940,8 @@ export const CheckpointV2Page: React.FC = () => {
                     </span>
                     <strong style={{ fontSize: 13, color: 'var(--ink)' }}>{plan.title}</strong>
                   </div>
-                  <p style={{ fontSize: 12, color: '#334155', lineHeight: 1.55 }}>{plan.desc}</p>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>PIC: {plan.pic}</div>
+                  <p style={{ fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.55 }}>{plan.desc}</p>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>PIC: {plan.pic}</div>
                 </div>
               ))}
             </div>
@@ -1974,19 +1959,19 @@ export const CheckpointV2Page: React.FC = () => {
           <div className="section-block" id="sec_tahap5_agreement">
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 15 }}>3. Catatan Khusus Kakak Asuh (Sesi Ini)</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>
                 Pengingat sesi berikutnya · Lembar pernyataan &amp; tanda tangan 3 pihak tersedia di Halaman 2 PDF
               </span>
             </div>
 
-            <div style={{ background: '#f8fafc', border: `1px solid ${lockErrorMsg ? '#f04438' : 'var(--border)'}`, borderRadius: 8, padding: 16 }}>
+            <div style={{ background: 'var(--page-bg)', border: `1px solid ${lockErrorMsg ? '#f04438' : 'var(--border)'}`, borderRadius: 8, padding: 16 }}>
               {lockErrorMsg && (
                 <div
                   role="alert"
                   style={{
                     background: '#fef3f2',
                     border: '1px solid #fecdca',
-                    color: '#b42318',
+                    color: 'var(--red-ink)',
                     borderRadius: 6,
                     padding: '8px 12px',
                     fontSize: 12,
@@ -2000,7 +1985,7 @@ export const CheckpointV2Page: React.FC = () => {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
                   <label style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink)' }}>
-                    Ringkasan Kesepakatan &amp; Tindak Lanjut <span style={{ color: '#b42318' }}>*Wajib diisi sebelum Kunci</span>:
+                    Ringkasan Kesepakatan &amp; Tindak Lanjut <span style={{ color: 'var(--red-ink)' }}>*Wajib diisi sebelum Kunci</span>:
                   </label>
                   {!isLocked && (
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -2014,11 +1999,11 @@ export const CheckpointV2Page: React.FC = () => {
                           safeSetItem(saNotesStorageKey, val);
                         }}
                         style={{
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
-                          color: '#245f5a',
-                          background: '#e6f4f2',
-                          border: '1px solid #a7d7dc',
+                          color: 'var(--tosca-dark)',
+                          background: 'var(--primary-light)',
+                          border: '1px solid var(--primary-border)',
                           borderRadius: 9999,
                           padding: '2px 9px',
                           cursor: 'pointer'
@@ -2037,9 +2022,9 @@ export const CheckpointV2Page: React.FC = () => {
                           safeSetItem(saNotesStorageKey, val);
                         }}
                         style={{
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
-                          color: '#027a48',
+                          color: 'var(--green-ink)',
                           background: '#ecfdf3',
                           border: '1px solid #a6f4c5',
                           borderRadius: 9999,
@@ -2082,24 +2067,24 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
           {/* Live Consultation Prompt: Tahap 5 (Driven by saGuidelineEngine) */}
-          <div className="sa-prompt-card" id="sec_tahap5_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #027a48', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+          <div className="sa-prompt-card" id="sec_tahap5_guide" style={{ background: 'var(--page-bg)', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--green-ink)', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#027a48', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--green-ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ShieldCheck size={16} />
                 Panduan Kakak Asuh: Mengunci Komitmen Nyata &amp; Penyerahan Laporan
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#027a48', background: '#ecfdf3', padding: '2px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', background: '#ecfdf3', padding: '2px 10px', borderRadius: 9999 }}>
                 Target Hasil: Jadwal cabang disepakati, catatan tersimpan &amp; PDF diserahkan
               </span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
               {/* Kolom Kiri: Panduan Kakak Asuh */}
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#027a48', marginBottom: 8, letterSpacing: 0.3 }}>
+              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--green-ink)', marginBottom: 8, letterSpacing: 0.3 }}>
                   🔍 PANDUAN KAKAK ASUH:
                 </div>
-                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
+                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
                   {stage4Out.saTasks.map((task, idx) => (
                     <li key={idx}>{task}</li>
                   ))}
@@ -2108,18 +2093,18 @@ export const CheckpointV2Page: React.FC = () => {
 
               {/* Kolom Kanan: Checklist Penutupan Kakak Asuh */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>📋 CHECKLIST PENUTUPAN KAKAK ASUH:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
+                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>📋 CHECKLIST PENUTUPAN KAKAK ASUH:</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
                     {stage4Out.checklist.map((item, idx) => (
                       <li key={idx}>{item}</li>
                     ))}
                   </ul>
                 </div>
 
-                <div style={{ background: '#ecfdf3', padding: '10px 12px', borderRadius: 6, border: '1px solid #a6f4c5', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🔄 KESINAMBUNGAN SESI BERIKUTNYA:</div>
-                  <p style={{ margin: 0, color: '#334155' }}>
+                <div style={{ background: '#ecfdf3', padding: '10px 12px', borderRadius: 6, border: '1px solid #a6f4c5', fontSize: 12, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🔄 KESINAMBUNGAN SESI BERIKUTNYA:</div>
+                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
                     Catatan di formulir atas berfungsi sebagai <strong>pengingat untuk pertemuan selanjutnya</strong> agar evaluasi progres di TO 5 tidak mengulang pembicaraan dari awal.
                   </p>
                 </div>

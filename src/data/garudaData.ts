@@ -295,14 +295,14 @@ export const actionPlansV2: ActionPlan[] = [
     title: "Sesi Klinik Belajar & Bedah Topik Terendah",
     desc: "Jadwalkan sesi klinik belajar tatap muka untuk membahas topik dengan akurasi terendah pada Tryout terakhir (Aljabar, Peluang, Penalaran Induktif) sesuai ketersediaan jadwal siswa.",
     pic: "Kak William Candra (Kakak Asuh) & Siswa",
-    accentColor: "#0284c7"
+    accentColor: "#0369a1"
   },
   {
     num: 3,
     title: "Fokus Target Evaluasi Tryout Berikutnya (TO 5)",
     desc: "Tinjau kesiapan menghadapi TO 5 dengan memprioritaskan penahanan tren turun pada subtes pembobot utama (PK & PU) serta menjaga konsistensi subtes PM.",
     pic: "Siswa & Kakak Asuh",
-    accentColor: "#f79009"
+    accentColor: "#b54708"
   },
   {
     num: 4,
