@@ -17,6 +17,7 @@ import {
   validateSnbtChoices,
   OpportunityZone
 } from '../data/programCatalog';
+import { Button, Pill, toneForGap } from './ui';
 
 export interface ChoiceReviewModalProps {
   isOpen: boolean;
@@ -254,7 +255,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
           {/* Target Slot Selector */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#475467', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
-              Terapkan Pilihan Baru ke Slot:
+              Terapkan pilihan baru ke slot:
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {activePrograms.map((prog, idx) => {
@@ -317,7 +318,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
           {/* Side-by-side Diff Comparison */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#475467', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
-              Komparasi Sebelum vs Sesudah Perubahan ({priorityLabel}):
+              Perbandingan sebelum dan sesudah perubahan ({priorityLabel}):
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {/* Sisi Kiri: Sebelum (Saat Ini) */}
@@ -343,10 +344,10 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                       borderRadius: 4
                     }}
                   >
-                    SEBELUMNYA (SAAT INI)
+                    PILIHAN SAAT INI
                   </span>
                   <span style={{ fontSize: 11, fontWeight: 600, color: '#64748b' }}>
-                    {oldChoice ? oldChoice.priority : `Slot Kosong`}
+                    {oldChoice ? oldChoice.priority : `Slot kosong`}
                   </span>
                 </div>
 
@@ -384,25 +385,25 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: 10, color: '#64748b' }}>Target Acuan</div>
+                        <div style={{ fontSize: 10, color: '#64748b' }}>Target acuan</div>
                         <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>{oldChoice.targetScore}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 10, color: '#64748b' }}>Skor Terbobot</div>
+                        <div style={{ fontSize: 10, color: '#64748b' }}>Skor terbobot</div>
                         <div style={{ fontSize: 13, fontWeight: 800, color: '#1078ca' }}>{oldChoice.weightedScore}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 10, color: '#64748b' }}>Selisih (Gap)</div>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: oldChoice.gap >= 0 ? '#027a48' : '#b42318' }}>
-                          {oldChoice.gap >= 0 ? `+${oldChoice.gap}` : oldChoice.gap}
+                        <div style={{ fontSize: 10, color: '#64748b' }}>Jarak target</div>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: oldChoice.gap >= 0 ? '#027a48' : '#b42318' }}>
+                          {oldChoice.gap > 0 ? `+${oldChoice.gap}` : oldChoice.gap}
                         </div>
                       </div>
                     </div>
 
                     <div style={{ fontSize: 11, color: '#475467', display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <span>Status Kesiapan:</span>
+                      <span>Status kesiapan:</span>
                       <strong style={{ color: oldChoice.gap >= 0 ? '#027a48' : '#b42318' }}>
-                        {oldChoice.status || (oldChoice.gap >= 0 ? 'Peluang Terbuka' : 'Butuh Peningkatan')}
+                        {oldChoice.status || (oldChoice.gap >= 0 ? 'Sudah tercapai' : 'Perlu diperkuat')}
                       </strong>
                     </div>
                   </>
@@ -447,7 +448,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                       borderRadius: 4
                     }}
                   >
-                    AKAN DITERAPKAN (PILIHAN BARU)
+                    PILIHAN BARU
                   </span>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#1078ca' }}>
                     {priorityLabel}
@@ -486,7 +487,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>Target Acuan</div>
+                    <div style={{ fontSize: 10, color: '#64748b' }}>Target acuan</div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>
                       {newProgram.catalog.targetScore}
                       {targetDelta !== null && targetDelta !== 0 && (
@@ -497,19 +498,19 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>Skor Terbobot</div>
+                    <div style={{ fontSize: 10, color: '#64748b' }}>Skor terbobot</div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: '#1078ca' }}>{newProgram.weightedScore}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>Selisih (Gap)</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: newTheme.textColor }}>
-                      {newProgram.gap >= 0 ? `+${newProgram.gap}` : newProgram.gap}
+                    <div style={{ fontSize: 10, color: '#64748b' }}>Jarak target</div>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: newTheme.textColor }}>
+                      {newProgram.gap > 0 ? `+${newProgram.gap}` : newProgram.gap}
                     </div>
                   </div>
                 </div>
 
                 <div style={{ fontSize: 11, color: '#475467', display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <span>Status Kesiapan:</span>
+                  <span>Status kesiapan:</span>
                   <strong style={{ color: newTheme.textColor }}>
                     {newProgram.statusText} ({newProgram.zoneLabel})
                   </strong>
@@ -539,18 +540,18 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                   <TrendingDown size={16} />
                 )}
                 <div>
-                  <strong>Analisis Perubahan:</strong>{' '}
+                  <strong>Analisis perubahan:</strong>{' '}
                   <span>
                     {targetDelta === 0 || targetDelta === null
                       ? 'Target acuan setara dengan pilihan sebelumnya'
                       : targetDelta < 0
-                      ? `Target acuan lebih rendah ${Math.abs(targetDelta)} poin`
-                      : `Target acuan lebih tinggi ${targetDelta} poin`}
+                      ? `Target acuan lebih rendah ${Math.abs(targetDelta)}`
+                      : `Target acuan lebih tinggi ${targetDelta}`}
                     {gapDelta === null || gapDelta === 0
-                      ? '; selisih skor terbobot terhadap target tidak berubah.'
+                      ? '; jarak ke target acuan tidak berubah.'
                       : gapDelta > 0
-                      ? `; selisih skor terbobot terhadap target menyempit ${gapDelta} poin (dari ${oldChoice.gap} menjadi ${newProgram.gap}).`
-                      : `; selisih skor terbobot terhadap target melebar ${Math.abs(gapDelta)} poin (dari ${oldChoice.gap} menjadi ${newProgram.gap}), siswa butuh tambahan peningkatan skor.`}
+                      ? `; jarak ke target acuan memendek ${gapDelta} (dari ${oldChoice.gap > 0 ? `+${oldChoice.gap}` : oldChoice.gap} menjadi ${newProgram.gap > 0 ? `+${newProgram.gap}` : newProgram.gap}).`
+                      : `; jarak ke target acuan melebar ${Math.abs(gapDelta)} (dari ${oldChoice.gap > 0 ? `+${oldChoice.gap}` : oldChoice.gap} menjadi ${newProgram.gap > 0 ? `+${newProgram.gap}` : newProgram.gap}), siswa memerlukan peningkatan lebih besar.`}
                   </span>
                   {oldChoice.isOutOfTown && !newProgram.isOutOfTown && (
                     <span style={{ marginLeft: 4 }}>
@@ -565,18 +566,18 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
           {/* Proposed Complete List Preview (1..4) */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#475467', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
-              Pratinjau Seluruh Formulasi Pilihan Setelah Perubahan ({proposedPrograms.length} Pilihan):
+              Pratinjau seluruh formulasi pilihan setelah perubahan ({proposedPrograms.length} pilihan):
             </div>
 
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
+            <div className="rg-table-wrap">
+              <table className="rg-table">
                 <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475467', textAlign: 'left' }}>
-                    <th style={{ padding: '7px 10px', width: '15%' }}>Pilihan</th>
-                    <th style={{ padding: '7px 10px' }}>Program Studi &amp; PTN</th>
-                    <th style={{ padding: '7px 10px', width: '16%', textAlign: 'center' }}>Target Acuan</th>
-                    <th style={{ padding: '7px 10px', width: '16%', textAlign: 'center' }}>Skor Terbobot</th>
-                    <th style={{ padding: '7px 10px', width: '16%', textAlign: 'center' }}>Selisih</th>
+                  <tr>
+                    <th style={{ width: '15%' }}>Pilihan</th>
+                    <th>Program studi &amp; PTN</th>
+                    <th style={{ width: '16%', textAlign: 'center' }}>Target acuan</th>
+                    <th style={{ width: '16%', textAlign: 'center' }}>Skor terbobot</th>
+                    <th style={{ width: '16%', textAlign: 'center' }}>Jarak target</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -585,12 +586,9 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                     return (
                       <tr
                         key={`${prog.priority}_${prog.prodi}`}
-                        style={{
-                          background: isUpdatedSlot ? '#f0f9ff' : idx % 2 === 0 ? '#ffffff' : '#fafafa',
-                          borderBottom: idx === proposedPrograms.length - 1 ? 'none' : '1px solid #f1f5f9'
-                        }}
+                        className={isUpdatedSlot ? 'is-selected' : undefined}
                       >
-                        <td style={{ padding: '7px 10px', fontWeight: 700, color: '#1078ca' }}>
+                        <td style={{ fontWeight: 700, color: '#1078ca' }}>
                           {prog.priority}
                           {isUpdatedSlot && (
                             <span
@@ -608,25 +606,20 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
                             </span>
                           )}
                         </td>
-                        <td style={{ padding: '7px 10px' }}>
+                        <td>
                           <strong style={{ color: isUpdatedSlot ? '#0f172a' : '#1e293b' }}>{prog.prodi}</strong>
                           <span style={{ color: '#64748b', fontSize: 11, marginLeft: 4 }}>— {prog.univ}</span>
                         </td>
-                        <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: 700 }}>
+                        <td style={{ textAlign: 'center', fontWeight: 700 }}>
                           {prog.targetScore}
                         </td>
-                        <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: 700, color: '#1078ca' }}>
+                        <td style={{ textAlign: 'center', fontWeight: 700, color: '#1078ca' }}>
                           {prog.weightedScore}
                         </td>
-                        <td
-                          style={{
-                            padding: '7px 10px',
-                            textAlign: 'center',
-                            fontWeight: 800,
-                            color: prog.gap >= 0 ? '#027a48' : '#b42318'
-                          }}
-                        >
-                          {prog.gap >= 0 ? `+${prog.gap}` : prog.gap}
+                        <td style={{ textAlign: 'center' }}>
+                          <Pill tone={toneForGap(prog.gap)}>
+                            {prog.gap > 0 ? `+${prog.gap}` : prog.gap}
+                          </Pill>
                         </td>
                       </tr>
                     );
@@ -653,7 +646,7 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
               >
                 {snbtValidation.isValid ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
                 <span>
-                  <strong>Regulasi SNBT 2026/2027:</strong> {snbtValidation.message}
+                  <strong>Regulasi SNBT:</strong> {snbtValidation.message}
                 </span>
               </div>
 
@@ -693,51 +686,24 @@ export const ChoiceReviewModal: React.FC<ChoiceReviewModalProps> = ({
         >
           <div style={{ fontSize: 11, color: isDuplicateChoice ? '#b42318' : '#64748b', fontWeight: isDuplicateChoice ? 700 : 400 }}>
             {isDuplicateChoice
-              ? 'Prodi ini sudah dipilih di slot lain. Pilih prodi yang berbeda.'
-              : 'Perubahan akan otomatis tersinkron'} ke Laporan Konsultasi &amp; Cetak PDF A4.
+              ? 'Program studi ini sudah dipilih di slot lain. Pilih program studi yang berbeda.'
+              : 'Perubahan akan otomatis tersinkron ke laporan konsultasi dan lembar cetak PDF A4.'}
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: '8px 16px',
-                borderRadius: 6,
-                fontSize: 12.5,
-                fontWeight: 600,
-                color: '#344054',
-                background: '#ffffff',
-                border: '1px solid #d0d5dd',
-                cursor: 'pointer'
-              }}
-            >
+            <Button onClick={onClose}>
               Batal
-            </button>
+            </Button>
 
-            <button
-              type="button"
+            <Button
+              variant="primary"
               onClick={handleConfirm}
               disabled={isDuplicateChoice}
-              title={isDuplicateChoice ? 'Prodi ini sudah ada di slot pilihan lain' : undefined}
-              style={{
-                padding: '8px 18px',
-                borderRadius: 6,
-                fontSize: 12.5,
-                fontWeight: 700,
-                color: '#ffffff',
-                background: isDuplicateChoice ? '#98a2b3' : '#1078ca',
-                border: `1px solid ${isDuplicateChoice ? '#98a2b3' : '#1078ca'}`,
-                cursor: isDuplicateChoice ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                boxShadow: '0 1px 2px rgba(16, 24, 40, 0.05)'
-              }}
+              icon={<Check size={16} />}
+              title={isDuplicateChoice ? 'Program studi ini sudah ada di slot pilihan lain' : undefined}
             >
-              <Check size={16} />
-              Konfirmasi &amp; Terapkan Perubahan
-            </button>
+              Konfirmasi &amp; terapkan pilihan
+            </Button>
           </div>
         </div>
       </div>

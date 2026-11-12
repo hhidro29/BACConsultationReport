@@ -71,6 +71,98 @@ const GARUDA_SESSIONS: ClassroomSession[] = [
   { id: 'REFRESH-CLASS-006', dateLabel: '03 Agu 2026', timeLabel: '17:00', subject: 'Fisika', teacher: 'suranto', attendance: 'Hadir', noteText: 'Pada sesi ini, Ananda menunjukkan antusiasme tinggi dan aktif bertanya di kelas. Dari penguasaan materi, Ananda memahami materi dengan sangat baik dan mampu mengerjakan tugas dengan mandiri.' }
 ];
 
+export interface SaHistoryNote {
+  id: string;
+  dateLabel: string;
+  author: string;
+  topicTag: string;
+  summary: string;
+  followUpStatus: 'Selesai' | 'Perlu Cek Ulang';
+}
+
+export const STUDENT_SA_HISTORY_NOTES: Record<string, SaHistoryNote[]> = {
+  garuda: [
+    {
+      id: 'SA-GAR-01',
+      dateLabel: '24 Okt 2026',
+      author: 'Kak William Candra',
+      topicTag: 'Cek Rutin Bulanan (Oktober)',
+      summary:
+        'Ananda masih bersemangat mengikuti TMB cabang, namun volume drill mandiri di aplikasi masih dominan di Penalaran Umum. Orang tua masih mengharapkan opsi Teknik Mesin ITB di Bandung sementara Ananda condong ke Farmasi UGM/UI.',
+      followUpStatus: 'Perlu Cek Ulang'
+    },
+    {
+      id: 'SA-GAR-02',
+      dateLabel: '19 Sep 2026',
+      author: 'Kak William Candra',
+      topicTag: 'Konsultasi Awal / Profiling',
+      summary:
+        'Target awal ditetapkan di rumpun Kesehatan (Farmasi UGM & UI) dengan opsi pembanding Teknik Mesin ITB. Perlu pemantauan intensif pada subtes kuantitatif (PK) dan kehadiran pasca sempat sakit 2 sesi.',
+      followUpStatus: 'Selesai'
+    }
+  ],
+  nadira: [
+    {
+      id: 'SA-NAD-01',
+      dateLabel: '25 Okt 2026',
+      author: 'Kak William Candra',
+      topicTag: 'Cek Rutin Bulanan (Oktober)',
+      summary:
+        'Progres TO menunjukkan kenaikan konsisten dan keluarga sudah sepakat pada jalur Soshum (Ilmu Hukum UI, HI UGM, Ilkom Unpad). Fokus pendampingan diarahkan ke mempercepat pengerjaan soal PK & PM.',
+      followUpStatus: 'Selesai'
+    },
+    {
+      id: 'SA-NAD-02',
+      dateLabel: '20 Sep 2026',
+      author: 'Kak William Candra',
+      topicTag: 'Konsultasi Awal / Profiling',
+      summary:
+        'Siswa sangat aktif di kelas dan Klinik PR untuk subtes literasi. Diarahkan mulai menyicil latihan soal kuantitatif agar tidak menjadi penarik turun skor terbobot.',
+      followUpStatus: 'Selesai'
+    }
+  ],
+  rizky: [
+    {
+      id: 'SA-RIZ-01',
+      dateLabel: '23 Okt 2026',
+      author: 'Kak William Candra',
+      topicTag: 'Cek Rutin Bulanan (Oktober)',
+      summary:
+        'Kehadiran bulan Oktober menurun karena beberapa kali izin kegiatan sekolah & sakit. Belum terlihat aktivitas drill soal di aplikasi Ruangguru; perlu konfirmasi kendala perangkat/jadwal bersama orang tua.',
+      followUpStatus: 'Perlu Cek Ulang'
+    },
+    {
+      id: 'SA-RIZ-02',
+      dateLabel: '18 Sep 2026',
+      author: 'Kak William Candra',
+      topicTag: 'Konsultasi Awal / Profiling',
+      summary:
+        'Siswa tertarik bidang Informatika/RPL di Surabaya namun orang tua belum sempat hadir di sesi profiling awal. Disepakati mulai dari penguatan konsep dasar numerasi di Klinik PR.',
+      followUpStatus: 'Perlu Cek Ulang'
+    }
+  ],
+  alya: [
+    {
+      id: 'SA-ALY-01',
+      dateLabel: '26 Okt 2026',
+      author: 'Kak William Candra',
+      topicTag: 'Cek Rutin Bulanan (Oktober)',
+      summary:
+        'Seluruh subtes sudah melampaui fondasi 600 dan skor terbobot melampaui target acuan Farmasi Unpad. Pendampingan diarahkan ke soal pengayaan HOTS untuk menjaga konsistensi dan memperlebar margin aman terhadap pesaing.',
+      followUpStatus: 'Selesai'
+    },
+    {
+      id: 'SA-ALY-02',
+      dateLabel: '18 Sep 2026',
+      author: 'Kak William Candra',
+      topicTag: 'Konsultasi Awal / Profiling',
+      summary:
+        'Siswa dan keluarga selaras memilih Farmasi Unpad (Bandung) sebagai Pilihan 1, Farmasi UB, dan TLM Poltekkes Jkt III. Kebiasaan belajar mandiri sudah berjalan teratur 5x seminggu.',
+      followUpStatus: 'Selesai'
+    }
+  ]
+};
+
 export const STUDENT_CLASSROOM_DATA: Record<string, StudentClassroomData> = {
   garuda: {
     studentId: 'garuda',
@@ -132,6 +224,25 @@ export const STUDENT_CLASSROOM_DATA: Record<string, StudentClassroomData> = {
       { id: 'RIZ-CLASS-006', dateLabel: '22 Sep 2026', timeLabel: '19:00', subject: 'Bahasa Indonesia', teacher: 'Rika Amalia', attendance: 'Hadir', noteText: 'Mengikuti diskusi teks bacaan dengan baik ketika dibahas bersama kelompok kecil.' },
       { id: 'RIZ-CLASS-007', dateLabel: '18 Sep 2026', timeLabel: '17:00', subject: 'Pengetahuan Kuantitatif', teacher: 'Dian Pratiwi', attendance: 'Izin', attendanceNote: 'Izin kegiatan sekolah', noteText: null },
       { id: 'RIZ-CLASS-008', dateLabel: '15 Sep 2026', timeLabel: '19:00', subject: 'Bahasa Inggris', teacher: 'Tanto Purwanto', attendance: 'Sakit', attendanceNote: 'Sakit', noteText: null }
+    ]
+  },
+  alya: {
+    studentId: 'alya',
+    periodLabel: '13 Jul–26 Nov 2026',
+    capturedLabel: 'Diambil 22 Okt 2026',
+    totalSessions: 44,
+    presentSessions: 42,
+    lateSessions: 0,
+    sickSessions: 2,
+    excusedSessions: 0,
+    notesCount: 12,
+    sessions: [
+      { id: 'ALY-CLASS-001', dateLabel: '21 Okt 2026', timeLabel: '17:00', subject: 'Pengetahuan Kuantitatif', teacher: 'Ristyana Suryanti', attendance: 'Hadir', noteText: 'Ananda menyelesaikan seluruh soal pengayaan aljabar & kombinatorika dengan akurasi tinggi dan aktif berdiskusi strategi pengerjaan cepat.' },
+      { id: 'ALY-CLASS-002', dateLabel: '18 Okt 2026', timeLabel: '19:00', subject: 'Kimia', teacher: 'Nadya Kartika Putri N', attendance: 'Hadir', noteText: 'Sangat konsisten dan teliti dalam analisis stoikiometri serta mampu membimbing rekan sekelas saat diskusi kelompok.' },
+      { id: 'ALY-CLASS-003', dateLabel: '14 Okt 2026', timeLabel: '17:00', subject: 'Penalaran Umum', teacher: 'Muhamad Diky Yulianto', attendance: 'Hadir', noteText: 'Penguasaan logika deduktif dan induktif sudah sangat matang; siap dilatih dengan paket soal bertipe HOTS.' },
+      { id: 'ALY-CLASS-004', dateLabel: '11 Okt 2026', timeLabel: '19:00', subject: 'Biologi', teacher: 'Nur Afifah Fitriyanti', attendance: 'Hadir', noteText: 'Antusias membedah studi kasus metabolisme dan genetika serta mencatat rangkuman materi secara terstruktur.' },
+      { id: 'ALY-CLASS-005', dateLabel: '07 Okt 2026', timeLabel: '17:00', subject: 'Penalaran Matematika', teacher: 'Ristyana Suryanti', attendance: 'Hadir', noteText: 'Cepat memahami pemodelan soal cerita kontekstual; perlu menjaga ketelitian pada langkah akhir pembulatan.' },
+      { id: 'ALY-CLASS-006', dateLabel: '02 Okt 2026', timeLabel: '19:00', subject: 'Bahasa Inggris', teacher: 'Tanto Purwanto', attendance: 'Sakit', attendanceNote: 'Sakit', noteText: null }
     ]
   }
 };

@@ -26,7 +26,7 @@ export const RuleTraceBox: React.FC<RuleTraceBoxProps> = ({
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             style={{
-              background: open ? '#eff8ff' : '#ffffff',
+              background: open ? '#e6f4f2' : '#ffffff',
               border: '1px solid #cbd5e1',
               borderRadius: 6,
               padding: '4px 10px',
@@ -39,13 +39,13 @@ export const RuleTraceBox: React.FC<RuleTraceBoxProps> = ({
               gap: 5
             }}
           >
-            <Eye size={13} color="#1078ca" />
+            <Eye size={13} color="#398896" />
             Mengapa output ini muncul? ({matchedCount}/{traces.length} kondisi terpicu)
             {open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
           </button>
         ) : (
           <span style={{ fontSize: 11, fontWeight: 800, color: '#475569', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <Eye size={13} color="#1078ca" /> JEJAK ATURAN (WHITE-BOX): {matchedCount}/{traces.length} kondisi terpicu
+            <Eye size={13} color="#398896" /> JEJAK ATURAN (WHITE-BOX): {matchedCount}/{traces.length} kondisi terpicu
           </span>
         )}
 
@@ -54,7 +54,7 @@ export const RuleTraceBox: React.FC<RuleTraceBoxProps> = ({
           style={{
             fontSize: 11,
             fontWeight: 700,
-            color: '#1078ca',
+            color: '#245f5a',
             textDecoration: 'none',
             display: 'inline-flex',
             alignItems: 'center',

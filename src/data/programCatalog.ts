@@ -54,6 +54,7 @@ export interface CatalogProgram {
   supportSubjects: string[];
   prioritySubtests: SubtestKey[];
   subtestWeights: Record<SubtestKey, number>;
+  subtestTargets?: Record<SubtestKey, number>;
 }
 
 export interface SimulatedProgramResult {
@@ -155,7 +156,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 642,
     supportSubjects: ['Kimia', 'Biologi'],
     prioritySubtests: ['pk', 'pu', 'pm'],
-    subtestWeights: { pk: 0.25, pu: 0.22, pm: 0.18, lbi_a: 0.10, lbe: 0.10, pbm: 0.08, ppu: 0.05, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.20, pu: 0.18, pm: 0.16, pbm: 0.12, lbe: 0.11, lbi_a: 0.09, ppu: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 937, pu: 844, pm: 750, pbm: 562, lbe: 516, lbi_a: 500, ppu: 500, lbi_s: 500 }
   },
   {
     id: 'ui_farmasi',
@@ -174,7 +176,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 710,
     supportSubjects: ['Kimia', 'Biologi'],
     prioritySubtests: ['pk', 'pu', 'pm'],
-    subtestWeights: { pk: 0.24, pu: 0.22, pm: 0.19, lbe: 0.11, lbi_a: 0.09, pbm: 0.08, ppu: 0.05, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.20, pu: 0.18, pm: 0.16, pbm: 0.12, lbe: 0.11, lbi_a: 0.09, ppu: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 919, pu: 827, pm: 736, pbm: 552, lbe: 506, lbi_a: 500, ppu: 500, lbi_s: 500 }
   },
   {
     id: 'unpad_farmasi',
@@ -193,7 +196,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 515,
     supportSubjects: ['Kimia', 'Biologi'],
     prioritySubtests: ['pk', 'pu', 'pm'],
-    subtestWeights: { pk: 0.24, pu: 0.21, pm: 0.18, lbi_a: 0.11, lbe: 0.10, pbm: 0.08, ppu: 0.06, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.20, pu: 0.18, pm: 0.16, pbm: 0.12, lbe: 0.11, lbi_a: 0.09, ppu: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 925, pu: 833, pm: 740, pbm: 555, lbe: 509, lbi_a: 500, ppu: 500, lbi_s: 500 }
   },
   {
     id: 'ub_farmasi',
@@ -212,7 +216,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 410,
     supportSubjects: ['Kimia', 'Biologi'],
     prioritySubtests: ['pk', 'pu', 'pm'],
-    subtestWeights: { pk: 0.23, pu: 0.20, pm: 0.18, lbi_a: 0.12, pbm: 0.10, lbe: 0.09, ppu: 0.06, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.20, pu: 0.18, pm: 0.16, pbm: 0.12, lbe: 0.11, lbi_a: 0.09, ppu: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 891, pu: 802, pm: 712, pbm: 534, lbe: 500, lbi_a: 500, ppu: 500, lbi_s: 500 }
   },
   {
     id: 'uin_farmasi',
@@ -230,8 +235,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '5.10%',
     participantsCount: 280,
     supportSubjects: ['Kimia', 'Biologi'],
-    prioritySubtests: ['pk', 'pu', 'lbi_a'],
-    subtestWeights: { pk: 0.22, pu: 0.20, lbi_a: 0.16, pm: 0.15, pbm: 0.11, lbe: 0.08, ppu: 0.06, lbi_s: 0.02 }
+    prioritySubtests: ['pk', 'pu', 'pm'],
+    subtestWeights: { pk: 0.20, pu: 0.18, pm: 0.16, pbm: 0.12, lbe: 0.11, lbi_a: 0.09, ppu: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 808, pu: 728, pm: 647, pbm: 500, lbe: 500, lbi_a: 500, ppu: 500, lbi_s: 500 }
   },
 
   // =====================================================
@@ -254,7 +260,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 245,
     supportSubjects: ['Kimia', 'Matematika Tingkat Lanjut'],
     prioritySubtests: ['pk', 'pm', 'pu'],
-    subtestWeights: { pk: 0.24, pm: 0.22, pu: 0.18, lbe: 0.11, lbi_a: 0.09, pbm: 0.08, ppu: 0.06, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, ppu: 0.11, pbm: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 906, pm: 816, pu: 725, lbe: 544, ppu: 500, pbm: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'ipb_tekpang',
@@ -272,8 +279,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '4.71%',
     participantsCount: 390,
     supportSubjects: ['Kimia', 'Biologi'],
-    prioritySubtests: ['pm', 'pk', 'pu'],
-    subtestWeights: { pm: 0.22, pk: 0.22, pu: 0.18, lbi_a: 0.12, lbe: 0.10, pbm: 0.08, ppu: 0.06, lbi_s: 0.02 }
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, pbm: 0.12, lbe: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 946, pm: 851, pu: 756, pbm: 567, lbe: 520, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'ugm_biologi',
@@ -291,8 +299,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '6.38%',
     participantsCount: 310,
     supportSubjects: ['Biologi', 'Kimia'],
-    prioritySubtests: ['pu', 'lbi_a', 'pk'],
-    subtestWeights: { pu: 0.22, lbi_a: 0.18, pk: 0.17, pm: 0.14, pbm: 0.11, lbe: 0.10, ppu: 0.06, lbi_s: 0.02 }
+    prioritySubtests: ['pu', 'pk', 'pbm'],
+    subtestWeights: { pu: 0.20, pk: 0.18, pbm: 0.16, pm: 0.12, lbe: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pu: 869, pk: 782, pbm: 695, pm: 522, lbe: 500, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
 
   // =====================================================
@@ -314,8 +323,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '4.63%',
     participantsCount: 520,
     supportSubjects: ['Fisika', 'Matematika Tingkat Lanjut'],
-    prioritySubtests: ['pm', 'pk', 'pu'],
-    subtestWeights: { pm: 0.28, pk: 0.24, pu: 0.18, lbe: 0.10, pbm: 0.08, lbi_a: 0.06, ppu: 0.04, lbi_s: 0.02 }
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 960, pm: 864, pu: 768, lbe: 576, pbm: 528, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'ui_mesin',
@@ -333,8 +343,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '4.77%',
     participantsCount: 365,
     supportSubjects: ['Fisika', 'Matematika Tingkat Lanjut'],
-    prioritySubtests: ['pm', 'pk', 'pu'],
-    subtestWeights: { pm: 0.27, pk: 0.24, pu: 0.18, lbe: 0.11, pbm: 0.08, lbi_a: 0.06, ppu: 0.04, lbi_s: 0.02 }
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 961, pm: 865, pu: 769, lbe: 576, pbm: 528, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'undip_mesin',
@@ -352,8 +363,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '5.68%',
     participantsCount: 295,
     supportSubjects: ['Fisika', 'Matematika Tingkat Lanjut'],
-    prioritySubtests: ['pm', 'pk', 'pu'],
-    subtestWeights: { pm: 0.26, pk: 0.23, pu: 0.18, lbi_a: 0.10, lbe: 0.09, pbm: 0.07, ppu: 0.05, lbi_s: 0.02 }
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 905, pm: 814, pu: 724, lbe: 543, pbm: 500, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'its_if',
@@ -372,7 +384,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 920,
     supportSubjects: ['Matematika Tingkat Lanjut', 'Fisika'],
     prioritySubtests: ['pk', 'pm', 'pu'],
-    subtestWeights: { pk: 0.27, pm: 0.26, pu: 0.19, lbe: 0.10, ppu: 0.06, pbm: 0.05, lbi_a: 0.05, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 949, pm: 854, pu: 759, lbe: 570, pbm: 522, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'unair_si',
@@ -390,8 +403,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '3.40%',
     participantsCount: 680,
     supportSubjects: ['Matematika', 'Ekonomi'],
-    prioritySubtests: ['pk', 'pu', 'pm'],
-    subtestWeights: { pk: 0.24, pu: 0.22, pm: 0.20, lbe: 0.11, ppu: 0.08, pbm: 0.07, lbi_a: 0.06, lbi_s: 0.02 }
+    prioritySubtests: ['pu', 'pk', 'pm'],
+    subtestWeights: { pu: 0.20, pk: 0.18, pm: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pu: 951, pk: 856, pm: 761, lbe: 570, pbm: 523, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'pens_rpl',
@@ -409,8 +423,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '6.20%',
     participantsCount: 480,
     supportSubjects: ['Matematika', 'Informatika'],
-    prioritySubtests: ['pm', 'pk', 'pu'],
-    subtestWeights: { pm: 0.25, pk: 0.24, pu: 0.18, lbe: 0.10, ppu: 0.08, pbm: 0.07, lbi_a: 0.06, lbi_s: 0.02 }
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 868, pm: 781, pu: 694, lbe: 521, pbm: 500, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'upnvjt_if',
@@ -429,7 +444,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 340,
     supportSubjects: ['Matematika', 'Informatika'],
     prioritySubtests: ['pk', 'pm', 'pu'],
-    subtestWeights: { pk: 0.24, pm: 0.23, pu: 0.18, ppu: 0.10, pbm: 0.08, lbi_a: 0.08, lbe: 0.07, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 809, pm: 728, pu: 647, lbe: 500, pbm: 500, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
 
   // =====================================================
@@ -452,7 +468,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 890,
     supportSubjects: ['Sosiologi', 'Pendidikan Pancasila'],
     prioritySubtests: ['pu', 'pbm', 'lbi_s'],
-    subtestWeights: { pu: 0.23, pbm: 0.20, lbi_s: 0.18, ppu: 0.15, lbe: 0.10, pk: 0.06, pm: 0.05, lbi_a: 0.03 }
+    subtestWeights: { pu: 0.20, pbm: 0.18, lbi_s: 0.16, ppu: 0.12, lbe: 0.11, pk: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 950, pbm: 855, lbi_s: 760, ppu: 570, lbe: 523, pk: 500, pm: 500, lbi_a: 500 }
   },
   {
     id: 'unpad_hukum',
@@ -470,8 +487,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '4.08%',
     participantsCount: 540,
     supportSubjects: ['Sosiologi', 'Pendidikan Pancasila'],
-    prioritySubtests: ['pu', 'lbi_s', 'pbm'],
-    subtestWeights: { pu: 0.22, lbi_s: 0.20, pbm: 0.19, ppu: 0.15, lbe: 0.10, pk: 0.06, pm: 0.05, lbi_a: 0.03 }
+    prioritySubtests: ['pu', 'pbm', 'lbi_s'],
+    subtestWeights: { pu: 0.20, pbm: 0.18, lbi_s: 0.16, ppu: 0.12, lbe: 0.11, pk: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 895, pbm: 805, lbi_s: 716, ppu: 537, lbe: 500, pk: 500, pm: 500, lbi_a: 500 }
   },
   {
     id: 'upnvj_hukum',
@@ -489,8 +507,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '4.64%',
     participantsCount: 410,
     supportSubjects: ['Sosiologi', 'Pendidikan Pancasila'],
-    prioritySubtests: ['pbm', 'lbi_s', 'pu'],
-    subtestWeights: { pbm: 0.22, lbi_s: 0.21, pu: 0.20, ppu: 0.15, lbe: 0.10, pk: 0.05, pm: 0.04, lbi_a: 0.03 }
+    prioritySubtests: ['pu', 'pbm', 'lbi_s'],
+    subtestWeights: { pu: 0.20, pbm: 0.18, lbi_s: 0.16, ppu: 0.12, lbe: 0.11, pk: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 786, pbm: 707, lbi_s: 629, ppu: 500, lbe: 500, pk: 500, pm: 500, lbi_a: 500 }
   },
   {
     id: 'ugm_hi',
@@ -508,8 +527,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '2.45%',
     participantsCount: 620,
     supportSubjects: ['Bahasa Inggris', 'Sosiologi'],
-    prioritySubtests: ['lbe', 'pu', 'lbi_s'],
-    subtestWeights: { lbe: 0.24, pu: 0.21, lbi_s: 0.18, ppu: 0.14, pbm: 0.13, pk: 0.04, pm: 0.04, lbi_a: 0.02 }
+    prioritySubtests: ['pu', 'lbe', 'ppu'],
+    subtestWeights: { pu: 0.20, lbe: 0.18, ppu: 0.16, pbm: 0.12, lbi_s: 0.11, pk: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 974, lbe: 876, ppu: 779, pbm: 584, lbi_s: 535, pk: 500, pm: 500, lbi_a: 500 }
   },
   {
     id: 'unpad_komunikasi',
@@ -527,8 +547,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '4.10%',
     participantsCount: 740,
     supportSubjects: ['Bahasa Indonesia', 'Sosiologi'],
-    prioritySubtests: ['pbm', 'lbi_s', 'lbe'],
-    subtestWeights: { pbm: 0.22, lbi_s: 0.21, lbe: 0.18, ppu: 0.16, pu: 0.14, pk: 0.04, pm: 0.03, lbi_a: 0.02 }
+    prioritySubtests: ['pu', 'ppu', 'lbi_s'],
+    subtestWeights: { pu: 0.20, ppu: 0.18, lbi_s: 0.16, lbe: 0.12, pbm: 0.11, pk: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 941, ppu: 847, lbi_s: 753, lbe: 565, pbm: 517, pk: 500, pm: 500, lbi_a: 500 }
   },
   {
     id: 'unj_komunikasi',
@@ -546,8 +567,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '3.94%',
     participantsCount: 380,
     supportSubjects: ['Bahasa Indonesia', 'Sosiologi'],
-    prioritySubtests: ['pbm', 'lbi_s', 'ppu'],
-    subtestWeights: { pbm: 0.23, lbi_s: 0.21, ppu: 0.18, lbe: 0.16, pu: 0.14, pk: 0.03, pm: 0.03, lbi_a: 0.02 }
+    prioritySubtests: ['pu', 'ppu', 'lbi_s'],
+    subtestWeights: { pu: 0.20, ppu: 0.18, lbi_s: 0.16, lbe: 0.12, pbm: 0.11, pk: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 902, ppu: 811, lbi_s: 721, lbe: 541, pbm: 500, pk: 500, pm: 500, lbi_a: 500 }
   },
   {
     id: 'ui_psikologi',
@@ -565,8 +587,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '3.10%',
     participantsCount: 820,
     supportSubjects: ['Sosiologi', 'Matematika'],
-    prioritySubtests: ['pu', 'pbm', 'lbe'],
-    subtestWeights: { pu: 0.22, pbm: 0.18, lbe: 0.16, ppu: 0.14, lbi_s: 0.14, pk: 0.08, pm: 0.06, lbi_a: 0.02 }
+    prioritySubtests: ['pu', 'pk', 'ppu'],
+    subtestWeights: { pu: 0.20, pk: 0.18, ppu: 0.16, lbi_s: 0.12, lbe: 0.11, pbm: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 968, pk: 872, ppu: 775, lbi_s: 581, lbe: 533, pbm: 500, pm: 500, lbi_a: 500 }
   },
   {
     id: 'ui_kedokteran',
@@ -585,7 +608,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 980,
     supportSubjects: ['Biologi', 'Kimia'],
     prioritySubtests: ['pu', 'pk', 'ppu'],
-    subtestWeights: { pu: 0.24, pk: 0.22, ppu: 0.16, pm: 0.14, lbe: 0.10, pbm: 0.08, lbi_a: 0.04, lbi_s: 0.02 }
+    subtestWeights: { pu: 0.20, pk: 0.18, ppu: 0.16, pm: 0.12, lbe: 0.11, pbm: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pu: 1016, pk: 914, ppu: 813, pm: 609, lbe: 559, pbm: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'ui_manajemen',
@@ -603,8 +627,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '3.39%',
     participantsCount: 780,
     supportSubjects: ['Ekonomi', 'Matematika'],
-    prioritySubtests: ['pk', 'pm', 'lbe'],
-    subtestWeights: { pk: 0.22, pm: 0.20, lbe: 0.18, pu: 0.16, ppu: 0.10, pbm: 0.07, lbi_s: 0.05, lbi_a: 0.02 }
+    prioritySubtests: ['pu', 'pk', 'lbe'],
+    subtestWeights: { pu: 0.20, pk: 0.18, lbe: 0.16, pm: 0.12, ppu: 0.11, lbi_s: 0.09, pbm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 964, pk: 867, lbe: 771, pm: 578, ppu: 530, lbi_s: 500, pbm: 500, lbi_a: 500 }
   },
   {
     id: 'upnvjt_sainsdata',
@@ -623,7 +648,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 215,
     supportSubjects: ['Matematika Tingkat Lanjut', 'Informatika'],
     prioritySubtests: ['pk', 'pm', 'pu'],
-    subtestWeights: { pk: 0.25, pm: 0.24, pu: 0.18, ppu: 0.09, pbm: 0.08, lbe: 0.08, lbi_a: 0.06, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 864, pm: 777, pu: 691, lbe: 518, pbm: 500, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
 
   // =====================================================
@@ -646,7 +672,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 210,
     supportSubjects: ['Biologi', 'Kimia'],
     prioritySubtests: ['pu', 'pk', 'lbi_a'],
-    subtestWeights: { pu: 0.23, pk: 0.21, lbi_a: 0.16, pm: 0.15, pbm: 0.10, lbe: 0.08, ppu: 0.05, lbi_s: 0.02 }
+    subtestWeights: { pu: 0.23, pk: 0.21, lbi_a: 0.16, pm: 0.15, pbm: 0.10, lbe: 0.08, ppu: 0.05, lbi_s: 0.02 },
+    subtestTargets: { pu: 938, pk: 857, lbi_a: 653, pm: 612, pbm: 500, lbe: 500, ppu: 500, lbi_s: 500 }
   },
   {
     id: 'poltekkes_jkt2_farmasi_d3',
@@ -665,7 +692,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 240,
     supportSubjects: ['Kimia', 'Biologi'],
     prioritySubtests: ['pk', 'pu', 'lbi_a'],
-    subtestWeights: { pk: 0.22, pu: 0.20, lbi_a: 0.17, pm: 0.15, pbm: 0.10, lbe: 0.08, ppu: 0.06, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.22, pu: 0.20, lbi_a: 0.17, pm: 0.15, pbm: 0.10, lbe: 0.08, ppu: 0.06, lbi_s: 0.02 },
+    subtestTargets: { pk: 856, pu: 778, lbi_a: 661, pm: 584, pbm: 500, lbe: 500, ppu: 500, lbi_s: 500 }
   },
   {
     id: 'unair_k3_d4',
@@ -683,8 +711,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '5.50%',
     participantsCount: 310,
     supportSubjects: ['Biologi', 'Kimia'],
-    prioritySubtests: ['pu', 'pk', 'lbi_a'],
-    subtestWeights: { pu: 0.22, pk: 0.20, lbi_a: 0.16, pm: 0.15, pbm: 0.11, lbe: 0.09, ppu: 0.05, lbi_s: 0.02 }
+    prioritySubtests: ['pu', 'pk', 'pbm'],
+    subtestWeights: { pu: 0.20, pk: 0.18, pbm: 0.16, pm: 0.12, lbe: 0.11, lbi_a: 0.09, ppu: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pu: 884, pk: 796, pbm: 707, pm: 531, lbe: 500, lbi_a: 500, ppu: 500, lbi_s: 500 }
   },
   {
     id: 'polban_mesin_d4',
@@ -702,8 +731,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '4.94%',
     participantsCount: 260,
     supportSubjects: ['Fisika', 'Matematika'],
-    prioritySubtests: ['pm', 'pk', 'pu'],
-    subtestWeights: { pm: 0.26, pk: 0.24, pu: 0.18, lbi_a: 0.10, pbm: 0.08, lbe: 0.08, ppu: 0.04, lbi_s: 0.02 }
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 854, pm: 768, pu: 683, lbe: 512, pbm: 500, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'pnj_mesin_d3',
@@ -721,8 +751,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '6.48%',
     participantsCount: 295,
     supportSubjects: ['Fisika', 'Matematika'],
-    prioritySubtests: ['pm', 'pk', 'pu'],
-    subtestWeights: { pm: 0.25, pk: 0.23, pu: 0.18, lbi_a: 0.11, pbm: 0.08, lbe: 0.08, ppu: 0.05, lbi_s: 0.02 }
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 848, pm: 763, pu: 678, lbe: 509, pbm: 500, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'pens_if_d3',
@@ -741,7 +772,8 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     participantsCount: 315,
     supportSubjects: ['Matematika', 'Informatika'],
     prioritySubtests: ['pk', 'pm', 'pu'],
-    subtestWeights: { pk: 0.26, pm: 0.24, pu: 0.18, lbe: 0.10, ppu: 0.07, pbm: 0.07, lbi_a: 0.06, lbi_s: 0.02 }
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 884, pm: 795, pu: 707, lbe: 530, pbm: 500, ppu: 500, lbi_a: 500, lbi_s: 500 }
   },
   {
     id: 'unj_humas_d4',
@@ -759,8 +791,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '4.41%',
     participantsCount: 320,
     supportSubjects: ['Bahasa Indonesia', 'Sosiologi'],
-    prioritySubtests: ['pbm', 'lbi_s', 'lbe'],
-    subtestWeights: { pbm: 0.22, lbi_s: 0.21, lbe: 0.18, ppu: 0.16, pu: 0.15, pk: 0.03, pm: 0.03, lbi_a: 0.02 }
+    prioritySubtests: ['pu', 'ppu', 'lbi_s'],
+    subtestWeights: { pu: 0.20, ppu: 0.18, lbi_s: 0.16, lbe: 0.12, pbm: 0.11, pk: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 879, ppu: 791, lbi_s: 703, lbe: 527, pbm: 500, pk: 500, pm: 500, lbi_a: 500 }
   },
   {
     id: 'ui_humas_d3',
@@ -778,8 +811,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '3.87%',
     participantsCount: 380,
     supportSubjects: ['Bahasa Indonesia', 'Sosiologi'],
-    prioritySubtests: ['pbm', 'lbi_s', 'pu'],
-    subtestWeights: { pbm: 0.22, lbi_s: 0.21, pu: 0.18, ppu: 0.16, lbe: 0.15, pk: 0.03, pm: 0.03, lbi_a: 0.02 }
+    prioritySubtests: ['pu', 'pbm', 'lbi_s'],
+    subtestWeights: { pu: 0.20, pbm: 0.18, lbi_s: 0.16, ppu: 0.12, lbe: 0.11, pk: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 942, pbm: 848, lbi_s: 754, ppu: 565, lbe: 518, pk: 500, pm: 500, lbi_a: 500 }
   },
   {
     id: 'ui_adm_d3',
@@ -797,8 +831,9 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     tightness: '4.59%',
     participantsCount: 290,
     supportSubjects: ['Ekonomi', 'Bahasa Indonesia'],
-    prioritySubtests: ['pbm', 'lbi_s', 'pu'],
-    subtestWeights: { pbm: 0.21, lbi_s: 0.20, pu: 0.19, ppu: 0.16, lbe: 0.12, pk: 0.06, pm: 0.04, lbi_a: 0.02 }
+    prioritySubtests: ['pu', 'pk', 'pbm'],
+    subtestWeights: { pu: 0.20, pk: 0.18, pbm: 0.16, lbi_s: 0.12, lbe: 0.11, ppu: 0.09, pm: 0.08, lbi_a: 0.06 },
+    subtestTargets: { pu: 905, pk: 814, pbm: 724, lbi_s: 543, lbe: 500, ppu: 500, pm: 500, lbi_a: 500 }
   }
 ];
 
@@ -884,28 +919,28 @@ export function getZoneFromGap(gap: number): {
   if (gap >= 0) {
     return {
       zone: 'safe',
-      zoneLabel: 'Realistis / Tercapai',
-      statusText: 'Melampaui Target Acuan'
+      zoneLabel: 'Sudah tercapai',
+      statusText: 'Melampaui target acuan'
     };
   }
   if (gap >= -30) {
     return {
       zone: 'near',
-      zoneLabel: 'Mendekati Target',
-      statusText: 'Mendekati Aman'
+      zoneLabel: 'Hampir tercapai',
+      statusText: 'Mendekati target acuan'
     };
   }
   if (gap >= -90) {
     return {
       zone: 'target',
-      zoneLabel: 'Target Bertahap',
-      statusText: 'Butuh Peningkatan'
+      zoneLabel: 'Dicapai bertahap',
+      statusText: 'Perlu diperkuat'
     };
   }
   return {
     zone: 'reach',
-    zoneLabel: 'Ambisius / Jauh',
-    statusText: 'Butuh Peningkatan Signifikan'
+    zoneLabel: 'Perlu usaha besar',
+    statusText: 'Perlu peningkatan besar'
   };
 }
 
@@ -1078,7 +1113,7 @@ export function validateSnbtChoices(programs: ProgramChoice[]): SnbtValidationRe
       d4Count,
       d3Count,
       patternLabel,
-      message: `Sah SNBT 2026 (${total} pilihan: bebas kombinasi jenjang S1/D4/D3).`,
+      message: `Kombinasi sah SNBT 2026 (${total} pilihan: bebas kombinasi jenjang S1/D4/D3).`,
       needsVokasiFilter: false,
       needsD3Only: false
     };
@@ -1093,7 +1128,7 @@ export function validateSnbtChoices(programs: ProgramChoice[]): SnbtValidationRe
         d4Count,
         d3Count,
         patternLabel,
-        message: 'Untuk 3 pilihan SNBT 2026, maksimal hanya boleh 2 S1. Ganti salah satu slot ke Vokasi (D4/D3) atau kurangi menjadi 2 pilihan.',
+        message: 'Pilihan belum sah: dengan 3 pilihan, maksimal 2 S1. Ganti satu ke D4/D3, atau pakai 2 pilihan.',
         needsVokasiFilter: true,
         needsD3Only: false
       };
@@ -1106,7 +1141,7 @@ export function validateSnbtChoices(programs: ProgramChoice[]): SnbtValidationRe
         d4Count,
         d3Count,
         patternLabel,
-        message: 'Jika ke-3 pilihan semuanya Vokasi, wajib menyertakan minimal 1 program Diploma Tiga (D3).',
+        message: 'Pilihan belum sah: jika ketiga pilihan adalah program Vokasi, wajib menyertakan minimal 1 program D3.',
         needsVokasiFilter: true,
         needsD3Only: true
       };
@@ -1118,7 +1153,7 @@ export function validateSnbtChoices(programs: ProgramChoice[]): SnbtValidationRe
       d4Count,
       d3Count,
       patternLabel,
-      message: `Sah SNBT 2026 (3 pilihan: ${s1Count} S1 + ${vokasiCount} Vokasi).`,
+      message: `Kombinasi sah SNBT 2026 (3 pilihan: ${s1Count} S1 + ${vokasiCount} Vokasi).`,
       needsVokasiFilter: false,
       needsD3Only: false
     };
@@ -1133,7 +1168,7 @@ export function validateSnbtChoices(programs: ProgramChoice[]): SnbtValidationRe
       d4Count,
       d3Count,
       patternLabel,
-      message: 'Untuk 4 pilihan SNBT 2026, maksimal 2 S1 dan wajib menyertakan minimal 1 program Diploma Tiga (D3).',
+      message: 'Pilihan belum sah: dengan 4 pilihan, maksimal 2 S1 dan wajib menyertakan minimal 1 program D3.',
       needsVokasiFilter: true,
       needsD3Only: d3Count === 0
     };
@@ -1146,7 +1181,7 @@ export function validateSnbtChoices(programs: ProgramChoice[]): SnbtValidationRe
       d4Count,
       d3Count,
       patternLabel,
-      message: 'Untuk 4 pilihan SNBT 2026, wajib menyertakan minimal 1 program Diploma Tiga (D3).',
+      message: 'Pilihan belum sah: dengan 4 pilihan, wajib menyertakan minimal 1 program D3.',
       needsVokasiFilter: true,
       needsD3Only: true
     };
@@ -1158,8 +1193,89 @@ export function validateSnbtChoices(programs: ProgramChoice[]): SnbtValidationRe
     d4Count,
     d3Count,
     patternLabel,
-    message: `Sah SNBT 2026 (4 pilihan: ${s1Count} S1 + ${d4Count} D4 + ${d3Count} D3).`,
+    message: `Kombinasi sah SNBT 2026 (4 pilihan: ${s1Count} S1 + ${d4Count} D4 + ${d3Count} D3).`,
     needsVokasiFilter: false,
     needsD3Only: false
   };
+}
+
+export interface DerivedPrioritySubtest {
+  id: string;
+  priorityLabel: string;
+  name: string;
+  weightPct: number | null;
+  toScore: string;
+  toLatestNum: number;
+  rawProgramTarget: number;
+  targetScore: number;
+  gapText: string;
+  gapNum: number;
+  rgQuestionsDone: number;
+  drillSessions: number;
+  drillAccuracyPct: number;
+  rgAccuracy: string;
+  lowestTopics: string[];
+}
+
+/**
+ * Mengunci penentuan maksimal 3 subtes prioritas ke Pilihan 1 saja
+ * serta menerapkan aturan baseline target: minimal 600 (atau target jurusan jika > 600).
+ */
+export function derivePrioritySubtestsForChoice1(
+  student: Checkpoint1Student,
+  choice1: ProgramChoice | undefined,
+  foundationMin: number = 600
+): DerivedPrioritySubtest[] {
+  const matched = choice1 ? matchCatalogProgram(choice1) : undefined;
+  const fallbackProgramTarget = choice1?.targetScore ?? matched?.targetScore ?? foundationMin;
+
+  const subtestById = new Map(student.subtests.map((s) => [s.id, s]));
+  const existingPriorityById = new Map(student.prioritySubtests.map((p) => [p.id, p]));
+  const lbiCombinedFallback = existingPriorityById.get('lbi');
+
+  const keys: SubtestKey[] = matched
+    ? matched.prioritySubtests.slice(0, 3)
+    : student.prioritySubtests
+        .slice(0, 3)
+        .map((p) => (p.id === 'lbi' ? 'lbi_a' : (p.id as SubtestKey)));
+
+  return keys.slice(0, 3).map((key, idx) => {
+    const subRow = subtestById.get(key);
+    const existing =
+      existingPriorityById.get(key) ||
+      (key === 'lbi_a' || key === 'lbe' ? lbiCombinedFallback : undefined);
+
+    const rawTarget = matched?.subtestTargets?.[key] ?? fallbackProgramTarget;
+    const effectiveTarget = Math.max(foundationMin, rawTarget);
+    const toLatestNum = subRow?.to4 ?? existing?.toLatestNum ?? 500;
+    const gapNum = toLatestNum - effectiveTarget;
+    const gapText = gapNum > 0 ? `+${gapNum}` : String(gapNum);
+    const weightPct = matched ? Math.round((matched.subtestWeights[key] || 0) * 100) : null;
+
+    const rgQuestionsDone = existing?.rgQuestionsDone ?? 12;
+    const drillSessions = existing?.drillSessions ?? 2;
+    const drillAccuracyPct = existing?.drillAccuracyPct ?? 55;
+
+    return {
+      id: key,
+      priorityLabel: `PRIORITAS #${idx + 1}`,
+      name: subRow?.name || SUBTEST_LABELS[key]?.full || key.toUpperCase(),
+      weightPct,
+      toScore: String(toLatestNum),
+      toLatestNum,
+      rawProgramTarget: rawTarget,
+      targetScore: effectiveTarget,
+      gapText,
+      gapNum,
+      rgQuestionsDone,
+      drillSessions,
+      drillAccuracyPct,
+      rgAccuracy: existing?.rgAccuracy ?? `${drillAccuracyPct}% benar (${drillSessions} sesi)`,
+      lowestTopics: existing?.lowestTopics ?? [
+        'Pemahaman Konsep Inti (48% benar)',
+        'Penerapan Analisis Soal (52% benar)',
+        'Ketelitian & Manajemen Waktu (56% benar)'
+      ]
+    };
+  });
 }

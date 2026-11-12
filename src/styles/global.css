@@ -8,10 +8,13 @@
       --subtle: #94a3b8;
       --border: #e2e8f0;
       --border-light: #edf2f7;
-      --primary: #1078ca;
-      --primary-hover: #0c61a4;
-      --primary-light: #eff8ff;
-      --primary-border: #bfdbfe;
+      --primary: #398896;
+      --primary-hover: #2c6d78;
+      --primary-light: #e6f4f2;
+      --primary-border: #a7d7dc;
+      --tosca: #58aebd;
+      --tosca-dark: #245f5a;
+      --tosca-tint: #f2f8f7;
       --green: #12b76a;
       --green-light: #edfcf2;
       --green-border: #a6f4c5;
@@ -21,7 +24,7 @@
       --red: #f04438;
       --red-light: #fef3f2;
       --red-border: #fecdca;
-      --topbar-bg: #eaf4fb;
+      --topbar-bg: #eef7f8;
       --font-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
@@ -39,7 +42,7 @@
     /* Topbar */
     .topbar {
       background: var(--topbar-bg);
-      border-bottom: 1px solid #d5e7f5;
+      border-bottom: 1px solid #cde6e9;
       position: sticky;
       top: 0;
       z-index: 50;
@@ -80,7 +83,7 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: #0ea5e9;
+      background: #58aebd;
       color: #fff;
       font-weight: 700;
       font-size: 12px;
@@ -171,7 +174,7 @@
     }
     .badge-draft { background: var(--amber-light); color: #b54708; border: 1px solid var(--amber-border); }
     .badge-locked { background: #f1f5f9; color: #475467; border: 1px solid var(--border); }
-    .badge-blue { background: #e0f2fe; color: #027a48; border: 1px solid #bae6fd; }
+    .badge-blue { background: #e6f4f2; color: #245f5a; border: 1px solid #a7d7dc; }
 
     /* ========================================================= */
     /* MAIN CHOICE-BASED TAB NAVIGATION BAR                      */
@@ -211,7 +214,7 @@
     .main-tab-item.active {
       background: #ffffff;
       color: var(--primary);
-      box-shadow: 0 2px 6px rgba(16, 120, 202, 0.12);
+      box-shadow: 0 2px 6px rgba(57, 136, 150, 0.14);
     }
     .tab-badge {
       font-size: 11px;
@@ -222,8 +225,8 @@
       color: #475467;
     }
     .main-tab-item.active .tab-badge {
-      background: #e0f2fe;
-      color: #0369a1;
+      background: #e6f4f2;
+      color: #245f5a;
     }
 
     /* Sticky Quick-Jump Anchor Sub-Nav */
@@ -275,11 +278,11 @@
       align-items: center;
       gap: 4px;
     }
-    .jump-pill:hover { background: #eff8ff; color: var(--primary); border-color: #bae0fd; }
+    .jump-pill:hover { background: #e6f4f2; color: var(--primary); border-color: #a7d7dc; }
     .jump-pill.active {
-      background: #1078ca;
+      background: #398896;
       color: #ffffff;
-      border-color: #1078ca;
+      border-color: #398896;
       font-weight: 700;
     }
 
@@ -320,9 +323,9 @@
 
     /* Scaffolding Talking Points Script for SA */
     .sa-prompt-card {
-      background: #f0f7ff;
-      border: 1px solid #bfdbfe;
-      border-left: 4px solid #1078ca;
+      background: #f2f8f7;
+      border: 1px solid #a7d7dc;
+      border-left: 4px solid #58aebd;
       border-radius: 8px;
       padding: 12px 16px;
       margin-bottom: 20px;
@@ -336,7 +339,7 @@
     .sa-prompt-title {
       font-size: 12.5px;
       font-weight: 700;
-      color: #1e40af;
+      color: #245f5a;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -512,7 +515,7 @@
       background: #e2e8f0;
       color: #475467;
     }
-    .form-row-badge.autofill { background: #e0f2fe; color: #0369a1; }
+    .form-row-badge.autofill { background: #e6f4f2; color: #245f5a; }
     .form-textarea {
       width: 100%;
       border: 1px solid #cbd5e1;
@@ -621,12 +624,12 @@
     }
     .pdf-modal-badge {
       background: #1e293b;
-      color: #38bdf8;
+      color: #7dd3dc;
       font-size: 11px;
       font-weight: 600;
       padding: 2.5px 8px;
       border-radius: 999px;
-      border: 1px solid #0284c7;
+      border: 1px solid #58aebd;
     }
     .pdf-modal-actions {
       display: flex;
@@ -634,9 +637,9 @@
       gap: 10px;
     }
     .btn-pdf-print {
-      background: #0284c7;
+      background: #398896;
       color: #ffffff;
-      border: 1px solid #0369a1;
+      border: 1px solid #2c6d78;
       padding: 6px 15px;
       border-radius: 6px;
       font-size: 12.5px;
@@ -648,7 +651,7 @@
       transition: all 0.15s ease;
     }
     .btn-pdf-print:hover {
-      background: #0369a1;
+      background: #2c6d78;
     }
     .btn-pdf-close {
       background: #334155;
@@ -704,7 +707,7 @@
     .profiling-print-document-header { margin-bottom: 3.2mm; }
     .profiling-print-header {
       align-items: center;
-      background: #1078ca;
+      background: #58aebd;
       border-radius: 4px;
       display: flex;
       justify-content: space-between;
@@ -712,7 +715,7 @@
       padding: 2mm 3.4mm;
     }
     .profiling-print-title { color: #ffffff; font-size: 15.5px; font-weight: 800; margin: 0; letter-spacing: -0.2px; }
-    .profiling-print-subtitle { color: #eff8ff; font-size: 10px; margin: 0.5mm 0 0; }
+    .profiling-print-subtitle { color: #edf7f8; font-size: 10px; margin: 0.5mm 0 0; }
     .profiling-print-pathway { background: rgba(255, 255, 255, 0.24); border-radius: 999px; color: #ffffff; font-size: 9.5px; font-weight: 700; padding: 0.9mm 2.6mm; letter-spacing: 0.3px; white-space: nowrap; }
     .profiling-print-running-header {
       display: flex;
@@ -720,14 +723,14 @@
       align-items: center;
       padding-bottom: 1.8mm;
       margin-bottom: 3.8mm;
-      border-bottom: 1.5px solid #1078ca;
+      border-bottom: 1.5px solid #58aebd;
     }
     .profiling-print-section { break-inside: avoid; margin-bottom: 3.6mm; }
     .profiling-print-section-title {
       align-items: center;
-      background: #edf5f9;
-      border-left: 3.5px solid #1078ca;
-      color: #1e293b;
+      background: #e6f4f2;
+      border-left: 3.5px solid #58aebd;
+      color: #245f5a;
       display: flex;
       justify-content: space-between;
       font-size: 11px;
@@ -740,8 +743,8 @@
     }
     .profiling-print-table { border-collapse: collapse; table-layout: fixed; width: 100%; font-size: 10px; line-height: 1.38; }
     .profiling-print-table th, .profiling-print-table td { border: 1px solid #cbd5e1; padding: 1.55mm 1.8mm; text-align: left; vertical-align: middle; }
-    .profiling-print-table th { background: #1078ca; color: #ffffff; font-weight: 700; font-size: 9.8px; padding: 1.6mm 1.8mm; }
-    .profiling-print-table tbody tr:nth-of-type(even) td { background: #f8fafc; }
+    .profiling-print-table th { background: #58aebd; border-color: #58aebd; color: #ffffff; font-weight: 700; font-size: 9.8px; padding: 1.6mm 1.8mm; }
+    .profiling-print-table tbody tr:nth-of-type(even) td { background: #f2f8f7; }
     .profiling-print-number { text-align: right; }
     .profiling-print-action-list { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; margin: 0; padding: 2.2mm 3.4mm 2.2mm 6mm; font-size: 10px; line-height: 1.44; }
     .profiling-print-action-list li { margin-bottom: 1.4mm; }
@@ -835,7 +838,7 @@
     }
     .v2-progress-fill.priority-high { background: #d92d20; }
     .v2-progress-fill.priority-med { background: #f79009; }
-    .v2-progress-fill.priority-low { background: #2e90fa; }
+    .v2-progress-fill.priority-low { background: #f79009; }
     .v2-progress-fill.priority-done { background: #12b76a; }
     .v2-progress-target-line {
       position: absolute;
@@ -848,7 +851,7 @@
     }
     .badge-p-high { background: #fee4e2; color: #b42318; border: 1px solid #fecdca; font-size: 11px; font-weight: 700; padding: 3.5px 9px; border-radius: 5px; display: inline-block; white-space: nowrap; letter-spacing: 0.2px; }
     .badge-p-med { background: #fef0c7; color: #b54708; border: 1px solid #fedf89; font-size: 11px; font-weight: 700; padding: 3.5px 9px; border-radius: 5px; display: inline-block; white-space: nowrap; letter-spacing: 0.2px; }
-    .badge-p-low { background: #eff8ff; color: #175cd3; border: 1px solid #b2ddff; font-size: 11px; font-weight: 700; padding: 3.5px 9px; border-radius: 5px; display: inline-block; white-space: nowrap; letter-spacing: 0.2px; }
+    .badge-p-low { background: #fef0c7; color: #b54708; border: 1px solid #fedf89; font-size: 11px; font-weight: 700; padding: 3.5px 9px; border-radius: 5px; display: inline-block; white-space: nowrap; letter-spacing: 0.2px; }
     .badge-p-done { background: #ecfdf3; color: #027a48; border: 1px solid #a6f4c5; font-size: 11px; font-weight: 700; padding: 3.5px 9px; border-radius: 5px; display: inline-block; white-space: nowrap; letter-spacing: 0.2px; }
     .profiling-print-page .badge-p-high,
     .profiling-print-page .badge-p-med,
@@ -857,14 +860,14 @@
 
     /* Rapor Editor Specifics */
     .info-card {
-      background: #f0f7ff;
-      border: 1px solid #bfdbfe;
-      border-left: 4px solid #1078ca;
+      background: #f2f8f7;
+      border: 1px solid #a7d7dc;
+      border-left: 4px solid #58aebd;
       border-radius: 8px;
       padding: 14px 18px;
       margin-bottom: 24px;
       font-size: 13px;
-      color: #1e3a8a;
+      color: #245f5a;
       line-height: 1.6;
     }
     .summary-bar {

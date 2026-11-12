@@ -9,7 +9,7 @@ export interface SubtestV2 {
   to4: number;
   median: number | string;
   gap: number;
-  status: 'TERCAPAI' | 'MENDEKATI 600' | 'PERLU DITINGKATKAN' | 'PRIORITAS UTAMA';
+  status: 'TERCAPAI' | 'MENDEKATI 600' | 'PERLU DITINGKATKAN' | 'PRIORITAS UTAMA' | 'Tercapai' | 'Hampir 600' | 'Perlu diperkuat' | 'Fokus utama';
   badgeClass: string;
   fillPct: number;
   barColor: string;
@@ -669,6 +669,153 @@ export const CHECKPOINT1_STUDENTS: Checkpoint1Student[] = [
       }
     ],
     familyAlignment: "unconfirmed"
+  },
+  {
+    id: "alya",
+    name: "Alya Kirana Putri",
+    tagline: "Saintek · Profil Uji Achieve Semua (≥ 600 & Lolos Target Pilihan)",
+    identity: {
+      name: "Alya Kirana Putri",
+      nisn: "0072419083",
+      school: "SMA Negeri 3 Bandung",
+      curriculum: "Kurikulum Merdeka",
+      major: "IPA / Peminatan Biologi & Kimia",
+      branch: "Bandung - Dago",
+      sessionDate: "07 November 2026",
+      sessionType: "Konsultasi Checkpoint 1 (Pasca 4 TO)",
+      saName: "Kak William Candra",
+      saEmail: "william.chandra@ruangguru.com",
+      counselorName: "Sarah Az-Zahra, M.Psi.",
+      parentName: "Ir. Hendra Kusuma (Ayah)",
+      attendanceRate: "95.5%",
+      attendanceDetail: "42 Hadir · 0 Telat · 2 Sakit · 0 Izin",
+      toScores: [692, 709, 725, 741],
+      toAverage: 717,
+      toLabels: ["TO 1 (30 Agu)", "TO 2 (14 Sep)", "TO 3 (28 Sep)", "TO 4 (30 Okt)"]
+    },
+    subtests: [
+      { id: "ppu", name: "Pengetahuan & Pemahaman Umum (PPU)", to1: 620, to2: 638, to3: 652, to4: 668, median: "645", gap: 68, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 89.3, barColor: "#12b76a" },
+      { id: "pbm", name: "Pemahaman Bacaan & Menulis (PBM)", to1: 628, to2: 644, to3: 660, to4: 674, median: "652", gap: 74, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 91.3, barColor: "#12b76a" },
+      { id: "lbi_s", name: "Literasi B. Indonesia (Soshum)", to1: 632, to2: 648, to3: 662, to4: 676, median: "655", gap: 76, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 92.0, barColor: "#12b76a" },
+      { id: "lbi_a", name: "Literasi B. Indonesia (Saintek)", to1: 636, to2: 652, to3: 666, to4: 680, median: "659", gap: 80, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 93.3, barColor: "#12b76a" },
+      { id: "pm", name: "Penalaran Matematika (PM)", to1: 698, to2: 716, to3: 734, to4: 752, median: "725", gap: 152, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 100.0, barColor: "#12b76a" },
+      { id: "pk", name: "Pengetahuan Kuantitatif (PK)", to1: 880, to2: 898, to3: 916, to4: 934, median: "907", gap: 334, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 100.0, barColor: "#12b76a" },
+      { id: "lbe", name: "Literasi B. Inggris (LBING)", to1: 648, to2: 666, to3: 682, to4: 698, median: "674", gap: 98, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 99.3, barColor: "#12b76a" },
+      { id: "pu", name: "Penalaran Umum (PU)", to1: 792, to2: 810, to3: 826, to4: 844, median: "818", gap: 244, status: "TERCAPAI", badgeClass: "badge-p-done", fillPct: 100.0, barColor: "#12b76a" }
+    ],
+    targetPrograms: [
+      {
+        priority: "Pilihan 1",
+        prodi: "S1 Farmasi",
+        univ: "Universitas Padjadjaran (Unpad)",
+        degree: "S1",
+        targetScore: 668,
+        weightedScore: 772,
+        gap: 104,
+        tightness: "3.08%",
+        status: "Melampaui Target Acuan",
+        supportSubjects: ["Kimia", "Biologi"],
+        rumpun: "saintek",
+        city: "Bandung",
+        isOutOfTown: false,
+        participantsCount: 515
+      },
+      {
+        priority: "Pilihan 2",
+        prodi: "S1 Farmasi",
+        univ: "Universitas Brawijaya (UB)",
+        degree: "S1",
+        targetScore: 645,
+        weightedScore: 772,
+        gap: 127,
+        tightness: "3.62%",
+        status: "Melampaui Target Acuan",
+        supportSubjects: ["Kimia", "Biologi"],
+        rumpun: "saintek",
+        city: "Malang",
+        isOutOfTown: true,
+        participantsCount: 410
+      },
+      {
+        priority: "Pilihan 3",
+        prodi: "D4 Teknologi Laboratorium Medis",
+        univ: "Poltekkes Kemenkes Jakarta III",
+        degree: "D4",
+        targetScore: 582,
+        weightedScore: 769,
+        gap: 187,
+        tightness: "4.90%",
+        status: "Melampaui Target Acuan",
+        supportSubjects: ["Biologi", "Kimia"],
+        rumpun: "saintek",
+        city: "Jakarta",
+        isOutOfTown: true,
+        participantsCount: 210
+      }
+    ],
+    prioritySubtests: [
+      {
+        id: "pk",
+        priorityLabel: "BOBOT TERTINGGI #1",
+        name: "Pengetahuan Kuantitatif (PK)",
+        toScore: "934",
+        toLatestNum: 934,
+        targetScore: 925,
+        gapText: "+9",
+        gapNum: 9,
+        rgQuestionsDone: 64,
+        drillSessions: 12,
+        drillAccuracyPct: 86,
+        rgAccuracy: "86% benar (12 sesi)",
+        lowestTopics: [
+          "Fungsi Komposisi & Invers HOTS (72% benar)",
+          "Geometri Ruang & Transformasi (76% benar)",
+          "Kombinatorika Bersyarat (78% benar)"
+        ],
+        borderColor: "#a6f4c5"
+      },
+      {
+        id: "pu",
+        priorityLabel: "BOBOT TERTINGGI #2",
+        name: "Penalaran Umum (PU)",
+        toScore: "844",
+        toLatestNum: 844,
+        targetScore: 833,
+        gapText: "+11",
+        gapNum: 11,
+        rgQuestionsDone: 58,
+        drillSessions: 11,
+        drillAccuracyPct: 88,
+        rgAccuracy: "88% benar (11 sesi)",
+        lowestTopics: [
+          "Silogisme Majemuk (75% benar)",
+          "Evaluasi Kecukupan Premis (79% benar)",
+          "Penalaran Kuantitatif Berpola (82% benar)"
+        ],
+        borderColor: "#a6f4c5"
+      },
+      {
+        id: "pm",
+        priorityLabel: "BOBOT TERTINGGI #3",
+        name: "Penalaran Matematika (PM)",
+        toScore: "752",
+        toLatestNum: 752,
+        targetScore: 740,
+        gapText: "+12",
+        gapNum: 12,
+        rgQuestionsDone: 52,
+        drillSessions: 10,
+        drillAccuracyPct: 84,
+        rgAccuracy: "84% benar (10 sesi)",
+        lowestTopics: [
+          "Optimasi Kontekstual (70% benar)",
+          "Peluang Bersyarat & Data (74% benar)",
+          "Pemodelan Laju Perubahan (77% benar)"
+        ],
+        borderColor: "#a6f4c5"
+      }
+    ],
+    familyAlignment: "aligned"
   }
 ];
 

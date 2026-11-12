@@ -24,7 +24,8 @@ import {
   analyzeStage2,
   analyzeStage3Subtest,
   analyzeStage3Overall,
-  analyzeStage4
+  analyzeStage4,
+  generateEngineCsv
 } from '../utils/saGuidelineEngine';
 import { mergeWithDefault, useRuleConfig } from '../utils/saRuleStore';
 import { RuleTraceBox } from '../components/RuleTraceBox';
@@ -120,6 +121,24 @@ const PRESETS: PresetConfig[] = [
     drillQuestions: 42,
     drillSessions: 8,
     drillAccuracyPct: 71
+  },
+  {
+    id: 'alya',
+    label: 'Alya (Achieve Semua ≥ 600 & Lolos Target Pilihan)',
+    desc: 'Semua 8 subtes ≥ 668, tren naik konsisten (638→688), semua pilihan lolos target (+22 s.d. +107), drill aktif & akurasi > 84%.',
+    toScores: ['638', '656', '672', '688'],
+    attendanceRatePct: 95.5,
+    hasLargeSubtestSwing: false,
+    hasMixedRumpun: false,
+    familyAlignment: 'aligned',
+    minGapToTarget: 22,
+    maxGapToTarget: 107,
+    minParticipantsCount: 515,
+    subtestName: 'Pengetahuan Kuantitatif (PK)',
+    toLatest: 692,
+    drillQuestions: 64,
+    drillSessions: 12,
+    drillAccuracyPct: 86
   }
 ];
 
@@ -313,6 +332,19 @@ export const EngineMatrixPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportCsv = () => {
+    const csv = generateEngineCsv(activeEvalConfig);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sa-guideline-engine-matrix.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    setSaveToast('Matriks rule & template /engine berhasil diekspor ke CSV (siap dibuka di Google Sheets / Excel).');
+    setTimeout(() => setSaveToast(null), 3500);
+  };
+
   const handleImportJson = () => {
     try {
       const parsed = JSON.parse(importJsonText);
@@ -395,9 +427,9 @@ export const EngineMatrixPage: React.FC = () => {
                 style={{
                   fontSize: 11,
                   fontWeight: 800,
-                  color: '#1078ca',
-                  background: '#eff8ff',
-                  border: '1px solid #b2ddff',
+                  color: '#245f5a',
+                  background: '#e6f4f2',
+                  border: '1px solid #a7d7dc',
                   padding: '2px 10px',
                   borderRadius: 9999
                 }}
@@ -427,7 +459,7 @@ export const EngineMatrixPage: React.FC = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                background: activeTab === 'simulator' ? '#1078ca' : 'transparent',
+                background: activeTab === 'simulator' ? '#398896' : 'transparent',
                 color: activeTab === 'simulator' ? '#ffffff' : '#475569'
               }}
             >
@@ -446,7 +478,7 @@ export const EngineMatrixPage: React.FC = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                background: activeTab === 'controls' ? '#1078ca' : 'transparent',
+                background: activeTab === 'controls' ? '#398896' : 'transparent',
                 color: activeTab === 'controls' ? '#ffffff' : '#475569'
               }}
             >
@@ -465,11 +497,26 @@ export const EngineMatrixPage: React.FC = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                background: activeTab === 'matrix' ? '#1078ca' : 'transparent',
+                background: activeTab === 'matrix' ? '#398896' : 'transparent',
                 color: activeTab === 'matrix' ? '#ffffff' : '#475569'
               }}
             >
               <Table2 size={14} /> 3. Matriks 15 Pola
+            </button>
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              className="btn btn-outline"
+              style={{
+                padding: '6px 12px',
+                fontSize: 12,
+                color: '#245f5a',
+                background: '#e6f4f2',
+                borderColor: '#a7d7dc'
+              }}
+              title="Ekspor seluruh rule & template teks ke file CSV siap buka di Google Sheets / Excel"
+            >
+              <Download size={14} /> Export CSV (Spreadsheet)
             </button>
           </div>
         </div>
@@ -832,6 +879,9 @@ export const EngineMatrixPage: React.FC = () => {
                 )}
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button type="button" className="btn btn-outline" onClick={handleExportCsv} style={{ fontSize: 12, padding: '6px 12px', color: '#245f5a', borderColor: '#a7d7dc', background: '#e6f4f2' }}>
+                  <Download size={14} /> Export CSV (Spreadsheet)
+                </button>
                 <button type="button" className="btn btn-outline" onClick={handleExportJson} style={{ fontSize: 12, padding: '6px 12px' }}>
                   <Download size={14} /> Export JSON
                 </button>
@@ -850,7 +900,7 @@ export const EngineMatrixPage: React.FC = () => {
                   type="button"
                   className="btn btn-primary"
                   onClick={handleSaveConfig}
-                  style={{ fontSize: 12, padding: '6px 14px', background: '#1078ca', borderColor: '#1078ca' }}
+                  style={{ fontSize: 12, padding: '6px 14px', background: '#398896', borderColor: '#398896' }}
                 >
                   <Save size={14} /> Simpan &amp; Terapkan ke V2
                 </button>
@@ -894,6 +944,9 @@ export const EngineMatrixPage: React.FC = () => {
                   { key: 'subtestSwingPts', label: 'Batas Fluktuasi Subtes (poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.subtestSwingPts },
                   { key: 'attendanceWarnPct', label: 'Ambang Peringatan Absensi (%)', def: DEFAULT_ENGINE_CONFIG.thresholds.attendanceWarnPct },
                   { key: 'wideWeightedGapPts', label: 'Gap Terbobot Lebar (≤ poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.wideWeightedGapPts },
+                  { key: 'remainingEpisodesToNextConsult', label: 'Sisa TO ke Konsultasi Berikutnya', def: DEFAULT_ENGINE_CONFIG.thresholds.remainingEpisodesToNextConsult },
+                  { key: 'remainingEpisodesToUtbk', label: 'Total Sisa TO Menuju UTBK', def: DEFAULT_ENGINE_CONFIG.thresholds.remainingEpisodesToUtbk },
+                  { key: 'planBGainThresholdPts', label: 'Ambang Kenaikan Plan B (> poin/TO)', def: DEFAULT_ENGINE_CONFIG.thresholds.planBGainThresholdPts },
                   { key: 'minBenchmarkParticipants', label: 'Min. Peserta Pembanding', def: DEFAULT_ENGINE_CONFIG.thresholds.minBenchmarkParticipants },
                   { key: 'drillLowQuestions', label: 'Batas Drill Minim (< soal)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillLowQuestions },
                   { key: 'drillLowAccuracyPct', label: 'Batas Akurasi Rendah (< %)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillLowAccuracyPct },

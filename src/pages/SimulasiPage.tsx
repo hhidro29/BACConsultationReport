@@ -32,6 +32,7 @@ import {
   SUBTEST_LABELS
 } from '../data/programCatalog';
 import { safeGetItem, safeSetItem, loadCustomPrograms } from '../utils/safeStorage';
+import { Button, Pill, Callout, SegmentedControl, Dialog, Card, toneForGap } from '../components/ui';
 
 type RumpunFilter = 'all' | StudentTowerRumpun;
 type OpportunityFilter = 'all' | 'realistic' | OpportunityZone;
@@ -194,17 +195,6 @@ export const SimulasiPage: React.FC = () => {
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [slotToRemove, setSlotToRemove] = useState<{ idx: number; choice: ProgramChoice } | null>(null);
 
-  // Esc closes the reset / remove confirmation dialogs
-  useEffect(() => {
-    if (!isResetConfirmOpen && !slotToRemove) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      setIsResetConfirmOpen(false);
-      setSlotToRemove(null);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isResetConfirmOpen, slotToRemove]);
 
   const scoreBasisLabel = useMemo(() => {
     switch (scoreBasis) {
@@ -577,15 +567,15 @@ export const SimulasiPage: React.FC = () => {
               {(() => {
                 const targetText =
                   targetDelta > 0
-                    ? `↓ Target lebih ringan ${targetDelta} poin`
+                    ? `↓ Target lebih rendah ${targetDelta}`
                     : targetDelta < 0
-                    ? `↑ Target lebih tinggi ${Math.abs(targetDelta)} poin`
+                    ? `↑ Target lebih tinggi ${Math.abs(targetDelta)}`
                     : 'Target acuan setara dengan pilihan saat ini';
                 const gapText =
                   gapDelta > 0
-                    ? ` · Selisih ke target menyempit ${gapDelta} poin`
+                    ? ` · Jarak ke target memendek ${gapDelta}`
                     : gapDelta < 0
-                    ? ` · Selisih ke target melebar ${Math.abs(gapDelta)} poin`
+                    ? ` · Jarak ke target melebar ${Math.abs(gapDelta)}`
                     : '';
                 return targetText + gapText;
               })()}
@@ -605,22 +595,22 @@ export const SimulasiPage: React.FC = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <div>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Skor Terbobot</div>
+                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Skor terbobot</div>
                 <div style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{sim.weightedScore}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Acuan</div>
+                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Target acuan</div>
                 <div style={{ fontSize: 14.5, fontWeight: 700, color: '#334155', lineHeight: 1.2 }}>{sim.catalog.targetScore}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Selisih</div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: theme.textColor, lineHeight: 1.2 }}>
+                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Jarak target</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: theme.textColor, lineHeight: 1.2 }}>
                   {sim.gap > 0 ? `+${sim.gap}` : sim.gap}
                 </div>
               </div>
             </div>
             <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#475569' }}>
-              <span>Keketatan: <strong style={{ color: '#0f172a' }}>{sim.catalog.tightness}</strong></span>
+              <span>Keketatan: <strong style={{ color: '#0f172a' }}>{sim.catalog.tightness.replace('.', ',')}</strong></span>
               <span>Kuota: <strong style={{ color: '#0f172a' }}>{sim.catalog.quota2026} kursi</strong></span>
             </div>
           </div>
@@ -645,7 +635,7 @@ export const SimulasiPage: React.FC = () => {
                   }}
                 >
                   <span style={{ color: '#475569' }}>
-                    <strong style={{ color: '#0f172a' }}>{sub.shortLabel}</strong> ({sub.weightPct}%)
+                    <strong style={{ color: '#0f172a' }}>{sub.shortLabel}</strong> · {sub.name}
                   </span>
                   <span style={{ fontWeight: 700, color: sub.studentScore >= 600 ? '#027a48' : '#0f172a' }}>
                     {sub.studentScore}
@@ -662,23 +652,14 @@ export const SimulasiPage: React.FC = () => {
             Rapor SNBP: <strong style={{ color: '#0f172a' }}>{sim.catalog.supportSubjects.join(', ')}</strong>
           </div>
           {opts.isCandidate ? (
-            <button
-              type="button"
+            <Button
+              variant="primary"
+              size="sm"
+              style={{ width: '100%', fontSize: 12 }}
               onClick={() => handleApplyToFocusedSlot(sim)}
-              style={{
-                width: '100%',
-                fontSize: 11.5,
-                fontWeight: 700,
-                color: '#ffffff',
-                background: '#1078ca',
-                border: '1px solid #1078ca',
-                borderRadius: 6,
-                padding: '7px 10px',
-                cursor: 'pointer'
-              }}
             >
               ✓ Jadikan Pilihan {focusedSlotIdx + 1}
-            </button>
+            </Button>
           ) : (
             <span
               style={{
@@ -745,14 +726,9 @@ export const SimulasiPage: React.FC = () => {
       <main className="container">
         {/* Action Bar */}
         <div className="action-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0 12px', flexWrap: 'wrap', gap: 10 }}>
-          <button
-            type="button"
-            className="btn btn-back"
-            onClick={() => navigate(`/v2?student=${student.id}`)}
-          >
-            <ArrowLeft size={16} />
+          <Button icon={<ArrowLeft size={16} />} onClick={() => navigate(`/v2?student=${student.id}`)}>
             Kembali ke Detail Checkpoint 1
-          </button>
+          </Button>
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             {actionToast && (
@@ -774,23 +750,13 @@ export const SimulasiPage: React.FC = () => {
               </span>
             )}
             {isCustomized && (
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={handleRequestResetPrograms}
-                style={{ padding: '7px 13px', fontSize: 12.5, color: '#b54708', borderColor: '#fedf89', background: '#fffcf5' }}
-              >
-                <RotateCcw size={14} /> Reset Pilihan Awal
-              </button>
+              <Button variant="warn" icon={<RotateCcw size={14} />} onClick={handleRequestResetPrograms}>
+                Reset Pilihan Awal
+              </Button>
             )}
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => navigate(`/v2?student=${student.id}`)}
-              style={{ padding: '7px 16px', fontSize: 12.5, background: '#1078ca', borderColor: '#1078ca' }}
-            >
+            <Button variant="primary" onClick={() => navigate(`/v2?student=${student.id}`)}>
               ✓ Simpan &amp; Kembali ke Laporan
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -907,47 +873,34 @@ export const SimulasiPage: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 11.5, fontWeight: 600, color: '#64748b' }}>Basis skor:</span>
-            <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: 3, borderRadius: 7, border: '1px solid #e2e8f0' }}>
-              {(
-                [
-                  { id: 'to4', label: `TO 4 (${latestTO4})` },
-                  { id: 'median', label: 'Median' },
-                  { id: 'avg', label: `Rata-rata (${avgTO})` }
-                ] as { id: ScoreBasis; label: string }[]
-              ).map((opt) => {
-                const isActive = scoreBasis === opt.id;
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setScoreBasis(opt.id)}
-                    style={{
-                      padding: '4px 10px',
-                      fontSize: 11.5,
-                      fontWeight: isActive ? 700 : 500,
-                      color: isActive ? '#0f172a' : '#64748b',
-                      background: isActive ? '#ffffff' : 'transparent',
-                      border: 'none',
-                      borderRadius: 5,
-                      boxShadow: isActive ? '0 1px 2px rgba(15, 23, 42, 0.08)' : 'none',
-                      cursor: 'pointer',
-                      transition: 'all 0.12s ease'
-                    }}
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: '#64748b' }}>Basis skor terbobot:</span>
+              <SegmentedControl<ScoreBasis>
+                ariaLabel="Basis skor"
+                value={scoreBasis}
+                onChange={setScoreBasis}
+                options={[
+                  { id: 'to4', label: `TO 4 Terbaru (${latestTO4})` },
+                  { id: 'median', label: 'Median 4 TO' },
+                  { id: 'avg', label: `Rata-rata 4 TO (${avgTO})` }
+                ]}
+              />
             </div>
+            <span style={{ fontSize: 11, color: '#245f5a', fontWeight: 600 }}>
+              {scoreBasis === 'to4'
+                ? `Aktif: Dihitung berdasarkan skor TO 4 terbaru (${latestTO4}), bukan rata-rata 4 TO`
+                : scoreBasis === 'median'
+                ? 'Aktif: Dihitung menggunakan nilai Median per subtes dari 4 TO'
+                : 'Aktif: Dihitung menggunakan rata-rata 4 TO'}
+            </span>
           </div>
         </div>
 
         {/* ========================================================= */}
         {/* BAGIAN 1: STRIP FORMULASI SNBT (1-4 SLOT RINGKAS)         */}
         {/* ========================================================= */}
-        <section className="stage-card" style={{ marginBottom: 14, padding: '14px 18px' }}>
+        <Card as="section" style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
             <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0f172a' }}>
               1. Formulasi Pilihan SNBT Siswa <span style={{ fontWeight: 500, color: '#64748b', fontSize: 12 }}>(Klik salah satu pilihan untuk dievaluasi &amp; dibandingkan)</span>
@@ -978,8 +931,8 @@ export const SimulasiPage: React.FC = () => {
                     }
                   }}
                   style={{
-                    background: isFocused ? '#f0f9ff' : '#ffffff',
-                    border: isFocused ? '2px solid #1078ca' : `1px solid ${theme.borderColor}`,
+                    background: isFocused ? '#e6f4f2' : '#ffffff',
+                    border: isFocused ? '2px solid #58aebd' : `1px solid ${theme.borderColor}`,
                     borderRadius: 8,
                     padding: '9px 11px',
                     cursor: 'pointer',
@@ -994,7 +947,7 @@ export const SimulasiPage: React.FC = () => {
                           fontSize: 10,
                           fontWeight: 800,
                           color: isFocused ? '#ffffff' : '#334155',
-                          background: isFocused ? '#1078ca' : '#f1f5f9',
+                          background: isFocused ? '#398896' : '#f1f5f9',
                           padding: '1.5px 6px',
                           borderRadius: 4
                         }}
@@ -1038,7 +991,7 @@ export const SimulasiPage: React.FC = () => {
                       Skor <strong style={{ color: '#0f172a' }}>{slot.sim.weightedScore}</strong>
                     </span>
                     <span style={{ fontWeight: 800, color: theme.textColor }}>
-                      {slot.sim.gap > 0 ? `+${slot.sim.gap}` : slot.sim.gap} poin
+                      {slot.sim.gap > 0 ? `+${slot.sim.gap}` : slot.sim.gap}
                     </span>
                   </div>
                 </div>
@@ -1056,8 +1009,8 @@ export const SimulasiPage: React.FC = () => {
                   }
                 }}
                 style={{
-                  background: focusedSlotIdx === activePrograms.length ? '#f0f9ff' : '#f8fafc',
-                  border: focusedSlotIdx === activePrograms.length ? '2px dashed #1078ca' : '1.5px dashed #cbd5e1',
+                  background: focusedSlotIdx === activePrograms.length ? '#e6f4f2' : '#f8fafc',
+                  border: focusedSlotIdx === activePrograms.length ? '2px dashed #58aebd' : '1.5px dashed #cbd5e1',
                   borderRadius: 8,
                   padding: '10px 12px',
                   cursor: 'pointer',
@@ -1066,7 +1019,7 @@ export const SimulasiPage: React.FC = () => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   textAlign: 'center',
-                  color: focusedSlotIdx === activePrograms.length ? '#1078ca' : '#64748b'
+                  color: focusedSlotIdx === activePrograms.length ? '#245f5a' : '#64748b'
                 }}
               >
                 <Plus size={16} />
@@ -1081,59 +1034,35 @@ export const SimulasiPage: React.FC = () => {
           </div>
 
           {/* SNBT 2026 Rule Status Bar */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: 10,
-              flexWrap: 'wrap',
-              padding: '8px 12px',
-              borderRadius: 6,
-              background: snbtValidation.isValid ? '#ecfdf3' : '#fff7ed',
-              border: `1px solid ${snbtValidation.isValid ? '#a6f4c5' : '#fed7aa'}`,
-              fontSize: 12,
-              color: snbtValidation.isValid ? '#027a48' : '#9a3412'
-            }}
+          <Callout
+            tone={snbtValidation.isValid ? 'success' : 'caution'}
+            icon={snbtValidation.isValid ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 600 }}>
-              {snbtValidation.isValid ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}
-              <span>{snbtValidation.message}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: 600 }}>{snbtValidation.message}</span>
+              {!snbtValidation.isValid && snbtValidation.needsVokasiFilter && (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setRumpunFilter('all');
+                    setDegreeFilter(snbtValidation.needsD3Only ? 'D3' : 'vokasi');
+                  }}
+                >
+                  {snbtValidation.needsD3Only ? 'Tampilkan Prodi D3 ▾' : 'Tampilkan Prodi Vokasi (D4/D3) ▾'}
+                </Button>
+              )}
             </div>
-
-            {!snbtValidation.isValid && snbtValidation.needsVokasiFilter && (
-              <button
-                type="button"
-                onClick={() => {
-                  setRumpunFilter('all');
-                  setDegreeFilter(snbtValidation.needsD3Only ? 'D3' : 'vokasi');
-                }}
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#9a3412',
-                  background: '#ffffff',
-                  border: '1px solid #fdba74',
-                  borderRadius: 5,
-                  padding: '4px 10px',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {snbtValidation.needsD3Only ? 'Tampilkan Prodi D3 ▾' : 'Tampilkan Prodi Vokasi (D4/D3) ▾'}
-              </button>
-            )}
-          </div>
-        </section>
+          </Callout>
+        </Card>
 
         {/* ========================================================= */}
         {/* BAGIAN 2: MEJA BANDINGKAN FOKUS PER PILIHAN (1 vs 1-2)     */}
         {/* ========================================================= */}
-        <section className="stage-card" style={{ marginBottom: 16 }}>
+        <Card as="section" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
             <div>
               <h2 style={{ fontSize: 15.5, fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
-                <ArrowRightLeft size={16} color="#1078ca" />
+                <ArrowRightLeft size={16} color="#398896" />
                 2. Meja Bandingkan: Fokus Pilihan {focusedSlotIdx + 1}
               </h2>
               <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>
@@ -1143,22 +1072,12 @@ export const SimulasiPage: React.FC = () => {
               </p>
             </div>
             {compareSims.length > 0 && (
-              <button
-                type="button"
+              <Button
+                size="sm"
                 onClick={() => setCompareIds([])}
-                style={{
-                  fontSize: 11.5,
-                  fontWeight: 600,
-                  color: '#64748b',
-                  background: '#f1f5f9',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: 6,
-                  padding: '4px 10px',
-                  cursor: 'pointer'
-                }}
               >
                 Kosongkan Pembanding
-              </button>
+              </Button>
             )}
           </div>
 
@@ -1200,7 +1119,7 @@ export const SimulasiPage: React.FC = () => {
                 return (
                   <React.Fragment key={`cand_${candSim.catalog.id}`}>
                     {renderCompareCard(candSim, {
-                      badgeText: `Alternatif #${candIdx + 1}`,
+                      badgeText: `Alternatif ${candIdx + 1}`,
                       isCandidate: true,
                       baselineSim: focusedSlot?.sim || null,
                       onRemoveCandidate: () => toggleCompareCandidate(candSim.catalog.id)
@@ -1240,7 +1159,7 @@ export const SimulasiPage: React.FC = () => {
                     <Plus size={18} color="#475569" />
                   </div>
                   <div style={{ fontSize: 12.5, fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    Slot Alternatif #{candIdx + 1}
+                    Alternatif {candIdx + 1}
                   </div>
                   <p style={{ fontSize: 11.5, lineHeight: 1.45, margin: 0 }}>
                     Klik tombol <strong>+ Bandingkan</strong> di katalog bawah untuk menimbang prodi ini terhadap Pilihan {focusedSlotIdx + 1}.
@@ -1249,12 +1168,12 @@ export const SimulasiPage: React.FC = () => {
               );
             })}
           </div>
-        </section>
+        </Card>
 
         {/* ========================================================= */}
         {/* BAGIAN 3: CARI KAMPUS DAN PROGRAM STUDI (STUDENT TOWER)   */}
         {/* ========================================================= */}
-        <section className="stage-card" style={{ marginBottom: 16 }}>
+        <Card as="section" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
             <div>
               <h2 style={{ fontSize: 15.5, fontWeight: 700, color: '#0f172a', margin: 0 }}>
@@ -1265,39 +1184,18 @@ export const SimulasiPage: React.FC = () => {
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              {/* Subtle Jenjang Toggle for SNBT Vokasi Scaffolding */}
-              <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: 2.5, borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                {(
-                  [
-                    { id: 'all', label: 'Semua Jenjang' },
-                    { id: 'S1', label: 'S1' },
-                    { id: 'vokasi', label: 'Vokasi (D4/D3)' },
-                    { id: 'D3', label: 'Khusus D3' }
-                  ] as { id: DegreeFilter; label: string }[]
-                ).map((d) => {
-                  const active = degreeFilter === d.id;
-                  return (
-                    <button
-                      key={d.id}
-                      type="button"
-                      onClick={() => setDegreeFilter(d.id)}
-                      style={{
-                        fontSize: 11,
-                        fontWeight: active ? 700 : 500,
-                        color: active ? '#1078ca' : '#64748b',
-                        background: active ? '#ffffff' : 'transparent',
-                        border: 'none',
-                        borderRadius: 4,
-                        padding: '3px 8px',
-                        boxShadow: active ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {d.label}
-                    </button>
-                  );
-                })}
-              </div>
+              {/* Jenjang toggle for SNBT vokasi scaffolding */}
+              <SegmentedControl<DegreeFilter>
+                ariaLabel="Jenjang"
+                value={degreeFilter}
+                onChange={setDegreeFilter}
+                options={[
+                  { id: 'all', label: 'Semua Jenjang' },
+                  { id: 'S1', label: 'S1' },
+                  { id: 'vokasi', label: 'Vokasi (D4/D3)' },
+                  { id: 'D3', label: 'Khusus D3' }
+                ]}
+              />
 
               {hasActiveFilters && (
                 <button
@@ -1489,25 +1387,25 @@ export const SimulasiPage: React.FC = () => {
                 }}
               >
                 <option value="all">Semua peluang</option>
-                <option value="realistic">Aman &amp; Mendekati (Selisih ≥ -30)</option>
-                <option value="safe">Realistis / Tercapai (Selisih ≥ 0)</option>
-                <option value="near">Mendekati Target (-1 s.d. -30)</option>
-                <option value="target">Target Bertahap (-31 s.d. -90)</option>
-                <option value="reach">Ambisius / Jauh (&lt; -90)</option>
+                <option value="realistic">Sudah &amp; hampir tercapai (≥ -30)</option>
+                <option value="safe">Sudah tercapai (≥ 0)</option>
+                <option value="near">Hampir tercapai (-1 s.d. -30)</option>
+                <option value="target">Dicapai bertahap (-31 s.d. -90)</option>
+                <option value="reach">Perlu usaha besar (&lt; -90)</option>
               </select>
             </div>
           </div>
 
-          <div className="table-container" style={{ marginTop: 0 }}>
-            <table className="data-table">
+          <div className="rg-table-wrap" style={{ marginTop: 0 }}>
+            <table className="rg-table">
               <thead>
                 <tr>
-                  <th style={{ width: '28%' }}>Program Studi &amp; Perguruan Tinggi</th>
-                  <th style={{ width: '11%', textAlign: 'center' }}>Skor Terbobot</th>
-                  <th style={{ width: '11%', textAlign: 'center' }}>Target Acuan</th>
-                  <th style={{ width: '12%', textAlign: 'center' }}>Selisih</th>
-                  <th style={{ width: '16%', textAlign: 'center' }}>Kompetisi &amp; Lokasi</th>
-                  <th style={{ width: '22%', textAlign: 'right' }}>Aksi (Fokus Pil. {focusedSlotIdx + 1})</th>
+                  <th style={{ width: '28%' }}>Program studi &amp; perguruan tinggi</th>
+                  <th style={{ width: '11%', textAlign: 'center' }}>Skor terbobot</th>
+                  <th style={{ width: '11%', textAlign: 'center' }}>Target acuan</th>
+                  <th style={{ width: '12%', textAlign: 'center' }}>Jarak target</th>
+                  <th style={{ width: '16%', textAlign: 'center' }}>Peminat dan lokasi</th>
+                  <th style={{ width: '22%', textAlign: 'right' }}>Untuk Pilihan {focusedSlotIdx + 1}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1574,24 +1472,13 @@ export const SimulasiPage: React.FC = () => {
                           {sim.catalog.targetScore}
                         </td>
                         <td style={{ textAlign: 'center' }}>
-                          <span
-                            style={{
-                              fontWeight: 800,
-                              fontSize: 12,
-                              color: theme.textColor,
-                              background: theme.boxBg,
-                              border: `1px solid ${theme.boxBorder}`,
-                              padding: '2px 9px',
-                              borderRadius: 9999,
-                              display: 'inline-block'
-                            }}
-                          >
-                            {sim.gap > 0 ? `+${sim.gap}` : sim.gap} poin
-                          </span>
+                          <Pill tone={toneForGap(sim.gap)}>
+                            {sim.gap > 0 ? `+${sim.gap}` : sim.gap}
+                          </Pill>
                         </td>
                         <td style={{ textAlign: 'center', fontSize: 11.5, color: '#334155' }}>
                           <div>
-                            <strong>{sim.catalog.tightness}</strong> · {sim.catalog.quota2026} kursi
+                            <strong>{sim.catalog.tightness.replace('.', ',')}</strong> · {sim.catalog.quota2026} kursi
                           </div>
                           <div style={{ color: '#64748b', marginTop: 2 }}>
                             {sim.catalog.city}, {sim.catalog.province}
@@ -1599,39 +1486,16 @@ export const SimulasiPage: React.FC = () => {
                         </td>
                         <td style={{ textAlign: 'right' }}>
                           <div style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
-                            <button
-                              type="button"
+                            <Button
+                              variant={isCompared ? 'primary' : 'default'}
+                              size="sm"
                               onClick={() => toggleCompareCandidate(sim.catalog.id)}
-                              style={{
-                                fontSize: 11.5,
-                                fontWeight: 700,
-                                padding: '5px 9px',
-                                borderRadius: 5,
-                                cursor: 'pointer',
-                                background: isCompared ? '#1078ca' : '#ffffff',
-                                color: isCompared ? '#ffffff' : '#334155',
-                                border: `1px solid ${isCompared ? '#1078ca' : '#cbd5e1'}`
-                              }}
                             >
                               {isCompared ? '✓ Dibandingkan' : '+ Bandingkan'}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => handleApplyToFocusedSlot(sim)}
-                              style={{
-                                fontSize: 11.5,
-                                fontWeight: 700,
-                                padding: '5px 12px',
-                                borderRadius: 5,
-                                cursor: 'pointer',
-                                background: '#eff8ff',
-                                color: '#1078ca',
-                                border: '1px solid #b2ddff'
-                              }}
-                            >
+                            </Button>
+                            <Button variant="soft" size="sm" onClick={() => handleApplyToFocusedSlot(sim)}>
                               Pilih
-                            </button>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -1641,30 +1505,14 @@ export const SimulasiPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </section>
+        </Card>
 
         {/* Mandatory Disclaimer */}
-        <div
-          style={{
-            marginBottom: 24,
-            background: '#fffaeb',
-            border: '1px solid #fedf89',
-            borderLeft: '4px solid #f79009',
-            borderRadius: 8,
-            padding: '12px 16px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 10,
-            fontSize: 12,
-            color: '#93370d',
-            lineHeight: 1.5
-          }}
-        >
-          <Info size={17} style={{ flexShrink: 0, marginTop: 2 }} />
+        <Callout tone="warn" icon={<Info size={17} />} style={{ marginBottom: 24 }}>
           <div>
-            <strong>Disclaimer Acuan Internal:</strong> Angka target acuan dan posisi peringkat di atas merupakan benchmark peserta internal Ruangguru (bukan passing grade resmi SNPMB atau jaminan kelolosan personal). Gunakan perbandingan fokus per pilihan ini bersama siswa &amp; orang tua untuk menyepakati kombinasi SNBT yang sah dan realistis.
+            <strong>Disclaimer:</strong> Target ini acuan internal Ruangguru, bukan passing grade resmi dan bukan jaminan lolos. Gunakan simulasi ini bersama siswa dan orang tua untuk menyepakati kombinasi pilihan yang realistis.
           </div>
-        </div>
+        </Callout>
 
         {/* Choice Review Modal before execute */}
         {reviewTarget && (
@@ -1681,202 +1529,48 @@ export const SimulasiPage: React.FC = () => {
         )}
 
         {/* Reset Confirmation Dialog */}
-        {isResetConfirmOpen && (
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 99999,
-              background: 'rgba(15, 23, 42, 0.7)',
-              backdropFilter: 'blur(3px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 16
-            }}
-            onClick={() => setIsResetConfirmOpen(false)}
-          >
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Konfirmasi reset pilihan jurusan"
-              style={{
-                background: '#ffffff',
-                borderRadius: 12,
-                maxWidth: 460,
-                width: '100%',
-                padding: '20px 22px',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
-                border: '1px solid #e2e8f0'
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 8,
-                    background: '#fef3f2',
-                    border: '1px solid #fee4e2',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#d92d20'
-                  }}
-                >
-                  <RotateCcw size={18} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>
-                    Kembalikan ke Pilihan Awal?
-                  </div>
-                  <div style={{ fontSize: 11.5, color: '#64748b' }}>
-                    Siswa: {student.name}
-                  </div>
-                </div>
-              </div>
-
-              <p style={{ fontSize: 12.5, color: '#334155', lineHeight: 1.5, margin: '0 0 16px' }}>
-                Seluruh perubahan formulasi hasil simulasi untuk <strong>{student.name}</strong> akan dihapus dan dikembalikan ke 3 pilihan awal siswa saat sesi konsultasi dibuka.
-              </p>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                <button
-                  type="button"
-                  onClick={() => setIsResetConfirmOpen(false)}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: 6,
-                    fontSize: 12.5,
-                    fontWeight: 600,
-                    color: '#344054',
-                    background: '#ffffff',
-                    border: '1px solid #d0d5dd',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmResetPrograms}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: 6,
-                    fontSize: 12.5,
-                    fontWeight: 700,
-                    color: '#ffffff',
-                    background: '#b42318',
-                    border: '1px solid #b42318',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Ya, Kembalikan ke Data Awal
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <Dialog
+          open={isResetConfirmOpen}
+          onClose={() => setIsResetConfirmOpen(false)}
+          title="Kembalikan ke Pilihan Awal?"
+          ariaLabel="Konfirmasi reset pilihan jurusan"
+          footer={
+            <>
+              <Button onClick={() => setIsResetConfirmOpen(false)}>Batal</Button>
+              <Button variant="danger" onClick={handleConfirmResetPrograms}>Ya, Kembalikan ke Data Awal</Button>
+            </>
+          }
+        >
+          <p className="rg-note" style={{ marginBottom: 8 }}>Siswa: {student.name}</p>
+          <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, margin: 0 }}>
+            Seluruh perubahan formulasi hasil simulasi untuk <strong>{student.name}</strong> akan dihapus dan dikembalikan ke 3 pilihan awal siswa saat sesi konsultasi dibuka.
+          </p>
+        </Dialog>
 
         {/* Remove Slot Confirmation Dialog */}
-        {slotToRemove && (
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 99999,
-              background: 'rgba(15, 23, 42, 0.7)',
-              backdropFilter: 'blur(3px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 16
-            }}
-            onClick={() => setSlotToRemove(null)}
-          >
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Konfirmasi hapus slot pilihan"
-              style={{
-                background: '#ffffff',
-                borderRadius: 12,
-                maxWidth: 460,
-                width: '100%',
-                padding: '20px 22px',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
-                border: '1px solid #e2e8f0'
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 8,
-                    background: '#fef3f2',
-                    border: '1px solid #fee4e2',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#d92d20'
-                  }}
-                >
-                  <AlertTriangle size={18} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>
-                    Hapus Pilihan {slotToRemove.idx + 1}?
-                  </div>
-                  <div style={{ fontSize: 11.5, color: '#64748b' }}>
-                    {slotToRemove.choice.prodi} — {slotToRemove.choice.univ}
-                  </div>
-                </div>
-              </div>
-
-              <p style={{ fontSize: 12.5, color: '#334155', lineHeight: 1.5, margin: '0 0 16px' }}>
+        <Dialog
+          open={slotToRemove !== null}
+          onClose={() => setSlotToRemove(null)}
+          title={slotToRemove ? `Hapus Pilihan ${slotToRemove.idx + 1}?` : ''}
+          ariaLabel="Konfirmasi hapus slot pilihan"
+          footer={
+            <>
+              <Button onClick={() => setSlotToRemove(null)}>Batal</Button>
+              <Button variant="danger" onClick={handleConfirmRemoveSlot}>Ya, Hapus Pilihan</Button>
+            </>
+          }
+        >
+          {slotToRemove && (
+            <>
+              <p className="rg-note" style={{ marginBottom: 8 }}>
+                {slotToRemove.choice.prodi} — {slotToRemove.choice.univ}
+              </p>
+              <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, margin: 0 }}>
                 Apakah Anda yakin ingin menghapus <strong>{slotToRemove.choice.prodi} ({slotToRemove.choice.univ})</strong> dari formulasi pilihan {student.name}? Urutan pilihan di bawahnya akan digeser secara otomatis.
               </p>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                <button
-                  type="button"
-                  onClick={() => setSlotToRemove(null)}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: 6,
-                    fontSize: 12.5,
-                    fontWeight: 600,
-                    color: '#344054',
-                    background: '#ffffff',
-                    border: '1px solid #d0d5dd',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmRemoveSlot}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: 6,
-                    fontSize: 12.5,
-                    fontWeight: 700,
-                    color: '#ffffff',
-                    background: '#b42318',
-                    border: '1px solid #b42318',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Ya, Hapus Pilihan
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </Dialog>
       </main>
     </div>
   );

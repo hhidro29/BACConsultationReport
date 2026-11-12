@@ -6,8 +6,12 @@ import {
   CHECKPOINT1_STUDENTS,
   ProgramChoice
 } from '../data/garudaData';
-import { STUDENT_CLASSROOM_DATA } from '../data/classroomData';
-import { validateSnbtChoices } from '../data/programCatalog';
+import { STUDENT_CLASSROOM_DATA, STUDENT_SA_HISTORY_NOTES } from '../data/classroomData';
+import {
+  validateSnbtChoices,
+  derivePrioritySubtestsForChoice1,
+  matchCatalogProgram
+} from '../data/programCatalog';
 import { useRuleConfig } from '../utils/saRuleStore';
 import {
   analyzeStage1,
@@ -15,7 +19,9 @@ import {
   analyzeStage3Subtest,
   analyzeStage3Overall,
   analyzeStage4,
-  analyzeStageClassroom
+  analyzeStageClassroom,
+  computeProgramPacing,
+  classifySubtestPattern
 } from '../utils/saGuidelineEngine';
 import { safeGetItem, safeSetItem, loadCustomPrograms } from '../utils/safeStorage';
 
@@ -77,15 +83,22 @@ export const CheckpointV2Page: React.FC = () => {
     });
   };
 
-  const prioritySubtestsV2 = activeStudent.prioritySubtests;
+  const prioritySubtestsV2 = derivePrioritySubtestsForChoice1(
+    activeStudent,
+    targetPrograms[0],
+    ruleConfig.thresholds.foundationScoreTarget
+  );
 
   const [isPdfOpen, setIsPdfOpen] = useState<boolean>(
     searchParams.get('preview') === '1' || searchParams.get('preview') === 'true'
   );
   const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [lockErrorMsg, setLockErrorMsg] = useState<string | null>(null);
   const [draftSavedToast, setDraftSavedToast] = useState<boolean>(false);
   const [activeStage, setActiveStage] = useState<string>('tahap1');
   const classroomData = STUDENT_CLASSROOM_DATA[activeStudent.id] || STUDENT_CLASSROOM_DATA.garuda;
+  const saHistoryNotes = STUDENT_SA_HISTORY_NOTES[activeStudent.id] || [];
+  const saNotesTextareaRef = useRef<HTMLTextAreaElement>(null);
   const saNotesStorageKey = `bac_v2_sa_notes_${activeStudent.id}`;
   const [saNotes, setSaNotes] = useState<string>(() => {
     return safeGetItem(`bac_v2_sa_notes_${activeStudent.id}`) || '';
@@ -96,6 +109,7 @@ export const CheckpointV2Page: React.FC = () => {
   useEffect(() => {
     setClassFilter('notes');
     setClassPage(1);
+    setLockErrorMsg(null);
     setSaNotes(safeGetItem(`bac_v2_sa_notes_${activeStudent.id}`) || '');
   }, [activeStudent.id]);
 
@@ -148,11 +162,14 @@ export const CheckpointV2Page: React.FC = () => {
 
   // Dynamic KPI Metrics (computed strictly from student data)
   const toScoresList = studentIdentity.toScores;
-  const toAverageComputed = toScoresList.length
-    ? Math.round(toScoresList.reduce((acc, v) => acc + v, 0) / toScoresList.length)
-    : 0;
+  const latestToEpisode = toScoresList.length || 4;
+  const latestToScore = toScoresList.length ? toScoresList[toScoresList.length - 1] : 0;
   const totalSubtestsCount = subtestsV2Data.length;
   const sortedSubtests = [...subtestsV2Data].sort((a, b) => a.gap - b.gap || a.to4 - b.to4);
+  const top3WeakIds = sortedSubtests
+    .filter((s) => s.to4 < 600)
+    .slice(0, 3)
+    .map((s) => s.id);
   const shortSubtestMap: Record<string, string> = {
     pu: 'PU',
     pk: 'PK',
@@ -192,31 +209,22 @@ export const CheckpointV2Page: React.FC = () => {
     return Number.isInteger(num) ? num.toString() : num.toFixed(1).replace('.', ',');
   };
 
-  const getSubtestStatus = (gap: number) => {
-    if (gap >= 0) return { label: 'TERCAPAI', badgeClass: 'badge badge-success', color: '#12b76a' };
-    if (gap >= -30) return { label: 'MENDEKATI 600', badgeClass: 'badge badge-info', color: '#2e90fa' };
-    if (gap >= -90) return { label: 'PERLU DITINGKATKAN', badgeClass: 'badge badge-warn', color: '#f79009' };
-    return { label: 'PRIORITAS UTAMA', badgeClass: 'badge badge-danger', color: '#d92d20' };
+  // 3-Warna Status Subtes: Hijau (>= 600), Merah (di bawah 600 & prioritas 1-3), Oranye (di bawah 600 di luar prioritas 1-3)
+  const getSubtestStatus = (gap: number, isPriorityTop3: boolean = gap < 0) => {
+    if (gap >= 0) return { label: 'Tercapai', badgeClass: 'badge badge-success', color: '#12b76a', textColor: '#027a48' };
+    if (isPriorityTop3) return { label: 'Prioritas perbaikan', badgeClass: 'badge badge-danger', color: '#d92d20', textColor: '#b42318' };
+    return { label: 'Perlu penguatan', badgeClass: 'badge badge-warn', color: '#f79009', textColor: '#b54708' };
   };
 
-  // Dynamic Ringkasan 8 Subtes calculations
-  const avgTO1 = subtestsV2Data.length ? Math.round(subtestsV2Data.reduce((s, x) => s + x.to1, 0) / subtestsV2Data.length) : 0;
-  const avgTO2 = subtestsV2Data.length ? Math.round(subtestsV2Data.reduce((s, x) => s + x.to2, 0) / subtestsV2Data.length) : 0;
-  const avgTO3 = subtestsV2Data.length ? Math.round(subtestsV2Data.reduce((s, x) => s + x.to3, 0) / subtestsV2Data.length) : 0;
-  const avgTO4 = subtestsV2Data.length ? Math.round(subtestsV2Data.reduce((s, x) => s + x.to4, 0) / subtestsV2Data.length) : 0;
-  const avgOverall = Math.round((avgTO1 + avgTO2 + avgTO3 + avgTO4) / 4);
-  const avgGap = avgTO4 - 600;
-  const avgFillPct = Math.max(0, Math.min(100, ((avgTO4 - 400) / 300) * 100));
-  const avgStatus = getSubtestStatus(avgGap);
-
+  // Dynamic Ringkasan 8 Subtes (Median 8 subtes saja)
   const medTO1 = computeMedian(subtestsV2Data.map((s) => s.to1));
   const medTO2 = computeMedian(subtestsV2Data.map((s) => s.to2));
   const medTO3 = computeMedian(subtestsV2Data.map((s) => s.to3));
   const medTO4 = computeMedian(subtestsV2Data.map((s) => s.to4));
-  const medOverall = (medTO1 + medTO2 + medTO3 + medTO4) / 4;
+  const medOverall = computeMedian([medTO1, medTO2, medTO3, medTO4]);
   const medGap = medTO4 - 600;
   const medFillPct = Math.max(0, Math.min(100, ((medTO4 - 400) / 300) * 100));
-  const medStatus = getSubtestStatus(medGap);
+  const medStatus = getSubtestStatus(medGap, medGap <= -90);
 
   // Subtest with largest fluctuation for dynamic educational callout
   const maxFluctSub = [...subtestsV2Data].sort((a, b) => {
@@ -225,11 +233,11 @@ export const CheckpointV2Page: React.FC = () => {
     return rangeB - rangeA;
   })[0] || subtestsV2Data[0];
 
-  // Holistic Semantic Theme based on Gap to 600
-  const getCardTheme = (gap: number) => {
-    if (gap >= 0) {
+  // 3-Warna Kartu Subtes Prioritas (Hijau / Oranye / Merah)
+  const getCardTheme = (gapToTarget: number, toLatestNum: number) => {
+    if (gapToTarget >= 0) {
       return {
-        status: 'TERCAPAI',
+        status: 'Tercapai',
         textColor: '#027a48',
         borderColor: '#a6f4c5',
         boxBg: '#ecfdf3',
@@ -237,19 +245,9 @@ export const CheckpointV2Page: React.FC = () => {
         dashBorder: '#a6f4c5'
       };
     }
-    if (gap >= -30) {
+    if (toLatestNum >= 600 || gapToTarget >= -60) {
       return {
-        status: 'MENDEKATI 600',
-        textColor: '#175cd3',
-        borderColor: '#b2ddff',
-        boxBg: '#eff8ff',
-        boxBorder: '#b2ddff',
-        dashBorder: '#b2ddff'
-      };
-    }
-    if (gap >= -90) {
-      return {
-        status: 'PERLU DITINGKATKAN',
+        status: 'Perlu penguatan',
         textColor: '#b54708',
         borderColor: '#fedf89',
         boxBg: '#fffcf5',
@@ -258,7 +256,7 @@ export const CheckpointV2Page: React.FC = () => {
       };
     }
     return {
-      status: 'PRIORITAS UTAMA',
+      status: 'Prioritas utama',
       textColor: '#b42318',
       borderColor: '#fecdca',
       boxBg: '#fffbfa',
@@ -269,7 +267,6 @@ export const CheckpointV2Page: React.FC = () => {
 
   const getProgramGapColor = (gap: number) => {
     if (gap >= 0) return '#027a48';
-    if (gap >= -30) return '#1078ca';
     if (gap >= -70) return '#b54708';
     return '#b42318';
   };
@@ -326,16 +323,28 @@ export const CheckpointV2Page: React.FC = () => {
         activeStudent.familyAlignment === 'different_major' ||
         activeStudent.familyAlignment === 'location_limit' ||
         stage2Out.isConflict,
-      hasMissingDrill: activeStudent.prioritySubtests.some(
+      hasMissingDrill: prioritySubtestsV2.some(
         (s) => s.rgQuestionsDone <= ruleConfig.thresholds.drillMismatchLowQ
       ),
-      prioritySubtests: activeStudent.prioritySubtests,
+      prioritySubtests: prioritySubtestsV2,
       studentName: activeStudent.identity.name,
       saName: activeStudent.identity.saName,
       parentName: activeStudent.identity.parentName
     },
     ruleConfig
   );
+
+  const handleToggleLock = () => {
+    if (!isLocked && !saNotes.trim()) {
+      setLockErrorMsg('Isi Catatan Khusus Kakak Asuh di Tahap 5 terlebih dahulu sebelum mengunci laporan.');
+      const el = document.getElementById('sec_tahap5_agreement');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => saNotesTextareaRef.current?.focus(), 350);
+      return;
+    }
+    setLockErrorMsg(null);
+    setIsLocked(!isLocked);
+  };
 
   return (
     <div>
@@ -352,16 +361,16 @@ export const CheckpointV2Page: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Link
               to="/engine"
-              title="Buka Simulator, Jejak Aturan & Kontrol Engine Panduan SA"
+              title="Buka Simulator, Jejak Aturan & Kontrol Engine Panduan Kakak Asuh"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 5,
                 fontSize: 11.5,
                 fontWeight: 700,
-                color: isRuleCustomized ? '#b54708' : '#1078ca',
-                background: isRuleCustomized ? '#fef0c7' : '#eff8ff',
-                border: `1px solid ${isRuleCustomized ? '#fedf89' : '#b2ddff'}`,
+                color: isRuleCustomized ? '#b54708' : '#245f5a',
+                background: isRuleCustomized ? '#fef0c7' : '#e6f4f2',
+                border: `1px solid ${isRuleCustomized ? '#fedf89' : '#a7d7dc'}`,
                 padding: '4px 10px',
                 borderRadius: 9999,
                 textDecoration: 'none',
@@ -420,13 +429,13 @@ export const CheckpointV2Page: React.FC = () => {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => setIsLocked(!isLocked)}
+              onClick={handleToggleLock}
               style={{
                 padding: '7px 16px',
                 fontSize: 12.5,
                 whiteSpace: 'nowrap',
-                background: isLocked ? '#475467' : '#1078ca',
-                borderColor: isLocked ? '#475467' : '#1078ca'
+                background: isLocked ? '#475467' : '#398896',
+                borderColor: isLocked ? '#475467' : '#398896'
               }}
             >
               {isLocked ? <Unlock size={14} /> : <Lock size={14} />}
@@ -463,7 +472,7 @@ export const CheckpointV2Page: React.FC = () => {
                   }}
                   title="Pilih profil siswa Checkpoint 1"
                 >
-                  <span style={{ color: '#1078ca', fontWeight: 700 }}>Ganti Siswa</span>
+                  <span style={{ color: '#245f5a', fontWeight: 700 }}>Ganti Siswa</span>
                   <ChevronDown
                     size={13}
                     color="#667085"
@@ -507,7 +516,7 @@ export const CheckpointV2Page: React.FC = () => {
                           style={{
                             width: '100%',
                             textAlign: 'left',
-                            background: isSelected ? '#eff8ff' : 'transparent',
+                            background: isSelected ? '#e6f4f2' : 'transparent',
                             border: 'none',
                             padding: '8px 10px',
                             borderRadius: 6,
@@ -523,10 +532,10 @@ export const CheckpointV2Page: React.FC = () => {
                           }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: 12.5, fontWeight: isSelected ? 700 : 600, color: isSelected ? '#1078ca' : '#1e293b' }}>
+                            <span style={{ fontSize: 12.5, fontWeight: isSelected ? 700 : 600, color: isSelected ? '#245f5a' : '#1e293b' }}>
                               {st.name}
                             </span>
-                            {isSelected && <span style={{ fontSize: 11, fontWeight: 700, color: '#1078ca' }}>✓ Aktif</span>}
+                            {isSelected && <span style={{ fontSize: 11, fontWeight: 700, color: '#245f5a' }}>✓ Aktif</span>}
                           </div>
                           <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
                             {st.tagline}
@@ -546,8 +555,8 @@ export const CheckpointV2Page: React.FC = () => {
             </p>
           </div>
           <div style={{ textAlign: 'right', fontSize: 12.5, color: 'var(--muted)' }}>
-            <div>Sesi: <strong>Konsultasi Checkpoint 1 (Pasca 4 TO)</strong></div>
-            <div style={{ marginTop: 2 }}>Tanggal: <strong>04 November 2026</strong></div>
+            <div>Sesi: <strong>{studentIdentity.sessionType}</strong></div>
+            <div style={{ marginTop: 2 }}>Tanggal: <strong>{studentIdentity.sessionDate}</strong></div>
           </div>
         </div>
 
@@ -601,25 +610,27 @@ export const CheckpointV2Page: React.FC = () => {
         <section id="tahap1" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#1e40af', background: '#dbeafe', padding: '3px 10px', borderRadius: 9999 }}>
-                TAHAP 1 DARI 5
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '3px 10px', borderRadius: 9999 }}>
+                Tahap 1
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                🎯 Fondasi 600 &amp; Evaluasi Skor IRT Reguler
+                Kemampuan dasar di 8 subtes
               </h2>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Milestone Utama Semester 1</span>
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Target Fondasi 600 Semester 1</span>
           </div>
 
 
           {/* Metrics Summary */}
           <div className="section-block" id="sec_tahap1_metrics">
             <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Ringkasan Evaluasi Skor Reguler Siswa</h3>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Ringkasan Performa Tryout Reguler</span>
+              <h3 className="section-title" style={{ fontSize: 15 }}>
+                1. Ringkasan Evaluasi Skor Reguler Siswa — Tryout Episode {latestToEpisode}
+              </h3>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Acuan Skor Tryout Terakhir (TO {latestToEpisode})</span>
             </div>
             
-            {/* Minimalist 4-Column KPI Summary Strip (100% Data-Driven) */}
+            {/* Minimalist 4-Column KPI Summary Strip (100% Data-Driven from Latest TO) */}
             <div
               className="metrics-grid"
               style={{
@@ -632,12 +643,12 @@ export const CheckpointV2Page: React.FC = () => {
               }}
             >
               {/* Metric 1 */}
-              <div title={toScoresList.join(' → ')} style={{ background: '#ffffff', padding: '12px 16px' }}>
+              <div title={`Riwayat TO 1–${latestToEpisode}: ${toScoresList.join(' → ')}`} style={{ background: '#ffffff', padding: '12px 16px' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4 }}>
-                  Rata-rata Tryout
+                  Skor TO {latestToEpisode} (Terakhir)
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#1078ca', lineHeight: 1.2, marginTop: 4 }}>
-                  {toAverageComputed}
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#245f5a', lineHeight: 1.2, marginTop: 4 }}>
+                  {latestToScore}
                 </div>
               </div>
 
@@ -675,41 +686,41 @@ export const CheckpointV2Page: React.FC = () => {
             {/* Panduan Edukasi Dua Sistem Skor (Matching PDF Styling) */}
             <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 8, padding: '14px 18px', marginTop: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-                <BookOpen size={16} color="#0284c7" />
+                <BookOpen size={16} color="#398896" />
                 <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                  Panduan Edukasi Orang Tua: Cara Membaca Dua Sistem Skor
+                  Cara membaca dua jenis skor
                 </h4>
                 <span style={{ fontSize: 11, color: '#64748b', marginLeft: 'auto' }}>Diselaraskan dengan Halaman 1 Laporan Resmi PDF</span>
               </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                {/* Skor IRT Reguler */}
-                <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderTop: '3px solid #1078ca', borderRadius: 6, padding: '12px 14px' }}>
+                {/* Skor per subtes */}
+                <div style={{ background: '#f2f8f7', border: '1px solid #a7d7dc', borderTop: '3px solid #58aebd', borderRadius: 6, padding: '12px 14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#1078ca' }}>SKOR IRT REGULER</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#1078ca', background: '#dbeafe', padding: '1.5px 6px', borderRadius: 4 }}>Kemampuan Dasar</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#245f5a' }}>Skor per subtes</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#245f5a', background: '#e6f4f2', padding: '1.5px 6px', borderRadius: 4 }}>Skor IRT Reguler</span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic', marginBottom: 6 }}>Nilai tiap subtes, sama untuk semua jurusan</div>
+                  <div style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic', marginBottom: 6 }}>Kemampuan dasar di 8 subtes, sama untuk semua jurusan</div>
                   <p style={{ fontSize: 11.5, color: '#334155', margin: '0 0 8px', lineHeight: 1.5 }}>
                     Setiap subtes dinilai dengan satu cara hitung yang sama. Angkanya tidak berubah saat pilihan jurusan berganti.
                   </p>
-                  <div style={{ fontSize: 11, color: '#1e40af', background: '#eff8ff', padding: '5px 8px', borderRadius: 4 }}>
+                  <div style={{ fontSize: 11, color: '#245f5a', background: '#e6f4f2', padding: '5px 8px', borderRadius: 4 }}>
                     <strong>Dipakai untuk:</strong> Memantau fondasi tiap subtes dan target Semester 1 (seluruh subtes minimal 600).
                   </div>
                 </div>
 
-                {/* Skor IRT Terbobot */}
+                {/* Skor sesuai jurusan */}
                 <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderTop: '3px solid #7c3aed', borderRadius: 6, padding: '12px 14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#6b21a8' }}>SKOR IRT TERBOBOT</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6b21a8', background: '#f3e8ff', padding: '1.5px 6px', borderRadius: 4 }}>Penentu Kelolosan PTN</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#6b21a8' }}>Skor sesuai jurusan</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6b21a8', background: '#f3e8ff', padding: '1.5px 6px', borderRadius: 4 }}>Skor IRT Terbobot</span>
                   </div>
                   <div style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic', marginBottom: 6 }}>Nilai yang dihitung sesuai bobot jurusan tujuan</div>
                   <p style={{ fontSize: 11.5, color: '#334155', margin: '0 0 8px', lineHeight: 1.5 }}>
-                    Skor dihitung ulang dengan bobot subtes milik tiap program studi, sehingga hasilnya berbeda untuk setiap jurusan.
+                    Skor dihitung ulang dengan bobot subtes milik tiap program studi, sehingga hasilnya berbeda untuk setiap pilihan jurusan.
                   </p>
                   <div style={{ fontSize: 11, color: '#581c87', background: '#f5f3ff', padding: '5px 8px', borderRadius: 4 }}>
-                    <strong>Dipakai untuk:</strong> Melihat jarak ke skor lolos jurusan impian (di Tahap 2).
+                    <strong>Dipakai untuk:</strong> Melihat jarak ke skor lolos jurusan impian (di Tahap 3).
                   </div>
                 </div>
               </div>
@@ -725,194 +736,226 @@ export const CheckpointV2Page: React.FC = () => {
 
           {/* Table 8 Subtests */}
           <div className="section-block" id="sec_tahap1_table">
-            <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>2. Evaluasi Capaian {totalSubtestsCount} Subtes vs Target 600</h3>
+            <div className="section-header" style={{ alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <h3 className="section-title" style={{ fontSize: 15, margin: 0 }}>
+                  2. Evaluasi Capaian {totalSubtestsCount} Subtes vs Target 600
+                </h3>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: '#245f5a',
+                    background: '#e6f4f2',
+                    border: '1px solid #a7d7dc',
+                    padding: '2px 10px',
+                    borderRadius: 9999
+                  }}
+                >
+                  Pola Terdeteksi: {stage1Out.patternLabel}
+                </span>
+              </div>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                Diurutkan dari gap terdalam • Menyorot hingga 3 subtes terendah yang paling perlu ditingkatkan (skor &lt; 570)
+                Diurutkan dari jarak terdalam • Menyorot hingga 3 subtes prioritas perbaikan (&lt; 600)
               </span>
             </div>
             <div className="table-container">
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '27%' }}>Subtes UTBK SNBT</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 1</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 2</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 3</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 4</th>
-                    <th style={{ textAlign: 'center', width: '9%' }}>Median</th>
-                    <th style={{ width: '24%' }}>Visual Posisi vs Target 600</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
+                    <th style={{ width: '24%' }}>Subtes UTBK SNBT</th>
+                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 1</th>
+                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 2</th>
+                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 3</th>
+                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 4</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>Median</th>
+                    <th style={{ textAlign: 'center', width: '15.5%' }}>Pola Tren</th>
+                    <th style={{ width: '17%' }}>Visual Posisi vs Target 600</th>
+                    <th style={{ textAlign: 'center', width: '10%' }}>Jarak ke target</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedSubtests.map((sub) => {
+                    const focusRank = top3WeakIds.indexOf(sub.id);
+                    const isFocus = focusRank !== -1;
+                    const rowStatus = getSubtestStatus(sub.gap, isFocus);
+                    const subPattern = stage1Out.subtestPatterns[sub.id];
+
+                    return (
+                      <tr
+                        key={sub.id}
+                        style={
+                          isFocus
+                            ? { background: '#fffbfa' }
+                            : sub.gap < 0
+                            ? { background: '#fffcf5' }
+                            : undefined
+                        }
+                      >
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+                            <strong>{sub.name}</strong>
+                            {isFocus && (
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  color: '#b42318',
+                                  background: '#fee4e2',
+                                  border: '1px solid #fecdca',
+                                  padding: '1.5px 6px',
+                                  borderRadius: 4,
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                Prioritas perbaikan {focusRank + 1}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>{sub.to1}</td>
+                        <td style={{ textAlign: 'center' }}>{sub.to2}{renderTrend(sub.to2, sub.to1)}</td>
+                        <td style={{ textAlign: 'center' }}>{sub.to3}{renderTrend(sub.to3, sub.to2)}</td>
+                        <td
+                          style={{
+                            textAlign: 'center',
+                            fontWeight: 700,
+                            color: rowStatus.textColor
+                          }}
+                        >
+                          {sub.to4}{renderTrend(sub.to4, sub.to3)}
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 700 }}>
+                          {sub.median}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          {subPattern ? (
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                fontSize: 10.5,
+                                fontWeight: 700,
+                                color: subPattern.color,
+                                background: subPattern.bg,
+                                border: `1px solid ${subPattern.border}`,
+                                padding: '2px 7px',
+                                borderRadius: 9999,
+                                whiteSpace: 'nowrap'
+                              }}
+                              title={`Pola skor ${sub.name}: ${sub.to1} → ${sub.to2} → ${sub.to3} → ${sub.to4}`}
+                            >
+                              {subPattern.label}
+                            </span>
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                        <td>
+                          <div className="v2-progress-track">
+                            <div className="v2-progress-fill" style={{ width: `${sub.fillPct}%`, background: rowStatus.color }} />
+                            <div className="v2-progress-target-line" title="Target 600" />
+                          </div>
+                        </td>
+                        <td
+                          style={{
+                            textAlign: 'center',
+                            fontWeight: 700,
+                            color: rowStatus.textColor
+                          }}
+                        >
+                          {sub.gap > 0 ? `+${sub.gap}` : sub.gap}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Ringkasan 8 Subtes Table (Median 8 Subtes Saja) */}
+            <div className="table-container" style={{ marginTop: 14 }}>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '24%' }}>Ringkasan 8 Subtes</th>
+                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 1</th>
+                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 2</th>
+                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 3</th>
+                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 4</th>
+                    <th style={{ textAlign: 'center', width: '7.5%' }}>Median</th>
+                    <th style={{ textAlign: 'center', width: '15.5%' }}>Pola Tren</th>
+                    <th style={{ width: '17%' }}>Visual Posisi vs Target 600</th>
+                    <th style={{ textAlign: 'center', width: '10%' }}>Jarak ke target</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(() => {
-                    const top3WeakIds = sortedSubtests
-                      .filter((s) => s.gap <= -31)
-                      .slice(0, 3)
-                      .map((s) => s.id);
-
-                    return sortedSubtests.map((sub) => {
-                      const focusRank = top3WeakIds.indexOf(sub.id);
-                      const isFocus = focusRank !== -1;
-                      const isHigh = sub.status === 'PRIORITAS UTAMA';
-                      const isDone = sub.gap >= 0;
-                      const isMed = sub.gap >= -90 && sub.gap <= -31;
-
-                      return (
-                        <tr
-                          key={sub.id}
-                          style={
-                            isFocus
-                              ? {
-                                  background: isHigh ? '#fffbfa' : '#fffcf5'
-                                }
-                              : undefined
-                          }
-                        >
-                          <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                              <strong>{sub.name}</strong>
-                              {isFocus && (
-                                <span
-                                  style={{
-                                    fontSize: 10,
-                                    fontWeight: 700,
-                                    color: isHigh ? '#b42318' : '#b54708',
-                                    background: isHigh ? '#fee4e2' : '#fef0c7',
-                                    border: `1px solid ${isHigh ? '#fecdca' : '#fedf89'}`,
-                                    padding: '1.5px 6px',
-                                    borderRadius: 4,
-                                    whiteSpace: 'nowrap'
-                                  }}
-                                >
-                                  Terendah #{focusRank + 1}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td style={{ textAlign: 'center' }}>{sub.to1}</td>
-                          <td style={{ textAlign: 'center' }}>{sub.to2}{renderTrend(sub.to2, sub.to1)}</td>
-                          <td style={{ textAlign: 'center' }}>{sub.to3}{renderTrend(sub.to3, sub.to2)}</td>
-                          <td
+                    const medPattern = classifySubtestPattern([medTO1, medTO2, medTO3, medTO4], ruleConfig);
+                    return (
+                      <tr>
+                        <td><strong>Median 8 subtes</strong></td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#334155' }}>{formatNumIndo(medTO1)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#334155' }}>{formatNumIndo(medTO2)}{renderTrend(medTO2, medTO1)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#334155' }}>{formatNumIndo(medTO3)}{renderTrend(medTO3, medTO2)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, color: medStatus.textColor }}>{formatNumIndo(medTO4)}{renderTrend(medTO4, medTO3)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: '#245f5a' }}>{formatNumIndo(medOverall)}</td>
+                        <td style={{ textAlign: 'center' }}>
+                          <span
                             style={{
-                              textAlign: 'center',
+                              display: 'inline-block',
+                              fontSize: 10.5,
                               fontWeight: 700,
-                              color: isDone ? '#027a48' : isHigh ? '#b42318' : isMed ? '#b54708' : '#175cd3'
+                              color: medPattern.color,
+                              background: medPattern.bg,
+                              border: `1px solid ${medPattern.border}`,
+                              padding: '2px 7px',
+                              borderRadius: 9999,
+                              whiteSpace: 'nowrap'
                             }}
                           >
-                            {sub.to4}{renderTrend(sub.to4, sub.to3)}
-                          </td>
-                          <td style={{ textAlign: 'center', fontWeight: 700 }}>
-                            {sub.median}
-                          </td>
-                          <td>
-                            <div className="v2-progress-track">
-                              <div className="v2-progress-fill" style={{ width: `${sub.fillPct}%`, background: sub.barColor }} />
-                              <div className="v2-progress-target-line" title="Target 600" />
-                            </div>
-                          </td>
-                          <td
-                            style={{
-                              textAlign: 'center',
-                              fontWeight: 700,
-                              color: isDone ? '#027a48' : isHigh ? '#d92d20' : isMed ? '#b54708' : '#175cd3'
-                            }}
-                          >
-                            {sub.gap > 0 ? `+${sub.gap}` : sub.gap}
-                          </td>
-                        </tr>
-                      );
-                    });
+                            {medPattern.label}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="v2-progress-track">
+                            <div className="v2-progress-fill" style={{ width: `${medFillPct.toFixed(1)}%`, background: medStatus.color }} />
+                            <div className="v2-progress-target-line" title="Target 600" />
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 12.5, color: medStatus.textColor }}>
+                          {medGap > 0 ? `+${formatNumIndo(medGap)}` : formatNumIndo(medGap)}
+                        </td>
+                      </tr>
+                    );
                   })()}
                 </tbody>
               </table>
             </div>
 
-            {/* Ringkasan 8 Subtes Table */}
-            <div className="table-container" style={{ marginTop: 14 }}>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: '27%' }}>Ringkasan 8 Subtes</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 1</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 2</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 3</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>TO 4</th>
-                    <th style={{ textAlign: 'center', width: '9%' }}>Rata-rata</th>
-                    <th style={{ width: '24%' }}>Visual Posisi vs Target 600</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Selisih</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Rata-rata 8 subtes</strong></td>
-                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{avgTO1}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{avgTO2}{renderTrend(avgTO2, avgTO1)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{avgTO3}{renderTrend(avgTO3, avgTO2)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: avgStatus.color }}>{avgTO4}{renderTrend(avgTO4, avgTO3)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 15, color: '#1078ca' }}>{avgOverall}</td>
-                    <td>
-                      <div className="v2-progress-track">
-                        <div className="v2-progress-fill" style={{ width: `${avgFillPct.toFixed(1)}%`, background: avgStatus.color }} />
-                        <div className="v2-progress-target-line" title="Target 600" />
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14.5, color: avgStatus.color }}>
-                      {avgGap > 0 ? `+${avgGap}` : avgGap}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><strong>Median 8 subtes</strong></td>
-                    <td style={{ textAlign: 'center', color: '#475467' }}>{formatNumIndo(medTO1)}</td>
-                    <td style={{ textAlign: 'center', color: '#475467' }}>{formatNumIndo(medTO2)}{renderTrend(medTO2, medTO1)}</td>
-                    <td style={{ textAlign: 'center', color: '#475467' }}>{formatNumIndo(medTO3)}{renderTrend(medTO3, medTO2)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: medStatus.color }}>{formatNumIndo(medTO4)}{renderTrend(medTO4, medTO3)}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 600, fontSize: 13, color: '#475467' }}>{formatNumIndo(medOverall)}</td>
-                    <td>
-                      <div className="v2-progress-track">
-                        <div className="v2-progress-fill" style={{ width: `${medFillPct.toFixed(1)}%`, background: medStatus.color }} />
-                        <div className="v2-progress-target-line" title="Target 600" />
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'center', fontWeight: 600, fontSize: 13, color: medStatus.color }}>
-                      {medGap > 0 ? `+${formatNumIndo(medGap)}` : formatNumIndo(medGap)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Color Legend */}
+            {/* 3-Color Legend */}
             <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 10, fontSize: 12, color: '#475467', flexWrap: 'wrap' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 10, height: 10, background: '#d92d20', display: 'inline-block', borderRadius: 2 }}></span> Skor &le; 509 (-91 ke bawah)
+                <span style={{ width: 10, height: 10, background: '#d92d20', display: 'inline-block', borderRadius: 2 }}></span> Prioritas perbaikan (&lt; 600 · Terendah 1–3)
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 10, height: 10, background: '#f79009', display: 'inline-block', borderRadius: 2 }}></span> Skor 510–569 (-31 s.d. -90)
+                <span style={{ width: 10, height: 10, background: '#f79009', display: 'inline-block', borderRadius: 2 }}></span> Butuh penguatan (&lt; 600 di luar prioritas 1–3)
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 10, height: 10, background: '#2e90fa', display: 'inline-block', borderRadius: 2 }}></span> Skor 570–599 (-30 s.d. -1)
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 10, height: 10, background: '#12b76a', display: 'inline-block', borderRadius: 2 }}></span> Tercapai (600+)
+                <span style={{ width: 10, height: 10, background: '#12b76a', display: 'inline-block', borderRadius: 2 }}></span> Tercapai (≥ 600)
               </span>
             </div>
 
           </div>
 
           {/* Live Consultation Prompt: Tahap 1 (Driven by saGuidelineEngine) */}
-          <div className="sa-prompt-card" id="sec_tahap1_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #1078ca', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+          <div className="sa-prompt-card" id="sec_tahap1_guide" style={{ background: '#f2f8f7', border: '1px solid #a7d7dc', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#245f5a', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Info size={16} />
-                Panduan Diskusi SA: Mengulas Tren Skor &amp; Fondasi 600
+                Panduan Kakak Asuh: Mengulas Tren Skor &amp; Fondasi 600
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 9999 }}>
-                  Pola Terdeteksi: {stage1Out.patternLabel}
-                </span>
-                <Link to="/engine" style={{ fontSize: 11, fontWeight: 700, color: '#1078ca', textDecoration: 'none' }}>
+                <Link to="/engine" style={{ fontSize: 11, fontWeight: 700, color: '#245f5a', textDecoration: 'none' }}>
                   Lihat &amp; Kontrol Engine →
                 </Link>
               </div>
@@ -923,10 +966,10 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Tugas Fasilitasi SA */}
+              {/* Kolom Kiri: Panduan Kakak Asuh */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#1078ca', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 TUGAS FASILITASI SA (BERBASIS KONDISI DATA):
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#245f5a', marginBottom: 8, letterSpacing: 0.3 }}>
+                  🔍 PANDUAN KAKAK ASUH:
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   <div>
@@ -953,8 +996,8 @@ export const CheckpointV2Page: React.FC = () => {
                   </ul>
                 </div>
 
-                <div style={{ background: '#eff8ff', padding: '10px 12px', borderRadius: 6, border: '1px solid #b2ddff', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#175cd3', marginBottom: 4 }}>📊 KONTEKS DATA (RERATA VS MEDIAN):</div>
+                <div style={{ background: '#e6f4f2', padding: '10px 12px', borderRadius: 6, border: '1px solid #a7d7dc', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#245f5a', marginBottom: 4 }}>📊 KONTEKS DATA (MEDIAN PRIBADI):</div>
                   <p style={{ margin: 0, color: '#334155' }}>
                     Median (contoh {maxFluctSub.name} <code>{maxFluctSub.to1}→{maxFluctSub.to2}→{maxFluctSub.to3}→{maxFluctSub.to4}</code> = <strong>{maxFluctSub.median}</strong>) berasal dari <strong>riwayat pribadi siswa</strong> untuk melihat skor tipikal saat hasil berfluktuasi, bukan ranking nasional.
                   </p>
@@ -968,8 +1011,8 @@ export const CheckpointV2Page: React.FC = () => {
         <section id="tahap2" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#0284c7', background: '#e0f2fe', padding: '3px 10px', borderRadius: 9999 }}>
-                TAHAP 2 DARI 5
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '3px 10px', borderRadius: 9999 }}>
+                Tahap 2
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 🏛️ Skor IRT Terbobot &amp; Evaluasi Peluang Jurusan PTN
@@ -1005,14 +1048,29 @@ export const CheckpointV2Page: React.FC = () => {
                     </span>
                   );
                 })()}
+                {stage2Out.isConflict && (
+                  <span
+                    style={{
+                      fontSize: 10.5,
+                      fontWeight: 700,
+                      color: '#b54708',
+                      background: '#fffbeb',
+                      border: '1px solid #fde68a',
+                      padding: '2px 8px',
+                      borderRadius: 9999
+                    }}
+                  >
+                    Rumpun Campuran / Perbedaan Pilihan
+                  </span>
+                )}
                 {isProgramsCustomized && (
                   <span
                     style={{
                       fontSize: 10.5,
                       fontWeight: 700,
-                      color: '#175cd3',
-                      background: '#eff8ff',
-                      border: '1px solid #b2ddff',
+                      color: '#245f5a',
+                      background: '#e6f4f2',
+                      border: '1px solid #a7d7dc',
                       padding: '2px 8px',
                       borderRadius: 9999
                     }}
@@ -1045,7 +1103,7 @@ export const CheckpointV2Page: React.FC = () => {
                   className="btn btn-outline"
                   style={{ fontSize: 11.5, padding: '4px 10px', display: 'inline-flex', alignItems: 'center', gap: 5 }}
                 >
-                  <Compass size={13} color="#1078ca" />
+                  <Compass size={13} color="#398896" />
                   Bandingkan / Ubah via Simulasi
                 </Link>
               </div>
@@ -1055,48 +1113,119 @@ export const CheckpointV2Page: React.FC = () => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '12%' }}>Pilihan</th>
-                    <th style={{ width: '40%' }}>Program Studi &amp; Perguruan Tinggi</th>
-                    <th style={{ width: '16%', textAlign: 'center' }}>Target Acuan</th>
-                    <th style={{ width: '16%', textAlign: 'center' }}>Skor Terbobot TO 4</th>
-                    <th style={{ width: '16%', textAlign: 'center' }}>Selisih ke Target</th>
+                    <th style={{ width: '10%' }}>Pilihan</th>
+                    <th style={{ width: '34%' }}>Program Studi &amp; Perguruan Tinggi</th>
+                    <th style={{ width: '13%', textAlign: 'center' }}>Target Acuan<br /><span style={{ fontSize: 10, fontWeight: 500 }}>(Terbobot)</span></th>
+                    <th style={{ width: '13%', textAlign: 'center' }}>Skor Siswa (TO {latestToEpisode})<br /><span style={{ fontSize: 10, fontWeight: 500 }}>(Terbobot)</span></th>
+                    <th style={{ width: '11%', textAlign: 'center' }}>Jarak Target</th>
+                    <th style={{ width: '19%', textAlign: 'center' }}>Target Kenaikan / TO<br /><span style={{ fontSize: 10, fontWeight: 500 }}>(Kejar Acuan · {ruleConfig.thresholds.remainingEpisodesToNextConsult} TO)</span></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {targetPrograms.map((prog, idx) => (
-                    <tr key={`${prog.priority}_${prog.prodi}_${prog.univ}`}>
-                      <td>
-                        <span style={{ fontWeight: 700, color: idx === 0 ? '#1078ca' : idx === 1 ? '#0284c7' : '#b54708' }}>
-                          {prog.priority}
-                        </span>
-                      </td>
-                      <td>
-                        <strong>{prog.prodi}</strong><br />
-                        <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                          {prog.univ} · {prog.city} · Keketatan: {prog.tightness}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{prog.targetScore}</td>
-                      <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#1078ca' }}>{prog.weightedScore}</td>
-                      <td style={{ textAlign: 'center', fontWeight: 700, color: getProgramGapColor(prog.gap) }}>
-                        {prog.gap > 0 ? `+${prog.gap}` : prog.gap}
-                      </td>
-                    </tr>
-                  ))}
+                  {targetPrograms.map((prog) => {
+                    const catalogMatch = matchCatalogProgram(prog);
+                    const pacing = computeProgramPacing(prog.weightedScore, prog.targetScore, prog.gap, ruleConfig);
+                    return (
+                      <tr key={`${prog.priority}_${prog.prodi}_${prog.univ}`}>
+                        <td>
+                          <span style={{ fontWeight: 700, color: '#245f5a' }}>
+                            {prog.priority}
+                          </span>
+                        </td>
+                        <td>
+                          <strong>{prog.prodi}</strong><br />
+                          <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                            {prog.univ} · {prog.city} · Keketatan: {prog.tightness}
+                            {catalogMatch ? ` (${catalogMatch.quota2026} kursi / ${catalogMatch.applicants2025.toLocaleString('id-ID')} peminat)` : ''}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{prog.targetScore}</td>
+                        <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#245f5a' }}>{prog.weightedScore}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 700, color: getProgramGapColor(prog.gap) }}>
+                          {prog.gap > 0 ? `+${prog.gap}` : prog.gap}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          {pacing.isAchieved ? (
+                            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: '#027a48', background: '#ecfdf3', border: '1px solid #a6f4c5', padding: '2px 8px', borderRadius: 9999 }}>
+                                Target terlewati
+                              </span>
+                            </div>
+                          ) : (
+                            <div
+                              style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
+                              title={`Target TO ${latestToEpisode + 1}: ≥ ${pacing.nextToTargetScore} (dari skor TO ${latestToEpisode}: ${prog.weightedScore})`}
+                            >
+                              <strong style={{ fontSize: 13, color: pacing.needsPlanB ? '#b42318' : '#245f5a' }}>
+                                +{pacing.gainPerToNextConsult} poin / TO
+                              </strong>
+                              {pacing.needsPlanB ? (
+                                <span style={{ fontSize: 10, fontWeight: 700, color: '#b42318', background: '#fee4e2', border: '1px solid #fecdca', padding: '1.5px 7px', borderRadius: 9999 }}>
+                                  Berat · Siapkan Plan B
+                                </span>
+                              ) : (
+                                <span style={{ fontSize: 10, fontWeight: 700, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '1.5px 7px', borderRadius: 9999 }}>
+                                  Realistis dikejar
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
+            {(() => {
+              const highestProg = [...targetPrograms].sort((a, b) => b.targetScore - a.targetScore)[0];
+              if (!highestProg) return null;
+              const highestPacing = computeProgramPacing(highestProg.weightedScore, highestProg.targetScore, highestProg.gap, ruleConfig);
+              return (
+                <div
+                  style={{
+                    marginTop: 12,
+                    background: highestPacing.isAchieved ? '#ecfdf3' : '#f2f8f7',
+                    border: `1px solid ${highestPacing.isAchieved ? '#a6f4c5' : '#a7d7dc'}`,
+                    borderRadius: 8,
+                    padding: '9px 14px',
+                    fontSize: 12,
+                    color: '#1e293b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 8
+                  }}
+                >
+                  {highestPacing.isAchieved ? (
+                    <span>
+                      🎯 <strong style={{ color: '#027a48' }}>Target Acuan Tertinggi ({highestProg.prodi} · {highestProg.univ}: {highestProg.targetScore}) sudah terlewati</strong> (skor saat ini {highestProg.weightedScore}) — fokus perlebar margin aman di atas pesaing.
+                    </span>
+                  ) : (
+                    <span>
+                      🎯 <strong style={{ color: '#245f5a' }}>Ringkasan Target TO {latestToEpisode + 1} (Acuan Tertinggi — {highestProg.prodi} · {highestProg.univ}):</strong>{' '}
+                      kejar skor terbobot minimal <strong>≥ {highestPacing.nextToTargetScore}</strong>{' '}
+                      <span style={{ color: '#475467' }}>
+                        (+{highestPacing.gainPerToNextConsult} poin dari {highestProg.weightedScore} agar tetap di jalur melewati {highestProg.targetScore} dalam {ruleConfig.thresholds.remainingEpisodesToNextConsult} TO).
+                      </span>
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+
           </div>
 
           {/* Live Consultation Prompt: Tahap 2 (Driven by saGuidelineEngine) */}
-          <div className="sa-prompt-card" id="sec_tahap2_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #0284c7', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+          <div className="sa-prompt-card" id="sec_tahap2_guide" style={{ background: '#f2f8f7', border: '1px solid #a7d7dc', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#0284c7', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#245f5a', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Building2 size={16} />
-                Panduan Diskusi SA: Menyelaraskan Pilihan Jurusan &amp; Keluarga
+                Panduan Kakak Asuh: Menyelaraskan Pilihan Jurusan &amp; Progres Menuju UTBK
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '2px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '2px 10px', borderRadius: 9999 }}>
                 Kondisi: {stage2Out.conditionLabel}
               </span>
             </div>
@@ -1106,10 +1235,10 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Tugas Fasilitasi SA */}
+              {/* Kolom Kiri: Panduan Kakak Asuh */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#0284c7', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 TUGAS FASILITASI SA:
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#245f5a', marginBottom: 8, letterSpacing: 0.3 }}>
+                  🔍 PANDUAN KAKAK ASUH:
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   {stage2Out.saTasks.map((task, idx) => (
@@ -1121,15 +1250,15 @@ export const CheckpointV2Page: React.FC = () => {
               {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>🧭 RAMBU PROGRES HOLISTIK:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
-                    <li><strong>Jaga motivasi di CP1:</strong> Jangan memaksa siswa menurunkan jurusan saat ini sebelum pondasi subtes dibenahi.</li>
-                    <li><strong>Netral terhadap konflik:</strong> Jangan menganggap pilihan ketiga sebagai cadangan otomatis sebelum minat siswa &amp; harapan ortu diselaraskan.</li>
+                    <li><strong>CP1 → CP2 → UTBK:</strong> Di CP1 bangun laju kenaikan; di konsultasi berikutnya arahkan melewati target acuan; di konsultasi terakhir maksimalkan margin di atas pesaing.</li>
+                    <li><strong>Makna Plan B:</strong> Jika selisih masih lebar, jadikan Pilihan 2–4 sebagai pengaman portofolio tanpa mematahkan motivasi di Pilihan 1.</li>
                   </ul>
                 </div>
 
-                <div style={{ background: '#eff8ff', padding: '10px 12px', borderRadius: 6, border: '1px solid #b2ddff', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#175cd3', marginBottom: 4 }}>ℹ️ KONTEKS TARGET INTERNAL:</div>
+                <div style={{ background: '#e6f4f2', padding: '10px 12px', borderRadius: 6, border: '1px solid #a7d7dc', fontSize: 11.5, lineHeight: 1.45 }}>
+                  <div style={{ fontWeight: 800, color: '#245f5a', marginBottom: 4 }}>ℹ️ KONTEKS TARGET &amp; PERSAINGAN:</div>
                   <p style={{ margin: 0, color: '#334155' }}>
                     {stage2Out.guardrailNote}
                   </p>
@@ -1144,30 +1273,36 @@ export const CheckpointV2Page: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#b54708', background: '#fef0c7', padding: '3px 10px', borderRadius: 9999 }}>
-                TAHAP 3 DARI 5
+                Tahap 3
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                🛠️ 4 Subtes Prioritas &amp; Riil Aktivitas Drill Soal di Ruangguru
+                🛠️ 3 Subtes Prioritas (Acuan Pilihan 1) &amp; Aktivitas Drill Soal
               </h2>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Data Aktivitas Student Tower Aplikasi Ruangguru</span>
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Periode data drill soal: 3 bulan terakhir (Student Tower)</span>
           </div>
 
+          {/* Disclaimer ulang mengapa target semester 1 adalah 600 */}
+          <div style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#b54708', lineHeight: 1.5, marginBottom: 16 }}>
+            💡 <strong>Mengapa target dasar Semester 1 adalah 600?</strong> Subtes prioritas dikunci ke <strong>Pilihan 1 ({targetPrograms[0]?.prodi || 'Prodi Utama'})</strong>. Jika target subtes pada jurusan pilihan berada di bawah 600, batas minimum <strong>600 tetap dipertahankan</strong> agar tidak ada titik lemah; jika target jurusan sudah di atas 600, acuan mengikuti target jurusan yang lebih tinggi tersebut.
+          </div>
 
-          {/* Cards 4 Subtests (Authentic Data + Deterministic Rule Engine) */}
+          {/* Cards 3 Subtests (Locked to Pilihan 1, 1 Row x 3 Columns) */}
           <div className="section-block" id="sec_tahap3_cards">
             <div className="section-header">
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Ringkasan 4 Subtes Prioritas &amp; Data Drill Soal Ruangguru</h3>
+              <h3 className="section-title" style={{ fontSize: 15 }}>
+                1. Ringkasan 3 Subtes Prioritas ({targetPrograms[0]?.prodi} · {targetPrograms[0]?.univ})
+              </h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                Dipilih Berdasarkan Bobot Tertinggi di Pilihan Jurusan dan Gap Skor Terbesar
+                Dipilih dari 3 bobot tertinggi Pilihan 1 · Periode drill 3 bulan terakhir
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              {prioritySubtestsV2.map((item) => {
-                const theme = getCardTheme(item.gapNum);
-
-                const subRule = analyzeStage3Subtest(
+            {(() => {
+              const cardItems = prioritySubtestsV2.map((item) => ({
+                item,
+                theme: getCardTheme(item.gapNum, item.toLatestNum),
+                subRule: analyzeStage3Subtest(
                   {
                     id: item.id,
                     name: item.name,
@@ -1178,77 +1313,95 @@ export const CheckpointV2Page: React.FC = () => {
                     drillAccuracyPct: item.drillAccuracyPct
                   },
                   ruleConfig
-                );
+                )
+              }));
+              const allSameCondition =
+                cardItems.length > 1 &&
+                cardItems.every((c) => c.subRule.conditionId === cardItems[0].subRule.conditionId);
 
-                return (
-                  <div
-                    key={item.id}
-                    style={{
-                      background: '#ffffff',
-                      border: `1.5px solid ${theme.borderColor}`,
-                      borderRadius: 10,
-                      padding: 16,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                      <div>
-                        <span
+              return (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 14 }}>
+                    {cardItems.map(({ item, theme, subRule }) => (
+                      <div
+                        key={item.id}
+                        style={{
+                          background: '#ffffff',
+                          border: `1.5px solid ${theme.borderColor}`,
+                          borderRadius: 10,
+                          padding: 14,
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                          display: 'flex',
+                          flexDirection: 'column'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 8 }}>
+                          <div>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 700,
+                                color: theme.textColor,
+                                background: theme.boxBg,
+                                border: `1px solid ${theme.borderColor}`,
+                                padding: '2px 7px',
+                                borderRadius: 4,
+                                letterSpacing: 0.3,
+                                display: 'inline-block',
+                                textTransform: 'uppercase'
+                              }}
+                            >
+                              {item.priorityLabel}
+                            </span>
+                            <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginTop: 5, marginBottom: 0 }}>
+                              {item.name}
+                            </h4>
+                            <div style={{ fontSize: 10.5, color: '#64748b', marginTop: 2 }}>
+                              Target: <strong>{item.targetScore}</strong>
+                              {item.rawProgramTarget < ruleConfig.thresholds.foundationScoreTarget && ' (min. 600)'}
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                            <div style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
+                              {item.toScore}
+                            </div>
+                            <div style={{ fontSize: 10.5, color: theme.textColor, fontWeight: 700, marginTop: 3 }}>
+                              {item.gapNum > 0 ? `+${item.gapNum}` : item.gapNum}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Compact 2-Column Drill Strip */}
+                        <div
                           style={{
-                            fontSize: 10,
-                            fontWeight: 700,
-                            color: theme.textColor,
-                            background: theme.boxBg,
-                            border: `1px solid ${theme.borderColor}`,
-                            padding: '2.5px 8px',
-                            borderRadius: 4,
-                            letterSpacing: 0.3,
-                            display: 'inline-block',
-                            textTransform: 'uppercase'
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: 8,
+                            background: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: 6,
+                            padding: '8px 10px',
+                            marginBottom: 10,
+                            fontSize: 11.5
                           }}
                         >
-                          {item.priorityLabel}
-                        </span>
-                        <h4 style={{ fontSize: 14.5, fontWeight: 700, color: '#0f172a', marginTop: 5, marginBottom: 0 }}>
-                          {item.name}
-                        </h4>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
-                          {item.toScore}
+                          <div>
+                            <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Drill Aplikasi</div>
+                            <strong style={{ color: '#0f172a' }}>
+                              {item.rgQuestionsDone} soal · {item.drillSessions} sesi
+                            </strong>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>Akurasi Drill</div>
+                            <strong style={{ color: '#0f172a' }}>{item.drillAccuracyPct}% benar</strong>
+                          </div>
                         </div>
-                        <div style={{ fontSize: 10.5, color: theme.textColor, fontWeight: 700, marginTop: 3 }}>
-                          Jarak ke 600: {item.gapText}
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Drill Box Netral (Neutral Slate) */}
-                    <div
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: 6,
-                        padding: '9px 12px',
-                        marginBottom: 11,
-                        fontSize: 11.5
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: '#475569' }}>📱 Drill Soal Selesai di Ruangguru:</span>
-                        <strong style={{ color: '#0f172a', fontWeight: 700 }}>{item.rgQuestionsDone} soal</strong>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                        <span style={{ color: '#475569' }}>🎯 Akurasi Drill Soal:</span>
-                        <strong style={{ color: '#0f172a', fontWeight: 700 }}>{item.rgAccuracy}</strong>
-                      </div>
-                    </div>
-
-                    {/* 3 Topik Akurasi Terendah */}
-                    <div style={{ fontSize: 11.5, color: '#334155', lineHeight: 1.45, marginBottom: 11 }}>
-                      <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>
-                        📌 3 Topik Akurasi Terendah di TO Terakhir:
-                      </div>
+                        {/* 3 Topik Akurasi Terendah */}
+                        <div style={{ fontSize: 11.5, color: '#334155', lineHeight: 1.45, marginBottom: 10, flex: 1 }}>
+                          <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>
+                            Topik Fokus Klinik PR:
+                          </div>
                       <ul style={{ margin: 0, paddingLeft: 18, color: '#475569' }}>
                         {item.lowestTopics.map((topic, idx) => (
                           <li key={idx} style={{ marginBottom: 2 }}>{topic}</li>
@@ -1256,32 +1409,54 @@ export const CheckpointV2Page: React.FC = () => {
                       </ul>
                     </div>
 
-                    {/* Diagnosa Korelasi TO vs Drill & Panduan SA */}
-                    <div style={{ paddingTop: 9, borderTop: '1px dashed #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                        <span
-                          style={{
-                            fontSize: 10.5,
-                            fontWeight: 700,
-                            color: theme.textColor,
-                            background: theme.boxBg,
-                            border: `1px solid ${theme.boxBorder}`,
-                            padding: '2px 8px',
-                            borderRadius: 9999,
-                            display: 'inline-block'
-                          }}
-                        >
-                          {subRule.conditionLabel}
-                        </span>
+                        {/* Diagnosa Ringkas */}
+                        <div style={{ paddingTop: 8, borderTop: '1px dashed #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
+                          <span
+                            style={{
+                              fontSize: 10.5,
+                              fontWeight: 700,
+                              color: theme.textColor,
+                              background: theme.boxBg,
+                              border: `1px solid ${theme.boxBorder}`,
+                              padding: '2px 8px',
+                              borderRadius: 9999,
+                              display: 'inline-block'
+                            }}
+                          >
+                            {subRule.conditionLabel}
+                          </span>
+                          {!allSameCondition && (
+                            <div style={{ color: '#334155', marginTop: 5 }}>
+                              {subRule.saTask}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div style={{ color: '#334155' }}>
-                        <strong style={{ color: '#0f172a' }}>Panduan SA:</strong> {subRule.saTask}
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
+
+                  {allSameCondition && cardItems[0] && (
+                    <div
+                      style={{
+                        marginTop: 12,
+                        background: cardItems[0].theme.boxBg,
+                        border: `1px solid ${cardItems[0].theme.boxBorder}`,
+                        borderRadius: 8,
+                        padding: '9px 13px',
+                        fontSize: 12,
+                        color: '#334155',
+                        lineHeight: 1.5
+                      }}
+                    >
+                      <strong style={{ color: cardItems[0].theme.textColor }}>
+                        Arahan Umum ({cardItems[0].subRule.conditionLabel}):
+                      </strong>{' '}
+                      {cardItems[0].subRule.saTask}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
 
           </div>
 
@@ -1290,7 +1465,7 @@ export const CheckpointV2Page: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#b54708', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Wrench size={16} />
-                Panduan Diskusi SA: Audit Kebiasaan Drill Soal &amp; Prioritas Materi Klinik PR
+                Panduan Kakak Asuh: Audit Kebiasaan Drill Soal &amp; Prioritas Materi Klinik PR
               </span>
               <span style={{ fontSize: 11, fontWeight: 700, color: '#b54708', background: '#fef0c7', padding: '2px 10px', borderRadius: 9999 }}>
                 Target Hasil: Sepakati topik Klinik PR &amp; perbaikan pola drill soal
@@ -1304,10 +1479,10 @@ export const CheckpointV2Page: React.FC = () => {
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Tugas Fasilitasi SA */}
+              {/* Kolom Kiri: Panduan Kakak Asuh */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#b54708', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 TUGAS FASILITASI SA:
+                  🔍 PANDUAN KAKAK ASUH:
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   {stage3OverallOut.saTasks.map((task, idx) => (
@@ -1343,8 +1518,8 @@ export const CheckpointV2Page: React.FC = () => {
         <section id="tahap4" style={{ scrollMarginTop: 132, marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0', flexWrap: 'wrap', gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#4338ca', background: '#eef2ff', padding: '3px 10px', borderRadius: 9999 }}>
-                TAHAP 4 DARI 5
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#245f5a', background: '#e6f4f2', border: '1px solid #a7d7dc', padding: '3px 10px', borderRadius: 9999 }}>
+                Tahap 4
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 🏫 Aktivitas Belajar di Kelas (TMB) &amp; Catatan Pengajar
@@ -1355,9 +1530,64 @@ export const CheckpointV2Page: React.FC = () => {
             </span>
           </div>
 
+          <div className="section-block" id="sec_tahap4_sa_history" style={{ marginBottom: 20 }}>
+            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+              <h3 className="section-title" style={{ fontSize: 15 }}>1. Riwayat Catatan Kakak Asuh (Student Tower)</h3>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                Diambil langsung dari log Student Tower · Tidak perlu pindah tab saat sesi konsultasi
+              </span>
+            </div>
+
+            {saHistoryNotes.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                {saHistoryNotes.map((note) => (
+                  <div
+                    key={note.id}
+                    style={{
+                      background: '#f2f8f7',
+                      border: '1px solid #a7d7dc',
+                      borderRadius: 8,
+                      padding: '12px 14px',
+                      fontSize: 12,
+                      lineHeight: 1.5
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <strong style={{ color: '#245f5a' }}>{note.topicTag}</strong>
+                        <span style={{ fontSize: 11, color: '#64748b' }}>· {note.dateLabel}</span>
+                      </div>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: '1.5px 7px',
+                          borderRadius: 9999,
+                          background: note.followUpStatus === 'Selesai' ? '#ecfdf3' : '#fef0c7',
+                          color: note.followUpStatus === 'Selesai' ? '#027a48' : '#b54708',
+                          border: `1px solid ${note.followUpStatus === 'Selesai' ? '#a6f4c5' : '#fedf89'}`
+                        }}
+                      >
+                        {note.followUpStatus}
+                      </span>
+                    </div>
+                    <p style={{ margin: '0 0 6px', color: '#1e293b' }}>{note.summary}</p>
+                    <div style={{ fontSize: 11, color: '#475467' }}>
+                      Dicatat oleh: <strong>{note.author}</strong>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ fontSize: 12, color: '#64748b', fontStyle: 'italic' }}>
+                Belum ada riwayat catatan Kakak Asuh di Student Tower untuk siswa ini.
+              </div>
+            )}
+          </div>
+
           <div className="section-block" id="sec_tahap4_classroom">
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-              <h3 className="section-title" style={{ fontSize: 15 }}>1. Kehadiran Kelas &amp; Daftar Catatan Asli Pengajar</h3>
+              <h3 className="section-title" style={{ fontSize: 15 }}>2. Kehadiran Kelas &amp; Daftar Catatan Asli Pengajar</h3>
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{classroomData.capturedLabel}</span>
             </div>
 
@@ -1443,9 +1673,9 @@ export const CheckpointV2Page: React.FC = () => {
                               style={{
                                 fontSize: 11.5,
                                 fontWeight: isActive ? 700 : 600,
-                                color: isActive ? '#4338ca' : '#475467',
-                                background: isActive ? '#eef2ff' : '#f8fafc',
-                                border: `1px solid ${isActive ? '#c7d2fe' : '#e2e8f0'}`,
+                                color: isActive ? '#245f5a' : '#475467',
+                                background: isActive ? '#e6f4f2' : '#f8fafc',
+                                border: `1px solid ${isActive ? '#a7d7dc' : '#e2e8f0'}`,
                                 borderRadius: 6,
                                 padding: '4px 10px',
                                 cursor: 'pointer'
@@ -1571,9 +1801,9 @@ export const CheckpointV2Page: React.FC = () => {
                                   minWidth: 28,
                                   padding: '4px 8px',
                                   borderRadius: 6,
-                                  border: `1px solid ${isCurr ? '#c7d2fe' : '#e2e8f0'}`,
-                                  background: isCurr ? '#eef2ff' : '#ffffff',
-                                  color: isCurr ? '#4338ca' : '#334155',
+                                  border: `1px solid ${isCurr ? '#a7d7dc' : '#e2e8f0'}`,
+                                  background: isCurr ? '#e6f4f2' : '#ffffff',
+                                  color: isCurr ? '#245f5a' : '#334155',
                                   cursor: 'pointer'
                                 }}
                               >
@@ -1608,21 +1838,21 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
           {/* Live Consultation Prompt: Tahap 4 (Aktivitas Kelas & Catatan Pengajar) */}
-          <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderLeft: '4px solid #4338ca', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+          <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f2f8f7', border: '1px solid #a7d7dc', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#4338ca', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#245f5a', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GraduationCap size={16} />
-                Panduan Diskusi SA: Mengonfirmasi Konteks Belajar di Kelas TMB
+                Panduan Kakak Asuh: Mengonfirmasi Konteks Belajar di Kelas TMB
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#4338ca', background: '#eef2ff', padding: '2px 10px', borderRadius: 9999 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#245f5a', background: '#e6f4f2', padding: '2px 10px', borderRadius: 9999 }}>
                 Target Hasil: Pola kelas &amp; kendala kehadiran terkonfirmasi sebelum rencana aksi
               </span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#4338ca', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 TUGAS FASILITASI SA:
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#245f5a', marginBottom: 8, letterSpacing: 0.3 }}>
+                  🔍 PANDUAN KAKAK ASUH:
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   {stageClassroomOut.saTasks.map((task, idx) => (
@@ -1658,7 +1888,7 @@ export const CheckpointV2Page: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#027a48', background: '#ecfdf3', padding: '3px 10px', borderRadius: 9999 }}>
-                TAHAP 5 DARI 5
+                Tahap 5
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 📝 Rencana Aksi Menuju TO 5 &amp; Catatan Kakak Asuh
@@ -1721,28 +1951,46 @@ export const CheckpointV2Page: React.FC = () => {
               </span>
             </div>
 
-            <div style={{ background: '#f8fafc', border: '1px solid var(--border)', borderRadius: 8, padding: 16 }}>
+            <div style={{ background: '#f8fafc', border: `1px solid ${lockErrorMsg ? '#f04438' : 'var(--border)'}`, borderRadius: 8, padding: 16 }}>
+              {lockErrorMsg && (
+                <div
+                  role="alert"
+                  style={{
+                    background: '#fef3f2',
+                    border: '1px solid #fecdca',
+                    color: '#b42318',
+                    borderRadius: 6,
+                    padding: '8px 12px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    marginBottom: 10
+                  }}
+                >
+                  ⚠ {lockErrorMsg}
+                </div>
+              )}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
                   <label style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink)' }}>
-                    Ringkasan Kesepakatan &amp; Tindak Lanjut (Tersimpan ke LocalStorage):
+                    Ringkasan Kesepakatan &amp; Tindak Lanjut <span style={{ color: '#b42318' }}>*Wajib diisi sebelum Kunci</span>:
                   </label>
                   {!isLocked && (
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                       <button
                         type="button"
                         onClick={() => {
-                          if (saNotes.trim() && !window.confirm('Catatan SA yang sudah ditulis akan diganti dengan template. Lanjutkan?')) return;
+                          if (saNotes.trim() && !window.confirm('Catatan Kakak Asuh yang sudah ditulis akan diganti dengan template. Lanjutkan?')) return;
                           const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill soal harian [.. soal/hari] + Klinik PR cabang [hari & jam]\n3) Cek Ulang Sesi Berikutnya: [progres subtes fokus & akurasi TO 5]';
                           setSaNotes(val);
+                          setLockErrorMsg(null);
                           safeSetItem(saNotesStorageKey, val);
                         }}
                         style={{
                           fontSize: 11,
                           fontWeight: 600,
-                          color: '#1078ca',
-                          background: '#eff8ff',
-                          border: '1px solid #b2ddff',
+                          color: '#245f5a',
+                          background: '#e6f4f2',
+                          border: '1px solid #a7d7dc',
                           borderRadius: 9999,
                           padding: '2px 9px',
                           cursor: 'pointer'
@@ -1757,6 +2005,7 @@ export const CheckpointV2Page: React.FC = () => {
                             ? saNotes
                             : `${saNotes.trim() ? `${saNotes.trim()}\n` : ''}• [Cek Ulang Sesi Berikutnya]: `;
                           setSaNotes(val);
+                          setLockErrorMsg(null);
                           safeSetItem(saNotesStorageKey, val);
                         }}
                         style={{
@@ -1776,17 +2025,20 @@ export const CheckpointV2Page: React.FC = () => {
                   )}
                 </div>
                 <textarea
+                  ref={saNotesTextareaRef}
                   rows={4}
                   disabled={isLocked}
                   value={saNotes}
-                  placeholder="Tulis hasil kesepakatan prodi/lokasi, jadwal drill soal atau Klinik PR yang disepakati, dan pengingat untuk evaluasi TO 5..."
+                  placeholder="Tulis hasil kesepakatan prodi/lokasi, jadwal drill soal atau Klinik PR yang disepakati, dan pengingat untuk evaluasi TO berikutnya..."
                   onChange={(e) => {
-                    setSaNotes(e.target.value);
-                    safeSetItem(saNotesStorageKey, e.target.value);
+                    const nextVal = e.target.value;
+                    setSaNotes(nextVal);
+                    if (nextVal.trim()) setLockErrorMsg(null);
+                    safeSetItem(saNotesStorageKey, nextVal);
                   }}
                   style={{
                     width: '100%',
-                    border: '1px solid var(--border)',
+                    border: `1px solid ${lockErrorMsg ? '#f04438' : 'var(--border)'}`,
                     borderRadius: 6,
                     padding: '10px 12px',
                     fontSize: 12,
@@ -1806,7 +2058,7 @@ export const CheckpointV2Page: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: '#027a48', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ShieldCheck size={16} />
-                Panduan Diskusi SA: Mengunci Komitmen Nyata &amp; Penyerahan Laporan
+                Panduan Kakak Asuh: Mengunci Komitmen Nyata &amp; Penyerahan Laporan
               </span>
               <span style={{ fontSize: 11, fontWeight: 700, color: '#027a48', background: '#ecfdf3', padding: '2px 10px', borderRadius: 9999 }}>
                 Target Hasil: Jadwal cabang disepakati, catatan tersimpan &amp; PDF diserahkan
@@ -1814,10 +2066,10 @@ export const CheckpointV2Page: React.FC = () => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Tugas Fasilitasi SA */}
+              {/* Kolom Kiri: Panduan Kakak Asuh */}
               <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: '#027a48', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 TUGAS FASILITASI SA:
+                  🔍 PANDUAN KAKAK ASUH:
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#334155', lineHeight: 1.5 }}>
                   {stage4Out.saTasks.map((task, idx) => (
@@ -1826,10 +2078,10 @@ export const CheckpointV2Page: React.FC = () => {
                 </ul>
               </div>
 
-              {/* Kolom Kanan: Checklist Penutupan SA */}
+              {/* Kolom Kanan: Checklist Penutupan Kakak Asuh */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11.5, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>📋 CHECKLIST PENUTUPAN SA:</div>
+                  <div style={{ fontWeight: 800, color: '#027a48', marginBottom: 4 }}>📋 CHECKLIST PENUTUPAN KAKAK ASUH:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: '#334155' }}>
                     {stage4Out.checklist.map((item, idx) => (
                       <li key={idx}>{item}</li>
@@ -1854,6 +2106,7 @@ export const CheckpointV2Page: React.FC = () => {
         onClose={closePdf}
         student={activeStudent}
         programs={targetPrograms}
+        ruleConfig={ruleConfig}
       />
     </div>
   );

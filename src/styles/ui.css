@@ -1,0 +1,135 @@
+/*
+  Design tokens + komponen dasar bergaya Super CMS (Chakra, Inter).
+  Semua class berawalan "rg-" dan semua token berawalan "--rg-" supaya tidak bentrok dengan
+  global.css maupun gaya cetak PDF (.profiling-print-*). Belum dipakai oleh halaman manapun
+  sampai fase migrasi per halaman.
+*/
+:root {
+  --rg-ink: #1d2939;
+  --rg-ink-strong: #101828;
+  --rg-muted: #64748b;
+  --rg-subtle: #94a3b8;
+  --rg-divider: #e2e8f0;
+  --rg-surface: #ffffff;
+  --rg-surface-alt: #f8fafc;
+
+  --rg-primary: #398896;
+  --rg-primary-hover: #2c6d78;
+  --rg-primary-soft: #e6f4f2;
+  --rg-primary-line: #a7d7dc;
+
+  /* zona selisih skor (3 warna utama + tosca) */
+  --rg-done: #027a48;  --rg-done-bg: #ecfdf3;  --rg-done-line: #a6f4c5;
+  --rg-near: #245f5a;  --rg-near-bg: #e6f4f2;  --rg-near-line: #a7d7dc;
+  --rg-mid: #b54708;   --rg-mid-bg: #fffaeb;   --rg-mid-line: #fedf89;
+  --rg-far: #b42318;   --rg-far-bg: #fef3f2;   --rg-far-line: #fecdca;
+
+  --rg-fs-xs: 12px;
+  --rg-fs-sm: 13px;
+  --rg-fs-base: 14px;
+  --rg-fs-md: 16px;
+  --rg-fs-lg: 18px;
+  --rg-fs-xl: 24px;
+
+  --rg-sp-1: 4px;  --rg-sp-2: 8px;  --rg-sp-3: 12px;
+  --rg-sp-4: 16px; --rg-sp-5: 24px; --rg-sp-6: 32px;
+
+  --rg-radius: 8px;
+  --rg-radius-sm: 6px;
+  --rg-radius-pill: 999px;
+}
+
+/* ---------- Button ---------- */
+.rg-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 var(--rg-sp-4); border-radius: var(--rg-radius-pill); border: 1px solid #d0d5dd; background: #fff; color: var(--rg-ink); font-family: inherit; font-weight: 600; font-size: var(--rg-fs-sm); line-height: 1; cursor: pointer; white-space: nowrap; text-decoration: none; }
+.rg-btn:hover { background: var(--rg-surface-alt); text-decoration: none; }
+.rg-btn:focus-visible { outline: 2px solid var(--rg-primary); outline-offset: 2px; }
+.rg-btn:disabled { opacity: .5; cursor: not-allowed; }
+.rg-btn--primary { background: var(--rg-primary); border-color: var(--rg-primary); color: #fff; }
+.rg-btn--primary:hover { background: var(--rg-primary-hover); }
+.rg-btn--soft { background: var(--rg-primary-soft); border-color: var(--rg-primary-line); color: var(--rg-primary); }
+.rg-btn--ghost { background: transparent; border-color: transparent; color: var(--rg-primary); }
+.rg-btn--ghost:hover { background: var(--rg-primary-soft); }
+.rg-btn--warn { background: var(--rg-mid-bg); border-color: var(--rg-mid-line); color: var(--rg-mid); }
+.rg-btn--danger { background: var(--rg-far); border-color: var(--rg-far); color: #fff; }
+.rg-btn--danger:hover { background: #912018; }
+.rg-btn--sm { height: 30px; padding: 0 12px; font-size: var(--rg-fs-xs); }
+.rg-btn svg { width: 16px; height: 16px; flex: none; }
+
+/* ---------- Pill / tag ---------- */
+.rg-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--rg-radius-pill); font-size: var(--rg-fs-xs); font-weight: 600; white-space: nowrap; line-height: 18px; }
+.rg-pill--done { color: var(--rg-done); background: var(--rg-done-bg); }
+.rg-pill--near { color: var(--rg-near); background: var(--rg-near-bg); }
+.rg-pill--mid { color: var(--rg-mid); background: var(--rg-mid-bg); }
+.rg-pill--far { color: var(--rg-far); background: var(--rg-far-bg); }
+.rg-pill--primary { color: var(--rg-primary); background: var(--rg-primary-soft); }
+.rg-pill--neutral { color: #475467; background: #f1f5f9; }
+.rg-tag { display: inline-block; padding: 0 6px; border: 1px solid var(--rg-divider); border-radius: 4px; font-size: 11px; font-weight: 600; color: #475467; line-height: 18px; }
+
+/* ---------- Card & section ---------- */
+.rg-card { border: 1px solid var(--rg-divider); border-radius: var(--rg-radius); padding: var(--rg-sp-4) var(--rg-sp-5); margin-bottom: var(--rg-sp-4); background: var(--rg-surface); }
+.rg-section-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--rg-sp-3); flex-wrap: wrap; margin-bottom: var(--rg-sp-3); }
+.rg-section-head h2, .rg-section-head h3 { margin: 0; font-weight: 700; color: var(--rg-ink-strong); }
+.rg-section-head h2 { font-size: var(--rg-fs-md); }
+.rg-section-head h3 { font-size: var(--rg-fs-md); }
+.rg-section-head .rg-hint { font-size: var(--rg-fs-sm); color: var(--rg-muted); font-weight: 400; }
+.rg-note { font-size: var(--rg-fs-sm); color: var(--rg-muted); margin: 0; }
+
+/* ---------- Callout ---------- */
+.rg-callout { display: flex; gap: var(--rg-sp-3); align-items: flex-start; border-radius: var(--rg-radius-sm); padding: 10px 14px; font-size: var(--rg-fs-sm); border: 1px solid; }
+.rg-callout--info { background: var(--rg-primary-soft); border-color: var(--rg-primary-line); color: #175cd3; }
+.rg-callout--warn { background: var(--rg-mid-bg); border-color: var(--rg-mid-line); color: #93370d; }
+.rg-callout--danger { background: var(--rg-far-bg); border-color: var(--rg-far-line); color: #7a271a; }
+.rg-callout--success { background: var(--rg-done-bg); border-color: var(--rg-done-line); color: #05603a; }
+.rg-callout--caution { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+.rg-callout > svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
+
+/* ---------- Segmented control ---------- */
+.rg-seg { display: inline-flex; border: 1px solid #d0d5dd; border-radius: var(--rg-radius-pill); padding: 2px; background: #fff; }
+.rg-seg button { border: 0; background: transparent; padding: 6px 12px; border-radius: var(--rg-radius-pill); font-family: inherit; font-weight: 600; font-size: var(--rg-fs-xs); color: var(--rg-muted); cursor: pointer; white-space: nowrap; }
+.rg-seg button[aria-pressed="true"] { background: var(--rg-primary); color: #fff; }
+.rg-seg button:focus-visible { outline: 2px solid var(--rg-primary); outline-offset: 1px; }
+
+/* ---------- Stage pills (alur) ---------- */
+.rg-stagenav { position: sticky; z-index: 20; background: rgba(255,255,255,.97); border-bottom: 1px solid var(--rg-divider); padding: 10px 0; display: flex; align-items: center; gap: var(--rg-sp-3); overflow-x: auto; }
+.rg-stagenav__label { font-size: var(--rg-fs-sm); font-weight: 700; color: var(--rg-ink-strong); white-space: nowrap; }
+.rg-stagenav__links { display: flex; gap: 6px; }
+.rg-stagepill { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: var(--rg-radius-pill); border: 1px solid var(--rg-divider); color: #475467; font-size: var(--rg-fs-sm); font-weight: 600; white-space: nowrap; background: #fff; text-decoration: none; }
+.rg-stagepill:hover { border-color: #cbd5e1; color: var(--rg-ink); text-decoration: none; }
+.rg-stagepill.is-active { background: var(--rg-primary); border-color: var(--rg-primary); color: #fff; }
+
+/* ---------- Table ---------- */
+.rg-table-wrap { border: 1px solid var(--rg-divider); border-radius: var(--rg-radius); overflow-x: auto; }
+.rg-table { width: 100%; border-collapse: collapse; font-size: var(--rg-fs-sm); }
+.rg-table th { background: var(--rg-surface-alt); color: var(--rg-muted); font-size: var(--rg-fs-xs); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rg-divider); white-space: nowrap; }
+.rg-table td { padding: 10px 12px; border-bottom: 1px solid var(--rg-divider); vertical-align: middle; }
+.rg-table tbody tr:last-child td { border-bottom: 0; }
+.rg-table tbody tr:hover td { background: #fbfcfe; }
+.rg-table .is-num { text-align: right; font-variant-numeric: tabular-nums; }
+.rg-table .is-center { text-align: center; }
+.rg-table tr.is-selected td { background: var(--rg-primary-soft); }
+.rg-table .rg-cell-title { font-weight: 600; color: var(--rg-ink-strong); }
+.rg-table .rg-cell-meta { font-size: var(--rg-fs-xs); color: var(--rg-muted); margin-top: 2px; }
+
+/* ---------- Progress bar (posisi vs target) ---------- */
+.rg-bar { position: relative; height: 6px; background: #eef2f6; border-radius: 3px; min-width: 120px; }
+.rg-bar > span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.rg-bar::after { content: ''; position: absolute; left: 66.6%; top: -4px; bottom: -4px; width: 2px; background: var(--rg-ink); opacity: .5; }
+
+/* ---------- Dialog ---------- */
+.rg-dialog-backdrop { position: fixed; inset: 0; z-index: 99999; background: rgba(15, 23, 42, .6); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+.rg-dialog { background: #fff; border-radius: 12px; width: 100%; max-width: 480px; max-height: 92vh; overflow: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,.2); border: 1px solid var(--rg-divider); outline: none; }
+.rg-dialog--wide { max-width: 760px; }
+.rg-dialog__head { padding: var(--rg-sp-4) var(--rg-sp-5); border-bottom: 1px solid var(--rg-divider); display: flex; align-items: center; justify-content: space-between; gap: var(--rg-sp-3); }
+.rg-dialog__head h2 { margin: 0; font-size: var(--rg-fs-md); font-weight: 700; color: var(--rg-ink-strong); }
+.rg-dialog__body { padding: var(--rg-sp-4) var(--rg-sp-5); font-size: var(--rg-fs-base); }
+.rg-dialog__foot { padding: var(--rg-sp-3) var(--rg-sp-5); border-top: 1px solid var(--rg-divider); display: flex; justify-content: flex-end; gap: var(--rg-sp-2); flex-wrap: wrap; }
+
+/* tablet landscape: tabel lebih rapat, aksi bertumpuk */
+@media (max-width: 1180px) {
+  .rg-table th, .rg-table td { padding: 10px 8px; }
+  .rg-table th { white-space: normal; }
+}
+
+@media print {
+  .rg-dialog-backdrop { display: none !important; }
+}
