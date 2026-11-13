@@ -633,21 +633,19 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                   Periode drill 3 bulan terakhir
                 </span>
               </h2>
-              <table className="profiling-print-table">
+              <table className="profiling-print-table profiling-print-table--dense">
                 <thead>
                   <tr>
-                    <th style={{ width: '20%' }}>Subtes</th>
-                    <th style={{ width: '11%', textAlign: 'center' }}>
-                      TO {identity.toScores.length || 4} &amp;
-                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>vs Target</div>
-                    </th>
-                    <th style={{ width: '13%', textAlign: 'center' }}>Pola Tren</th>
-                    <th style={{ width: '13%', textAlign: 'center' }}>
+                    <th style={{ width: '18%' }}>Subtes</th>
+                    <th style={{ width: '7%', textAlign: 'center' }}>TO {identity.toScores.length || 4}</th>
+                    <th style={{ width: '8%', textAlign: 'center' }}>Target</th>
+                    <th style={{ width: '8%', textAlign: 'center' }}>Selisih</th>
+                    <th style={{ width: '11%', textAlign: 'center' }}>Pola Tren</th>
+                    <th style={{ width: '12%', textAlign: 'center' }}>
                       Drill Soal
                       <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>di Aplikasi RG</div>
                     </th>
-                    <th style={{ width: '21%' }}>Topik yang Perlu Dibenahi</th>
-                    <th style={{ width: '22%' }}>Arahan Kakak Asuh</th>
+                    <th style={{ width: '36%' }}>Topik yang Perlu Dibenahi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -667,13 +665,12 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         <td>
                           <div style={{ fontWeight: 700, fontSize: 10, color: '#0f172a' }}>{sub.name}</div>
                           <div style={{ fontSize: 9, color: '#475467', marginTop: '0.3mm' }}>
-                            {sub.priorityLabel} · Target {sub.targetScore}
+                            {sub.priorityLabel}
                           </div>
                         </td>
-                        <td style={{ textAlign: 'center' }}>
-                          <div style={{ fontWeight: 800, fontSize: 11, color: scoreColor }}>{sub.toScore}</div>
-                          <div style={{ fontSize: 9.5, fontWeight: 700, color: scoreColor }}>{sub.gapText}</div>
-                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 11, color: scoreColor }}>{sub.toScore}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 700, fontSize: 10, color: '#0f172a' }}>{sub.targetScore}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 700, fontSize: 9.5, color: scoreColor }}>{sub.gapText}</td>
                         <td style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: subPattern?.color || '#475467' }}>
                           {subPattern ? subPattern.label : '—'}
                         </td>
@@ -689,9 +686,6 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                           {sub.lowestTopics.slice(0, 2).map((t, i) => (
                             <div key={i}>• {t}</div>
                           ))}
-                        </td>
-                        <td style={{ fontSize: 9.8, lineHeight: 1.42, color: '#334155' }}>
-                          {getDrillGuidance(sub)}
                         </td>
                       </tr>
                     );
@@ -713,6 +707,13 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               <ol className="profiling-print-action-list">
                 <li>
                   <strong>Drill Soal Harian Subtes Prioritas:</strong> Target minimal 15 soal/hari di aplikasi Ruangguru pada subtes dengan gap terbesar &amp; volume drill terendah.
+                  <div style={{ marginTop: '0.8mm' }}>
+                    {prioritySubtests.map((sub) => (
+                      <div key={`arahan-${sub.id}`} style={{ fontSize: 9.5, lineHeight: 1.42, color: '#334155', marginTop: '0.5mm' }}>
+                        <strong style={{ color: '#0f172a' }}>{sub.name}:</strong> {getDrillGuidance(sub)}
+                      </div>
+                    ))}
+                  </div>
                 </li>
                 <li>
                   <strong>Klinik PR Tatap Muka Cabang ({identity.branch}):</strong> Jadwalkan klinik bersama Master Teacher untuk membedah topik akurasi terendah pada TO terakhir.

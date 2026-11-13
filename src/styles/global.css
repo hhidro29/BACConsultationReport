@@ -754,6 +754,9 @@
     .profiling-print-table th, .profiling-print-table td { border: 1px solid #cbd5e1; padding: 1.55mm 1.8mm; text-align: left; vertical-align: middle; }
     .profiling-print-table th { background: #58aebd; border-color: #58aebd; color: #ffffff; font-weight: 700; font-size: 9.8px; padding: 1.6mm 1.8mm; }
     .profiling-print-table tbody tr:nth-of-type(even) td { background: #f2f8f7; }
+    /* Tabel dengan banyak kolom teks: padding lebih rapat supaya tidak sesak di A4. */
+    .profiling-print-table--dense th, .profiling-print-table--dense td { padding: 1.1mm 1.2mm; }
+    .profiling-print-table--dense th { padding: 1.2mm 1.2mm; }
     .profiling-print-number { text-align: right; }
     .profiling-print-action-list { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; margin: 0; padding: 2.2mm 3.4mm 2.2mm 6mm; font-size: 10px; line-height: 1.44; }
     .profiling-print-action-list li { margin-bottom: 1.4mm; }
