@@ -25,6 +25,7 @@ import {
   classifySubtestPattern
 } from '../utils/saGuidelineEngine';
 import { safeGetItem, safeSetItem, loadCustomPrograms } from '../utils/safeStorage';
+import { buildDrillTableRows } from '../utils/drillTable';
 import { isReportLocked, setReportLocked } from '../utils/reportLock';
 import { LockBanner } from '../components/LockBanner';
 import { AppTopbar } from '../components/AppTopbar';
@@ -178,10 +179,6 @@ export const CheckpointV2Page: React.FC = () => {
   const latestToScore = toScoresList.length ? toScoresList[toScoresList.length - 1] : 0;
   const totalSubtestsCount = subtestsV2Data.length;
   const sortedSubtests = [...subtestsV2Data].sort((a, b) => a.gap - b.gap || a.to4 - b.to4);
-  const top3WeakIds = sortedSubtests
-    .filter((s) => s.to4 < 600)
-    .slice(0, 3)
-    .map((s) => s.id);
   const shortSubtestMap: Record<string, string> = {
     pu: 'PU',
     pk: 'PK',
@@ -221,11 +218,10 @@ export const CheckpointV2Page: React.FC = () => {
     return Number.isInteger(num) ? num.toString() : num.toFixed(1).replace('.', ',');
   };
 
-  // 3-Warna Status Subtes: Hijau (>= 600), Merah (di bawah 600 & prioritas 1-3), Oranye (di bawah 600 di luar prioritas 1-3)
-  const getSubtestStatus = (gap: number, isPriorityTop3: boolean = gap < 0) => {
+  // Status Subtes (sama dengan PDF): standar 600 seperti KKM. Hijau (>= 600), Merah (di bawah 600).
+  const getSubtestStatus = (gap: number) => {
     if (gap >= 0) return { label: 'Tercapai', badgeClass: 'badge badge-success', color: '#12b76a', textColor: 'var(--green-ink)' };
-    if (isPriorityTop3) return { label: 'Prioritas perbaikan', badgeClass: 'badge badge-danger', color: '#d92d20', textColor: 'var(--red-ink)' };
-    return { label: 'Perlu penguatan', badgeClass: 'badge badge-warn', color: '#f79009', textColor: 'var(--amber-ink)' };
+    return { label: 'Perlu perbaikan', badgeClass: 'badge badge-danger', color: '#d92d20', textColor: 'var(--red-ink)' };
   };
 
   // Dynamic Ringkasan 8 Subtes (Median 8 subtes saja)
@@ -236,7 +232,7 @@ export const CheckpointV2Page: React.FC = () => {
   const medOverall = computeMedian([medTO1, medTO2, medTO3, medTO4]);
   const medGap = medTO4 - 600;
   const medFillPct = Math.max(0, Math.min(100, ((medTO4 - 400) / 300) * 100));
-  const medStatus = getSubtestStatus(medGap, medGap <= -90);
+  const medStatus = getSubtestStatus(medGap);
 
   // Subtest with largest fluctuation for dynamic educational callout
   const maxFluctSub = [...subtestsV2Data].sort((a, b) => {
@@ -312,7 +308,8 @@ export const CheckpointV2Page: React.FC = () => {
         dashBorder: '#a6f4c5'
       };
     }
-    if (toLatestNum >= 600 || gapToTarget >= -60) {
+    if (toLatestNum >= 600) {
+      // Sudah di atas 600 tetapi belum mencapai target acuan.
       return {
         status: 'Perlu penguatan',
         textColor: 'var(--amber-ink)',
@@ -323,7 +320,7 @@ export const CheckpointV2Page: React.FC = () => {
       };
     }
     return {
-      status: 'Prioritas utama',
+      status: 'Perlu perbaikan',
       textColor: 'var(--red-ink)',
       borderColor: '#fecdca',
       boxBg: '#fffbfa',
@@ -675,7 +672,7 @@ export const CheckpointV2Page: React.FC = () => {
               <h3 className="section-title" style={{ fontSize: 15 }}>
                 1. Ringkasan Evaluasi Skor Reguler Siswa — Tryout Episode {latestToEpisode}
               </h3>
-              <span style={{ fontSize: 12, color: 'var(--muted)' }}>Acuan Skor Tryout Terakhir (TO {latestToEpisode})</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>Acuan Skor TO UTBK Regular Episode {latestToEpisode}</span>
             </div>
             
             {/* Minimalist 4-Column KPI Summary Strip (100% Data-Driven from Latest TO) */}
@@ -693,7 +690,7 @@ export const CheckpointV2Page: React.FC = () => {
               {/* Metric 1 */}
               <div title={`Riwayat TO 1–${latestToEpisode}: ${toScoresList.join(' → ')}`} style={{ background: '#ffffff', padding: '12px 16px' }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>
-                  Skor TO {latestToEpisode} (Terakhir)
+                  Skor TO UTBK Regular Episode {latestToEpisode}
                 </div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--tosca-dark)', lineHeight: 1.2, marginTop: 4 }}>
                   {latestToScore}
@@ -804,7 +801,7 @@ export const CheckpointV2Page: React.FC = () => {
                 </span>
               </div>
               <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-                Diurutkan dari jarak terdalam • Menyorot hingga 3 subtes prioritas perbaikan (&lt; 600)
+                Diurutkan dari jarak terdalam • Semua subtes &lt; 600 perlu perbaikan
               </span>
             </div>
             <div className="table-container">
@@ -824,26 +821,19 @@ export const CheckpointV2Page: React.FC = () => {
                 </thead>
                 <tbody>
                   {sortedSubtests.map((sub) => {
-                    const focusRank = top3WeakIds.indexOf(sub.id);
-                    const isFocus = focusRank !== -1;
-                    const rowStatus = getSubtestStatus(sub.gap, isFocus);
+                    const needsFix = sub.gap < 0;
+                    const rowStatus = getSubtestStatus(sub.gap);
                     const subPattern = stage1Out.subtestPatterns[sub.id];
 
                     return (
                       <tr
                         key={sub.id}
-                        style={
-                          isFocus
-                            ? { background: '#fffbfa' }
-                            : sub.gap < 0
-                            ? { background: '#fffcf5' }
-                            : undefined
-                        }
+                        style={needsFix ? { background: '#fffbfa' } : undefined}
                       >
                         <td>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
                             <strong>{sub.name}</strong>
-                            {isFocus && (
+                            {needsFix && (
                               <span
                                 style={{
                                   fontSize: 12,
@@ -856,7 +846,7 @@ export const CheckpointV2Page: React.FC = () => {
                                   whiteSpace: 'nowrap'
                                 }}
                               >
-                                Prioritas perbaikan {focusRank + 1}
+                                Perlu perbaikan
                               </span>
                             )}
                           </div>
@@ -980,13 +970,10 @@ export const CheckpointV2Page: React.FC = () => {
               </table>
             </div>
 
-            {/* 3-Color Legend */}
+            {/* Legend (sama dengan PDF): merah = di bawah 600, hijau = tercapai */}
             <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 10, fontSize: 12, color: 'var(--slate-600)', flexWrap: 'wrap' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 10, height: 10, background: '#d92d20', display: 'inline-block', borderRadius: 2 }}></span> Prioritas perbaikan (&lt; 600 · Terendah 1–3)
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 10, height: 10, background: '#f79009', display: 'inline-block', borderRadius: 2 }}></span> Butuh penguatan (&lt; 600 di luar prioritas 1–3)
+                <span style={{ width: 10, height: 10, background: '#d92d20', display: 'inline-block', borderRadius: 2 }}></span> Perlu perbaikan (&lt; 600)
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 10, height: 10, background: '#12b76a', display: 'inline-block', borderRadius: 2 }}></span> Tercapai (≥ 600)
@@ -1515,6 +1502,67 @@ export const CheckpointV2Page: React.FC = () => {
 
           </div>
 
+          {/* Tabel Target & Drill: subtes prioritas + subtes di bawah 600 (sama dengan PDF) */}
+          {(() => {
+            const drillTableRows = buildDrillTableRows(
+              activeStudent,
+              prioritySubtestsV2,
+              ruleConfig.thresholds.foundationScoreTarget
+            );
+            if (drillTableRows.length === 0) return null;
+            return (
+              <div className="section-block" id="sec_tahap3_drill_table">
+                <div className="section-header">
+                  <h3 className="section-title" style={{ fontSize: 15 }}>
+                    2. Target &amp; Drill: Subtes Prioritas dan Subtes di Bawah {ruleConfig.thresholds.foundationScoreTarget}
+                  </h3>
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+                    Target prioritas mengikuti acuan Pilihan 1 · subtes lain mengikuti target dasar
+                  </span>
+                </div>
+                <div className="table-container">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '34%' }}>Subtes</th>
+                        <th style={{ textAlign: 'center', width: '12%' }}>Target</th>
+                        <th style={{ textAlign: 'center', width: '12%' }}>TO {latestToEpisode}</th>
+                        <th style={{ textAlign: 'center', width: '12%' }}>Selisih</th>
+                        <th style={{ textAlign: 'center', width: '15%' }}>Total Soal</th>
+                        <th style={{ textAlign: 'center', width: '15%' }}>Akurasi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {drillTableRows.map((row) => {
+                        const diff = row.to - row.target;
+                        const diffColor = diff >= 0 ? 'var(--green-ink)' : 'var(--red-ink)';
+                        return (
+                          <tr key={`drill-${row.id}`}>
+                            <td>
+                              <strong>{row.name}</strong>
+                              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{row.tag}</div>
+                            </td>
+                            <td style={{ textAlign: 'center', fontWeight: 700 }}>{row.target}</td>
+                            <td style={{ textAlign: 'center', fontWeight: 800, color: diffColor }}>{row.to}</td>
+                            <td style={{ textAlign: 'center', fontWeight: 700, color: diffColor }}>
+                              {diff > 0 ? `+${diff}` : diff}
+                            </td>
+                            <td style={{ textAlign: 'center', fontWeight: 700 }}>
+                              {row.hasData ? `${row.questions} soal` : '—'}
+                            </td>
+                            <td style={{ textAlign: 'center', fontWeight: 700 }}>
+                              {row.hasData && row.questions > 0 ? `${row.accuracyPct}%` : '—'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Live Consultation Prompt: Tahap 3 (Driven by saGuidelineEngine) */}
           <div className="sa-prompt-card" id="sec_tahap3_guide" style={{ background: 'var(--page-bg)', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--amber-ink)', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
@@ -1993,7 +2041,7 @@ export const CheckpointV2Page: React.FC = () => {
                         type="button"
                         onClick={() => {
                           if (saNotes.trim() && !window.confirm('Catatan Kakak Asuh yang sudah ditulis akan diganti dengan template. Lanjutkan?')) return;
-                          const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill soal harian [.. soal/hari] + Klinik PR cabang [hari & jam]\n3) Cek Ulang Sesi Berikutnya: [progres subtes fokus & akurasi TO 5]';
+                          const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill soal mingguan [.. soal benar/minggu] + Klinik PR cabang [hari & jam]\n3) Cek Ulang Sesi Berikutnya: [progres subtes fokus & akurasi TO 5]';
                           setSaNotes(val);
                           setLockErrorMsg(null);
                           safeSetItem(saNotesStorageKey, val);

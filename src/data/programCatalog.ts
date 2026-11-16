@@ -1,5 +1,6 @@
 import { Checkpoint1Student, ProgramChoice, SubtestV2 } from './garudaData';
 import { DEFAULT_ENGINE_CONFIG } from '../utils/saGuidelineEngine';
+import { STUDENT_DRILL_DATA } from './drillData';
 
 // Batas zona peluang mengikuti ambang default rule-engine agar katalog, Simulasi, dan Tahap 2 satu sumber.
 export const ZONE_NEAR_GAP = DEFAULT_ENGINE_CONFIG.thresholds.nearTargetGapPts;
@@ -1276,9 +1277,11 @@ export function derivePrioritySubtestsForChoice1(
     const gapText = gapNum > 0 ? `+${gapNum}` : String(gapNum);
     const weightPct = matched ? Math.round((matched.subtestWeights[key] || 0) * 100) : null;
 
-    const rgQuestionsDone = existing?.rgQuestionsDone ?? 12;
-    const drillSessions = existing?.drillSessions ?? 2;
-    const drillAccuracyPct = existing?.drillAccuracyPct ?? 55;
+    // Urutan: data prioritas yang sudah ada -> data contoh drill per siswa -> nilai bawaan.
+    const seedDrill = STUDENT_DRILL_DATA[student.id]?.[key];
+    const rgQuestionsDone = existing?.rgQuestionsDone ?? seedDrill?.questions ?? 12;
+    const drillSessions = existing?.drillSessions ?? seedDrill?.sessions ?? 2;
+    const drillAccuracyPct = existing?.drillAccuracyPct ?? seedDrill?.accuracyPct ?? 55;
 
     return {
       id: key,

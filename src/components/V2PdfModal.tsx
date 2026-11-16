@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Download, Printer, X, FileText, Check } from 'lucide-react';
-import { downloadPdfFile } from '../utils/downloadPdf';
 import {
   CHECKPOINT1_STUDENTS,
   Checkpoint1Student,
@@ -10,9 +9,10 @@ import {
 } from '../data/garudaData';
 import {
   derivePrioritySubtestsForChoice1,
-  DerivedPrioritySubtest,
   getStudentBaselinePrograms
 } from '../data/programCatalog';
+import { STUDENT_DRILL_DATA } from '../data/drillData';
+import { buildDrillTableRows } from '../utils/drillTable';
 import {
   DEFAULT_ENGINE_CONFIG,
   EngineRuleConfig,
@@ -28,17 +28,6 @@ interface V2PdfModalProps {
   ruleConfig?: EngineRuleConfig;
 }
 
-const SHORT_CODE_MAP: Record<string, string> = {
-  pu: 'PU',
-  pk: 'PK',
-  lbi_a: 'LBI Saintek',
-  lbi_s: 'LBI Soshum',
-  lbe: 'LBING',
-  pbm: 'PBM',
-  pm: 'PM',
-  ppu: 'PPU'
-};
-
 function computeMedian(arr: number[]): number {
   if (!arr.length) return 0;
   const sorted = [...arr].sort((a, b) => a - b);
@@ -50,32 +39,25 @@ function formatIndo(num: number): string {
   return Number.isInteger(num) ? String(num) : num.toFixed(1).replace('.', ',');
 }
 
+// Standar 600 diperlakukan seperti KKM: semua subtes di bawah 600 berwarna merah.
 function getStatusBadgeInfo(
-  gap: number,
-  isPriorityTop3: boolean = gap < 0
+  gap: number
 ): { label: string; className: string; fillClass: string; color: string } {
   if (gap >= 0) return { label: 'Tercapai', className: 'badge-p-done', fillClass: 'priority-done', color: '#027a48' };
-  if (isPriorityTop3) return { label: 'Prioritas perbaikan', className: 'badge-p-high', fillClass: 'priority-high', color: '#b42318' };
-  return { label: 'Perlu penguatan', className: 'badge-p-med', fillClass: 'priority-med', color: '#b54708' };
+  return { label: 'Perlu perbaikan', className: 'badge-p-high', fillClass: 'priority-high', color: '#b42318' };
 }
 
-function getDrillGuidance(sub: DerivedPrioritySubtest): string {
-  if (sub.gapNum >= 0) {
-    return 'Target subtes sudah terlampaui. Pertahankan konsistensi latihan & dorong margin di atas pesaing.';
-  }
-  if (sub.rgQuestionsDone === 0) {
-    return 'Belum ada aktivitas drill di aplikasi. Mulai rutinitas drill bertahap & bedah topik dasar di Klinik PR.';
-  }
-  if (sub.rgQuestionsDone <= 10 && sub.gapNum <= -90) {
-    return `Baru ${sub.rgQuestionsDone} soal di aplikasi. Tingkatkan frekuensi drill harian & ikuti Klinik PR tatap muka.`;
-  }
-  if (sub.toLatestNum >= 600 || sub.gapNum >= -30) {
-    return 'Skor mendekati target Pilihan 1. Jaga ritme drill mingguan & fokus ketelitian pengerjaan.';
-  }
-  if (sub.drillSessions >= 6) {
-    return 'Rutinitas drill sudah terbentuk. Fokuskan pembahasan pada 2 topik akurasi terendah.';
-  }
-  return 'Perkuat pemahaman konsep pada topik terendah lewat latihan terarah & sesi Klinik PR.';
+// Target drill mingguan: 60 soal benar/minggu dibagi rata ke semua subtes di bawah 600, minimal 10 per subtes.
+const WEEKLY_DRILL_TOTAL = 60;
+const MIN_DRILL_PER_SUBTEST = 10;
+
+interface DrillRow {
+  id: string;
+  name: string;
+  questions: number;
+  sessions: number;
+  accuracyPct: number;
+  hasData: boolean;
 }
 
 function renderTrendArrow(curr: number, prev: number) {
@@ -91,7 +73,6 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   programs,
   ruleConfig = DEFAULT_ENGINE_CONFIG
 }) => {
-  const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   const activePrograms = programs && programs.length > 0 ? programs : getStudentBaselinePrograms(student);
@@ -105,8 +86,6 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   const sortedSubtests: SubtestV2[] = [...subtests].sort((a, b) => a.gap - b.gap || a.to4 - b.to4);
   const above600 = sortedSubtests.filter((s) => s.to4 >= 600);
   const below600 = sortedSubtests.filter((s) => s.to4 < 600);
-  const lowest3 = below600.slice(0, 3);
-  const top3WeakIds = lowest3.map((s) => s.id);
   const to4Score = identity.toScores[identity.toScores.length - 1] ?? 0;
 
   const med1 = computeMedian(subtests.map((s) => s.to1));
@@ -116,15 +95,27 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   const medAll = computeMedian([med1, med2, med3, med4]);
   const medGap = med4 - 600;
   const medFill = Math.max(0, Math.min(100, ((med4 - 400) / 300) * 100));
-  const medBadge = getStatusBadgeInfo(medGap, medGap <= -90);
+  const medBadge = getStatusBadgeInfo(medGap);
+  const toCount = identity.toScores.length || 4;
 
-  const otherSubtests = sortedSubtests.filter(
-    (s) => !prioritySubtests.some((p) => p.id === s.id)
+  // Data drill: pakai data prioritas yang sudah ada, lalu data contoh per siswa; jika tidak ada, ditandai belum tercatat.
+  const drillRows: DrillRow[] = below600.map((s) => {
+    const p = prioritySubtests.find((x) => x.id === s.id);
+    if (p) return { id: s.id, name: s.name, questions: p.rgQuestionsDone, sessions: p.drillSessions, accuracyPct: p.drillAccuracyPct, hasData: true };
+    const d = STUDENT_DRILL_DATA[student.id]?.[s.id];
+    if (d) return { id: s.id, name: s.name, questions: d.questions, sessions: d.sessions, accuracyPct: d.accuracyPct, hasData: true };
+    return { id: s.id, name: s.name, questions: 0, sessions: 0, accuracyPct: 0, hasData: false };
+  });
+  const drillPerSubtest = Math.max(
+    MIN_DRILL_PER_SUBTEST,
+    Math.floor(WEEKLY_DRILL_TOTAL / Math.max(1, drillRows.length))
   );
-  const otherSummaryText = otherSubtests
-    .slice(0, 3)
-    .map((s) => `${SHORT_CODE_MAP[s.id] || s.name} (${s.gap >= 0 ? `+${s.gap}` : s.gap})`)
-    .join(' · ');
+  const drillWeeklyTotal = drillPerSubtest * drillRows.length;
+
+  // Tabel target & drill dipakai bersama dengan dashboard (lihat utils/drillTable.ts).
+  const foundationTarget = ruleConfig.thresholds.foundationScoreTarget;
+  const gapTableRows = buildDrillTableRows(student, prioritySubtests, foundationTarget);
+  const clinicFocus = sortedSubtests.filter((x) => x.gap < 0).slice(0, 2);
 
   const homeCity = identity.branch.split('-')[0].trim();
 
@@ -141,13 +132,20 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  const handleDownload = async () => {
-    setIsDownloading(true);
+  // Download = cetak halaman laporan yang tampil ke "Save as PDF". Judul dokumen diatur sementara
+  // supaya nama file hasil simpan sesuai nama siswa, dan isinya selalu sama dengan preview.
+  const handleDownload = () => {
     const safeName = identity.name.replace(/\s+/g, '_');
-    await downloadPdfFile(`Laporan_Konsultasi_Checkpoint_1_${safeName}.pdf`);
-    setIsDownloading(false);
+    const originalTitle = document.title;
+    const restoreTitle = () => {
+      document.title = originalTitle;
+      window.removeEventListener('afterprint', restoreTitle);
+    };
+    document.title = `Laporan_Konsultasi_Checkpoint_1_${safeName}`;
+    window.addEventListener('afterprint', restoreTitle);
     setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 2500);
+    setTimeout(() => setDownloadSuccess(false), 6000);
+    window.print();
   };
 
   if (!isOpen) return null;
@@ -163,7 +161,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
         <div className="pdf-modal-title">
           <FileText size={20} />
           <span>Preview Dokumen Konsultasi Siswa &amp; Orang Tua (Versi 2)</span>
-          <span className="pdf-modal-badge">A4 • 2 Halaman</span>
+          <span className="pdf-modal-badge">A4 • 3 Halaman</span>
         </div>
         <div className="pdf-modal-actions">
           <button
@@ -184,8 +182,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             type="button"
             className="btn-pdf-print"
             onClick={handleDownload}
-            disabled={isDownloading}
-            title="Download File PDF Bawaan ke Komputer"
+            title="Buka dialog cetak, lalu pilih 'Save as PDF' / 'Simpan sebagai PDF'"
             style={{
               background: downloadSuccess ? '#027a48' : '#398896',
               color: '#ffffff',
@@ -193,7 +190,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             }}
           >
             {downloadSuccess ? <Check size={15} /> : <Download size={15} />}
-            {isDownloading ? 'Mengunduh...' : downloadSuccess ? 'Tersimpan!' : 'Download PDF'}
+            {downloadSuccess ? "Pilih 'Save as PDF'" : 'Download PDF'}
           </button>
           <button type="button" className="btn-pdf-close" onClick={onClose} title="Tutup Preview (Esc)">
             <X size={16} />
@@ -245,7 +242,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                   <tr>
                     <td style={{ background: '#e6f4f2', fontWeight: 700, color: '#245f5a' }}>Cabang / Kelas</td>
                     <td>{identity.branch} (12 SMA)</td>
-                    <td style={{ background: '#e6f4f2', fontWeight: 700, color: '#245f5a' }}>Kakak Asuh (SA)</td>
+                    <td style={{ background: '#e6f4f2', fontWeight: 700, color: '#245f5a' }}>Kakak Asuh</td>
                     <td>{identity.saName}</td>
                   </tr>
                   <tr>
@@ -255,7 +252,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         {to4Score}
                       </strong>{' '}
                       <span style={{ color: to4Score >= 600 ? '#027a48' : '#b42318', fontWeight: 700 }}>
-                        (Skor Tryout Episode {identity.toScores.length || 4} Terakhir)
+                        (Skor TO UTBK Regular Episode {toCount})
                       </span>
                     </td>
                   </tr>
@@ -274,21 +271,20 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.4mm' }}>
-                <strong style={{ fontSize: 10.5, color: '#0f172a' }}>Ringkasan Posisi Saat Ini (Berdasarkan TO {identity.toScores.length || 4})</strong>
-                <span style={{ fontSize: 9.5, color: '#245f5a', fontWeight: 700 }}>
-                  Fokus semester ini: seluruh subtes mencapai target dasar 600
-                </span>
+                <strong style={{ fontSize: 10.5, color: '#0f172a' }}>Ringkasan Posisi Saat Ini (Berdasarkan TO UTBK Regular Episode {toCount})</strong>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '0.82fr 1.18fr', gap: '2.4mm' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: '2.4mm' }}>
                 <div style={{ background: '#ffffff', border: '1px solid #a6f4c5', borderLeft: '3px solid #12b76a', borderRadius: 3, padding: '1.8mm 2.4mm', lineHeight: 1.42 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 9.5, fontWeight: 800, color: '#027a48' }}>DI ATAS TARGET 600 (+)</span>
                     <span style={{ fontSize: 11, fontWeight: 800, color: '#027a48' }}>{above600.length} Subtes</span>
                   </div>
-                  <div style={{ fontSize: 9.8, color: '#334155', marginTop: '0.6mm' }}>
+                  <div style={{ fontSize: 9.5, color: '#334155', marginTop: '0.6mm' }}>
                     {above600.length > 0
-                      ? above600.map((s) => `${SHORT_CODE_MAP[s.id] || s.id.toUpperCase()} (${s.to4})`).join(' · ')
-                      : 'Belum ada subtes mencapai 600 pada TO 4'}
+                      ? above600.map((s) => (
+                          <div key={s.id}>• {s.name} <strong>({s.to4})</strong></div>
+                        ))
+                      : `Belum ada subtes mencapai 600 pada TO ${toCount}`}
                   </div>
                 </div>
                 <div style={{ background: '#ffffff', border: '1px solid #fecdca', borderLeft: '3px solid #d92d20', borderRadius: 3, padding: '1.8mm 2.4mm', lineHeight: 1.42 }}>
@@ -296,9 +292,20 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                     <span style={{ fontSize: 9.5, fontWeight: 800, color: '#b42318' }}>DI BAWAH TARGET 600 (-)</span>
                     <span style={{ fontSize: 11, fontWeight: 800, color: '#b42318' }}>{below600.length} Subtes</span>
                   </div>
-                  <div style={{ fontSize: 9.8, color: '#334155', marginTop: '0.6mm' }}>
-                    {lowest3.length > 0
-                      ? `3 Terendah: ${lowest3.map((s) => `${SHORT_CODE_MAP[s.id] || s.name} (${s.to4})`).join(' · ')}`
+                  <div
+                    style={{
+                      fontSize: 9.5,
+                      color: '#334155',
+                      marginTop: '0.6mm',
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      columnGap: '2.4mm'
+                    }}
+                  >
+                    {below600.length > 0
+                      ? below600.map((s) => (
+                          <div key={s.id}>• {s.name} <strong>({s.to4})</strong></div>
+                        ))
                       : 'Seluruh subtes sudah mencapai batas 600'}
                   </div>
                 </div>
@@ -352,34 +359,37 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               <h2 className="profiling-print-section-title">
                 <span><span style={{ marginRight: '1.8mm' }}>2.</span>Skor IRT Reguler: Posisi 8 Subtes Terhadap Target 600</span>
                 <span style={{ fontSize: 9, fontWeight: 600, color: '#245f5a', textTransform: 'none', letterSpacing: 0 }}>
-                  Urut gap terdalam · Sorot hingga 3 terendah (&lt; 600)
+                  Urut gap terdalam · Semua subtes &lt; 600 perlu perbaikan
                 </span>
               </h2>
 
-              <table className="profiling-print-table">
+              <table className="profiling-print-table profiling-print-table--tight">
                 <thead>
                   <tr>
                     <th style={{ width: '3.5%', textAlign: 'center' }}>#</th>
-                    <th style={{ width: '24.5%' }}>Subtes UTBK</th>
+                    <th style={{ width: '30%' }}>Subtes UTBK</th>
                     <th style={{ width: '6.5%', textAlign: 'center' }}>
                       TO 1
-                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>30 Agu</div>
+                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2, whiteSpace: 'nowrap' }}>30 Agu</div>
                     </th>
                     <th style={{ width: '7%', textAlign: 'center' }}>
                       TO 2
-                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>14 Sep</div>
+                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2, whiteSpace: 'nowrap' }}>14 Sep</div>
                     </th>
                     <th style={{ width: '7%', textAlign: 'center' }}>
                       TO 3
-                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>28 Sep</div>
+                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2, whiteSpace: 'nowrap' }}>28 Sep</div>
                     </th>
                     <th style={{ width: '7.5%', textAlign: 'center' }}>
                       TO 4
-                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>30 Okt</div>
+                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2, whiteSpace: 'nowrap' }}>30 Okt</div>
                     </th>
                     <th style={{ width: '7%', textAlign: 'center' }}>Median</th>
-                    <th style={{ width: '15.5%', textAlign: 'center' }}>Pola Tren</th>
-                    <th style={{ width: '14%', textAlign: 'center' }}>
+                    <th style={{ width: '11%', textAlign: 'center' }}>
+                      Pola Tren
+                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>{toCount} TO terakhir</div>
+                    </th>
+                    <th style={{ width: '13%', textAlign: 'center' }}>
                       Posisi vs 600
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, fontWeight: 600, marginTop: 2.5, color: '#edf7f8' }}>
                         <span>400</span><span>600</span><span>700</span>
@@ -390,26 +400,16 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                 </thead>
                 <tbody>
                   {sortedSubtests.map((sub, idx) => {
-                    const focusRank = top3WeakIds.indexOf(sub.id);
-                    const isFocus = focusRank !== -1;
-                    const badge = getStatusBadgeInfo(sub.gap, isFocus);
+                    const needsFix = sub.gap < 0;
+                    const badge = getStatusBadgeInfo(sub.gap);
                     const subPattern = classifySubtestPattern([sub.to1, sub.to2, sub.to3, sub.to4], ruleConfig);
                     return (
-                      <tr
-                        key={sub.id}
-                        style={
-                          isFocus
-                            ? { background: '#fffbfa' }
-                            : sub.gap < 0
-                            ? { background: '#fffcf5' }
-                            : undefined
-                        }
-                      >
+                      <tr key={sub.id} style={needsFix ? { background: '#fffbfa' } : undefined}>
                         <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{idx + 1}</td>
                         <td>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.4mm' }}>
                             <span style={{ fontWeight: 700, color: '#0f172a' }}>{sub.name}</span>
-                            {isFocus && (
+                            {needsFix && (
                               <span
                                 style={{
                                   fontSize: 9,
@@ -422,7 +422,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                                   lineHeight: 1.2
                                 }}
                               >
-                                Prioritas perbaikan {focusRank + 1}
+                                Perlu perbaikan
                               </span>
                             )}
                           </div>
@@ -456,14 +456,17 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               <table className="profiling-print-table" style={{ marginTop: '2.5mm', marginBottom: 0 }}>
                 <thead>
                   <tr>
-                    <th style={{ width: '28%', background: '#e6f4f2', color: '#245f5a' }}>Ringkasan 8 Subtes</th>
+                    <th style={{ width: '33.5%', background: '#e6f4f2', color: '#245f5a' }}>Ringkasan 8 Subtes</th>
                     <th style={{ width: '6.5%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>TO 1</th>
                     <th style={{ width: '7%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>TO 2</th>
                     <th style={{ width: '7%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>TO 3</th>
                     <th style={{ width: '7.5%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>TO 4</th>
                     <th style={{ width: '7%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>Median</th>
-                    <th style={{ width: '15.5%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>Pola Tren</th>
-                    <th style={{ width: '14%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>Posisi vs 600</th>
+                    <th style={{ width: '11%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>
+                      Pola Tren
+                      <div style={{ fontSize: 9, fontWeight: 500, marginTop: 2 }}>{toCount} TO terakhir</div>
+                    </th>
+                    <th style={{ width: '13%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>Posisi vs 600</th>
                     <th style={{ width: '7.5%', textAlign: 'center', background: '#e6f4f2', color: '#245f5a' }}>Selisih</th>
                   </tr>
                 </thead>
@@ -498,10 +501,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
 
               <div style={{ display: 'flex', gap: '3.4mm', alignItems: 'center', marginTop: '2.5mm', fontSize: 9.2, color: '#334155', flexWrap: 'wrap' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
-                  <span style={{ width: 9, height: 9, background: '#d92d20', display: 'inline-block', borderRadius: 2 }} /> Prioritas perbaikan (&lt; 600 · Terendah 1–3)
-                </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
-                  <span style={{ width: 9, height: 9, background: '#f79009', display: 'inline-block', borderRadius: 2 }} /> Butuh penguatan (&lt; 600 di luar prioritas 1–3)
+                  <span style={{ width: 9, height: 9, background: '#d92d20', display: 'inline-block', borderRadius: 2 }} /> Perlu perbaikan (&lt; 600)
                 </span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
                   <span style={{ width: 9, height: 9, background: '#12b76a', display: 'inline-block', borderRadius: 2 }} /> Tercapai (600+)
@@ -511,7 +511,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
 
             <footer className="profiling-print-footer">
               <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Hasil Konsultasi Checkpoint 1 • Target adalah acuan latihan internal, bukan jaminan kelulusan SNPMB</div>
-              <div>Halaman 1 dari 2</div>
+              <div>Halaman 1 dari 3</div>
             </footer>
           </section>
 
@@ -528,7 +528,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                 </span>
               </div>
               <div style={{ fontSize: 9.5, fontWeight: 700, color: '#475467' }}>
-                {identity.name} <span style={{ color: '#94a3b8', margin: '0 1mm' }}>|</span> Halaman 2 dari 2
+                {identity.name} <span style={{ color: '#94a3b8', margin: '0 1mm' }}>|</span> Halaman 2 dari 3
               </div>
             </header>
 
@@ -541,14 +541,14 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                 <thead>
                   <tr>
                     <th style={{ width: '11%' }}>Pilihan</th>
-                    <th style={{ width: '39%' }}>Program Studi &amp; Perguruan Tinggi</th>
+                    <th style={{ width: '35%' }}>Program Studi &amp; Perguruan Tinggi</th>
                     <th style={{ width: '12%', textAlign: 'center' }}>
                       Target Acuan
                       <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>(Terbobot)</div>
                     </th>
-                    <th style={{ width: '12%', textAlign: 'center' }}>
+                    <th style={{ width: '16%', textAlign: 'center' }}>
                       Skor Siswa
-                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>(TO {identity.toScores.length || 4} · Terbobot)</div>
+                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>(TO UTBK Regular Episode {identity.toScores.length || 4} · Terbobot)</div>
                     </th>
                     <th style={{ width: '10%', textAlign: 'center' }}>Selisih</th>
                     <th style={{ width: '16%', textAlign: 'center' }}>
@@ -585,9 +585,11 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                               <strong style={{ color: pacing.needsPlanB ? '#b42318' : '#245f5a' }}>
                                 +{pacing.gainPerToNextConsult} poin/TO
                               </strong>
-                              <div style={{ fontSize: 9, fontWeight: 700, color: pacing.needsPlanB ? '#b42318' : '#245f5a' }}>
-                                {pacing.needsPlanB ? 'Berat · Siapkan Plan B' : 'Realistis dikejar'}
-                              </div>
+                              {pacing.needsPlanB ? (
+                                <div style={{ fontSize: 9, fontWeight: 700, color: '#b42318' }}>Berat *</div>
+                              ) : (
+                                <div style={{ fontSize: 9, fontWeight: 700, color: '#245f5a' }}>Realistis dikejar</div>
+                              )}
                             </div>
                           )}
                         </td>
@@ -601,8 +603,18 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                 const highestPacing = highestProg
                   ? computeProgramPacing(highestProg.weightedScore, highestProg.targetScore, highestProg.gap, ruleConfig)
                   : null;
+                const planBPrograms = activePrograms.filter(
+                  (p) => computeProgramPacing(p.weightedScore, p.targetScore, p.gap, ruleConfig).needsPlanB
+                );
                 return (
-                  <div style={{ fontSize: 9.2, color: '#334155', marginTop: '1.4mm', lineHeight: 1.42 }}>
+                  <div style={{ fontSize: 10, color: '#334155', marginTop: '1.6mm', lineHeight: 1.45 }}>
+                    {planBPrograms.length > 0 && (
+                      <div style={{ marginBottom: '0.6mm', color: '#b42318', fontWeight: 600 }}>
+                        * Berat dikejar dalam {ruleConfig.thresholds.remainingEpisodesToNextConsult} TO (
+                        {planBPrograms.length === activePrograms.length && activePrograms.length > 1 ? 'Semua pilihan' : planBPrograms.map((p) => p.priority).join(', ')}
+                        ). Siapkan opsi Plan B pada pilihan jurusan lainnya bersama Kakak Asuh.
+                      </div>
+                    )}
                     {highestProg && highestPacing && (
                       <div style={{ marginBottom: '0.6mm' }}>
                         {highestPacing.isAchieved ? (
@@ -612,7 +624,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         ) : (
                           <span>
                             <strong>Target TO {(identity.toScores.length || 4) + 1} (Acuan tertinggi — {highestProg.prodi}):</strong>{' '}
-                            skor terbobot minimal <strong>≥ {highestPacing.nextToTargetScore}</strong> (+{highestPacing.gainPerToNextConsult} poin dari {highestProg.weightedScore}).
+                            skor terbobot minimal <strong>≥ {highestPacing.nextToTargetScore}</strong>.
                           </span>
                         )}
                       </div>
@@ -629,33 +641,33 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             <div className="profiling-print-section" style={{ marginBottom: '3.6mm' }}>
               <h2 className="profiling-print-section-title">
                 <span><span style={{ marginRight: '1.8mm' }}>4.</span>3 Subtes Prioritas (Acuan Pilihan 1): Drill Soal &amp; Arahan</span>
-                <span style={{ fontSize: 9, fontWeight: 600, color: '#245f5a', textTransform: 'none', letterSpacing: 0 }}>
-                  Periode drill 3 bulan terakhir
-                </span>
               </h2>
+              <div style={{ fontSize: 10, color: '#475467', marginBottom: '1.6mm', lineHeight: 1.45 }}>
+                Subtes prioritas dipilih berdasarkan bobot subtes di Pilihan 1. Skor TO = TO UTBK Regular Episode {toCount}.
+              </div>
               <table className="profiling-print-table profiling-print-table--dense">
                 <thead>
                   <tr>
-                    <th style={{ width: '18%' }}>Subtes</th>
-                    <th style={{ width: '7%', textAlign: 'center' }}>TO {identity.toScores.length || 4}</th>
-                    <th style={{ width: '8%', textAlign: 'center' }}>Target</th>
-                    <th style={{ width: '8%', textAlign: 'center' }}>Selisih</th>
-                    <th style={{ width: '11%', textAlign: 'center' }}>Pola Tren</th>
-                    <th style={{ width: '12%', textAlign: 'center' }}>
-                      Drill Soal
-                      <div style={{ fontSize: 9, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>di Aplikasi RG</div>
+                    <th style={{ width: '22%' }}>Subtes</th>
+                    <th style={{ width: '11%', textAlign: 'center' }}>
+                      Target Acuan
+                      <div style={{ fontSize: 9.5, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>Pilihan 1</div>
                     </th>
-                    <th style={{ width: '36%' }}>Topik yang Perlu Dibenahi</th>
+                    <th style={{ width: '8%', textAlign: 'center' }}>TO {toCount}</th>
+                    <th style={{ width: '11%', textAlign: 'center' }}>
+                      Selisih
+                      <div style={{ fontSize: 9.5, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>ke target acuan</div>
+                    </th>
+                    <th style={{ width: '13%', textAlign: 'center' }}>
+                      Pola Tren
+                      <div style={{ fontSize: 9.5, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>{toCount} TO terakhir</div>
+                    </th>
+                    <th style={{ width: '35%' }}>Topik yang Perlu Dibenahi</th>
                   </tr>
                 </thead>
                 <tbody>
                   {prioritySubtests.map((sub) => {
-                    const scoreColor =
-                      sub.gapNum >= 0
-                        ? '#027a48'
-                        : sub.toLatestNum >= 600 || sub.gapNum >= -60
-                        ? '#b54708'
-                        : '#b42318';
+                    const scoreColor = sub.gapNum >= 0 ? '#027a48' : '#b42318';
                     const subRow = subtests.find((s) => s.id === sub.id);
                     const subPattern = subRow
                       ? classifySubtestPattern([subRow.to1, subRow.to2, subRow.to3, subRow.to4], ruleConfig)
@@ -663,26 +675,18 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                     return (
                       <tr key={sub.id}>
                         <td>
-                          <div style={{ fontWeight: 700, fontSize: 10, color: '#0f172a' }}>{sub.name}</div>
-                          <div style={{ fontSize: 9, color: '#475467', marginTop: '0.3mm' }}>
+                          <div style={{ fontWeight: 700, fontSize: 10.5, color: '#0f172a' }}>{sub.name}</div>
+                          <div style={{ fontSize: 9.5, color: '#475467', marginTop: '0.3mm' }}>
                             {sub.priorityLabel}
                           </div>
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 11, color: scoreColor }}>{sub.toScore}</td>
                         <td style={{ textAlign: 'center', fontWeight: 700, fontSize: 10, color: '#0f172a' }}>{sub.targetScore}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 11, color: scoreColor }}>{sub.toScore}</td>
                         <td style={{ textAlign: 'center', fontWeight: 700, fontSize: 9.5, color: scoreColor }}>{sub.gapText}</td>
-                        <td style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: subPattern?.color || '#475467' }}>
+                        <td style={{ textAlign: 'center', fontSize: 9.5, fontWeight: 700, color: subPattern?.color || '#475467' }}>
                           {subPattern ? subPattern.label : '—'}
                         </td>
-                        <td style={{ textAlign: 'center' }}>
-                          <div style={{ fontWeight: 700, color: sub.drillSessions === 0 ? '#b42318' : '#0f172a' }}>
-                            {sub.drillSessions} sesi
-                          </div>
-                          <div style={{ fontSize: 9, color: sub.drillSessions === 0 ? '#b42318' : '#475467', marginTop: '0.3mm' }}>
-                            {sub.rgQuestionsDone} soal · {sub.drillAccuracyPct}%
-                          </div>
-                        </td>
-                        <td style={{ fontSize: 9.8, lineHeight: 1.42, color: '#1e293b' }}>
+                        <td style={{ fontSize: 10.2, lineHeight: 1.45, color: '#1e293b' }}>
                           {sub.lowestTopics.slice(0, 2).map((t, i) => (
                             <div key={i}>• {t}</div>
                           ))}
@@ -692,37 +696,115 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                   })}
                 </tbody>
               </table>
-              {otherSummaryText && (
-                <div style={{ fontSize: 9.2, color: '#475467', marginTop: '1.2mm' }}>
-                  Subtes lainnya dipantau berkala menuju Tryout berikutnya: {otherSummaryText}.
+              {gapTableRows.length > 0 && (
+                <div style={{ marginTop: '3.2mm' }}>
+                  <div
+                    style={{
+                      fontSize: 10.2,
+                      fontWeight: 700,
+                      color: '#245f5a',
+                      background: '#f2f8f7',
+                      borderLeft: '3px solid #58aebd',
+                      padding: '1mm 2.2mm',
+                      marginBottom: '1.4mm'
+                    }}
+                  >
+                    Target &amp; drill: subtes prioritas dan subtes di bawah {foundationTarget}
+                  </div>
+                  <table className="profiling-print-table profiling-print-table--dense">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '34%' }}>Subtes</th>
+                        <th style={{ width: '12%', textAlign: 'center' }}>Target</th>
+                        <th style={{ width: '12%', textAlign: 'center' }}>TO {toCount}</th>
+                        <th style={{ width: '12%', textAlign: 'center' }}>Selisih</th>
+                        <th style={{ width: '15%', textAlign: 'center' }}>Total Soal</th>
+                        <th style={{ width: '15%', textAlign: 'center' }}>Akurasi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gapTableRows.map((x) => {
+                        const r = x;
+                        const diff = x.to - x.target;
+                        const diffColor = diff >= 0 ? '#027a48' : '#b42318';
+                        return (
+                          <tr key={`lvl-${r.id}`}>
+                            <td>
+                              <div style={{ fontWeight: 700, fontSize: 10.2, color: '#0f172a' }}>{r.name}</div>
+                              <div style={{ fontSize: 9.5, color: '#475467', marginTop: '0.3mm' }}>{x.tag}</div>
+                            </td>
+                            <td style={{ textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{x.target}</td>
+                            <td style={{ textAlign: 'center', fontWeight: 800, color: diffColor }}>{x.to}</td>
+                            <td style={{ textAlign: 'center', fontWeight: 700, color: diffColor }}>{diff > 0 ? `+${diff}` : diff}</td>
+                            <td style={{ textAlign: 'center', fontWeight: 700 }}>{r.hasData ? `${r.questions} soal` : '—'}</td>
+                            <td style={{ textAlign: 'center', fontWeight: 700 }}>
+                              {r.hasData && r.questions > 0 ? `${r.accuracyPct}%` : '—'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
 
+            <footer className="profiling-print-footer">
+              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Hasil Konsultasi Checkpoint 1 • Target adalah acuan latihan internal, bukan jaminan kelulusan SNPMB</div>
+              <div>Halaman 2 dari 3</div>
+            </footer>
+          </section>
+
+          {/* ================= PAGE 3 ================= */}
+          <section className="profiling-print-page" id="reportPage3">
+            <header className="profiling-print-running-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2mm' }}>
+                <span style={{ fontSize: 10.5, fontWeight: 800, color: '#245f5a', letterSpacing: 0.5 }}>
+                  BRAIN ACADEMY BY RUANGGURU
+                </span>
+                <span style={{ fontSize: 9.5, color: '#94a3b8' }}>•</span>
+                <span style={{ fontSize: 9.5, fontWeight: 700, color: '#334155' }}>
+                  LAPORAN KONSULTASI CHECKPOINT 1
+                </span>
+              </div>
+              <div style={{ fontSize: 9.5, fontWeight: 700, color: '#475467' }}>
+                {identity.name} <span style={{ color: '#94a3b8', margin: '0 1mm' }}>|</span> Halaman 3 dari 3
+              </div>
+            </header>
+
             {/* 5. RENCANA AKSI SAMPAI TRYOUT 5 */}
             <div className="profiling-print-section" style={{ marginBottom: '3.6mm' }}>
               <h2 className="profiling-print-section-title">
-                <span><span style={{ marginRight: '1.8mm' }}>5.</span>Rencana Aksi Belajar Menuju Tryout 5</span>
+                <span><span style={{ marginRight: '1.8mm' }}>5.</span>Rencana Aksi Belajar Menuju Tryout {toCount + 1}</span>
               </h2>
               <ol className="profiling-print-action-list">
                 <li>
-                  <strong>Drill Soal Harian Subtes Prioritas:</strong> Target minimal 15 soal/hari di aplikasi Ruangguru pada subtes dengan gap terbesar &amp; volume drill terendah.
-                  <div style={{ marginTop: '0.8mm' }}>
-                    {prioritySubtests.map((sub) => (
-                      <div key={`arahan-${sub.id}`} style={{ fontSize: 9.5, lineHeight: 1.42, color: '#334155', marginTop: '0.5mm' }}>
-                        <strong style={{ color: '#0f172a' }}>{sub.name}:</strong> {getDrillGuidance(sub)}
-                      </div>
-                    ))}
-                  </div>
+                  {drillRows.length === 0 ? (
+                    <>
+                      <strong>Drill Soal Mingguan:</strong> Seluruh subtes sudah mencapai 600. Pertahankan konsistensi drill mingguan di aplikasi Ruangguru.
+                    </>
+                  ) : (
+                    <>
+                      <strong>Drill Soal Mingguan:</strong> Target minimal {drillWeeklyTotal} soal benar per minggu di aplikasi Ruangguru, dibagi ke {drillRows.length} subtes di bawah 600 ({drillPerSubtest} soal benar per subtes).
+                    </>
+                  )}
                 </li>
                 <li>
                   <strong>Klinik PR Tatap Muka Cabang ({identity.branch}):</strong> Jadwalkan klinik bersama Master Teacher untuk membedah topik akurasi terendah pada TO terakhir.
+                  {clinicFocus.length > 0 && (
+                    <> Subtes dengan selisih terdalam: {clinicFocus.map((x) => `${x.name} (${x.gap})`).join('; ')}.</>
+                  )}
                 </li>
                 <li>
-                  <strong>Target Evaluasi Tryout 5:</strong> Tingkatkan rata-rata skor bertahap dari <strong>{to4Score}</strong> (TO 4) menuju target 600 dengan manajemen waktu per subtes.
+                  <strong>Target Evaluasi Tryout {toCount + 1}:</strong>{' '}
+                  {below600.length > 0
+                    ? `Bawa ${below600.length} subtes yang masih di bawah 600 ke 600 atau lebih.`
+                    : 'Seluruh subtes sudah 600 atau lebih; target berikutnya 750 per subtes.'}{' '}
+                  Skor rata-rata TO UTBK Regular Episode {toCount}: <strong>{to4Score}</strong>.
                 </li>
                 <li>
                   <strong>Dukungan Belajar di Rumah:</strong> Orang tua mendampingi konsistensi jam belajar mandiri dan menjaga kondisi istirahat siswa menjelang Tryout berikutnya.
+                  {drillRows.length > 0 && ` Cek progres drill ${drillWeeklyTotal} soal benar per minggu di aplikasi setiap akhir pekan.`}
                 </li>
               </ol>
             </div>
@@ -757,7 +839,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
 
             <footer className="profiling-print-footer">
               <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Hasil Konsultasi Checkpoint 1 • Target adalah acuan latihan internal, bukan jaminan kelulusan SNPMB</div>
-              <div>Halaman 2 dari 2</div>
+              <div>Halaman 3 dari 3</div>
             </footer>
           </section>
         </div>

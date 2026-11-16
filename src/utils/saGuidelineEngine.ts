@@ -262,7 +262,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
   },
   stage4Templates: {
     scheduleTask:
-      'Konfirmasi hari, jam, dan target drill soal harian yang realistis dijalankan siswa tanpa bentrok jadwal sekolah.',
+      'Konfirmasi hari, jam, dan target drill soal mingguan yang realistis dijalankan siswa tanpa bentrok jadwal sekolah (acuan tim: 60 soal benar per minggu dibagi ke subtes di bawah 600, minimal 10 soal per subtes).',
     parentSupportTask:
       'Bahas bentuk dukungan dan pemantauan belajar yang paling nyaman dilakukan orang tua di rumah.',
     missingDrillTask:
