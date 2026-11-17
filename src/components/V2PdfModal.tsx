@@ -11,14 +11,15 @@ import {
   derivePrioritySubtestsForChoice1,
   getStudentBaselinePrograms
 } from '../data/programCatalog';
-import { STUDENT_DRILL_DATA } from '../data/drillData';
 import { buildDrillTableRows } from '../utils/drillTable';
 import {
   DEFAULT_ENGINE_CONFIG,
   EngineRuleConfig,
   computeProgramPacing,
-  classifySubtestPattern
+  classifySubtestPattern,
+  analyzeStage4
 } from '../utils/saGuidelineEngine';
+import { RichText } from './RichText';
 
 interface V2PdfModalProps {
   isOpen: boolean;
@@ -47,18 +48,6 @@ function getStatusBadgeInfo(
   return { label: 'Perlu perbaikan', className: 'badge-p-high', fillClass: 'priority-high', color: '#b42318' };
 }
 
-// Target drill mingguan: 60 soal benar/minggu dibagi rata ke semua subtes di bawah 600, minimal 10 per subtes.
-const WEEKLY_DRILL_TOTAL = 60;
-const MIN_DRILL_PER_SUBTEST = 10;
-
-interface DrillRow {
-  id: string;
-  name: string;
-  questions: number;
-  sessions: number;
-  accuracyPct: number;
-  hasData: boolean;
-}
 
 function renderTrendArrow(curr: number, prev: number) {
   if (curr > prev) return <span style={{ fontSize: 9, color: '#027a48' }}> ▲</span>;
@@ -98,24 +87,26 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   const medBadge = getStatusBadgeInfo(medGap);
   const toCount = identity.toScores.length || 4;
 
-  // Data drill: pakai data prioritas yang sudah ada, lalu data contoh per siswa; jika tidak ada, ditandai belum tercatat.
-  const drillRows: DrillRow[] = below600.map((s) => {
-    const p = prioritySubtests.find((x) => x.id === s.id);
-    if (p) return { id: s.id, name: s.name, questions: p.rgQuestionsDone, sessions: p.drillSessions, accuracyPct: p.drillAccuracyPct, hasData: true };
-    const d = STUDENT_DRILL_DATA[student.id]?.[s.id];
-    if (d) return { id: s.id, name: s.name, questions: d.questions, sessions: d.sessions, accuracyPct: d.accuracyPct, hasData: true };
-    return { id: s.id, name: s.name, questions: 0, sessions: 0, accuracyPct: 0, hasData: false };
-  });
-  const drillPerSubtest = Math.max(
-    MIN_DRILL_PER_SUBTEST,
-    Math.floor(WEEKLY_DRILL_TOTAL / Math.max(1, drillRows.length))
-  );
-  const drillWeeklyTotal = drillPerSubtest * drillRows.length;
-
   // Tabel target & drill dipakai bersama dengan dashboard (lihat utils/drillTable.ts).
   const foundationTarget = ruleConfig.thresholds.foundationScoreTarget;
   const gapTableRows = buildDrillTableRows(student, prioritySubtests, foundationTarget);
-  const clinicFocus = sortedSubtests.filter((x) => x.gap < 0).slice(0, 2);
+
+  // Rencana aksi halaman 3: SATU SUMBER dengan dashboard (template di /engine).
+  const stage4 = analyzeStage4(
+    {
+      planData: {
+        subtests: subtests.map((x) => ({ name: x.name, to4: x.to4, gap: x.gap })),
+        branch: identity.branch,
+        avgScore: to4Score,
+        episode: toCount
+      },
+      studentName: identity.name,
+      saName: identity.saName,
+      parentName: identity.parentName,
+      nextEpisode: toCount + 1
+    },
+    ruleConfig
+  );
 
   const homeCity = identity.branch.split('-')[0].trim();
 
@@ -784,34 +775,11 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                 <span><span style={{ marginRight: '1.8mm' }}>5.</span>Rencana Aksi Belajar Menuju Tryout {toCount + 1}</span>
               </h2>
               <ol className="profiling-print-action-list">
-                <li>
-                  {drillRows.length === 0 ? (
-                    <>
-                      <strong>Drill Soal Mingguan:</strong> Seluruh subtes sudah mencapai 600. Pertahankan konsistensi drill mingguan di aplikasi Ruangguru.
-                    </>
-                  ) : (
-                    <>
-                      <strong>Drill Soal Mingguan:</strong> Target minimal {drillWeeklyTotal} soal benar per minggu di aplikasi Ruangguru, dibagi ke {drillRows.length} subtes di bawah 600 ({drillPerSubtest} soal benar per subtes).
-                    </>
-                  )}
-                </li>
-                <li>
-                  <strong>Klinik PR Tatap Muka Cabang ({identity.branch}):</strong> Jadwalkan klinik bersama Master Teacher untuk membedah topik akurasi terendah pada TO terakhir.
-                  {clinicFocus.length > 0 && (
-                    <> Subtes dengan selisih terdalam: {clinicFocus.map((x) => `${x.name} (${x.gap})`).join('; ')}.</>
-                  )}
-                </li>
-                <li>
-                  <strong>Target Evaluasi Tryout {toCount + 1}:</strong>{' '}
-                  {below600.length > 0
-                    ? `Bawa ${below600.length} subtes yang masih di bawah 600 ke 600 atau lebih.`
-                    : 'Seluruh subtes sudah 600 atau lebih; target berikutnya 750 per subtes.'}{' '}
-                  Skor rata-rata TO UTBK Regular Episode {toCount}: <strong>{to4Score}</strong>.
-                </li>
-                <li>
-                  <strong>Dukungan Belajar di Rumah:</strong> Orang tua mendampingi konsistensi jam belajar mandiri dan menjaga kondisi istirahat siswa menjelang Tryout berikutnya.
-                  {drillRows.length > 0 && ` Cek progres drill ${drillWeeklyTotal} soal benar per minggu di aplikasi setiap akhir pekan.`}
-                </li>
+                {stage4.actionPlans.map((plan) => (
+                  <li key={plan.num}>
+                    <strong>{plan.title}:</strong> <RichText text={plan.desc} />
+                  </li>
+                ))}
               </ol>
             </div>
 

@@ -286,41 +286,40 @@ runClass(`Catatan tepat ${TH.notesLowCoveragePct}% (tidak memicu)`, 44, 40, 1, 1
 // =====================================================================
 // TAHAP 5 — Rencana aksi & penutupan
 // =====================================================================
-const PS = (id, name, gapNum, q, topics) => ({ id, name, gapNum, rgQuestionsDone: q, lowestTopics: topics });
+const SUBS8 = (vals) => ['PU', 'PK', 'PM', 'LBI-A', 'LBI-S', 'PBM', 'LBE', 'PPU'].map((name, i) => ({ name, to4: vals[i], gap: vals[i] - TH.foundationScoreTarget }));
 const NAMES = { studentName: 'Siswa Contoh', saName: 'Kakak Asuh Contoh', parentName: 'Orang Tua Contoh' };
 
-function runS5(test, flags, prioritySubtests) {
-  const out = E.analyzeStage4({ ...NAMES, hasConflictOrLocationCheck: flags.conflict, hasMissingDrill: flags.missing, prioritySubtests }, cfg);
+function runS5(test, flags, subtests, episode = 4) {
+  const out = E.analyzeStage4(
+    { ...NAMES, hasConflictOrLocationCheck: flags.conflict, hasMissingDrill: flags.missing, nextEpisode: episode + 1, planData: { subtests, branch: 'Depok - Margonda', avgScore: 546, episode } },
+    cfg
+  );
   const covers = [];
-  const [p1, p2, , p4] = out.actionPlans;
-  covers.push(p1.title.startsWith('Pemeliharaan') ? 'T5 subtes prioritas: semua tercapai' : 'T5 subtes prioritas: ada yang belum');
-  if (prioritySubtests.length === 0) covers.push('T5 tanpa subtes prioritas');
-  if (p1.desc.includes('sekaligus riwayat')) covers.push('T5 satu subtes untuk gap dan drill');
-  if (p2.desc.includes('materi dasar subtes prioritas')) covers.push('T5 topik lemah kosong');
-  covers.push(p4.desc.startsWith('Konfirmasikan') ? 'T5 rumah: dengan konflik/lokasi' : 'T5 rumah: tanpa konflik');
+  const weak = subtests.filter((x) => x.to4 < TH.foundationScoreTarget).length;
+  covers.push(weak === 0 ? 'T5 rencana: semua subtes tercapai' : 'T5 rencana: ada subtes di bawah target');
+  if (weak > 0) covers.push(weak * TH.minDrillPerSubtest > TH.weeklyDrillTotal ? 'T5 rencana: minimal per subtes berlaku' : 'T5 rencana: pembagian merata');
   if (out.saTasks.includes(TPL4.missingDrillTask)) covers.push('T5 tugas: subtes minim drill');
   if (out.saTasks.includes(TPL4.conflictOrLocationTask)) covers.push('T5 tugas: konflik/lokasi');
   add(
     'T5 Rencana Aksi',
     test,
-    `Konflik/lokasi: ${flags.conflict ? 'ya' : 'tidak'}; subtes minim drill: ${flags.missing ? 'ya' : 'tidak'}; subtes prioritas: ${prioritySubtests.map((s) => `${s.name} (${sgn(s.gapNum)}, ${s.rgQuestionsDone} soal)`).join(', ') || '(kosong)'}`,
+    `Konflik/lokasi: ${flags.conflict ? 'ya' : 'tidak'}; subtes minim drill: ${flags.missing ? 'ya' : 'tidak'}; skor TO4 per subtes: ${subtests.map((x) => `${x.name} ${x.to4}`).join(', ')}; episode ${episode}`,
     [
       ...out.saTasks.map((x) => `Tugas SA: ${x}`),
-      ...out.actionPlans.map((a) => `Rencana ${a.num} — ${a.title}: ${a.desc} [PIC: ${a.pic}]`)
+      ...out.actionPlans.map((a) => `Rencana ${a.num} — ${a.title}: ${a.desc} [PIC dashboard: ${a.pic}]`)
     ],
     out.traces,
     covers
   );
 }
-const TWO = [PS('pk', 'PK', -120, 4, ['Aljabar (30%)', 'Barisan (35%)']), PS('pm', 'PM', -60, 40, ['Geometri (45%)'])];
-runS5('Dasar: 2 subtes prioritas, tanpa tanda khusus', { conflict: false, missing: false }, TWO);
-runS5('Ada konflik/lokasi', { conflict: true, missing: false }, TWO);
-runS5('Ada subtes minim drill', { conflict: false, missing: true }, TWO);
-runS5('Konflik/lokasi dan minim drill', { conflict: true, missing: true }, TWO);
-runS5('Semua subtes prioritas sudah tercapai', { conflict: false, missing: false }, [PS('pk', 'PK', 10, 30, ['Aljabar (80%)']), PS('pm', 'PM', 5, 25, ['Geometri (82%)'])]);
-runS5('Satu subtes prioritas (gap terbesar = drill terendah)', { conflict: false, missing: true }, [PS('pk', 'PK', -120, 4, ['Aljabar (30%)'])]);
-runS5('Tanpa data topik lemah', { conflict: false, missing: false }, [PS('pk', 'PK', -120, 4, []), PS('pm', 'PM', -60, 40, [])]);
-runS5('Tanpa subtes prioritas', { conflict: false, missing: false }, []);
+runS5('Dasar: 7 subtes di bawah target (pembagian dikunci minimal per subtes)', { conflict: false, missing: false }, SUBS8([465, 488, 597, 505, 573, 554, 543, 640]));
+runS5('3 subtes di bawah target (pembagian merata)', { conflict: false, missing: false }, SUBS8([480, 590, 610, 620, 700, 640, 630, 650]));
+runS5('1 subtes di bawah target', { conflict: false, missing: false }, SUBS8([590, 610, 620, 630, 650, 640, 700, 660]));
+runS5('Ada konflik/lokasi', { conflict: true, missing: false }, SUBS8([465, 488, 597, 505, 573, 554, 543, 640]));
+runS5('Ada subtes minim drill', { conflict: false, missing: true }, SUBS8([465, 488, 597, 505, 573, 554, 543, 640]));
+runS5('Konflik/lokasi dan minim drill', { conflict: true, missing: true }, SUBS8([465, 488, 597, 505, 573, 554, 543, 640]));
+runS5('Semua subtes tercapai', { conflict: false, missing: false }, SUBS8([620, 640, 650, 700, 660, 680, 690, 710]));
+runS5('Nomor TO berbeda (episode 6)', { conflict: false, missing: false }, SUBS8([465, 488, 597, 505, 573, 554, 543, 640]), 6);
 
 // =====================================================================
 // Arahan di bawah kotak Catatan Kakak Asuh (internal SA)
@@ -365,6 +364,39 @@ runGuidance('Semua subtes prioritas tercapai', { ...NO, allAchieved: true });
 runGuidance('Semua kondisi aktif (hanya 2 arahan pertama tampil)', { hasConflictOrLocationCheck: true, minDrillSubtests: ['Pengetahuan Kuantitatif (PK)'], attendancePct: 72.5, allAchieved: true, studentName: 'Rizky' });
 
 // =====================================================================
+// Teks tetap kartu "Panduan Kakak Asuh" per tahap
+// =====================================================================
+function runGuideCards(test, input) {
+  const out = E.analyzeGuideCards(input, cfg);
+  add(
+    'Kartu Panduan Kakak Asuh',
+    test,
+    `Target fondasi ${input.foundationTarget}; contoh median ${input.medianSubtest} ${input.medianHistory} = ${input.median}; Pilihan 1: ${input.prodi}; TO berikutnya: ${input.nextEpisode}`,
+    [
+      `T1 judul: ${out.t1.title}`,
+      ...out.t1.rambu.map((r) => `T1 rambu: ${r}`),
+      `T1 konteks median: ${out.t1.medianContext}`,
+      `T2 judul: ${out.t2.title}`,
+      ...out.t2.rambu.map((r) => `T2 rambu: ${r}`),
+      `T3 judul: ${out.t3.title}`,
+      `T3 target hasil: ${out.t3.goal}`,
+      ...out.t3.rambu.map((r) => `T3 rambu: ${r}`),
+      `T3 catatan target dasar: ${out.t3.base600Note}`,
+      `T4 judul: ${out.t4.title}`,
+      `T4 target hasil: ${out.t4.goal}`,
+      ...out.t4.rambu.map((r) => `T4 rambu: ${r}`),
+      `T5 judul: ${out.t5.title}`,
+      `T5 target hasil: ${out.t5.goal}`,
+      `T5 kesinambungan: ${out.t5.continuity}`
+    ],
+    [],
+    ['Kartu panduan: semua teks']
+  );
+}
+runGuideCards('Contoh siswa dengan target fondasi bawaan', { foundationTarget: TH.foundationScoreTarget, medianSubtest: 'PU', medianHistory: '480→560→470→520', median: 500, prodi: 'Prodi Contoh', nextEpisode: 5 });
+runGuideCards('Target fondasi dan nomor TO berbeda', { foundationTarget: 650, medianSubtest: 'PK', medianHistory: '600→640→590', median: 600, prodi: 'Prodi Lain', nextEpisode: 7 });
+
+// =====================================================================
 // Cakupan aturan
 // =====================================================================
 const EXPECTED = [
@@ -378,11 +410,12 @@ const EXPECTED = [
   'T3 ketimpangan: ya', 'T3 ketimpangan: tidak',
   'T4 kelas: belum ada sesi', 'T4 kelas: kehadiran rendah', 'T4 kelas: kehadiran baik', 'T4 kelas: sesi terlewat >= 5',
   'T4 kelas: catatan 0', 'T4 kelas: catatan < 25%', 'T4 kelas: semua sesi punya catatan', 'T4 kelas: ada sesi tanpa catatan',
-  'T5 subtes prioritas: semua tercapai', 'T5 subtes prioritas: ada yang belum', 'T5 tanpa subtes prioritas',
-  'T5 satu subtes untuk gap dan drill', 'T5 topik lemah kosong', 'T5 rumah: dengan konflik/lokasi', 'T5 rumah: tanpa konflik',
+  'T5 rencana: semua subtes tercapai', 'T5 rencana: ada subtes di bawah target',
+  'T5 rencana: minimal per subtes berlaku', 'T5 rencana: pembagian merata',
   'T5 tugas: subtes minim drill', 'T5 tugas: konflik/lokasi',
   'T5 arahan: pengganti', 'T5 arahan: konflik', 'T5 arahan: minim drill', 'T5 arahan: kehadiran rendah',
-  'T5 arahan: semua tercapai', 'T5 arahan: dibatasi 2 baris'
+  'T5 arahan: semua tercapai', 'T5 arahan: dibatasi 2 baris',
+  'Kartu panduan: semua teks'
 ];
 const missing = EXPECTED.filter((k) => !covered.has(k));
 

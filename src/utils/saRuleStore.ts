@@ -53,7 +53,8 @@ export function mergeWithDefault(raw: Partial<EngineRuleConfig> | null | undefin
     classroomTemplates: mergeRecord(base.classroomTemplates, raw.classroomTemplates),
     stage3OverallTemplates: mergeRecord(base.stage3OverallTemplates, raw.stage3OverallTemplates),
     actionPlanTemplates: mergeRecord(base.actionPlanTemplates, raw.actionPlanTemplates),
-    notesGuidanceTemplates: mergeRecord(base.notesGuidanceTemplates, raw.notesGuidanceTemplates)
+    notesGuidanceTemplates: mergeRecord(base.notesGuidanceTemplates, raw.notesGuidanceTemplates),
+    guideCardTemplates: mergeRecord(base.guideCardTemplates, raw.guideCardTemplates)
   };
 }
 

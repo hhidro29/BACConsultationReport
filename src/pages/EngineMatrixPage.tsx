@@ -166,7 +166,9 @@ const THRESHOLD_FIELDS: Record<ThresholdKey, { label: string; also?: string }> =
   drillMismatchLowQ: { label: 'Subtes Prioritas Minim (≤ soal)' },
   absenceWarnSessions: { label: 'Sakit + Izin (≥ sesi)' },
   notesLowCoveragePct: { label: 'Cakupan Catatan Rendah (< %)' },
-  notesShortChars: { label: 'Catatan Kakak Asuh Singkat (< karakter)' }
+  notesShortChars: { label: 'Catatan Kakak Asuh Singkat (< karakter)' },
+  weeklyDrillTotal: { label: 'Target Soal Benar per Minggu (dibagi ke subtes di bawah target)' },
+  minDrillPerSubtest: { label: 'Minimal Soal Benar per Subtes per Minggu' }
 };
 
 const THRESHOLD_GROUPS: {
@@ -220,6 +222,12 @@ const THRESHOLD_GROUPS: {
       { title: 'Catatan pengajar', keys: ['notesLowCoveragePct'] },
       { title: 'Catatan Kakak Asuh', note: 'pengingat lunak saat Kunci', keys: ['notesShortChars'] }
     ]
+  },
+  {
+    id: 't5',
+    title: 'Tahap 5 · Rencana Aksi',
+    desc: 'Target drill mingguan di rencana aksi (dashboard dan PDF halaman 3).',
+    subgroups: [{ title: 'Drill soal mingguan', note: 'total dibagi rata ke subtes di bawah target fondasi', keys: ['weeklyDrillTotal', 'minDrillPerSubtest'] }]
   }
 ];
 
@@ -244,6 +252,32 @@ const CLASSROOM_FIELD_TITLES: Record<keyof EngineRuleConfig['classroomTemplates'
   guardrailAllNotes: 'Catatan acuan: semua sesi punya catatan'
 };
 
+const GUIDE_CARD_FIELD_GROUPS: { title: string; keys: (keyof EngineRuleConfig['guideCardTemplates'])[] }[] = [
+  { title: 'Kartu Tahap 1 · Evaluasi Tryout', keys: ['t1Title', 't1Rambu', 't1MedianContext'] },
+  { title: 'Kartu Tahap 2 · Analisis Jurusan', keys: ['t2Title', 't2Rambu'] },
+  { title: 'Kartu Tahap 3 · Subtes & Drill Soal', keys: ['t3Title', 't3Goal', 't3Rambu', 't3Base600Note'] },
+  { title: 'Kartu Tahap 4 · Kelas TMB & Catatan', keys: ['t4Title', 't4Goal', 't4Rambu'] },
+  { title: 'Kartu Tahap 5 · Rencana Aksi', keys: ['t5Title', 't5Goal', 't5Continuity'] }
+];
+
+const GUIDE_CARD_FIELD_TITLES: Record<keyof EngineRuleConfig['guideCardTemplates'], string> = {
+  t1Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
+  t1Rambu: 'Rambu komunikasi (satu poin per baris)',
+  t1MedianContext: 'Konteks data median',
+  t2Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
+  t2Rambu: 'Rambu progres holistik (satu poin per baris)',
+  t3Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
+  t3Goal: 'Target hasil',
+  t3Rambu: 'Rambu komunikasi (satu poin per baris)',
+  t3Base600Note: 'Catatan alasan target dasar (di atas kartu subtes)',
+  t4Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
+  t4Goal: 'Target hasil',
+  t4Rambu: 'Rambu komunikasi (satu poin per baris)',
+  t5Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
+  t5Goal: 'Target hasil',
+  t5Continuity: 'Kesinambungan sesi berikutnya'
+};
+
 const NOTES_GUIDANCE_FIELD_TITLES: Record<keyof EngineRuleConfig['notesGuidanceTemplates'], string> = {
   placeholder: 'Placeholder kotak catatan (saat kosong)',
   conflictLine: 'Arahan: beda pilihan atau batasan lokasi ({student})',
@@ -257,25 +291,22 @@ const NOTES_GUIDANCE_FIELD_TITLES: Record<keyof EngineRuleConfig['notesGuidanceT
 };
 
 const ACTION_PLAN_FIELD_TITLES: Record<keyof EngineRuleConfig['actionPlanTemplates'], string> = {
-  plan1TitleAchieved: 'Rencana 1 · Judul (semua subtes prioritas tercapai)',
-  plan1TitleDefault: 'Rencana 1 · Judul (ada yang belum tercapai)',
-  plan1DescAchieved: 'Rencana 1 · Isi (semua tercapai)',
-  plan1DescSame: 'Rencana 1 · Isi (gap terbesar = drill terendah)',
-  plan1DescDifferent: 'Rencana 1 · Isi (dua subtes berbeda)',
-  plan1Pic: 'Rencana 1 · Penanggung jawab',
+  plan1Title: 'Rencana 1 · Judul',
+  plan1Desc: 'Rencana 1 · Isi (ada subtes di bawah target)',
+  plan1DescAchieved: 'Rencana 1 · Isi (semua subtes tercapai)',
+  plan1Pic: 'Rencana 1 · Penanggung jawab (hanya dashboard)',
   plan2Title: 'Rencana 2 · Judul',
-  plan2DescAchieved: 'Rencana 2 · Isi (semua tercapai)',
-  plan2DescDefault: 'Rencana 2 · Isi (ada yang belum tercapai)',
-  plan2Pic: 'Rencana 2 · Penanggung jawab',
-  plan3TitleAchieved: 'Rencana 3 · Judul (semua tercapai)',
-  plan3TitleDefault: 'Rencana 3 · Judul (ada yang belum tercapai)',
-  plan3DescAchieved: 'Rencana 3 · Isi (semua tercapai)',
-  plan3DescDefault: 'Rencana 3 · Isi (ada yang belum tercapai)',
-  plan3Pic: 'Rencana 3 · Penanggung jawab',
+  plan2Desc: 'Rencana 2 · Isi',
+  plan2DeepestSuffix: 'Rencana 2 · Tambahan subtes dengan selisih terdalam',
+  plan2Pic: 'Rencana 2 · Penanggung jawab (hanya dashboard)',
+  plan3Title: 'Rencana 3 · Judul',
+  plan3Desc: 'Rencana 3 · Isi (ada subtes di bawah target)',
+  plan3DescAchieved: 'Rencana 3 · Isi (semua subtes tercapai)',
+  plan3Pic: 'Rencana 3 · Penanggung jawab (hanya dashboard)',
   plan4Title: 'Rencana 4 · Judul',
-  plan4DescConflict: 'Rencana 4 · Isi (ada konflik prodi/lokasi)',
-  plan4DescDefault: 'Rencana 4 · Isi (tanpa konflik)',
-  plan4Pic: 'Rencana 4 · Penanggung jawab',
+  plan4Desc: 'Rencana 4 · Isi',
+  plan4DrillSuffix: 'Rencana 4 · Tambahan cek progres drill',
+  plan4Pic: 'Rencana 4 · Penanggung jawab (hanya dashboard)',
   checklist: 'Checklist Penutup (satu poin per baris)'
 };
 
@@ -309,7 +340,7 @@ export const EngineMatrixPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'simulator' | 'controls' | 'matrix'>(
     initialTabParam === 'controls' ? 'controls' : initialTabParam === 'matrix' ? 'matrix' : 'simulator'
   );
-  const [editorStage, setEditorStage] = useState<'stage1' | 'stage2' | 'stage3' | 'stage4'>('stage1');
+  const [editorStage, setEditorStage] = useState<'stage1' | 'stage2' | 'stage3' | 'stage4' | 'guides'>('stage1');
   const [selectedPatternEdit, setSelectedPatternEdit] = useState<TryoutPattern>('steady_down');
 
   useEffect(() => {
@@ -427,15 +458,14 @@ export const EngineMatrixPage: React.FC = () => {
       hasConflictOrLocationCheck:
         hasMixedRumpun || familyAlignment === 'location_limit' || familyAlignment === 'unconfirmed',
       hasMissingDrill: drillQuestions <= activeEvalConfig.thresholds.drillMismatchLowQ,
-      prioritySubtests: [
-        {
-          id: 'sim_1',
-          name: subtestName,
-          gapNum: toLatest - activeEvalConfig.thresholds.foundationScoreTarget,
-          rgQuestionsDone: drillQuestions,
-          lowestTopics: ['Materi Dasar #1', 'Materi Dasar #2']
-        }
-      ],
+      planData: {
+        subtests: [
+          { name: subtestName, to4: toLatest, gap: toLatest - activeEvalConfig.thresholds.foundationScoreTarget }
+        ],
+        branch: 'Cabang Contoh',
+        avgScore: toLatest,
+        episode: 4
+      },
       studentName: 'Siswa Contoh',
       saName: 'Kakak Asuh',
       parentName: 'Orang Tua Siswa'
@@ -1161,7 +1191,8 @@ export const EngineMatrixPage: React.FC = () => {
                     { id: 'stage1', label: 'Tahap 1 (15 Pola TO)' },
                     { id: 'stage2', label: 'Tahap 2 (Jurusan)' },
                     { id: 'stage3', label: 'Tahap 3 (5 Subtes)' },
-                    { id: 'stage4', label: 'Tahap 4 (Penutupan)' }
+                    { id: 'stage4', label: 'Tahap 4 (Penutupan)' },
+                    { id: 'guides', label: 'Kartu Panduan' }
                   ].map((s) => (
                     <button
                       key={s.id}
@@ -1279,6 +1310,40 @@ export const EngineMatrixPage: React.FC = () => {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {editorStage === 'guides' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+                    Format ringan: **teks** untuk tebal, `teks` untuk kode. Placeholder: {'{target} {subtest} {history} {median} {prodi} {nextTo}'}. Rambu: satu poin per baris.
+                  </div>
+                  {GUIDE_CARD_FIELD_GROUPS.map((group) => (
+                    <div key={group.title}>
+                      <div style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginBottom: 8 }}>{group.title}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                        {group.keys.map((key) => (
+                          <div key={key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                            <label style={{ fontSize: 12, fontWeight: 700, color: '#0284c7', display: 'block', marginBottom: 4 }}>
+                              {GUIDE_CARD_FIELD_TITLES[key]}
+                            </label>
+                            <textarea
+                              rows={/Rambu$|Note$|Context$|Continuity$/.test(key) ? 4 : 2}
+                              value={draftConfig.guideCardTemplates[key]}
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                setDraftConfig((prev) => ({
+                                  ...prev,
+                                  guideCardTemplates: { ...prev.guideCardTemplates, [key]: v }
+                                }));
+                              }}
+                              style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -1498,7 +1563,7 @@ export const EngineMatrixPage: React.FC = () => {
                     </div>
                   ))}
                   <div style={{ gridColumn: '1 / -1', fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginTop: 6 }}>
-                    Rencana Aksi 1–4 dan Checklist Penutup (placeholder: {'{student} {sa} {parent} {largestGapSub} {lowestDrillSub} {topics} {nextTo}'})
+                    Rencana Aksi 1–4 dan Checklist Penutup, SATU SUMBER untuk dashboard dan PDF halaman 3 (format **tebal**; placeholder: {'{student} {sa} {parent} {branch} {target} {weakCount} {drillWeekly} {drillPerSubtest} {deepest} {nextEpisode} {episode} {avgScore}'})
                   </div>
                   {(Object.keys(draftConfig.actionPlanTemplates) as (keyof EngineRuleConfig['actionPlanTemplates'])[]).map((key) => (
                     <div key={key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
@@ -1511,7 +1576,7 @@ export const EngineMatrixPage: React.FC = () => {
                         </div>
                       )}
                       <textarea
-                        rows={key === 'checklist' ? 5 : 2}
+                        rows={key === 'checklist' ? 5 : 3}
                         value={draftConfig.actionPlanTemplates[key]}
                         onChange={(e) => {
                           const v = e.target.value;

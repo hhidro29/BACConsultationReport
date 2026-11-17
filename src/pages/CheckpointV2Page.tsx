@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Lock, Unlock, Info, Building2, Wrench, ShieldCheck, BookOpen, Compass, FileText, GitBranch, ChevronDown, GraduationCap } from 'lucide-react';
 import { V2PdfModal } from '../components/V2PdfModal';
+import { RichText } from '../components/RichText';
 import {
   CHECKPOINT1_STUDENTS,
   ProgramChoice
@@ -21,6 +22,7 @@ import {
   analyzeStage3Overall,
   analyzeStage4,
   analyzeNotesGuidance,
+  analyzeGuideCards,
   analyzeStageClassroom,
   computeProgramPacing,
   classifySubtestPattern
@@ -393,10 +395,27 @@ export const CheckpointV2Page: React.FC = () => {
     {
       hasConflictOrLocationCheck,
       hasMissingDrill,
-      prioritySubtests: prioritySubtestsV2,
+      planData: {
+        subtests: subtestsV2Data.map((x) => ({ name: x.name, to4: x.to4, gap: x.gap })),
+        branch: activeStudent.identity.branch,
+        avgScore: toScoresList[toScoresList.length - 1] ?? 0,
+        episode: latestToEpisode
+      },
       studentName: activeStudent.identity.name,
       saName: activeStudent.identity.saName,
       parentName: activeStudent.identity.parentName,
+      nextEpisode: latestToEpisode + 1
+    },
+    ruleConfig
+  );
+
+  const guideCards = analyzeGuideCards(
+    {
+      foundationTarget: ruleConfig.thresholds.foundationScoreTarget,
+      medianSubtest: maxFluctSub.name,
+      medianHistory: `${maxFluctSub.to1}→${maxFluctSub.to2}→${maxFluctSub.to3}→${maxFluctSub.to4}`,
+      median: maxFluctSub.median,
+      prodi: targetPrograms[0]?.prodi || 'Prodi Utama',
       nextEpisode: latestToEpisode + 1
     },
     ruleConfig
@@ -1012,7 +1031,7 @@ export const CheckpointV2Page: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Info size={16} />
-                Panduan Kakak Asuh: Mengulas Tren Skor &amp; Fondasi 600
+                Panduan Kakak Asuh: {guideCards.t1.title}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Link to="/engine" style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', textDecoration: 'none' }}>
@@ -1052,14 +1071,14 @@ export const CheckpointV2Page: React.FC = () => {
                     {stage1Out.extraNotes.map((note, idx) => (
                       <li key={idx}>{note}</li>
                     ))}
-                    <li><strong>Netral terhadap skor:</strong> Bahas pengalaman pengerjaan siswa terlebih dahulu sebelum menyimpulkan penyebab naik/turunnya nilai.</li>
+                    {guideCards.t1.rambu.map((r) => (<li key={r}><RichText text={r} /></li>))}
                   </ul>
                 </div>
 
                 <div style={{ background: 'var(--primary-light)', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--primary-border)', fontSize: 12, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 4 }}>📊 KONTEKS DATA (MEDIAN PRIBADI):</div>
                   <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
-                    Median (contoh {maxFluctSub.name} <code>{maxFluctSub.to1}→{maxFluctSub.to2}→{maxFluctSub.to3}→{maxFluctSub.to4}</code> = <strong>{maxFluctSub.median}</strong>) berasal dari <strong>riwayat pribadi siswa</strong> untuk melihat skor tipikal saat hasil berfluktuasi, bukan ranking nasional.
+                    <RichText text={guideCards.t1.medianContext} />
                   </p>
                 </div>
               </div>
@@ -1290,7 +1309,7 @@ export const CheckpointV2Page: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Building2 size={16} />
-                Panduan Kakak Asuh: Menyelaraskan Pilihan Jurusan &amp; Progres Menuju UTBK
+                Panduan Kakak Asuh: {guideCards.t2.title}
               </span>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', background: 'var(--primary-light)', border: '1px solid var(--primary-border)', padding: '2px 10px', borderRadius: 9999 }}>
                 Kondisi: {stage2Out.conditionLabel}
@@ -1319,8 +1338,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 RAMBU PROGRES HOLISTIK:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
-                    <li><strong>CP1 → CP2 → UTBK:</strong> Di CP1 bangun laju kenaikan; di konsultasi berikutnya arahkan melewati target acuan; di konsultasi terakhir maksimalkan margin di atas pesaing.</li>
-                    <li><strong>Makna Plan B:</strong> Jika selisih masih lebar, jadikan Pilihan 2–4 sebagai pengaman portofolio tanpa mematahkan motivasi di Pilihan 1.</li>
+                    {guideCards.t2.rambu.map((r) => (<li key={r}><RichText text={r} /></li>))}
                   </ul>
                 </div>
 
@@ -1351,7 +1369,7 @@ export const CheckpointV2Page: React.FC = () => {
 
           {/* Disclaimer ulang mengapa target semester 1 adalah 600 */}
           <div style={{ background: '#fffaeb', border: '1px solid #fedf89', borderLeft: '4px solid #f79009', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: 'var(--amber-ink)', lineHeight: 1.5, marginBottom: 16 }}>
-            💡 <strong>Mengapa target dasar Semester 1 adalah 600?</strong> Subtes prioritas dikunci ke <strong>Pilihan 1 ({targetPrograms[0]?.prodi || 'Prodi Utama'})</strong>. Jika target subtes pada jurusan pilihan berada di bawah 600, batas minimum <strong>600 tetap dipertahankan</strong> agar tidak ada titik lemah; jika target jurusan sudah di atas 600, acuan mengikuti target jurusan yang lebih tinggi tersebut.
+            💡 <RichText text={guideCards.t3.base600Note} />
           </div>
 
           {/* Cards 3 Subtests (Locked to Pilihan 1, 1 Row x 3 Columns) */}
@@ -1596,10 +1614,10 @@ export const CheckpointV2Page: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--amber-ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Wrench size={16} />
-                Panduan Kakak Asuh: Audit Kebiasaan Drill Soal &amp; Prioritas Materi Klinik PR
+                Panduan Kakak Asuh: {guideCards.t3.title}
               </span>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--amber-ink)', background: '#fef0c7', padding: '2px 10px', borderRadius: 9999 }}>
-                Target Hasil: Sepakati topik Klinik PR &amp; perbaikan pola drill soal
+                Target Hasil: {guideCards.t3.goal}
               </span>
             </div>
 
@@ -1627,8 +1645,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
-                    <li><strong>Hindari drill semu:</strong> Apresiasi konsistensi di subtes yang sudah aktif, lalu ajak mengalihkan porsi drill soal ke subtes dengan gap terbesar.</li>
-                    <li><strong>Jangan menyimpulkan &quot;malas&quot; dari angka 0:</strong> Data kosong hanya berarti belum tercatat di aplikasi—gali dulu kendala atau drill soal mandiri di luar sistem.</li>
+                    {guideCards.t3.rambu.map((r) => (<li key={r}><RichText text={r} /></li>))}
                   </ul>
                 </div>
 
@@ -1924,10 +1941,10 @@ export const CheckpointV2Page: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GraduationCap size={16} />
-                Panduan Kakak Asuh: Mengonfirmasi Konteks Belajar di Kelas TMB
+                Panduan Kakak Asuh: {guideCards.t4.title}
               </span>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', background: 'var(--primary-light)', padding: '2px 10px', borderRadius: 9999 }}>
-                Target Hasil: Pola kelas &amp; kendala kehadiran terkonfirmasi sebelum rencana aksi
+                Target Hasil: {guideCards.t4.goal}
               </span>
             </div>
 
@@ -1947,8 +1964,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
                   <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
-                    <li><strong>Pisahkan sesi dari sifat permanen:</strong> Sampaikan catatan per mapel/tanggal sebagai konteks belajar saat itu, bukan label kepribadian siswa.</li>
-                    <li><strong>Hubungkan dengan kebutuhan Klinik PR:</strong> Gunakan sesi yang mencatat siswa butuh bantuan untuk memprioritaskan topik tatap muka cabang.</li>
+                    {guideCards.t4.rambu.map((r) => (<li key={r}><RichText text={r} /></li>))}
                   </ul>
                 </div>
 
@@ -2016,7 +2032,7 @@ export const CheckpointV2Page: React.FC = () => {
                     </span>
                     <strong style={{ fontSize: 13, color: 'var(--ink)' }}>{plan.title}</strong>
                   </div>
-                  <p style={{ fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.55 }}>{plan.desc}</p>
+                  <p style={{ fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.55 }}><RichText text={plan.desc} /></p>
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>PIC: {plan.pic}</div>
                 </div>
               ))}
@@ -2106,10 +2122,10 @@ export const CheckpointV2Page: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--green-ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ShieldCheck size={16} />
-                Panduan Kakak Asuh: Mengunci Komitmen Nyata &amp; Penyerahan Laporan
+                Panduan Kakak Asuh: {guideCards.t5.title}
               </span>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', background: '#ecfdf3', padding: '2px 10px', borderRadius: 9999 }}>
-                Target Hasil: Jadwal cabang disepakati, catatan tersimpan &amp; PDF diserahkan
+                Target Hasil: {guideCards.t5.goal}
               </span>
             </div>
 
@@ -2140,7 +2156,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <div style={{ background: '#ecfdf3', padding: '10px 12px', borderRadius: 6, border: '1px solid #a6f4c5', fontSize: 12, lineHeight: 1.45 }}>
                   <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🔄 KESINAMBUNGAN SESI BERIKUTNYA:</div>
                   <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
-                    Catatan di formulir atas berfungsi sebagai <strong>pengingat untuk pertemuan selanjutnya</strong> agar evaluasi progres di TO 5 tidak mengulang pembicaraan dari awal.
+                    <RichText text={guideCards.t5.continuity} />
                   </p>
                 </div>
               </div>
