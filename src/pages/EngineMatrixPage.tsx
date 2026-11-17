@@ -143,6 +143,142 @@ const PRESETS: PresetConfig[] = [
   }
 ];
 
+type ThresholdKey = keyof EngineRuleConfig['thresholds'];
+
+const THRESHOLD_FIELDS: Record<ThresholdKey, { label: string; also?: string }> = {
+  toTolerancePts: { label: 'Toleransi TO Datar (±poin)' },
+  foundationScoreTarget: { label: 'Target Fondasi Subtes', also: 'Tahap 3' },
+  subtestSwingPts: { label: 'Batas Fluktuasi Subtes (poin)' },
+  attendanceWarnPct: { label: 'Ambang Peringatan Absensi (%)', also: 'Tahap 4' },
+  wideWeightedGapPts: { label: 'Gap Terbobot Lebar (≤ poin)' },
+  minBenchmarkParticipants: { label: 'Min. Peserta Pembanding' },
+  remainingEpisodesToNextConsult: { label: 'Sisa TO ke Konsultasi Berikutnya' },
+  remainingEpisodesToUtbk: { label: 'Total Sisa TO Menuju UTBK' },
+  planBGainThresholdPts: { label: 'Ambang Kenaikan Plan B (> poin/TO)' },
+  drillLowQuestions: { label: 'Batas Drill Minim (< soal)' },
+  drillLowAccuracyPct: { label: 'Batas Akurasi Rendah (< %)' },
+  drillHighAccQuestions: { label: 'Min. Soal Drill (≥)' },
+  drillHighAccuracyPct: { label: 'Min. Akurasi (≥ %)' },
+  drillHighAccGapPts: { label: 'Selisih ke Target (≤ poin)' },
+  drillActiveHighGap: { label: 'Gap Subtes Prioritas (≤ poin)' },
+  nearTargetGapPts: { label: 'Batas Dekat Target (≥ poin)' },
+  drillMismatchHighQ: { label: 'Subtes Paling Aktif (≥ soal)' },
+  drillMismatchLowQ: { label: 'Subtes Prioritas Minim (≤ soal)' },
+  absenceWarnSessions: { label: 'Sakit + Izin (≥ sesi)' },
+  notesLowCoveragePct: { label: 'Cakupan Catatan Rendah (< %)' },
+  notesShortChars: { label: 'Catatan Kakak Asuh Singkat (< karakter)' }
+};
+
+const THRESHOLD_GROUPS: {
+  id: string;
+  title: string;
+  desc: string;
+  subgroups: { title: string; note?: string; keys: ThresholdKey[] }[];
+}[] = [
+  {
+    id: 't1',
+    title: 'Tahap 1 · Evaluasi Tryout',
+    desc: 'Membaca pola skor TO, capaian fondasi subtes, dan kehadiran.',
+    subgroups: [
+      { title: 'Pola skor TO', note: 'memilih satu dari 15 pola', keys: ['toTolerancePts'] },
+      { title: 'Capaian subtes', note: 'catatan fondasi dan fluktuasi', keys: ['foundationScoreTarget', 'subtestSwingPts'] },
+      { title: 'Kehadiran kelas', keys: ['attendanceWarnPct'] }
+    ]
+  },
+  {
+    id: 't2',
+    title: 'Tahap 2 · Analisis Jurusan',
+    desc: 'Membaca selisih skor terbobot terhadap target acuan dan kecukupan data pembanding.',
+    subgroups: [
+      { title: 'Selisih terhadap target', note: 'memilih teks gap lebar, moderat, atau melampaui', keys: ['wideWeightedGapPts'] },
+      { title: 'Data pembanding', note: 'peringatan jika peserta terlalu sedikit', keys: ['minBenchmarkParticipants'] },
+      {
+        title: 'Laju kenaikan per TO dan Plan B',
+        note: 'menghitung target per TO dan sinyal Plan B',
+        keys: ['remainingEpisodesToNextConsult', 'remainingEpisodesToUtbk', 'planBGainThresholdPts']
+      }
+    ]
+  },
+  {
+    id: 't3',
+    title: 'Tahap 3 · Subtes & Drill Soal',
+    desc: 'Kondisi per subtes diperiksa berurutan, yang pertama cocok dipakai: tercapai, belum drill, volume rendah, akurasi tinggi, drill aktif, dekat target, umum.',
+    subgroups: [
+      { title: 'Kondisi "Volume terbatas & akurasi rendah"', note: 'keduanya harus terpenuhi', keys: ['drillLowQuestions', 'drillLowAccuracyPct'] },
+      { title: 'Kondisi "Akurasi drill tinggi, gap TO masih ada"', note: 'ketiganya harus terpenuhi', keys: ['drillHighAccQuestions', 'drillHighAccuracyPct', 'drillHighAccGapPts'] },
+      { title: 'Kondisi "Drill aktif, gap TO lebar"', note: 'dipakai juga untuk subtes prioritas di audit', keys: ['drillActiveHighGap'] },
+      { title: 'Kondisi "Mendekati target"', keys: ['nearTargetGapPts'] },
+      { title: 'Audit ketimpangan drill (seluruh subtes)', note: 'drill terbanyak jauh melebihi subtes prioritas', keys: ['drillMismatchHighQ', 'drillMismatchLowQ'] }
+    ]
+  },
+  {
+    id: 't4',
+    title: 'Tahap 4 · Kelas TMB & Catatan Pengajar',
+    desc: 'Membaca kehadiran kelas dan kelengkapan catatan pengajar.',
+    subgroups: [
+      { title: 'Sesi terlewat', keys: ['absenceWarnSessions'] },
+      { title: 'Catatan pengajar', keys: ['notesLowCoveragePct'] },
+      { title: 'Catatan Kakak Asuh', note: 'pengingat lunak saat Kunci', keys: ['notesShortChars'] }
+    ]
+  }
+];
+
+const STAGE1_FIELD_TITLES: Record<keyof EngineRuleConfig['stage1Templates'], string> = {
+  foundationAllBelow500: 'Catatan: semua subtes < 500',
+  foundationAllAbove: 'Catatan: semua subtes ≥ target fondasi',
+  foundationPartial: 'Catatan: sebagian subtes ≥ target fondasi',
+  foundationNone: 'Catatan: belum ada subtes ≥ target fondasi',
+  swing: 'Catatan: fluktuasi subtes ekstrem',
+  attendance: 'Catatan: kehadiran di bawah ambang',
+  latestDeltaSuffix: 'Tambahan di akhir observasi (≥ 3 TO)'
+};
+
+const CLASSROOM_FIELD_TITLES: Record<keyof EngineRuleConfig['classroomTemplates'], string> = {
+  noSessions: 'Belum ada sesi kelas',
+  lowAttendance: 'Kehadiran di bawah ambang',
+  goodAttendance: 'Kehadiran baik',
+  repeatedAbsence: 'Sakit + izin mencapai ambang',
+  noNotes: 'Belum ada catatan pengajar',
+  lowNotes: 'Cakupan catatan pengajar rendah',
+  guardrailMissingNotes: 'Catatan acuan: ada sesi tanpa catatan',
+  guardrailAllNotes: 'Catatan acuan: semua sesi punya catatan'
+};
+
+const NOTES_GUIDANCE_FIELD_TITLES: Record<keyof EngineRuleConfig['notesGuidanceTemplates'], string> = {
+  placeholder: 'Placeholder kotak catatan (saat kosong)',
+  conflictLine: 'Arahan: beda pilihan atau batasan lokasi ({student})',
+  missingDrillLine: 'Arahan: subtes prioritas minim drill ({subtests})',
+  lowAttendanceLine: 'Arahan: kehadiran rendah ({student}, {pct})',
+  allAchievedLine: 'Arahan: semua subtes prioritas tercapai ({student})',
+  fallbackLine: 'Arahan pengganti (tampil bila tidak ada arahan sesuai kondisi)',
+  points: 'Arahan tetap di akhir daftar (satu poin per baris)',
+  reminder: 'Pengingat penutup (tebal, di bawah daftar)',
+  lockNudge: 'Pengingat lunak saat Kunci bila catatan singkat'
+};
+
+const ACTION_PLAN_FIELD_TITLES: Record<keyof EngineRuleConfig['actionPlanTemplates'], string> = {
+  plan1TitleAchieved: 'Rencana 1 · Judul (semua subtes prioritas tercapai)',
+  plan1TitleDefault: 'Rencana 1 · Judul (ada yang belum tercapai)',
+  plan1DescAchieved: 'Rencana 1 · Isi (semua tercapai)',
+  plan1DescSame: 'Rencana 1 · Isi (gap terbesar = drill terendah)',
+  plan1DescDifferent: 'Rencana 1 · Isi (dua subtes berbeda)',
+  plan1Pic: 'Rencana 1 · Penanggung jawab',
+  plan2Title: 'Rencana 2 · Judul',
+  plan2DescAchieved: 'Rencana 2 · Isi (semua tercapai)',
+  plan2DescDefault: 'Rencana 2 · Isi (ada yang belum tercapai)',
+  plan2Pic: 'Rencana 2 · Penanggung jawab',
+  plan3TitleAchieved: 'Rencana 3 · Judul (semua tercapai)',
+  plan3TitleDefault: 'Rencana 3 · Judul (ada yang belum tercapai)',
+  plan3DescAchieved: 'Rencana 3 · Isi (semua tercapai)',
+  plan3DescDefault: 'Rencana 3 · Isi (ada yang belum tercapai)',
+  plan3Pic: 'Rencana 3 · Penanggung jawab',
+  plan4Title: 'Rencana 4 · Judul',
+  plan4DescConflict: 'Rencana 4 · Isi (ada konflik prodi/lokasi)',
+  plan4DescDefault: 'Rencana 4 · Isi (tanpa konflik)',
+  plan4Pic: 'Rencana 4 · Penanggung jawab',
+  checklist: 'Checklist Penutup (satu poin per baris)'
+};
+
 const ALL_15_PATTERNS: { pattern: TryoutPattern; condition: string; scoresExample: string }[] = [
   { pattern: 'no_data', condition: 'Jumlah skor TO = 0', scoresExample: '—' },
   { pattern: 'one_result', condition: 'Jumlah skor TO = 1', scoresExample: '518' },
@@ -156,9 +292,9 @@ const ALL_15_PATTERNS: { pattern: TryoutPattern; condition: string; scoresExampl
   { pattern: 'down_with_pauses', condition: '≥ 3 TO, ada turun & datar tanpa naik', scoresExample: '590 → 560 → 558 → 532' },
   { pattern: 'recovery', condition: 'Ada penurunan lalu TO terakhir naik', scoresExample: '590 → 552 → 540 → 586' },
   { pattern: 'reversal_down', condition: 'Ada kenaikan lalu TO terakhir turun', scoresExample: '530 → 575 → 595 → 555' },
-  { pattern: 'fluctuating_up', condition: 'Berganti arah, TO akhir > awal', scoresExample: '540 → 580 → 545 → 570' },
-  { pattern: 'fluctuating_down', condition: 'Berganti arah, TO akhir < awal', scoresExample: '580 → 540 → 575 → 550' },
-  { pattern: 'fluctuating_flat', condition: 'Berganti arah, awal & akhir serupa', scoresExample: '560 → 590 → 535 → 562' }
+  { pattern: 'fluctuating_up', condition: 'Berganti arah, TO akhir > awal', scoresExample: '580 → 540 → 575 → 610' },
+  { pattern: 'fluctuating_down', condition: 'Berganti arah, TO akhir < awal', scoresExample: '540 → 580 → 545 → 520' },
+  { pattern: 'fluctuating_flat', condition: 'Berganti arah, awal & akhir serupa', scoresExample: '560 → 520 → 540 → 562' }
 ];
 
 export const EngineMatrixPage: React.FC = () => {
@@ -909,59 +1045,100 @@ export const EngineMatrixPage: React.FC = () => {
               </div>
             )}
 
-            {/* Section A: Threshold Controls */}
+            {/* Section A: Threshold Controls, dikelompokkan per tahap dan aturan */}
             <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderRadius: 10, padding: 18 }}>
               <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink-strong)', margin: '0 0 4px' }}>
                 A. Kontrol Ambang Batas Kondisi (Thresholds)
               </h2>
               <p style={{ fontSize: 12, color: 'var(--muted)', margin: '0 0 14px' }}>
-                Menentukan kapan sebuah kondisi dianggap terpicu oleh sistem.
+                Menentukan kapan sebuah kondisi dianggap terpicu oleh sistem. Dikelompokkan sesuai tahap laporan dan aturan yang memakainya.
               </p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-                {[
-                  { key: 'toTolerancePts', label: 'Toleransi TO Datar (±poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.toTolerancePts },
-                  { key: 'foundationScoreTarget', label: 'Target Fondasi Subtes', def: DEFAULT_ENGINE_CONFIG.thresholds.foundationScoreTarget },
-                  { key: 'subtestSwingPts', label: 'Batas Fluktuasi Subtes (poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.subtestSwingPts },
-                  { key: 'attendanceWarnPct', label: 'Ambang Peringatan Absensi (%)', def: DEFAULT_ENGINE_CONFIG.thresholds.attendanceWarnPct },
-                  { key: 'wideWeightedGapPts', label: 'Gap Terbobot Lebar (≤ poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.wideWeightedGapPts },
-                  { key: 'remainingEpisodesToNextConsult', label: 'Sisa TO ke Konsultasi Berikutnya', def: DEFAULT_ENGINE_CONFIG.thresholds.remainingEpisodesToNextConsult },
-                  { key: 'remainingEpisodesToUtbk', label: 'Total Sisa TO Menuju UTBK', def: DEFAULT_ENGINE_CONFIG.thresholds.remainingEpisodesToUtbk },
-                  { key: 'planBGainThresholdPts', label: 'Ambang Kenaikan Plan B (> poin/TO)', def: DEFAULT_ENGINE_CONFIG.thresholds.planBGainThresholdPts },
-                  { key: 'minBenchmarkParticipants', label: 'Min. Peserta Pembanding', def: DEFAULT_ENGINE_CONFIG.thresholds.minBenchmarkParticipants },
-                  { key: 'drillLowQuestions', label: 'Batas Drill Minim (< soal)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillLowQuestions },
-                  { key: 'drillLowAccuracyPct', label: 'Batas Akurasi Rendah (< %)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillLowAccuracyPct },
-                  { key: 'drillActiveHighGap', label: 'Gap Subtes Prioritas (≤ poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillActiveHighGap },
-                  { key: 'nearTargetGapPts', label: 'Batas Dekat Target (≥ poin)', def: DEFAULT_ENGINE_CONFIG.thresholds.nearTargetGapPts },
-                  { key: 'drillMismatchHighQ', label: 'Ketimpangan: Subtes Aktif (≥ soal)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillMismatchHighQ },
-                  { key: 'drillMismatchLowQ', label: 'Ketimpangan: Prioritas (≤ soal)', def: DEFAULT_ENGINE_CONFIG.thresholds.drillMismatchLowQ }
-                ].map((f) => {
-                  const k = f.key as keyof EngineRuleConfig['thresholds'];
-                  const val = draftConfig.thresholds[k];
-                  const changed = val !== f.def;
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {THRESHOLD_GROUPS.map((group) => {
+                  const changedCount = group.subgroups
+                    .flatMap((sg) => sg.keys)
+                    .filter((k) => draftConfig.thresholds[k] !== DEFAULT_ENGINE_CONFIG.thresholds[k]).length;
                   return (
-                    <div
-                      key={f.key}
-                      style={{
-                        background: changed ? '#fffbeb' : 'var(--page-bg)',
-                        border: `1px solid ${changed ? '#fde68a' : 'var(--border)'}`,
-                        borderRadius: 8,
-                        padding: '10px 12px'
-                      }}
+                    <section
+                      key={group.id}
+                      aria-labelledby={`thr-group-${group.id}`}
+                      style={{ border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}
                     >
-                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-soft)', display: 'block', marginBottom: 4 }}>
-                        {f.label}
-                      </label>
-                      <input
-                        type="number"
-                        value={val}
-                        onChange={(e) => updateThreshold(k, Number(e.target.value))}
-                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 13, fontWeight: 700 }}
-                      />
-                      <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-                        Default: <strong>{f.def}</strong> {changed && <span style={{ color: '#b45309' }}>· Diubah</span>}
+                      <header
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'baseline',
+                          gap: 10,
+                          flexWrap: 'wrap',
+                          background: 'var(--page-bg)',
+                          padding: '10px 14px',
+                          borderBottom: '1px solid var(--border)'
+                        }}
+                      >
+                        <div>
+                          <h3 id={`thr-group-${group.id}`} style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--ink-strong)', margin: 0 }}>
+                            {group.title}
+                          </h3>
+                          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{group.desc}</div>
+                        </div>
+                        {changedCount > 0 && (
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#b45309' }}>{changedCount} diubah</span>
+                        )}
+                      </header>
+
+                      <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {group.subgroups.map((sub) => (
+                          <div key={sub.title}>
+                            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink-soft)', marginBottom: 6 }}>
+                              {sub.title}
+                              {sub.note && <span style={{ fontWeight: 500, color: 'var(--muted)' }}> · {sub.note}</span>}
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
+                              {sub.keys.map((key) => {
+                                const f = THRESHOLD_FIELDS[key];
+                                const k = key;
+                                const val = draftConfig.thresholds[k];
+                                const def = DEFAULT_ENGINE_CONFIG.thresholds[k];
+                                const changed = val !== def;
+                                return (
+                                  <div
+                                    key={key}
+                                    style={{
+                                      background: changed ? '#fffbeb' : 'var(--page-bg)',
+                                      border: `1px solid ${changed ? '#fde68a' : 'var(--border)'}`,
+                                      borderRadius: 8,
+                                      padding: '10px 12px'
+                                    }}
+                                  >
+                                    <label
+                                      htmlFor={`thr-${key}`}
+                                      style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-soft)', display: 'block', marginBottom: 4 }}
+                                    >
+                                      {f.label}
+                                    </label>
+                                    <input
+                                      id={`thr-${key}`}
+                                      type="number"
+                                      value={val}
+                                      onChange={(e) => updateThreshold(k, Number(e.target.value))}
+                                      style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 13, fontWeight: 700 }}
+                                    />
+                                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+                                      Default: <strong>{def}</strong> {changed && <span style={{ color: '#b45309' }}>· Diubah</span>}
+                                    </div>
+                                    {f.also && (
+                                      <div style={{ fontSize: 12, color: 'var(--primary)', marginTop: 2 }}>Juga dipakai di {f.also}</div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
+                    </section>
                   );
                 })}
               </div>
@@ -1040,11 +1217,12 @@ export const EngineMatrixPage: React.FC = () => {
                     </div>
                     {[
                       { field: 'label', title: 'Label Pola' },
+                      { field: 'observation', title: 'Kalimat Observasi (placeholder: {a} {b} {selisih} {jumlah})' },
                       { field: 'student', title: 'Tugas Fasilitasi ke Siswa' },
                       { field: 'parent', title: 'Tugas Fasilitasi ke Orang Tua' },
                       { field: 'nextStep', title: 'Arah Tindak Lanjut' }
                     ].map((item) => {
-                      const fk = item.field as 'label' | 'student' | 'parent' | 'nextStep';
+                      const fk = item.field as 'label' | 'observation' | 'student' | 'parent' | 'nextStep';
                       return (
                         <div key={item.field}>
                           <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-soft)', display: 'block', marginBottom: 4 }}>
@@ -1075,6 +1253,35 @@ export const EngineMatrixPage: React.FC = () => {
                 </div>
               )}
 
+              {editorStage === 'stage1' && (
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginBottom: 8 }}>
+                    Catatan Tambahan Tahap 1 (placeholder: {'{target} {above} {total} {swing} {names} {pct} {warn} {delta}'})
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    {(Object.keys(draftConfig.stage1Templates) as (keyof EngineRuleConfig['stage1Templates'])[]).map((key) => (
+                      <div key={key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                        <label style={{ fontSize: 12, fontWeight: 700, color: '#0284c7', display: 'block', marginBottom: 4 }}>
+                          {STAGE1_FIELD_TITLES[key]}
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={draftConfig.stage1Templates[key]}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setDraftConfig((prev) => ({
+                              ...prev,
+                              stage1Templates: { ...prev.stage1Templates, [key]: v }
+                            }));
+                          }}
+                          style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {editorStage === 'stage2' && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   {(
@@ -1086,7 +1293,10 @@ export const EngineMatrixPage: React.FC = () => {
                       { key: 'wideGap', title: 'Jika Gap Terbobot Masih Lebar' },
                       { key: 'remainingGap', title: 'Jika Gap Moderat (< 0)' },
                       { key: 'exceedTarget', title: 'Jika Skor Melampaui Target Acuan (≥ 0)' },
-                      { key: 'lowParticipantsWarning', title: 'Peringatan Pembanding < Batas ({count}, {limit})' }
+                      { key: 'lowParticipantsWarning', title: 'Peringatan Pembanding < Batas ({count}, {limit})' },
+                      { key: 'defaultBenchmarkNote', title: 'Catatan Acuan Standar (selalu tampil jika pembanding cukup)' },
+                      { key: 'observationRange', title: 'Kalimat Observasi Selisih, data tersedia ({max}, {min})' },
+                      { key: 'observationUnknown', title: 'Kalimat Observasi Selisih, data kosong' }
                     ] as const
                   ).map((item) => (
                     <div key={item.key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
@@ -1117,7 +1327,7 @@ export const EngineMatrixPage: React.FC = () => {
                       { id: 'mastered_above', desc: 'Skor sudah mencapai target 600+' },
                       { id: 'no_drill', desc: 'Drill aplikasi = 0 soal' },
                       { id: 'low_vol_low_acc', desc: 'Soal < batas & akurasi < batas' },
-                      { id: 'high_acc_low_to', desc: 'Akurasi drill tinggi (≥ 70%) tapi skor TO masih drop' },
+                      { id: 'high_acc_low_to', desc: `Akurasi drill tinggi (≥ ${draftConfig.thresholds.drillHighAccuracyPct}%) tapi skor TO masih drop` },
                       { id: 'active_drill_low_to', desc: 'Drill aktif tapi gap TO masih lebar' },
                       { id: 'near_target', desc: 'Gap ke target sudah dekat' },
                       { id: 'general_gap', desc: 'Kondisi umum lainnya' }
@@ -1146,6 +1356,24 @@ export const EngineMatrixPage: React.FC = () => {
                         style={{ width: '100%', padding: '5px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12, marginBottom: 8 }}
                       />
                       <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 3 }}>
+                        Kalimat Observasi (placeholder: {'{toLatest} {gap} {questions} {sessions} {accuracy}'})
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={draftConfig.stage3SubtestTemplates[cond.id].observation}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftConfig((prev) => ({
+                            ...prev,
+                            stage3SubtestTemplates: {
+                              ...prev.stage3SubtestTemplates,
+                              [cond.id]: { ...prev.stage3SubtestTemplates[cond.id], observation: v }
+                            }
+                          }));
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12, marginBottom: 8 }}
+                      />
+                      <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 3 }}>
                         Output Panduan SA
                       </label>
                       <textarea
@@ -1159,6 +1387,35 @@ export const EngineMatrixPage: React.FC = () => {
                               ...prev.stage3SubtestTemplates,
                               [cond.id]: { ...prev.stage3SubtestTemplates[cond.id], saTask: v }
                             }
+                          }));
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
+                      />
+                    </div>
+                  ))}
+                  <div style={{ gridColumn: '1 / -1', fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginTop: 6 }}>
+                    Audit Drill Keseluruhan (placeholder: {'{topName} {topQ} {lowNames} {lowQ}'})
+                  </div>
+                  {(
+                    [
+                      { key: 'mismatchNote', title: 'Temuan Ketimpangan Drill', rows: 3, hint: '' },
+                      { key: 'tasks', title: 'Tugas SA', rows: 6, hint: 'Satu poin per baris. Tiap baris tampil sebagai satu poin tugas.' },
+                      { key: 'guardrail', title: 'Catatan Acuan Drill', rows: 3, hint: '' }
+                    ] as const
+                  ).map((item) => (
+                    <div key={item.key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--amber-ink)', display: 'block', marginBottom: 4 }}>
+                        {item.title}
+                      </label>
+                      {item.hint && <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>{item.hint}</div>}
+                      <textarea
+                        rows={item.rows}
+                        value={draftConfig.stage3OverallTemplates[item.key]}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftConfig((prev) => ({
+                            ...prev,
+                            stage3OverallTemplates: { ...prev.stage3OverallTemplates, [item.key]: v }
                           }));
                         }}
                         style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
@@ -1190,6 +1447,77 @@ export const EngineMatrixPage: React.FC = () => {
                           setDraftConfig((prev) => ({
                             ...prev,
                             stage4Templates: { ...prev.stage4Templates, [item.key]: v }
+                          }));
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
+                      />
+                    </div>
+                  ))}
+                  <div style={{ gridColumn: '1 / -1', fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginTop: 6 }}>
+                    Kelas TMB & Catatan Pengajar (placeholder: {'{pct} {present} {total} {absent} {sick} {excused} {notes} {notesPct} {emptyNotes}'})
+                  </div>
+                  {(Object.keys(draftConfig.classroomTemplates) as (keyof EngineRuleConfig['classroomTemplates'])[]).map((key) => (
+                    <div key={key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', display: 'block', marginBottom: 4 }}>
+                        {CLASSROOM_FIELD_TITLES[key]}
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={draftConfig.classroomTemplates[key]}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftConfig((prev) => ({
+                            ...prev,
+                            classroomTemplates: { ...prev.classroomTemplates, [key]: v }
+                          }));
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
+                      />
+                    </div>
+                  ))}
+                  <div style={{ gridColumn: '1 / -1', fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginTop: 6 }}>
+                    Arahan di Bawah Kotak Catatan Kakak Asuh (SEMENTARA TIDAK DITAMPILKAN di laporan; catatan internal SA, tidak masuk PDF)
+                  </div>
+                  {(Object.keys(draftConfig.notesGuidanceTemplates) as (keyof EngineRuleConfig['notesGuidanceTemplates'])[]).map((key) => (
+                    <div key={key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', display: 'block', marginBottom: 4 }}>
+                        {NOTES_GUIDANCE_FIELD_TITLES[key]}
+                      </label>
+                      <textarea
+                        rows={key === 'points' ? 4 : 2}
+                        value={draftConfig.notesGuidanceTemplates[key]}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftConfig((prev) => ({
+                            ...prev,
+                            notesGuidanceTemplates: { ...prev.notesGuidanceTemplates, [key]: v }
+                          }));
+                        }}
+                        style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}
+                      />
+                    </div>
+                  ))}
+                  <div style={{ gridColumn: '1 / -1', fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginTop: 6 }}>
+                    Rencana Aksi 1–4 dan Checklist Penutup (placeholder: {'{student} {sa} {parent} {largestGapSub} {lowestDrillSub} {topics} {nextTo}'})
+                  </div>
+                  {(Object.keys(draftConfig.actionPlanTemplates) as (keyof EngineRuleConfig['actionPlanTemplates'])[]).map((key) => (
+                    <div key={key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', display: 'block', marginBottom: 4 }}>
+                        {ACTION_PLAN_FIELD_TITLES[key]}
+                      </label>
+                      {key === 'checklist' && (
+                        <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>
+                          Satu poin per baris. Tiap baris tampil sebagai satu butir checklist.
+                        </div>
+                      )}
+                      <textarea
+                        rows={key === 'checklist' ? 5 : 2}
+                        value={draftConfig.actionPlanTemplates[key]}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setDraftConfig((prev) => ({
+                            ...prev,
+                            actionPlanTemplates: { ...prev.actionPlanTemplates, [key]: v }
                           }));
                         }}
                         style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-strong)', borderRadius: 6, fontSize: 12 }}

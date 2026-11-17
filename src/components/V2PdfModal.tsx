@@ -510,7 +510,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             </div>
 
             <footer className="profiling-print-footer">
-              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Hasil Konsultasi Checkpoint 1 • Target adalah acuan latihan internal, bukan jaminan kelulusan SNPMB</div>
+              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Konsultasi Checkpoint 1 • Target bukan jaminan kelulusan SNPMB</div>
               <div>Halaman 1 dari 3</div>
             </footer>
           </section>
@@ -648,12 +648,15 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               <table className="profiling-print-table profiling-print-table--dense">
                 <thead>
                   <tr>
-                    <th style={{ width: '22%' }}>Subtes</th>
+                    <th style={{ width: '20%' }}>Subtes</th>
                     <th style={{ width: '11%', textAlign: 'center' }}>
                       Target Acuan
                       <div style={{ fontSize: 9.5, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>Pilihan 1</div>
                     </th>
-                    <th style={{ width: '8%', textAlign: 'center' }}>TO {toCount}</th>
+                    <th style={{ width: '13%', textAlign: 'center' }}>
+                      Nilai Tryout Terakhir
+                      <div style={{ fontSize: 9.5, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>TO {toCount}</div>
+                    </th>
                     <th style={{ width: '11%', textAlign: 'center' }}>
                       Selisih
                       <div style={{ fontSize: 9.5, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>ke target acuan</div>
@@ -662,7 +665,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                       Pola Tren
                       <div style={{ fontSize: 9.5, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>{toCount} TO terakhir</div>
                     </th>
-                    <th style={{ width: '35%' }}>Topik yang Perlu Dibenahi</th>
+                    <th style={{ width: '32%' }}>Topik yang Perlu Dibenahi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -714,9 +717,12 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                   <table className="profiling-print-table profiling-print-table--dense">
                     <thead>
                       <tr>
-                        <th style={{ width: '34%' }}>Subtes</th>
+                        <th style={{ width: '32%' }}>Subtes</th>
                         <th style={{ width: '12%', textAlign: 'center' }}>Target</th>
-                        <th style={{ width: '12%', textAlign: 'center' }}>TO {toCount}</th>
+                        <th style={{ width: '14%', textAlign: 'center' }}>
+                          Nilai Tryout Terakhir
+                          <div style={{ fontSize: 9.5, fontWeight: 500, color: '#edf7f8', marginTop: 2 }}>TO {toCount}</div>
+                        </th>
                         <th style={{ width: '12%', textAlign: 'center' }}>Selisih</th>
                         <th style={{ width: '15%', textAlign: 'center' }}>Total Soal</th>
                         <th style={{ width: '15%', textAlign: 'center' }}>Akurasi</th>
@@ -750,7 +756,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             </div>
 
             <footer className="profiling-print-footer">
-              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Hasil Konsultasi Checkpoint 1 • Target adalah acuan latihan internal, bukan jaminan kelulusan SNPMB</div>
+              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Konsultasi Checkpoint 1 • Target bukan jaminan kelulusan SNPMB</div>
               <div>Halaman 2 dari 3</div>
             </footer>
           </section>
@@ -838,7 +844,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             </div>
 
             <footer className="profiling-print-footer">
-              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Hasil Konsultasi Checkpoint 1 • Target adalah acuan latihan internal, bukan jaminan kelulusan SNPMB</div>
+              <div><strong>BRAIN ACADEMY BY RUANGGURU</strong> • Konsultasi Checkpoint 1 • Target bukan jaminan kelulusan SNPMB</div>
               <div>Halaman 3 dari 3</div>
             </footer>
           </section>

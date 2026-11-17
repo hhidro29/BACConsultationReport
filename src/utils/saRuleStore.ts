@@ -48,7 +48,12 @@ export function mergeWithDefault(raw: Partial<EngineRuleConfig> | null | undefin
     patternTemplates: mergeRecord(base.patternTemplates, raw.patternTemplates),
     stage2Templates: mergeRecord(base.stage2Templates, raw.stage2Templates),
     stage3SubtestTemplates: mergeRecord(base.stage3SubtestTemplates, raw.stage3SubtestTemplates),
-    stage4Templates: mergeRecord(base.stage4Templates, raw.stage4Templates)
+    stage4Templates: mergeRecord(base.stage4Templates, raw.stage4Templates),
+    stage1Templates: mergeRecord(base.stage1Templates, raw.stage1Templates),
+    classroomTemplates: mergeRecord(base.classroomTemplates, raw.classroomTemplates),
+    stage3OverallTemplates: mergeRecord(base.stage3OverallTemplates, raw.stage3OverallTemplates),
+    actionPlanTemplates: mergeRecord(base.actionPlanTemplates, raw.actionPlanTemplates),
+    notesGuidanceTemplates: mergeRecord(base.notesGuidanceTemplates, raw.notesGuidanceTemplates)
   };
 }
 

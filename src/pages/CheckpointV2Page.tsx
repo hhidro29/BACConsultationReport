@@ -20,6 +20,7 @@ import {
   analyzeStage3Subtest,
   analyzeStage3Overall,
   analyzeStage4,
+  analyzeNotesGuidance,
   analyzeStageClassroom,
   computeProgramPacing,
   classifySubtestPattern
@@ -381,19 +382,38 @@ export const CheckpointV2Page: React.FC = () => {
     },
     ruleConfig
   );
+  const hasConflictOrLocationCheck =
+    activeStudent.familyAlignment === 'different_major' ||
+    activeStudent.familyAlignment === 'location_limit' ||
+    stage2Out.isConflict;
+  const hasMissingDrill = prioritySubtestsV2.some(
+    (s) => s.rgQuestionsDone <= ruleConfig.thresholds.drillMismatchLowQ
+  );
   const stage4Out = analyzeStage4(
     {
-      hasConflictOrLocationCheck:
-        activeStudent.familyAlignment === 'different_major' ||
-        activeStudent.familyAlignment === 'location_limit' ||
-        stage2Out.isConflict,
-      hasMissingDrill: prioritySubtestsV2.some(
-        (s) => s.rgQuestionsDone <= ruleConfig.thresholds.drillMismatchLowQ
-      ),
+      hasConflictOrLocationCheck,
+      hasMissingDrill,
       prioritySubtests: prioritySubtestsV2,
       studentName: activeStudent.identity.name,
       saName: activeStudent.identity.saName,
-      parentName: activeStudent.identity.parentName
+      parentName: activeStudent.identity.parentName,
+      nextEpisode: latestToEpisode + 1
+    },
+    ruleConfig
+  );
+
+  // Bantuan pengisian Catatan Kakak Asuh (arahan di bawah kotak dan pengingat saat Kunci) dimatikan sementara
+  // atas permintaan tim. Mesin dan template-nya tetap ada; ubah ke true untuk menyalakan lagi.
+  const SHOW_NOTES_GUIDANCE = false;
+  const notesGuidance = analyzeNotesGuidance(
+    {
+      hasConflictOrLocationCheck,
+      minDrillSubtests: prioritySubtestsV2
+        .filter((s) => s.rgQuestionsDone <= ruleConfig.thresholds.drillMismatchLowQ)
+        .map((s) => s.name),
+      attendancePct: attendanceNumeric,
+      allAchieved: prioritySubtestsV2.length > 0 && prioritySubtestsV2.every((s) => s.gapNum >= 0),
+      studentName: activeStudent.identity.name.split(' ')[0]
     },
     ruleConfig
   );
@@ -404,6 +424,11 @@ export const CheckpointV2Page: React.FC = () => {
       const el = document.getElementById('sec_tahap5_agreement');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(() => saNotesTextareaRef.current?.focus(), 350);
+      return;
+    }
+    // Pengingat lunak: catatan sangat singkat. SA tetap bisa melanjutkan mengunci.
+    if (SHOW_NOTES_GUIDANCE && !isLocked && saNotes.trim().length < ruleConfig.thresholds.notesShortChars && !window.confirm(notesGuidance.lockNudge)) {
+      saNotesTextareaRef.current?.focus();
       return;
     }
     setLockErrorMsg(null);
@@ -1524,9 +1549,12 @@ export const CheckpointV2Page: React.FC = () => {
                   <table className="data-table">
                     <thead>
                       <tr>
-                        <th style={{ width: '34%' }}>Subtes</th>
+                        <th style={{ width: '32%' }}>Subtes</th>
                         <th style={{ textAlign: 'center', width: '12%' }}>Target</th>
-                        <th style={{ textAlign: 'center', width: '12%' }}>TO {latestToEpisode}</th>
+                        <th style={{ textAlign: 'center', width: '14%' }}>
+                          Nilai Tryout Terakhir
+                          <div style={{ fontSize: 12, fontWeight: 500 }}>TO {latestToEpisode}</div>
+                        </th>
                         <th style={{ textAlign: 'center', width: '12%' }}>Selisih</th>
                         <th style={{ textAlign: 'center', width: '15%' }}>Total Soal</th>
                         <th style={{ textAlign: 'center', width: '15%' }}>Akurasi</th>
@@ -2003,13 +2031,10 @@ export const CheckpointV2Page: React.FC = () => {
             'Menjadi acuan kesinambungan sebelum menuliskan catatan sesi hari ini'
           )}
 
-          {/* Catatan Khusus Kakak Asuh (Statement & Wet Signatures Live in PDF Page 2) */}
+          {/* Catatan Khusus Kakak Asuh: internal SA, tidak masuk PDF. Lembar kesepakatan & tanda tangan ada di PDF Halaman 3 */}
           <div className="section-block" id="sec_tahap5_agreement">
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 15 }}>3. Catatan Khusus Kakak Asuh (Sesi Ini)</h3>
-              <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-                Pengingat sesi berikutnya · Lembar pernyataan &amp; tanda tangan 3 pihak tersedia di Halaman 2 PDF
-              </span>
             </div>
 
             <div style={{ background: 'var(--page-bg)', border: `1px solid ${lockErrorMsg ? '#f04438' : 'var(--border)'}`, borderRadius: 8, padding: 16 }}>
@@ -2033,64 +2058,16 @@ export const CheckpointV2Page: React.FC = () => {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
                   <label style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink)' }}>
-                    Ringkasan Kesepakatan &amp; Tindak Lanjut <span style={{ color: 'var(--red-ink)' }}>*Wajib diisi sebelum Kunci</span>:
+                    Catatan Internal &amp; Pengingat Sesi Berikutnya <span style={{ color: 'var(--red-ink)' }}>*Wajib diisi sebelum Kunci</span>:
                   </label>
-                  {!isLocked && (
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (saNotes.trim() && !window.confirm('Catatan Kakak Asuh yang sudah ditulis akan diganti dengan template. Lanjutkan?')) return;
-                          const val = '1) Pilihan & Konteks Keluarga: [isi kesepakatan prodi/lokasi]\n2) Komitmen Aksi: Drill soal mingguan [.. soal benar/minggu] + Klinik PR cabang [hari & jam]\n3) Cek Ulang Sesi Berikutnya: [progres subtes fokus & akurasi TO 5]';
-                          setSaNotes(val);
-                          setLockErrorMsg(null);
-                          safeSetItem(saNotesStorageKey, val);
-                        }}
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: 'var(--tosca-dark)',
-                          background: 'var(--primary-light)',
-                          border: '1px solid var(--primary-border)',
-                          borderRadius: 9999,
-                          padding: '2px 9px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        + Pakai Template Terstruktur
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const val = saNotes.includes('[Cek Ulang Sesi Berikutnya]')
-                            ? saNotes
-                            : `${saNotes.trim() ? `${saNotes.trim()}\n` : ''}• [Cek Ulang Sesi Berikutnya]: `;
-                          setSaNotes(val);
-                          setLockErrorMsg(null);
-                          safeSetItem(saNotesStorageKey, val);
-                        }}
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: 'var(--green-ink)',
-                          background: '#ecfdf3',
-                          border: '1px solid #a6f4c5',
-                          borderRadius: 9999,
-                          padding: '2px 9px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        + Tambah Pengingat Sesi Berikutnya
-                      </button>
-                    </div>
-                  )}
                 </div>
                 <textarea
                   ref={saNotesTextareaRef}
                   rows={4}
                   disabled={isLocked}
                   value={saNotes}
-                  placeholder="Tulis hasil kesepakatan prodi/lokasi, jadwal drill soal atau Klinik PR yang disepakati, dan pengingat untuk evaluasi TO berikutnya..."
+                  placeholder={notesGuidance.placeholder}
+                  aria-describedby={!SHOW_NOTES_GUIDANCE || isLocked ? undefined : 'sa-notes-guidance'}
                   onChange={(e) => {
                     const nextVal = e.target.value;
                     setSaNotes(nextVal);
@@ -2109,6 +2086,16 @@ export const CheckpointV2Page: React.FC = () => {
                     backgroundColor: isLocked ? '#f1f5f9' : '#ffffff'
                   }}
                 />
+                {SHOW_NOTES_GUIDANCE && !isLocked && (
+                  <div id="sa-notes-guidance" style={{ marginTop: 8, fontSize: 12, lineHeight: 1.55, color: 'var(--ink-soft)' }}>
+                    <ul style={{ margin: 0, paddingLeft: 18 }}>
+                      {notesGuidance.lines.map((l) => (
+                        <li key={l}>{l}</li>
+                      ))}
+                    </ul>
+                    <div style={{ marginTop: 6, fontWeight: 700 }}>{notesGuidance.reminder}</div>
+                  </div>
+                )}
               </div>
             </div>
 
