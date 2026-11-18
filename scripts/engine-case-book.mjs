@@ -291,7 +291,7 @@ const NAMES = { studentName: 'Siswa Contoh', saName: 'Kakak Asuh Contoh', parent
 
 function runS5(test, flags, subtests, episode = 4) {
   const out = E.analyzeStage4(
-    { ...NAMES, hasConflictOrLocationCheck: flags.conflict, hasMissingDrill: flags.missing, nextEpisode: episode + 1, planData: { subtests, branch: 'Depok - Margonda', avgScore: 546, episode } },
+    { ...NAMES, hasConflictOrLocationCheck: flags.conflict, hasMissingDrill: flags.missing, nextEpisode: episode + 1, planData: { subtests, branch: 'Depok - Margonda', avgScore: 546, episode, needsPlanB: true } },
     cfg
   );
   const covers = [];

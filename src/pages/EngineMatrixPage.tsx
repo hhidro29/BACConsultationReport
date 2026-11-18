@@ -178,18 +178,8 @@ const THRESHOLD_GROUPS: {
   subgroups: { title: string; note?: string; keys: ThresholdKey[] }[];
 }[] = [
   {
-    id: 't1',
-    title: 'Tahap 1 · Evaluasi Tryout',
-    desc: 'Membaca pola skor TO, capaian fondasi subtes, dan kehadiran.',
-    subgroups: [
-      { title: 'Pola skor TO', note: 'memilih satu dari 15 pola', keys: ['toTolerancePts'] },
-      { title: 'Capaian subtes', note: 'catatan fondasi dan fluktuasi', keys: ['foundationScoreTarget', 'subtestSwingPts'] },
-      { title: 'Kehadiran kelas', keys: ['attendanceWarnPct'] }
-    ]
-  },
-  {
     id: 't2',
-    title: 'Tahap 2 · Analisis Jurusan',
+    title: 'Tahap 1 · Analisis Jurusan',
     desc: 'Membaca selisih skor terbobot terhadap target acuan dan kecukupan data pembanding.',
     subgroups: [
       { title: 'Selisih terhadap target', note: 'memilih teks gap lebar, moderat, atau melampaui', keys: ['wideWeightedGapPts'] },
@@ -199,6 +189,16 @@ const THRESHOLD_GROUPS: {
         note: 'menghitung target per TO dan sinyal Plan B',
         keys: ['remainingEpisodesToNextConsult', 'remainingEpisodesToUtbk', 'planBGainThresholdPts']
       }
+    ]
+  },
+  {
+    id: 't1',
+    title: 'Tahap 2 · Evaluasi Tryout',
+    desc: 'Membaca pola skor TO, capaian fondasi subtes, dan kehadiran.',
+    subgroups: [
+      { title: 'Pola skor TO', note: 'memilih satu dari 15 pola', keys: ['toTolerancePts'] },
+      { title: 'Capaian subtes', note: 'catatan fondasi dan fluktuasi', keys: ['foundationScoreTarget', 'subtestSwingPts'] },
+      { title: 'Kehadiran kelas', keys: ['attendanceWarnPct'] }
     ]
   },
   {
@@ -253,8 +253,8 @@ const CLASSROOM_FIELD_TITLES: Record<keyof EngineRuleConfig['classroomTemplates'
 };
 
 const GUIDE_CARD_FIELD_GROUPS: { title: string; keys: (keyof EngineRuleConfig['guideCardTemplates'])[] }[] = [
-  { title: 'Kartu Tahap 1 · Evaluasi Tryout', keys: ['t1Title', 't1Rambu', 't1MedianContext'] },
-  { title: 'Kartu Tahap 2 · Analisis Jurusan', keys: ['t2Title', 't2Rambu'] },
+  { title: 'Kartu Tahap 1 · Analisis Jurusan', keys: ['t2Title', 't2Rambu'] },
+  { title: 'Kartu Tahap 2 · Evaluasi Tryout', keys: ['t1Title', 't1Rambu', 't1MedianContext'] },
   { title: 'Kartu Tahap 3 · Subtes & Drill Soal', keys: ['t3Title', 't3Goal', 't3Rambu', 't3Base600Note'] },
   { title: 'Kartu Tahap 4 · Kelas TMB & Catatan', keys: ['t4Title', 't4Goal', 't4Rambu'] },
   { title: 'Kartu Tahap 5 · Rencana Aksi', keys: ['t5Title', 't5Goal', 't5Continuity'] }
@@ -295,14 +295,14 @@ const ACTION_PLAN_FIELD_TITLES: Record<keyof EngineRuleConfig['actionPlanTemplat
   plan1Desc: 'Rencana 1 · Isi (ada subtes di bawah target)',
   plan1DescAchieved: 'Rencana 1 · Isi (semua subtes tercapai)',
   plan1Pic: 'Rencana 1 · Penanggung jawab (hanya dashboard)',
-  plan2Title: 'Rencana 2 · Judul',
-  plan2Desc: 'Rencana 2 · Isi',
-  plan2DeepestSuffix: 'Rencana 2 · Tambahan subtes dengan selisih terdalam',
-  plan2Pic: 'Rencana 2 · Penanggung jawab (hanya dashboard)',
   plan3Title: 'Rencana 3 · Judul',
   plan3Desc: 'Rencana 3 · Isi (ada subtes di bawah target)',
   plan3DescAchieved: 'Rencana 3 · Isi (semua subtes tercapai)',
+  plan3ProgramSuffix: 'Rencana 3 · Tambahan skor target per jurusan',
   plan3Pic: 'Rencana 3 · Penanggung jawab (hanya dashboard)',
+  planBTitle: 'Plan B · Judul (tampil bila belum ada pilihan yang mencapai target)',
+  planBDesc: 'Plan B · Isi',
+  planBPic: 'Plan B · Penanggung jawab (hanya dashboard)',
   plan4Title: 'Rencana 4 · Judul',
   plan4Desc: 'Rencana 4 · Isi',
   plan4DrillSuffix: 'Rencana 4 · Tambahan cek progres drill',
@@ -464,7 +464,8 @@ export const EngineMatrixPage: React.FC = () => {
         ],
         branch: 'Cabang Contoh',
         avgScore: toLatest,
-        episode: 4
+        episode: 4,
+        needsPlanB: true
       },
       studentName: 'Siswa Contoh',
       saName: 'Kakak Asuh',
@@ -910,7 +911,7 @@ export const EngineMatrixPage: React.FC = () => {
                 <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--primary)', borderRadius: 10, padding: '14px 18px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#1e40af', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <Info size={16} /> Output Tahap 1: Mengulas Tren Skor &amp; Fondasi {targetBasis}
+                      <Info size={16} /> Output Tahap 2: Mengulas Tren Skor &amp; Fondasi {targetBasis}
                     </span>
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 10px', borderRadius: 9999 }}>
                       Pola: {stage1Out.patternLabel}
@@ -942,7 +943,7 @@ export const EngineMatrixPage: React.FC = () => {
                 <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderLeft: '4px solid #0284c7', borderRadius: 10, padding: '14px 18px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#0284c7', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <Building2 size={16} /> Output Tahap 2: Keselarasan Jurusan &amp; Keluarga
+                      <Building2 size={16} /> Output Tahap 1: Keselarasan Jurusan &amp; Keluarga
                     </span>
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '2px 10px', borderRadius: 9999 }}>
                       {stage2Out.conditionLabel}
@@ -1188,8 +1189,8 @@ export const EngineMatrixPage: React.FC = () => {
 
                 <div style={{ display: 'flex', gap: 6, background: '#f1f5f9', padding: 4, borderRadius: 8 }}>
                   {[
-                    { id: 'stage1', label: 'Tahap 1 (15 Pola TO)' },
-                    { id: 'stage2', label: 'Tahap 2 (Jurusan)' },
+                    { id: 'stage2', label: 'Tahap 1 (Jurusan)' },
+                    { id: 'stage1', label: 'Tahap 2 (15 Pola TO)' },
                     { id: 'stage3', label: 'Tahap 3 (5 Subtes)' },
                     { id: 'stage4', label: 'Tahap 4 (Penutupan)' },
                     { id: 'guides', label: 'Kartu Panduan' }
@@ -1287,7 +1288,7 @@ export const EngineMatrixPage: React.FC = () => {
               {editorStage === 'stage1' && (
                 <div style={{ marginTop: 16 }}>
                   <div style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginBottom: 8 }}>
-                    Catatan Tambahan Tahap 1 (placeholder: {'{target} {above} {total} {swing} {names} {pct} {warn} {delta}'})
+                    Catatan Tambahan Tahap 2 (placeholder: {'{target} {above} {total} {swing} {names} {pct} {warn} {delta}'})
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                     {(Object.keys(draftConfig.stage1Templates) as (keyof EngineRuleConfig['stage1Templates'])[]).map((key) => (
@@ -1599,7 +1600,7 @@ export const EngineMatrixPage: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div style={{ background: '#ffffff', border: '1px solid var(--border-strong)', borderRadius: 10, padding: 18 }}>
               <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink-strong)', margin: '0 0 4px' }}>
-                Matriks Tahap 1 — 15 Pola Riwayat Skor Tryout (Toleransi Aktif ±{activeEvalConfig.thresholds.toTolerancePts} Poin)
+                Matriks Tahap 2 — 15 Pola Riwayat Skor Tryout (Toleransi Aktif ±{activeEvalConfig.thresholds.toTolerancePts} Poin)
               </h2>
               <p style={{ fontSize: 12, color: 'var(--muted)', margin: '0 0 12px' }}>
                 Tabel ini otomatis membaca konfigurasi &amp; wording aktif yang sedang diatur di Tab 2.

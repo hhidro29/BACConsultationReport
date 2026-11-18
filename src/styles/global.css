@@ -989,3 +989,18 @@
     .profiling-print-page .badge-p-low { font-size: 9px; padding: 0.4mm 1.2mm; border-radius: 3px; letter-spacing: 0; }
 
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+
+/* PDF V2: huruf lebih besar agar nyaman dibaca orang tua (tidak memengaruhi PDF V1). */
+.profiling-print-page--v2 { font-size: 13.6px; line-height: 1.42; }
+.profiling-print-page--v2 .profiling-print-title { font-size: 20px; }
+.profiling-print-page--v2 .profiling-print-subtitle { font-size: 13px; }
+.profiling-print-page--v2 .profiling-print-pathway { font-size: 12px; }
+.profiling-print-page--v2 .profiling-print-section-title { font-size: 14.4px; }
+.profiling-print-page--v2 .profiling-print-table { font-size: 13px; line-height: 1.38; }
+.profiling-print-page--v2 .profiling-print-table th { font-size: 12.8px; }
+.profiling-print-page--v2 .profiling-print-action-list { font-size: 13.4px; }
+.profiling-print-page--v2 .profiling-print-agreement { font-size: 13.2px; }
+.profiling-print-page--v2 .profiling-print-signature-name { font-size: 13.6px; }
+.profiling-print-page--v2 .profiling-print-signature-role { font-size: 12px; }
+.profiling-print-page--v2 .profiling-print-footer { font-size: 11px; }

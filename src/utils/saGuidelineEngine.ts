@@ -77,7 +77,7 @@ export interface EngineThresholds {
 }
 
 /**
- * Catatan tambahan Tahap 1. Placeholder: {target} {above} {total} {swing} {names} {pct} {warn} {delta}
+ * Catatan tambahan Tahap 2. Placeholder: {target} {above} {total} {swing} {names} {pct} {warn} {delta}
  */
 export interface Stage1Templates {
   foundationAllBelow500: string;
@@ -127,7 +127,7 @@ export interface NotesGuidanceTemplates {
 /**
  * Teks tetap di kartu "Panduan Kakak Asuh" per tahap: judul, target hasil, rambu komunikasi, dan catatan konteks.
  * Rambu: satu poin per baris. Format ringan: **teks** = tebal, `teks` = kode.
- * Placeholder: {target} (target fondasi), {subtest} {history} {median} (contoh median Tahap 1),
+ * Placeholder: {target} (target fondasi), {subtest} {history} {median} (contoh median Tahap 2),
  * {prodi} (Pilihan 1), {nextTo} (TO berikutnya)
  */
 export interface GuideCardTemplates {
@@ -167,15 +167,16 @@ export interface ActionPlanTemplates {
   plan1Desc: string;
   plan1DescAchieved: string;
   plan1Pic: string;
-  plan2Title: string;
-  plan2Desc: string;
-  /** Ditambahkan setelah isi rencana 2 bila ada subtes dengan selisih di bawah target */
-  plan2DeepestSuffix: string;
-  plan2Pic: string;
   plan3Title: string;
   plan3Desc: string;
   plan3DescAchieved: string;
+  /** Ditambahkan setelah isi rencana 3 bila ringkasan target per jurusan tersedia */
+  plan3ProgramSuffix: string;
   plan3Pic: string;
+  /** Butir Plan B (tampil bila belum ada pilihan jurusan yang mencapai target acuan) */
+  planBTitle: string;
+  planBDesc: string;
+  planBPic: string;
   plan4Title: string;
   plan4Desc: string;
   /** Ditambahkan setelah isi rencana 4 bila masih ada subtes di bawah target */
@@ -383,7 +384,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     locationCheck:
       'Pastikan kesepakatan batasan lokasi kampus (izin kuliah luar kota, biaya, dan preferensi wilayah keluarga).',
     wideGap:
-      'Bahas komitmen progres bertahap menuju konsultasi berikutnya (Januari pasca Mega TO Vol. 2) untuk mengejar dan menembus target acuan. Siapkan opsi Plan B pada portofolio Pilihan 2–4 melalui Simulasi jika laju kenaikan per TO terasa terlalu berat, tanpa langsung mematahkan motivasi di Pilihan 1.',
+      'Bahas komitmen progres bertahap menuju konsultasi berikutnya untuk mengejar dan menembus target acuan. Siapkan jurusan cadangan (Plan B) bersama Kakak Asuh jika laju kenaikan per TO terasa terlalu berat, tanpa langsung mematahkan motivasi di Pilihan 1.',
     remainingGap:
       'Arahkan progres 3 TO ke depan agar skor terbobot melewati Target Acuan pada konsultasi berikutnya, sambil tetap menjaga margin terhadap pesaing di prodi tujuan.',
     exceedTarget:
@@ -406,7 +407,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
       observation: 'Skor {toLatest} (jarak {gap}); tercatat {questions} soal ({sessions} sesi, {accuracy}% benar).',
       label: 'Volume Terbatas & Akurasi Rendah',
       saTask:
-        'Tinjau topik akurasi terendah bersama siswa dan bahas rencana penguatan konsep dasar di Klinik PR.'
+        'Tinjau topik akurasi terendah bersama siswa dan bahas rencana penguatan konsep dasar.'
     },
     active_drill_low_to: {
       observation: 'Tercatat {questions} soal ({sessions} sesi, {accuracy}% benar), namun skor TO {toLatest} (jarak {gap}).',
@@ -441,11 +442,11 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
   },
   stage4Templates: {
     scheduleTask:
-      'Konfirmasi hari, jam, dan target drill soal mingguan yang realistis dijalankan siswa tanpa bentrok jadwal sekolah (acuan tim: 60 soal benar per minggu dibagi ke subtes di bawah 600, minimal 10 soal per subtes).',
+      'Konfirmasi hari, jam, dan target drill soal mingguan yang realistis dijalankan siswa tanpa bentrok jadwal sekolah (acuan tim: minimal {drillWeekly} soal benar per minggu, yaitu {drillPerSubtest} soal benar untuk tiap subtes di bawah {target}).',
     parentSupportTask:
       'Bahas bentuk dukungan dan pemantauan belajar yang paling nyaman dilakukan orang tua di rumah.',
     missingDrillTask:
-      'Pastikan jadwal dan topik spesifik Klinik PR untuk subtes dengan data drill masih minim.',
+      'Pastikan jadwal dan topik latihan untuk subtes dengan data drill masih minim.',
     conflictOrLocationTask:
       'Catat poin pilihan prodi atau batasan lokasi yang belum final agar dapat dicek ulang pada sesi berikutnya.'
   },
@@ -471,7 +472,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     goodAttendance:
       'Kehadiran kelas TMB sudah baik ({pct}%, {present}/{total} sesi). Cocokkan catatan pengajar di tabel dengan subtes yang skor TO-nya masih perlu penguatan.',
     repeatedAbsence:
-      'Pastikan siswa sudah mengejar materi dari {absent} sesi tidak hadir ({sick} sakit, {excused} izin) melalui rekaman kelas atau Klinik PR cabang.',
+      'Pastikan siswa sudah mengejar materi dari {absent} sesi tidak hadir ({sick} sakit, {excused} izin) melalui rekaman kelas.',
     noNotes:
       'Belum ada catatan tertulis pengajar pada periode ini; tanyakan langsung ke siswa materi kelas mana yang masih terasa sulit.',
     lowNotes:
@@ -487,7 +488,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     tasks:
       'Tinjau cara siswa memilih subtes saat drill soal di aplikasi dan pastikan apakah drill soal diarahkan pada subtes dengan gap terbesar.\n' +
       'Konfirmasi apakah ada drill soal mandiri dari buku/sumber di luar aplikasi serta bagaimana siswa membahas soal yang dijawab salah.\n' +
-      'Sepakati 1–2 topik akurasi terendah yang akan diprioritaskan pada sesi Klinik PR cabang.',
+      'Sepakati 1–2 topik akurasi terendah yang akan diprioritaskan dalam latihan berikutnya.',
     guardrail:
       '1 sesi dapat tercatat meskipun kurang dari 10 soal. Selalu baca jumlah sesi bersama total butir soal & akurasinya, dan jangan memarahi siswa saat data aplikasi bernilai 0.'
   },
@@ -498,24 +499,21 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     plan1DescAchieved:
       'Seluruh subtes sudah mencapai {target}. Pertahankan konsistensi drill mingguan di aplikasi Ruangguru.',
     plan1Pic: '{student} (dipantau bersama {sa})',
-    plan2Title: 'Klinik PR Tatap Muka Cabang ({branch})',
-    plan2Desc:
-      'Jadwalkan klinik bersama Master Teacher untuk membedah topik akurasi terendah pada TO terakhir.',
-    plan2DeepestSuffix: ' Subtes dengan selisih terdalam: {deepest}.',
-    plan2Pic: '{sa} & Siswa',
     plan3Title: 'Target Evaluasi Tryout {nextEpisode}',
-    plan3Desc:
-      'Bawa {weakCount} subtes yang masih di bawah {target} ke {target} atau lebih. Skor rata-rata TO UTBK Regular Episode {episode}: **{avgScore}**.',
+    plan3Desc: 'Semua subtes minimal {target}: bawa {weakCount} subtes yang masih di bawah {target} ke {target} atau lebih.',
+    plan3ProgramSuffix: ' Skor jurusan: {programTargets}.',
     plan3DescAchieved:
       'Seluruh subtes sudah {target} atau lebih; target berikutnya 750 per subtes. Skor rata-rata TO UTBK Regular Episode {episode}: **{avgScore}**.',
     plan3Pic: 'Siswa & Tim Akademik Cabang',
+    planBTitle: 'Plan B: Jurusan Cadangan',
+    planBDesc: 'Siapkan jurusan cadangan bersama Kakak Asuh bila target belum tercapai pada konsultasi berikutnya.',
+    planBPic: '{sa} & Siswa',
     plan4Title: 'Dukungan Belajar di Rumah',
     plan4Desc:
       'Orang tua mendampingi konsistensi jam belajar mandiri dan menjaga kondisi istirahat siswa menjelang Tryout berikutnya.',
     plan4DrillSuffix: ' Cek progres drill {drillWeekly} soal benar per minggu di aplikasi setiap akhir pekan.',
     plan4Pic: '{parent}',
     checklist:
-      'Jadwal hadir Klinik PR cabang minggu ini sudah disepakati bersama siswa.\n' +
       'Ringkasan keputusan dan pengingat sesi berikutnya sudah ditulis di Catatan Kakak Asuh.\n' +
       'Buka tombol Download PDF di bar atas untuk diserahkan ke keluarga.'
   },
@@ -525,7 +523,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     fallbackLine: 'Apa yang disepakati hari ini dan siapa mengerjakan apa?',
     reminder: 'Tulis kutipan, bukan penilaian.',
     conflictLine: 'Pilihan prodi dan lokasi: apa yang disepakati dengan {student} dan orang tua?',
-    missingDrillLine: 'Drill di {subtests} masih minim: kapan Klinik PR-nya dan berapa targetnya?',
+    missingDrillLine: 'Drill di {subtests} masih minim: berapa target latihannya?',
     lowAttendanceLine: 'Kehadiran kelas {pct}%: apa kendala yang disebut {student}?',
     allAchievedLine: 'Semua subtes prioritas sudah melampaui target: bagaimana {student} menjaga konsistensinya?',
     lockNudge:
@@ -540,19 +538,18 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     t2Title: 'Menyelaraskan Pilihan Jurusan & Progres Menuju UTBK',
     t2Rambu:
       '**CP1 → CP2 → UTBK:** Di CP1 bangun laju kenaikan; di konsultasi berikutnya arahkan melewati target acuan; di konsultasi terakhir maksimalkan margin di atas pesaing.\n' +
-      '**Makna Plan B:** Jika selisih masih lebar, jadikan Pilihan 2–4 sebagai pengaman portofolio tanpa mematahkan motivasi di Pilihan 1.',
-    t3Title: 'Audit Kebiasaan Drill Soal & Prioritas Materi Klinik PR',
-    t3Goal: 'Sepakati topik Klinik PR & perbaikan pola drill soal',
+      '**Makna Plan B:** Jika selisih masih lebar, siapkan jurusan cadangan sebagai pengaman portofolio tanpa mematahkan motivasi di Pilihan 1.',
+    t3Title: 'Audit Kebiasaan Drill Soal & Prioritas Materi',
+    t3Goal: 'Sepakati topik prioritas & perbaikan pola drill soal',
     t3Rambu:
       '**Hindari drill semu:** Apresiasi konsistensi di subtes yang sudah aktif, lalu ajak mengalihkan porsi drill soal ke subtes dengan gap terbesar.\n' +
       '**Jangan menyimpulkan "malas" dari angka 0:** Data kosong hanya berarti belum tercatat di aplikasi—gali dulu kendala atau drill soal mandiri di luar sistem.',
     t3Base600Note:
-      '**Mengapa target dasar Semester 1 adalah {target}?** Subtes prioritas dikunci ke **Pilihan 1 ({prodi})**. Jika target subtes pada jurusan pilihan berada di bawah {target}, batas minimum **{target} tetap dipertahankan** agar tidak ada titik lemah; jika target jurusan sudah di atas {target}, acuan mengikuti target jurusan yang lebih tinggi tersebut.',
+      '**Mengapa semua subtes ditargetkan {target} lebih dulu?** Satu subtes yang rendah menurunkan skor akhir di jurusan mana pun. Di Semester 1 semua subtes dikejar ke **{target}**; pembobotan jurusan hanya menjadi label subtes prioritas per jurusan, bukan target belajar yang berbeda.',
     t4Title: 'Mengonfirmasi Konteks Belajar di Kelas TMB',
     t4Goal: 'Pola kelas & kendala kehadiran terkonfirmasi sebelum rencana aksi',
     t4Rambu:
-      '**Pisahkan sesi dari sifat permanen:** Sampaikan catatan per mapel/tanggal sebagai konteks belajar saat itu, bukan label kepribadian siswa.\n' +
-      '**Hubungkan dengan kebutuhan Klinik PR:** Gunakan sesi yang mencatat siswa butuh bantuan untuk memprioritaskan topik tatap muka cabang.',
+      '**Pisahkan sesi dari sifat permanen:** Sampaikan catatan per mapel/tanggal sebagai konteks belajar saat itu, bukan label kepribadian siswa.',
     t5Title: 'Mengunci Komitmen Nyata & Penyerahan Laporan',
     t5Goal: 'Jadwal cabang disepakati, catatan tersimpan & PDF diserahkan',
     t5Continuity:
@@ -1084,7 +1081,7 @@ export function analyzeStage3Subtest(
       ruleName: '2. Volume & Akurasi Rendah',
       expression: `questions (${sub.drillQuestions}) < ${th.drillLowQuestions} && akurasi (${sub.drillAccuracyPct}%) < ${th.drillLowAccuracyPct}%`,
       matched: isLowVolLowAcc,
-      effect: isLowVolLowAcc ? 'Terpilih: tinjau topik terendah & Klinik PR' : 'Lanjut cek aturan berikutnya'
+      effect: isLowVolLowAcc ? 'Terpilih: tinjau topik terendah & rencana penguatan konsep' : 'Lanjut cek aturan berikutnya'
     },
     {
       ruleId: 's3_r2b_highacc_lowto',
@@ -1204,6 +1201,10 @@ export interface Stage4Input {
     avgScore: number;
     /** Nomor TO terakhir (episode) */
     episode: number;
+    /** True bila belum ada pilihan jurusan yang mencapai target acuan (menampilkan butir Plan B) */
+    needsPlanB?: boolean;
+    /** Ringkasan target TO berikutnya per jurusan, misalnya "UGM ≥ 588 · UI ≥ 585" (sama dengan PDF) */
+    programTargets?: string;
   };
   studentName?: string;
   saName?: string;
@@ -1241,13 +1242,13 @@ export function analyzeStage4(
   }
 
   const tpl = cfg.stage4Templates;
-  const saTasks = [tpl.scheduleTask, tpl.parentSupportTask];
+  const saTasksRaw = [tpl.scheduleTask, tpl.parentSupportTask];
 
   if (isMissingDrill) {
-    saTasks.push(tpl.missingDrillTask);
+    saTasksRaw.push(tpl.missingDrillTask);
   }
   if (isConflict) {
-    saTasks.push(tpl.conflictOrLocationTask);
+    saTasksRaw.push(tpl.conflictOrLocationTask);
   }
 
   const ap = cfg.actionPlanTemplates;
@@ -1279,9 +1280,17 @@ export function analyzeStage4(
     deepest: deepest.join('; '),
     nextEpisode: studentInput?.nextEpisode ?? episode + 1,
     episode,
-    avgScore: pd?.avgScore ?? 0
+    avgScore: pd?.avgScore ?? 0,
+    programTargets: pd?.programTargets ?? ''
   };
   const fill = (t: string) => fillTemplate(t, planVars);
+  // Tugas SA memakai angka drill dari konfigurasi; bila semua subtes sudah tercapai, pakai acuan bawaan agar tidak tertulis 0.
+  const taskVars = {
+    ...planVars,
+    drillWeekly: weakCount > 0 ? drillWeekly : th4.weeklyDrillTotal,
+    drillPerSubtest: weakCount > 0 ? drillPerSubtest : th4.minDrillPerSubtest
+  };
+  const saTasks = saTasksRaw.map((t) => fillTemplate(t, taskVars));
 
   const actionPlans: ActionPlanItem[] = [
     {
@@ -1292,19 +1301,23 @@ export function analyzeStage4(
       accentColor: '#2d7684'
     },
     {
-      num: 2,
-      title: fill(ap.plan2Title),
-      desc: fill(ap.plan2Desc + (deepest.length > 0 ? ap.plan2DeepestSuffix : '')),
-      pic: fill(ap.plan2Pic),
-      accentColor: '#245f5a'
-    },
-    {
       num: 3,
       title: fill(ap.plan3Title),
-      desc: fill(allAchieved ? ap.plan3DescAchieved : ap.plan3Desc),
+      desc: fill((allAchieved ? ap.plan3DescAchieved : ap.plan3Desc) + (pd?.programTargets ? ap.plan3ProgramSuffix : '')),
       pic: fill(ap.plan3Pic),
       accentColor: '#b54708'
     },
+    ...(pd?.needsPlanB
+      ? [
+          {
+            num: 4,
+            title: fill(ap.planBTitle),
+            desc: fill(ap.planBDesc),
+            pic: fill(ap.planBPic),
+            accentColor: '#b42318'
+          }
+        ]
+      : []),
     {
       num: 4,
       title: fill(ap.plan4Title),
@@ -1314,13 +1327,17 @@ export function analyzeStage4(
     }
   ];
 
+  actionPlans.forEach((p, i) => {
+    p.num = i + 1;
+  });
+
   const traces: RuleTrace[] = [
     {
       ruleId: 's4_drill',
       ruleName: 'Tindak Lanjut Drill Minim',
       expression: `isMissingDrill = ${isMissingDrill}`,
       matched: isMissingDrill,
-      effect: isMissingDrill ? 'Tambahkan penguncian jadwal Klinik PR subtes minim drill' : 'Tidak dipicu'
+      effect: isMissingDrill ? 'Tambahkan penguncian jadwal dan topik latihan subtes minim drill' : 'Tidak dipicu'
     },
     {
       ruleId: 's4_prodi',
@@ -1417,7 +1434,7 @@ export function analyzeStageClassroom(
       ruleName: `Tindak Lanjut Sesi Terlewat (Sakit + Izin ≥ ${th.absenceWarnSessions})`,
       expression: `sakit+izin (${absentCount}) ≥ ${th.absenceWarnSessions}`,
       matched: hasRepeatedAbsence,
-      effect: hasRepeatedAbsence ? 'Ingatkan kejar materi via rekaman/Klinik PR' : 'Tidak dipicu'
+      effect: hasRepeatedAbsence ? 'Ingatkan kejar materi via rekaman kelas' : 'Tidak dipicu'
     },
     {
       ruleId: 's4c_notes_coverage',
@@ -1478,7 +1495,7 @@ export function analyzeNotesGuidance(
 
 export interface GuideCardsInput {
   foundationTarget: number;
-  /** Contoh median Tahap 1 (subtes dengan fluktuasi terbesar) */
+  /** Contoh median Tahap 2 (subtes dengan fluktuasi terbesar) */
   medianSubtest: string;
   medianHistory: string;
   median: number | string;
@@ -1550,15 +1567,15 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
 
   // 1. Thresholds
   const thresholdMeta: { key: keyof EngineThresholds; label: string; stage: string }[] = [
-    { key: 'toTolerancePts', label: 'Toleransi TO Datar (±poin)', stage: 'Tahap 1' },
-    { key: 'foundationScoreTarget', label: 'Target Fondasi Subtes Minimum', stage: 'Tahap 1 & 3' },
-    { key: 'subtestSwingPts', label: 'Batas Fluktuasi Subtes Ekstrem (poin)', stage: 'Tahap 1' },
-    { key: 'attendanceWarnPct', label: 'Ambang Peringatan Kehadiran TMB (%)', stage: 'Tahap 1 & 4' },
-    { key: 'wideWeightedGapPts', label: 'Gap Terbobot Lebar (≤ poin)', stage: 'Tahap 2' },
-    { key: 'remainingEpisodesToNextConsult', label: 'Sisa TO Menuju Konsultasi Berikutnya (Januari)', stage: 'Tahap 2' },
-    { key: 'remainingEpisodesToUtbk', label: 'Total Sisa TO Menuju UTBK', stage: 'Tahap 2' },
-    { key: 'planBGainThresholdPts', label: 'Ambang Kenaikan/TO Trigger Plan B (> poin/TO)', stage: 'Tahap 2' },
-    { key: 'minBenchmarkParticipants', label: 'Min. Peserta Pembanding Internal', stage: 'Tahap 2' },
+    { key: 'toTolerancePts', label: 'Toleransi TO Datar (±poin)', stage: 'Tahap 2' },
+    { key: 'foundationScoreTarget', label: 'Target Fondasi Subtes Minimum', stage: 'Tahap 2 & 3' },
+    { key: 'subtestSwingPts', label: 'Batas Fluktuasi Subtes Ekstrem (poin)', stage: 'Tahap 2' },
+    { key: 'attendanceWarnPct', label: 'Ambang Peringatan Kehadiran TMB (%)', stage: 'Tahap 2 & 4' },
+    { key: 'wideWeightedGapPts', label: 'Gap Terbobot Lebar (≤ poin)', stage: 'Tahap 1' },
+    { key: 'remainingEpisodesToNextConsult', label: 'Sisa TO Menuju Konsultasi Berikutnya (Januari)', stage: 'Tahap 1' },
+    { key: 'remainingEpisodesToUtbk', label: 'Total Sisa TO Menuju UTBK', stage: 'Tahap 1' },
+    { key: 'planBGainThresholdPts', label: 'Ambang Kenaikan/TO Trigger Plan B (> poin/TO)', stage: 'Tahap 1' },
+    { key: 'minBenchmarkParticipants', label: 'Min. Peserta Pembanding Internal', stage: 'Tahap 1' },
     { key: 'drillLowQuestions', label: 'Batas Drill Soal Minim (< soal)', stage: 'Tahap 3' },
     { key: 'drillLowAccuracyPct', label: 'Batas Akurasi Drill Rendah (< %)', stage: 'Tahap 3' },
     { key: 'drillActiveHighGap', label: 'Gap Subtes Prioritas Tinggi (≤ poin)', stage: 'Tahap 3' },
@@ -1608,7 +1625,7 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
   (Object.keys(config.patternTemplates) as TryoutPattern[]).forEach((pat) => {
     const t = config.patternTemplates[pat];
     rows.push([
-      'Tahap 1 (Pola TO)',
+      'Tahap 2 (Pola TO)',
       pat,
       t.label,
       patternConditions[pat],
@@ -1635,7 +1652,7 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
   ];
   stage2Meta.forEach((m) => {
     rows.push([
-      'Tahap 2 (Jurusan & Progres)',
+      'Tahap 1 (Jurusan & Progres)',
       `s2_${m.key}`,
       m.name,
       m.cond,
@@ -1714,7 +1731,7 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     'Tampilkan teks asli pengajar & riwayat Student Tower tanpa pemrosesan AI.'
   ]);
   const stage4Meta: { key: keyof EngineRuleConfig['stage4Templates']; name: string; cond: string }[] = [
-    { key: 'scheduleTask', name: 'Penguncian Jadwal Drill & Klinik', cond: 'Selalu tampil di Tahap 5' },
+    { key: 'scheduleTask', name: 'Penguncian Jadwal Drill', cond: 'Selalu tampil di Tahap 5' },
     { key: 'parentSupportTask', name: 'Dukungan Belajar Orang Tua', cond: 'Selalu tampil di Tahap 5' },
     { key: 'missingDrillTask', name: 'Tindak Lanjut Subtes Minim Drill', cond: `Ada subtes prioritas dengan drill ≤ ${th.drillMismatchLowQ}` },
     { key: 'conflictOrLocationTask', name: 'Review Konflik Prodi / Lokasi', cond: 'isConflict || location_limit || different_major' }
@@ -1732,10 +1749,10 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     ]);
   });
 
-  // 5b. Kalimat observasi per pola, catatan tambahan Tahap 1, dan teks kelas Tahap 4
+  // 5b. Kalimat observasi per pola, catatan tambahan Tahap 2, dan teks kelas Tahap 4
   (Object.keys(config.patternTemplates) as TryoutPattern[]).forEach((pat) => {
     rows.push([
-      'Tahap 1 (Kalimat Observasi)',
+      'Tahap 2 (Kalimat Observasi)',
       `s1_obs_${pat}`,
       `Observasi · ${config.patternTemplates[pat].label}`,
       patternConditions[pat],
@@ -1756,7 +1773,7 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
   ];
   s1Meta.forEach((m) => {
     rows.push([
-      'Tahap 1 (Catatan Tambahan)',
+      'Tahap 2 (Catatan Tambahan)',
       `s1_${m.key}`,
       m.name,
       m.cond,
@@ -1795,14 +1812,14 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     { key: 'plan1Desc', name: 'Rencana 1 · isi', cond: 'Ada subtes di bawah target fondasi' },
     { key: 'plan1DescAchieved', name: 'Rencana 1 · isi', cond: 'Semua subtes ≥ target fondasi' },
     { key: 'plan1Pic', name: 'Rencana 1 · penanggung jawab (dashboard)', cond: 'Selalu' },
-    { key: 'plan2Title', name: 'Rencana 2 · judul', cond: 'Selalu' },
-    { key: 'plan2Desc', name: 'Rencana 2 · isi', cond: 'Selalu' },
-    { key: 'plan2DeepestSuffix', name: 'Rencana 2 · tambahan subtes selisih terdalam', cond: 'Ada subtes dengan selisih di bawah target' },
-    { key: 'plan2Pic', name: 'Rencana 2 · penanggung jawab (dashboard)', cond: 'Selalu' },
     { key: 'plan3Title', name: 'Rencana 3 · judul', cond: 'Selalu' },
     { key: 'plan3Desc', name: 'Rencana 3 · isi', cond: 'Ada subtes di bawah target fondasi' },
     { key: 'plan3DescAchieved', name: 'Rencana 3 · isi', cond: 'Semua subtes ≥ target fondasi' },
+    { key: 'plan3ProgramSuffix', name: 'Rencana 3 · tambahan skor target per jurusan', cond: 'Ringkasan target per jurusan tersedia' },
     { key: 'plan3Pic', name: 'Rencana 3 · penanggung jawab (dashboard)', cond: 'Selalu' },
+    { key: 'planBTitle', name: 'Plan B · judul', cond: 'Belum ada pilihan jurusan yang mencapai target acuan' },
+    { key: 'planBDesc', name: 'Plan B · isi', cond: 'Belum ada pilihan jurusan yang mencapai target acuan' },
+    { key: 'planBPic', name: 'Plan B · penanggung jawab (dashboard)', cond: 'Belum ada pilihan jurusan yang mencapai target acuan' },
     { key: 'plan4Title', name: 'Rencana 4 · judul', cond: 'Selalu' },
     { key: 'plan4Desc', name: 'Rencana 4 · isi', cond: 'Selalu' },
     { key: 'plan4DrillSuffix', name: 'Rencana 4 · tambahan cek progres drill', cond: 'Ada subtes di bawah target fondasi' },
@@ -1853,11 +1870,11 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
 
   // 8. Teks tetap kartu "Panduan Kakak Asuh" per tahap
   const gcMeta: { key: keyof GuideCardTemplates; stage: string; name: string }[] = [
-    { key: 't1Title', stage: 'Tahap 1', name: 'Judul kartu' },
-    { key: 't1Rambu', stage: 'Tahap 1', name: 'Rambu komunikasi (satu poin per baris)' },
-    { key: 't1MedianContext', stage: 'Tahap 1', name: 'Konteks data median' },
-    { key: 't2Title', stage: 'Tahap 2', name: 'Judul kartu' },
-    { key: 't2Rambu', stage: 'Tahap 2', name: 'Rambu progres holistik (satu poin per baris)' },
+    { key: 't1Title', stage: 'Tahap 2', name: 'Judul kartu' },
+    { key: 't1Rambu', stage: 'Tahap 2', name: 'Rambu komunikasi (satu poin per baris)' },
+    { key: 't1MedianContext', stage: 'Tahap 2', name: 'Konteks data median' },
+    { key: 't2Title', stage: 'Tahap 1', name: 'Judul kartu' },
+    { key: 't2Rambu', stage: 'Tahap 1', name: 'Rambu progres holistik (satu poin per baris)' },
     { key: 't3Title', stage: 'Tahap 3', name: 'Judul kartu' },
     { key: 't3Goal', stage: 'Tahap 3', name: 'Target hasil' },
     { key: 't3Rambu', stage: 'Tahap 3', name: 'Rambu komunikasi (satu poin per baris)' },
