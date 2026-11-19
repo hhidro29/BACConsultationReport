@@ -1,31 +1,64 @@
 // Sumber bersama untuk Action Plan (PDF V2 dan panduan SA di dashboard): batas kelompok selisih dan kalimat tindak lanjut.
 // Sementara berupa konstanta; rencananya dipindah ke template /engine agar bisa diedit tim kesiswaan.
 
-// Batas kelompok menurut selisih ke standar dasar (poin). Perkiraan dari pola draft kesiswaan; perlu dikonfirmasi tim.
-export const TIER1_MIN_GAP = 90; // selisih >= 90 -> kelompok selisih terbesar
-export const TIER2_MIN_GAP = 30; // 30..89 -> selisih sedang; di bawah 30 -> selisih kecil
+// Kelompok Action Plan: hanya dua (sesuai simulasi 18 Nov): belum mencapai standar dasar, atau sudah mencapai.
+// Urutan di dalam kelompok "belum" mengikuti nilai TO terakhir dari yang terendah.
+export type GapTier = 0 | 1;
 
-export type GapTier = 0 | 1 | 2 | 3;
-
-/** 0 = sudah mencapai standar dasar; 1 = selisih terbesar; 2 = sedang; 3 = kecil. */
+/** 0 = sudah mencapai standar dasar; 1 = belum. */
 export function gapTierOf(score: number, foundationTarget: number): GapTier {
-  const miss = foundationTarget - score;
-  if (miss <= 0) return 0;
-  if (miss >= TIER1_MIN_GAP) return 1;
-  if (miss >= TIER2_MIN_GAP) return 2;
-  return 3;
+  return foundationTarget - score <= 0 ? 0 : 1;
 }
 
-// Judul kelompok tanpa angka urut supaya artinya sama untuk semua siswa (kelompok kosong disembunyikan).
 export function gapTierTitle(tier: GapTier, foundationTarget: number): string {
-  if (tier === 0) return `Pertahankan: sudah mencapai ${foundationTarget}`;
-  if (tier === 1) return `Selisih terbesar (${TIER1_MIN_GAP} poin atau lebih)`;
-  if (tier === 2) return `Selisih sedang (${TIER2_MIN_GAP}–${TIER1_MIN_GAP - 1} poin)`;
-  return `Selisih kecil (kurang dari ${TIER2_MIN_GAP} poin)`;
+  return tier === 0 ? `Sudah mencapai ≥ ${foundationTarget}` : `Belum mencapai ${foundationTarget} (urut dari nilai terendah)`;
+}
+
+// Target drill per subtes menurut urutan nilai TO terakhir di antara subtes yang belum mencapai standar dasar
+// (keputusan 18 Nov: 20 / 15 / 12, sisanya 10 soal benar per minggu).
+export interface DrillRankConfig {
+  drillRank1: number;
+  drillRank2: number;
+  drillRank3: number;
+  minDrillPerSubtest: number;
+}
+
+/** rankIndex: 0 = subtes dengan nilai terendah. */
+export function drillTargetForRank(rankIndex: number, cfg: DrillRankConfig): number {
+  if (rankIndex === 0) return cfg.drillRank1;
+  if (rankIndex === 1) return cfg.drillRank2;
+  if (rankIndex === 2) return cfg.drillRank3;
+  return cfg.minDrillPerSubtest;
+}
+
+export function drillTotalForCount(weakCount: number, cfg: DrillRankConfig): number {
+  let total = 0;
+  for (let i = 0; i < weakCount; i += 1) total += drillTargetForRank(i, cfg);
+  return total;
+}
+
+/** Kalimat penjelas aturan target, dipakai di PDF, dashboard, dan template engine. */
+export function drillTiersText(cfg: DrillRankConfig): string {
+  return `${cfg.drillRank1}, ${cfg.drillRank2}, dan ${cfg.drillRank3} soal benar untuk tiga subtes dengan nilai terendah, ${cfg.minDrillPerSubtest} untuk subtes lainnya`;
+}
+
+/** Target jurusan tertinggi di antara jurusan yang menjadikan subtes ini prioritas (kartu "Jaga di atas 600"). */
+export interface PriorityGoal {
+  prodi: string;
+  target: number;
+  kurang: number;
+}
+
+export function achievedNextTarget(goal: PriorityGoal | undefined, foundationTarget: number): string {
+  if (!goal) return `Tetap di atas ${foundationTarget} di setiap TO`;
+  return goal.kurang > 0
+    ? `Jaga di atas ${foundationTarget} dan kejar target skor ${goal.target} untuk pilihan ${goal.prodi}`
+    : `Jaga di atas ${foundationTarget}; skor sudah mencapai target ${goal.target} untuk pilihan ${goal.prodi}`;
 }
 
 export const ACTION_PLAN_COPY = {
-  achievedNote: 'Pertahankan melalui TO berikutnya.',
+  achievedNote: 'Subtes ini sudah mencapai 600, tetapi tetap perlu dijaga dan masih bisa dinaikkan untuk mengejar skor jurusan.',
+  achievedBadge: (gap: number, target: number) => `+${gap} dari ${target}`,
   followUpDefault: 'Evaluasi pola kesalahan dan latih ulang jenis soal yang sering salah.',
   // Saran khusus per subtes. Dari draft kesiswaan: pu, pk, lbe, pbm, lbi_s. Rumusan saya (perlu ditinjau): lbi_a, pm, ppu.
   followUpSpecific: {

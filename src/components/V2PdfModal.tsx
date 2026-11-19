@@ -20,7 +20,8 @@ import {
   computeProgramPacing
 } from '../utils/saGuidelineEngine';
 import { sampleLowestTopics } from '../data/topicSampleData';
-import { ACTION_PLAN_COPY, gapTierOf, gapTierTitle } from '../utils/actionPlanCopy';
+import { ACTION_PLAN_COPY, drillTargetForRank, drillTotalForCount, achievedNextTarget, gapTierOf, gapTierTitle, type PriorityGoal } from '../utils/actionPlanCopy';
+import { buildProdiToneMap } from '../utils/prodiColors';
 
 interface V2PdfModalProps {
   isOpen: boolean;
@@ -71,9 +72,14 @@ const SHORT_NAME: Record<string, string> = {
 
 // Teks PDF (ringkas). Sementara di sini; pindahkan ke template /engine agar bisa diedit tim kesiswaan.
 const PDF_COPY = {
-  why600: 'Satu subtes yang rendah menurunkan skor akhir di jurusan mana pun.',
-  keketatanNote:
-    'Keketatan = daya tampung ÷ peminat (daya tampung SNBT 2026, peminat SNBT 2025). Target TO berikutnya = skor TO terakhir + kenaikan per TO.',
+  // Kalimat di bawah ini mengikuti draft tim kesiswaan (REVISI 6).
+  why600:
+    'Tujuannya agar tidak ada nilai subtes yang terlalu rendah dibandingkan yang lain. Sebab, satu nilai subtes yang rendah bisa memengaruhi skor akhir, apa pun jurusan yang dipilih.',
+  keketatanNote: [
+    'Keketatan = daya tampung ÷ peminat.',
+    'Daya tampung adalah jumlah kursi SNBT 2026.',
+    'Peminat adalah jumlah pendaftar SNBT 2025.'
+  ],
   planB: 'Siapkan jurusan cadangan bersama Kakak Asuh bila target belum tercapai pada konsultasi berikutnya.',
   ...ACTION_PLAN_COPY,
   // Cara belajar per rumpun subtes (ditulis sekali, tidak diulang di tiap baris).
@@ -115,12 +121,15 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
 
   // Label jurusan per subtes: subtes ini prioritas untuk jurusan apa (dikelompokkan per prodi, tanpa "S1"/"D4").
   const priorityProdisById = new Map<string, string[]>();
+  const priorityGoalById = new Map<string, PriorityGoal>();
   activePrograms.forEach((prog) => {
     derivePrioritySubtestsForChoice1(student, prog, foundationTarget).forEach((p) => {
       const list = priorityProdisById.get(p.id) ?? [];
       const name = prog.prodi.replace(/^(S1|D4|D3)\s+/, '');
       if (!list.includes(name)) list.push(name);
       priorityProdisById.set(p.id, list);
+      const cur = priorityGoalById.get(p.id);
+      if (!cur || prog.targetScore > cur.target) priorityGoalById.set(p.id, { prodi: name, target: prog.targetScore, kurang: Math.max(0, -prog.gap) });
     });
   });
 
@@ -134,13 +143,10 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   const medBadge = getStatusBadgeInfo(med4 - foundationTarget);
   const medPattern = classifySubtestPattern([med1, med2, med3, med4], ruleConfig);
 
-  // Target latihan: total dibagi rata ke subtes di bawah standar dasar (rumus sama dengan engine).
+  // Target latihan bertingkat menurut urutan nilai TO terendah (20 / 15 / 12, sisanya 10; rumus sama dengan engine).
   const weakSubtests = sortedSubtests.filter((x) => x.to4 < foundationTarget);
-  const drillPerSubtest = Math.max(
-    ruleConfig.thresholds.minDrillPerSubtest,
-    Math.floor(ruleConfig.thresholds.weeklyDrillTotal / Math.max(1, weakSubtests.length))
-  );
-  const drillTotal = weakSubtests.length * drillPerSubtest;
+  const drillTotal = drillTotalForCount(weakSubtests.length, ruleConfig.thresholds);
+  const prodiTone = buildProdiToneMap(activePrograms.map((p) => p.prodi));
   const shortOf = (x: { id: string; name: string }) => SHORT_NAME[x.id] ?? x.name;
 
   // Status belajar per subtes: 2 selisih terbesar = fokus utama; sisanya menurut selisih dan arah TO terakhir.
@@ -165,12 +171,13 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
     next: Math.max(x.to4, foundationTarget),
     tier: tierFor(x),
     drill: drillFor(x.id),
-    topics: topicsFor(x.id)
+    topics: topicsFor(x.id),
+    drillTarget: x.to4 < foundationTarget ? drillTargetForRank(weakSubtests.findIndex((w) => w.id === x.id), ruleConfig.thresholds) : 0
   }));
   const rankById = new Map<string, number>(
-    ([1, 2, 3, 0] as const).flatMap((t) => actionRows.filter((r) => r.tier === t)).map((r, i) => [r.id, i + 1] as [string, number])
+    ([1, 0] as const).flatMap((t) => actionRows.filter((r) => r.tier === t)).map((r, i) => [r.id, i + 1] as [string, number])
   );
-  const tierGroups = ([1, 2, 3, 0] as const)
+  const tierGroups = ([1, 0] as const)
     .map((t) => ({
       tier: t,
       title: gapTierTitle(t, foundationTarget),
@@ -185,18 +192,14 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   const tierTone = (t: number) =>
     t === 1
       ? { dot: '#d92d20', text: '#b42318', pillBg: '#fef3f2' }
-      : t === 2
-        ? { dot: '#f79009', text: '#b54708', pillBg: '#fffaeb' }
-        : t === 3
-          ? { dot: '#06aed4', text: '#0e7090', pillBg: '#ecfdff' }
-          : { dot: '#12b76a', text: '#027a48', pillBg: '#ecfdf3' };
+      : { dot: '#12b76a', text: '#027a48', pillBg: '#ecfdf3' };
   const groupFamiliesFor = (g: TierGroup) =>
     PDF_COPY.families
       .map((fam) => ({ ...fam, names: g.rows.filter((r) => fam.ids.includes(r.id)).map((r) => shortOf(r)) }))
       .filter((fam) => fam.names.length > 0);
   // Perkiraan tinggi (px) untuk pembagian halaman; dikalibrasi dari hasil cetak.
-  const EST_CARD = (t: number) => (t === 0 ? 72 : 126);
-  const EST_HEAD = (g: TierGroup) => 38 + (g.tier === 0 ? 20 : 0);
+  const EST_CARD = (t: number) => (t === 0 ? 98 : 126);
+  const EST_HEAD = (g: TierGroup) => 38 + (g.tier === 0 ? 30 : 0);
   const ACTION_PAGE_BUDGET = 915;
   const flowItems: FlowItem[] = tierGroups.flatMap((g) =>
     g.rows.map((r, i) => ({ key: `${g.tier}-${r.id}`, g, r, first: i === 0, est: (i === 0 ? EST_HEAD(g) : 0) + EST_CARD(r.tier) }))
@@ -232,7 +235,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
           )}
         </div>
         {!continued && g.tier === 0 && (
-          <div style={{ fontSize: fs(9.4), color: '#334155', lineHeight: 1.45, marginBottom: '1.6mm' }}>{PDF_COPY.achievedNote}</div>
+          <div style={{ fontSize: fs(9.4), color: '#334155', lineHeight: 1.45, marginBottom: '1.6mm' }}>{ACTION_PLAN_COPY.achievedNote}</div>
         )}
       </div>
     );
@@ -252,36 +255,41 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
           <div>
             <div style={{ fontWeight: 800, color: '#0f172a', fontSize: fs(10.4), lineHeight: 1.25 }}>{r.name}</div>
             <div style={{ fontSize: fs(9), color: '#667085', marginTop: '0.3mm' }}>
-              Latihan 3 bulan: {r.drill && r.drill.questions > 0 ? `${r.drill.questions} soal · ${r.drill.accuracy}% benar` : 'belum ada data'}
+              Riwayat drill 3 bulan terakhir: {r.drill && r.drill.questions > 0 ? `${r.drill.questions} soal, ${r.drill.accuracy}% benar` : 'belum ada data'}
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.8mm' }}>
             <div style={{ width: '100%', height: 6, borderRadius: 6, background: '#e8edf2', overflow: 'hidden' }}>
-              <div style={{ width: `${Math.min(100, Math.round((r.to4 / foundationTarget) * 100))}%`, height: '100%', borderRadius: 6, background: r.tier === 0 ? '#12b76a' : '#b42318' }} />
+              <div style={{ width: `${Math.min(100, Math.round((r.to4 / foundationTarget) * 100))}%`, height: '100%', borderRadius: 6, background: r.tier === 0 ? '#245f5a' : '#b42318' }} />
             </div>
-            <span style={{ fontSize: fs(12), fontWeight: 800, color: r.tier === 0 ? '#027a48' : '#b42318', lineHeight: 1 }}>
+            <span style={{ fontSize: fs(12), fontWeight: 800, color: r.tier === 0 ? '#245f5a' : '#b42318', lineHeight: 1 }}>
               {r.to4}
               <span style={{ fontSize: fs(9.4), fontWeight: 700, color: '#667085' }}> / {foundationTarget}</span>
             </span>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <span style={{ display: 'inline-block', fontSize: fs(9.2), fontWeight: 800, color: tone.text, background: tone.pillBg, borderRadius: 3, padding: '0.5mm 1.8mm', whiteSpace: 'nowrap' }}>
-              {r.tier === 0 ? `+${r.to4 - foundationTarget} di atas ${foundationTarget}` : `kurang ${r.next - r.to4}`}
+            <span style={{ display: 'inline-block', fontSize: fs(9.2), fontWeight: 800, color: r.tier === 0 ? '#245f5a' : tone.text, background: r.tier === 0 ? '#eef6f5' : tone.pillBg, borderRadius: 3, padding: '0.5mm 1.8mm', whiteSpace: 'nowrap' }}>
+              {r.tier === 0 ? ACTION_PLAN_COPY.achievedBadge(r.to4 - foundationTarget, foundationTarget) : `kurang ${r.next - r.to4}`}
             </span>
           </div>
         </div>
-        {r.tier !== 0 && (
+        {r.tier === 0 ? (
+          <div style={{ marginTop: '1.8mm', paddingTop: '1.6mm', borderTop: '1px solid #e2e8f0' }}>
+            <div style={{ ...capLabel, color: '#245f5a' }}>Target berikutnya</div>
+            <div style={{ fontSize: fs(10.4), fontWeight: 800, lineHeight: 1.38, color: '#0f172a' }}>
+              {achievedNextTarget(priorityGoalById.get(r.id), foundationTarget)}
+            </div>
+          </div>
+        ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '5fr 7fr', marginTop: '1.8mm', paddingTop: '1.6mm', borderTop: '1px solid #e2e8f0' }}>
             <div style={{ paddingRight: '3mm' }}>
-              <div style={capLabel}>Fokus materi</div>
-              <div style={{ fontSize: fs(9.4), lineHeight: 1.42, color: '#1e293b' }}>{r.topics.join(' · ')}</div>
+              <div style={{ ...capLabel, color: '#245f5a' }}>Fokus perbaikan materi</div>
+              <div style={{ fontSize: fs(10.4), fontWeight: 800, lineHeight: 1.38, color: '#0f172a' }}>{r.topics.join(' · ')}</div>
             </div>
-            {(
-              <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '3mm' }}>
-                <div style={{ ...capLabel, color: '#245f5a' }}>Tindak lanjut</div>
-                <div style={{ fontSize: fs(9.4), lineHeight: 1.42, color: '#1e293b' }}>{PDF_COPY.followUpSpecific[r.id] ?? PDF_COPY.followUpDefault}</div>
-              </div>
-            )}
+            <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '3mm' }}>
+              <div style={{ ...capLabel, color: '#245f5a' }}>Target drill soal</div>
+              <div style={{ fontSize: fs(10.4), fontWeight: 800, lineHeight: 1.38, color: '#0f172a' }}>{r.drillTarget} soal benar per minggu</div>
+            </div>
           </div>
         )}
       </div>
@@ -296,21 +304,29 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
     ));
 
   // Kesimpulan halaman 1.
+  const toWordsEarly = ['nol', 'satu', 'dua', 'tiga', 'empat', 'lima'];
   const achievedPrograms = activePrograms.filter((p) => p.gap >= 0).length;
   const posisiLine =
     achievedPrograms === 0
-      ? 'Belum ada pilihan jurusan yang mencapai target.'
-      : `${achievedPrograms} dari ${activePrograms.length} pilihan jurusan sudah mencapai target.`;
+      ? `Belum ada satu pun dari ${toWordsEarly[activePrograms.length] ?? activePrograms.length} pilihan jurusan yang skornya mencapai target.`
+      : `${achievedPrograms} dari ${activePrograms.length} pilihan jurusan skornya sudah mencapai target.`;
   const focusSubs = weakSubtests.slice(0, 2);
   const aboveNames = above600.map(shortOf);
   const belowNames = below600.map(shortOf);
   const totalSubtes = sortedSubtests.length;
+  const joinNames = (names: string[]) =>
+    names.length <= 1
+      ? names.join('')
+      : names.length === 2
+        ? `${names[0]} dan ${names[1]}`
+        : `${names.slice(0, -1).join(', ')}, dan ${names[names.length - 1]}`;
+  const bigGapSubs = weakSubtests.filter((x) => gapTierOf(x.to4, foundationTarget) === 1);
+  const focusMain = (bigGapSubs.length > 0 ? bigGapSubs : weakSubtests.slice(0, 2)).slice(0, 3).map(shortOf);
+  const countLine = `Saat ini, ${below600.length} dari ${totalSubtes} subtes nilainya masih di bawah ${foundationTarget}.`;
   const subtesLine =
-    above600.length === 0
-      ? `Belum ada subtes yang mencapai ${foundationTarget}: ${totalSubtes} dari ${totalSubtes} subtes masih di bawah ${foundationTarget}.`
-      : below600.length === 0
-        ? `Semua ${totalSubtes} subtes sudah mencapai ${foundationTarget}.`
-        : `${above600.length} dari ${totalSubtes} subtes sudah mencapai ${foundationTarget} (${aboveNames.join(', ')}); ${below600.length} belum (${belowNames.join(', ')}).`;
+    below600.length === 0
+      ? `Semua ${totalSubtes} subtes sudah mencapai ${foundationTarget}. Fokus utama saat ini adalah menjaga semuanya agar tidak kembali menurun.`
+      : `Fokus utama saat ini adalah memperbaiki ${joinNames(focusMain)}, sambil menjaga subtes lain agar tidak kembali menurun.`;
   // Plan B: tampil bila belum ada pilihan jurusan yang mencapai target acuan.
   const needsPlanBNote = activePrograms.length > 0 && activePrograms.every((p) => p.gap < 0);
 
@@ -335,7 +351,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
       title: 'Latihan mingguan',
       text:
         weakSubtests.length > 0
-          ? `Minimal ${drillTotal} soal benar per minggu di aplikasi Ruangguru (${drillPerSubtest} soal benar untuk tiap subtes di bawah ${foundationTarget}).`
+          ? `Minimal ${drillTotal} soal benar per minggu di aplikasi Ruangguru: ${ruleConfig.thresholds.drillRank1}, ${ruleConfig.thresholds.drillRank2}, dan ${ruleConfig.thresholds.drillRank3} soal benar untuk tiga subtes terendah, ${ruleConfig.thresholds.minDrillPerSubtest} untuk subtes lainnya.`
           : 'Pertahankan konsistensi latihan mingguan di aplikasi Ruangguru.'
     },
     {
@@ -365,7 +381,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
         margin: '0 0 1.6mm'
       }}
     >
-      <span style={{ color: '#58aebd' }}>{no}</span>
+      {no && <span style={{ color: '#58aebd' }}>{no}</span>}
       <span>{title}</span>
     </div>
   );
@@ -503,9 +519,9 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             {/* 1. POSISI SAAT INI */}
             <div className="profiling-print-section" style={{ marginBottom: 0 }}>
               <h2 className="profiling-print-section-title">
-                <span><span style={{ marginRight: '1.8mm' }}>1.</span>Posisi Saat Ini</span>
+                <span><span style={{ marginRight: '1.8mm' }}>1.</span>Posisi Saat Ini terhadap Target {foundationTarget} &amp; Pilihan Jurusan</span>
               </h2>
-              {renderSubHead('1.1', 'Terhadap Pilihan Jurusan (skor IRT terbobot)')}
+              {renderSubHead('', `Evaluasi Skor TO UTBK Regular Episode ${toCount} terhadap Pilihan Jurusan (menggunakan sistem skoring IRT Pembobotan)`)}
               <table className="profiling-print-table">
                 <thead>
                   <tr>
@@ -515,7 +531,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                     <th style={{ width: '9%', textAlign: 'center' }}>Skor TO {toCount}</th>
                     <th style={{ width: '8.5%', textAlign: 'center' }}>Selisih</th>
                     <th style={{ width: '11.5%', textAlign: 'center', background: '#245f5a' }}>Target TO {toCount + 1}</th>
-                    <th style={{ width: '14.5%', textAlign: 'center' }}>Kenaikan per TO</th>
+                    <th style={{ width: '14.5%', textAlign: 'center' }}>Target Kenaikan Nilai di Setiap TO</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -527,7 +543,10 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                       <tr key={`${prog.prodi}-${idx}`}>
                         <td style={{ fontWeight: 800, fontSize: fs(11), color: '#245f5a', textAlign: 'center' }}>{prog.priority.replace(/\D+/g, '') || prog.priority}</td>
                         <td>
-                          <div style={{ fontWeight: 700, fontSize: fs(10.5), color: '#0f172a' }}>{prog.prodi}</div>
+                          <div style={{ fontWeight: 700, fontSize: fs(10.5), color: '#0f172a' }}>
+                            <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 9, background: prodiTone(prog.prodi.replace(/^(S1|D4|D3)\s+/, '')).text, marginRight: '1.6mm' }} />
+                            {prog.prodi}
+                          </div>
                           <div style={{ color: '#475467', fontSize: fs(9.5) }}>{prog.univ}</div>
                           <div style={{ color: '#475467', fontSize: fs(9.2) }}>
                             {cat ? `Daya tampung ${cat.quota2026} · Peminat ${cat.applicants2025.toLocaleString('id-ID')} · ` : ''}Keketatan {prog.tightness}
@@ -547,7 +566,9 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                   })}
                 </tbody>
               </table>
-              <div style={{ fontSize: fs(9.2), color: '#667085', marginTop: '1.2mm', lineHeight: 1.4 }}>{PDF_COPY.keketatanNote}</div>
+              <div style={{ fontSize: fs(9.2), color: '#667085', marginTop: '1.2mm', lineHeight: 1.4 }}>
+                {PDF_COPY.keketatanNote.join(' ')} Target TO {toCount + 1} = skor TO {toCount} + kenaikan per TO.
+              </div>
               <ul style={{ margin: '1.4mm 0 0', paddingLeft: '4.2mm', fontSize: fs(9.6), color: '#334155', lineHeight: 1.45 }}>
                 {highestNext && (
                   <li>
@@ -593,9 +614,11 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
 
             {/* 2. BREAKDOWN PER SUBTES */}
             <div className="profiling-print-section" style={{ marginBottom: 0 }}>
-              {renderSubHead('1.2', `Terhadap Target ${foundationTarget}`)}
+              <h2 className="profiling-print-section-title">
+                <span><span style={{ marginRight: '1.8mm' }}>2.</span>Breakdown per Subtes</span>
+              </h2>
               <div style={{ fontSize: fs(10), color: '#713f12', lineHeight: 1.45, marginBottom: '1.6mm' }}>
-                <strong>Kenapa semua subtes ditargetkan {foundationTarget}?</strong> {PDF_COPY.why600}
+                <strong>Kenapa semua subtes ditargetkan mencapai {foundationTarget}?</strong> {PDF_COPY.why600} {countLine}
               </div>
               <table className="profiling-print-table profiling-print-table--tight">
                 <thead>
@@ -628,9 +651,12 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                           <div style={{ fontWeight: 700, color: '#0f172a' }}>{sub.name}</div>
                           {(priorityProdisById.get(sub.id) ?? []).length > 0 && (
                             <div style={{ display: 'flex', gap: '1mm', flexWrap: 'wrap', marginTop: '0.4mm' }}>
-                              {(priorityProdisById.get(sub.id) ?? []).map((n) => (
-                                <span key={n} style={{ fontSize: fs(9), fontWeight: 700, color: '#6941c6', background: '#f9f5ff', border: '1px solid #e9d7fe', padding: '0.2mm 1.2mm', borderRadius: 3, lineHeight: 1.2 }}>{n}</span>
-                              ))}
+                              {(priorityProdisById.get(sub.id) ?? []).map((n) => {
+                                const tone = prodiTone(n);
+                                return (
+                                  <span key={n} style={{ fontSize: fs(9), fontWeight: 700, color: tone.text, background: tone.bg, border: `1px solid ${tone.border}`, padding: '0.2mm 1.2mm', borderRadius: 3, lineHeight: 1.2 }}>{n}</span>
+                                );
+                              })}
                             </div>
                           )}
                         </td>
@@ -675,7 +701,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                   <span style={{ width: 9, height: 9, background: '#12b76a', display: 'inline-block', borderRadius: 2 }} /> Tercapai ({foundationTarget}+)
                 </span>
                 {priorityProdisById.size > 0 && (
-                  <span style={{ color: '#6941c6', fontWeight: 600 }}>Label ungu di bawah nama subtes = subtes prioritas untuk jurusan tersebut</span>
+                  <span style={{ color: '#475467', fontWeight: 600 }}>Label berwarna di bawah nama subtes = subtes prioritas untuk jurusan dengan warna yang sama</span>
                 )}
               </div>
               <div style={{ background: '#f2f8f7', borderLeft: '3px solid #58aebd', borderRadius: 3, padding: '1.3mm 2.6mm', marginTop: '1.6mm', fontSize: fs(10), color: '#0f172a', lineHeight: 1.45 }}>
@@ -709,15 +735,15 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             {/* 2. ACTION PLAN: TARGET LATIHAN SOAL */}
             <div className="profiling-print-section" style={{ marginBottom: 0 }}>
               <h2 className="profiling-print-section-title">
-                <span><span style={{ marginRight: '1.8mm' }}>2.</span>Action Plan: Target Latihan Soal</span>
-                <span style={{ fontSize: fs(9), fontWeight: 600, color: '#245f5a', textTransform: 'none', letterSpacing: 0 }}>menurut besar selisih ke {foundationTarget}</span>
+                <span><span style={{ marginRight: '1.8mm' }}>3.</span>Action Plan: Target Drill Soal</span>
+                <span style={{ fontSize: fs(9), fontWeight: 600, color: '#245f5a', textTransform: 'none', letterSpacing: 0 }}>target drill menurut urutan nilai</span>
               </h2>
               {weakSubtests.length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', columnGap: '5mm', background: '#e6f4f2', borderRadius: 4, padding: '2.2mm 3.2mm', marginBottom: '3mm' }}>
                   <div>
-                    <div style={{ fontSize: fs(8.6), fontWeight: 800, letterSpacing: 0.4, textTransform: 'uppercase', color: '#245f5a' }}>Target latihan mingguan</div>
+                    <div style={{ fontSize: fs(8.6), fontWeight: 800, letterSpacing: 0.4, textTransform: 'uppercase', color: '#245f5a' }}>Target drill mingguan</div>
                     <div style={{ fontSize: fs(10), color: '#0f172a', lineHeight: 1.4 }}>
-                      Minimal <strong>{drillPerSubtest} soal benar per minggu</strong> untuk tiap subtes di bawah {foundationTarget}.
+                      Target per minggu: <strong>{ruleConfig.thresholds.drillRank1}, {ruleConfig.thresholds.drillRank2}, dan {ruleConfig.thresholds.drillRank3} soal benar</strong> untuk tiga subtes terendah, <strong>{ruleConfig.thresholds.minDrillPerSubtest}</strong> untuk subtes lainnya.
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '6mm', borderLeft: '1px solid #b7d9d4', paddingLeft: '5mm' }}>
@@ -758,7 +784,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             {pageB.length > 0 && (
               <div className="profiling-print-section" style={{ marginBottom: '3.6mm' }}>
                 <h2 className="profiling-print-section-title">
-                  <span><span style={{ marginRight: '1.8mm' }}>2.</span>Action Plan (lanjutan)</span>
+                  <span><span style={{ marginRight: '1.8mm' }}>3.</span>Action Plan (lanjutan)</span>
                 </h2>
                 {renderItems(pageB)}
               </div>
@@ -767,7 +793,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             {/* 3. RENCANA TINDAK LANJUT */}
             <div className="profiling-print-section" style={{ marginBottom: '3.6mm' }}>
               <h2 className="profiling-print-section-title">
-                <span><span style={{ marginRight: '1.8mm' }}>3.</span>Rencana Tindak Lanjut Menuju Tryout {toCount + 1}</span>
+                <span><span style={{ marginRight: '1.8mm' }}>4.</span>Rencana Tindak Lanjut Menuju Tryout {toCount + 1}</span>
               </h2>
               <ol className="profiling-print-action-list">
                 {rencanaItems.map((item) => (
@@ -781,7 +807,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
             {/* 4. LEMBAR KESEPAKATAN BERSAMA 3 PIHAK */}
             <div className="profiling-print-section" style={{ marginBottom: 0 }}>
               <h2 className="profiling-print-section-title">
-                <span><span style={{ marginRight: '1.8mm' }}>4.</span>Lembar Kesepakatan Bersama 3 Pihak</span>
+                <span><span style={{ marginRight: '1.8mm' }}>5.</span>Lembar Kesepakatan Bersama 3 Pihak</span>
               </h2>
               <p className="profiling-print-agreement">
                 &ldquo;Dengan menandatangani lembar ini, Siswa, Orang Tua / Wali, dan Kakak Asuh Brain Academy menyatakan telah berdiskusi bersama, memahami hasil evaluasi belajar 4 Tryout, dan bersepakat mengenai formulasi pilihan jurusan serta komitmen rencana tindak lanjut belajar Checkpoint 1 demi mencapai target PTN impian.&rdquo;

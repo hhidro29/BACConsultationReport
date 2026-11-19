@@ -1,3 +1,4 @@
+import { drillTiersText, drillTotalForCount } from './actionPlanCopy.ts';
 /**
  * Deterministic, Holistic Checkpoint 1 SA Guideline Engine (Non-AI-Centered)
  *
@@ -70,9 +71,15 @@ export interface EngineThresholds {
   notesLowCoveragePct: number;
   /** Catatan Kakak Asuh lebih pendek dari jumlah karakter ini memicu pengingat lunak saat Kunci (<) */
   notesShortChars: number;
-  /** Rencana aksi: target soal benar per minggu, dibagi ke subtes di bawah target fondasi */
+  /** Rencana aksi: acuan total soal benar per minggu bila semua subtes sudah tercapai (bila ada subtes lemah, total = jumlah target per subtes) */
   weeklyDrillTotal: number;
-  /** Rencana aksi: batas bawah soal benar per subtes per minggu */
+  /** Rencana aksi: soal benar per minggu untuk subtes dengan nilai terendah (urutan 1) */
+  drillRank1: number;
+  /** Rencana aksi: urutan 2 */
+  drillRank2: number;
+  /** Rencana aksi: urutan 3 */
+  drillRank3: number;
+  /** Rencana aksi: soal benar per minggu untuk subtes lain di bawah target (urutan 4 dan seterusnya) */
   minDrillPerSubtest: number;
 }
 
@@ -265,6 +272,9 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     notesLowCoveragePct: 25,
     notesShortChars: 30,
     weeklyDrillTotal: 60,
+    drillRank1: 20,
+    drillRank2: 15,
+    drillRank3: 12,
     minDrillPerSubtest: 10
   },
   patternTemplates: {
@@ -442,7 +452,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
   },
   stage4Templates: {
     scheduleTask:
-      'Konfirmasi hari, jam, dan target drill soal mingguan yang realistis dijalankan siswa tanpa bentrok jadwal sekolah (acuan tim: minimal {drillWeekly} soal benar per minggu, yaitu {drillPerSubtest} soal benar untuk tiap subtes di bawah {target}).',
+      'Konfirmasi hari, jam, dan target drill soal mingguan yang realistis dijalankan siswa tanpa bentrok jadwal sekolah (acuan tim: minimal {drillWeekly} soal benar per minggu, yaitu {drillTiers}).',
     parentSupportTask:
       'Bahas bentuk dukungan dan pemantauan belajar yang paling nyaman dilakukan orang tua di rumah.',
     missingDrillTask:
@@ -495,7 +505,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
   actionPlanTemplates: {
     plan1Title: 'Drill Soal Mingguan',
     plan1Desc:
-      'Target minimal {drillWeekly} soal benar per minggu di aplikasi Ruangguru, dibagi ke {weakCount} subtes di bawah {target} ({drillPerSubtest} soal benar per subtes).',
+      'Target minimal {drillWeekly} soal benar per minggu di aplikasi Ruangguru, dibagi ke {weakCount} subtes di bawah {target}: {drillTiers}.',
     plan1DescAchieved:
       'Seluruh subtes sudah mencapai {target}. Pertahankan konsistensi drill mingguan di aplikasi Ruangguru.',
     plan1Pic: '{student} (dipantau bersama {sa})',
@@ -1264,8 +1274,9 @@ export function analyzeStage4(
     .filter((x) => x.gap < 0)
     .slice(0, 2)
     .map((x) => `${x.name} (${x.gap})`);
-  const drillPerSubtest = Math.max(th4.minDrillPerSubtest, Math.floor(th4.weeklyDrillTotal / Math.max(1, weakCount)));
-  const drillWeekly = drillPerSubtest * weakCount;
+  const drillPerSubtest = th4.minDrillPerSubtest;
+  const drillWeekly = drillTotalForCount(weakCount, th4);
+  const drillTiers = drillTiersText(th4);
   const allAchieved = subs.length > 0 && weakCount === 0;
   const episode = pd?.episode ?? 4;
   const planVars = {
@@ -1277,6 +1288,7 @@ export function analyzeStage4(
     weakCount,
     drillWeekly,
     drillPerSubtest,
+    drillTiers,
     deepest: deepest.join('; '),
     nextEpisode: studentInput?.nextEpisode ?? episode + 1,
     episode,
@@ -1588,8 +1600,11 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     { key: 'absenceWarnSessions', label: 'Pengingat Sesi Terlewat: Sakit + Izin (≥ sesi)', stage: 'Tahap 4' },
     { key: 'notesLowCoveragePct', label: 'Rambu Catatan Pengajar Sedikit: Cakupan (< %)', stage: 'Tahap 4' },
     { key: 'notesShortChars', label: 'Pengingat Catatan Kakak Asuh Singkat saat Kunci (< karakter)', stage: 'Tahap 5' },
-    { key: 'weeklyDrillTotal', label: 'Rencana Aksi: Target Soal Benar per Minggu (dibagi ke subtes di bawah target)', stage: 'Tahap 5' },
-    { key: 'minDrillPerSubtest', label: 'Rencana Aksi: Minimal Soal Benar per Subtes per Minggu', stage: 'Tahap 5' }
+    { key: 'weeklyDrillTotal', label: 'Rencana Aksi: Acuan Total Soal Benar per Minggu (bila semua subtes sudah tercapai)', stage: 'Tahap 5' },
+    { key: 'drillRank1', label: 'Rencana Aksi: Soal Benar per Minggu, Subtes Nilai Terendah (urutan 1)', stage: 'Tahap 5' },
+    { key: 'drillRank2', label: 'Rencana Aksi: Soal Benar per Minggu, Urutan 2', stage: 'Tahap 5' },
+    { key: 'drillRank3', label: 'Rencana Aksi: Soal Benar per Minggu, Urutan 3', stage: 'Tahap 5' },
+    { key: 'minDrillPerSubtest', label: 'Rencana Aksi: Soal Benar per Minggu, Subtes Lainnya (urutan 4 dst.)', stage: 'Tahap 5' }
   ];
   thresholdMeta.forEach((m) => {
     rows.push([
@@ -1837,7 +1852,7 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
         ? splitLines(config.actionPlanTemplates.checklist).map((l) => `• ${l}`).join('\n')
         : config.actionPlanTemplates[m.key],
       '-',
-      'SATU SUMBER dashboard dan PDF hal. 3. Format: **tebal**. Placeholder: {student} {sa} {parent} {branch} {target} {weakCount} {drillWeekly} {drillPerSubtest} {deepest} {nextEpisode} {episode} {avgScore}'
+      'SATU SUMBER dashboard dan PDF hal. 3. Format: **tebal**. Placeholder: {student} {sa} {parent} {branch} {target} {weakCount} {drillWeekly} {drillPerSubtest} {drillTiers} {deepest} {nextEpisode} {episode} {avgScore}'
     ]);
   });
 

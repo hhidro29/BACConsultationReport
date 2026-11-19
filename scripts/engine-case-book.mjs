@@ -297,7 +297,7 @@ function runS5(test, flags, subtests, episode = 4) {
   const covers = [];
   const weak = subtests.filter((x) => x.to4 < TH.foundationScoreTarget).length;
   covers.push(weak === 0 ? 'T5 rencana: semua subtes tercapai' : 'T5 rencana: ada subtes di bawah target');
-  if (weak > 0) covers.push(weak * TH.minDrillPerSubtest > TH.weeklyDrillTotal ? 'T5 rencana: minimal per subtes berlaku' : 'T5 rencana: pembagian merata');
+  if (weak > 0) covers.push(weak >= 4 ? 'T5 rencana: minimal per subtes berlaku' : 'T5 rencana: pembagian merata');
   if (out.saTasks.includes(TPL4.missingDrillTask)) covers.push('T5 tugas: subtes minim drill');
   if (out.saTasks.includes(TPL4.conflictOrLocationTask)) covers.push('T5 tugas: konflik/lokasi');
   add(

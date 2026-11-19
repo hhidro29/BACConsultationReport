@@ -31,7 +31,8 @@ import { safeGetItem, safeSetItem, loadCustomPrograms } from '../utils/safeStora
 import { buildDrillTableRows } from '../utils/drillTable';
 import { STUDENT_DRILL_DATA } from '../data/drillData';
 import { sampleLowestTopics } from '../data/topicSampleData';
-import { ACTION_PLAN_COPY, gapTierOf, gapTierTitle, type GapTier } from '../utils/actionPlanCopy';
+import { ACTION_PLAN_COPY, drillTargetForRank, drillTotalForCount, achievedNextTarget, gapTierOf, gapTierTitle, type GapTier, type PriorityGoal } from '../utils/actionPlanCopy';
+import { buildProdiToneMap } from '../utils/prodiColors';
 import { isReportLocked, setReportLocked } from '../utils/reportLock';
 import { LockBanner } from '../components/LockBanner';
 import { AppTopbar } from '../components/AppTopbar';
@@ -95,13 +96,17 @@ export const CheckpointV2Page: React.FC = () => {
   };
 
   // Label jurusan per subtes: subtes ini prioritas untuk jurusan apa (sama dengan PDF).
+  const prodiTone = buildProdiToneMap(targetPrograms.map((p) => p.prodi));
   const priorityProdisById = new Map<string, string[]>();
+  const priorityGoalById = new Map<string, PriorityGoal>();
   targetPrograms.forEach((prog) => {
     derivePrioritySubtestsForChoice1(activeStudent, prog, ruleConfig.thresholds.foundationScoreTarget).forEach((p) => {
       const list = priorityProdisById.get(p.id) ?? [];
       const name = prog.prodi.replace(/^(S1|D4|D3)\s+/, '');
       if (!list.includes(name)) list.push(name);
       priorityProdisById.set(p.id, list);
+      const cur = priorityGoalById.get(p.id);
+      if (!cur || prog.targetScore > cur.target) priorityGoalById.set(p.id, { prodi: name, target: prog.targetScore, kurang: Math.max(0, -prog.gap) });
     });
   });
 
@@ -735,7 +740,7 @@ export const CheckpointV2Page: React.FC = () => {
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <h3 className="section-title" style={{ fontSize: 15, margin: 0 }}>
-                  1. Evaluasi Peluang {targetPrograms.length} Pilihan Jurusan PTN
+                  Evaluasi Skor TO UTBK Regular Episode {latestToEpisode} terhadap Pilihan Jurusan (menggunakan sistem skoring IRT Pembobotan)
                 </h3>
                 {(() => {
                   const snbtCheck = validateSnbtChoices(targetPrograms);
@@ -827,7 +832,7 @@ export const CheckpointV2Page: React.FC = () => {
                     <th style={{ width: '10%', textAlign: 'center' }}>Skor TO {latestToEpisode}</th>
                     <th style={{ width: '9%', textAlign: 'center' }}>Selisih</th>
                     <th style={{ width: '13%', textAlign: 'center', background: '#245f5a', color: '#ffffff' }}>Target TO {latestToEpisode + 1}</th>
-                    <th style={{ width: '14%', textAlign: 'center' }}>Kenaikan per TO</th>
+                    <th style={{ width: '14%', textAlign: 'center' }}>Target Kenaikan Nilai di Setiap TO</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -840,6 +845,7 @@ export const CheckpointV2Page: React.FC = () => {
                           {prog.priority.replace(/\D+/g, '') || prog.priority}
                         </td>
                         <td>
+                          <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 9, background: prodiTone(prog.prodi.replace(/^(S1|D4|D3)\s+/, '')).text, marginRight: 6 }} />
                           <strong>{prog.prodi}</strong><br />
                           <span style={{ fontSize: 12, color: 'var(--muted)' }}>
                             {prog.univ}
@@ -874,7 +880,7 @@ export const CheckpointV2Page: React.FC = () => {
               return (
                 <div style={{ marginTop: 12, fontSize: 13, color: '#1e293b', lineHeight: 1.55 }}>
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>
-                    Keketatan = daya tampung ÷ peminat. Target TO berikutnya = skor TO terakhir + kenaikan per TO.
+                    Keketatan = daya tampung ÷ peminat. Daya tampung adalah jumlah kursi SNBT 2026. Peminat adalah jumlah pendaftar SNBT 2025. Target TO {latestToEpisode + 1} = skor TO {latestToEpisode} + kenaikan per TO.
                   </div>
                   {highestNext && (
                     <ul style={{ margin: '0 0 8px', paddingLeft: 20 }}>
@@ -891,8 +897,8 @@ export const CheckpointV2Page: React.FC = () => {
                   <div style={{ background: '#f2f8f7', borderLeft: '3px solid #58aebd', borderRadius: 6, padding: '8px 12px' }}>
                     <strong style={{ color: 'var(--tosca-dark)' }}>Kesimpulan:</strong>{' '}
                     {achieved === 0
-                      ? 'Belum ada pilihan jurusan yang mencapai target.'
-                      : `${achieved} dari ${targetPrograms.length} pilihan jurusan sudah mencapai target.`}
+                      ? `Belum ada satu pun dari ${words[targetPrograms.length] ?? targetPrograms.length} pilihan jurusan yang skornya mencapai target.`
+                      : `${achieved} dari ${targetPrograms.length} pilihan jurusan skornya sudah mencapai target.`}
                   </div>
                 </div>
               );
@@ -977,7 +983,7 @@ export const CheckpointV2Page: React.FC = () => {
           <div className="section-block" id="sec_tahap2_metrics">
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 15 }}>
-                1. Posisi 8 Subtes terhadap Target {ruleConfig.thresholds.foundationScoreTarget} — Tryout Episode {latestToEpisode}
+                Breakdown per Subtes — Tryout Episode {latestToEpisode}
               </h3>
               <span style={{ fontSize: 12, color: 'var(--muted)' }}>Acuan Skor TO UTBK Regular Episode {latestToEpisode}</span>
             </div>
@@ -1158,14 +1164,17 @@ export const CheckpointV2Page: React.FC = () => {
                             )}
                             {(priorityProdisById.get(sub.id) ?? []).length > 0 && (
                               <span style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                                {(priorityProdisById.get(sub.id) ?? []).map((n) => (
-                                  <span
-                                    key={n}
-                                    style={{ fontSize: 12, fontWeight: 700, color: '#6941c6', background: '#f9f5ff', border: '1px solid #e9d7fe', padding: '1px 6px', borderRadius: 4, whiteSpace: 'nowrap' }}
-                                  >
-                                    {n}
-                                  </span>
-                                ))}
+                                {(priorityProdisById.get(sub.id) ?? []).map((n) => {
+                                  const tn = prodiTone(n);
+                                  return (
+                                    <span
+                                      key={n}
+                                      style={{ fontSize: 12, fontWeight: 700, color: tn.text, background: tn.bg, border: `1px solid ${tn.border}`, padding: '1px 6px', borderRadius: 4, whiteSpace: 'nowrap' }}
+                                    >
+                                      {n}
+                                    </span>
+                                  );
+                                })}
                               </span>
                             )}
                           </div>
@@ -1298,7 +1307,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <span style={{ width: 10, height: 10, background: '#12b76a', display: 'inline-block', borderRadius: 2 }}></span> Tercapai (≥ 600)
               </span>
               {priorityProdisById.size > 0 && (
-                <span style={{ color: '#6941c6', fontWeight: 600 }}>Label ungu di bawah nama subtes = subtes prioritas untuk jurusan tersebut</span>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>Label berwarna di samping nama subtes = subtes prioritas untuk jurusan dengan warna yang sama</span>
               )}
             </div>
 
@@ -1308,18 +1317,27 @@ export const CheckpointV2Page: React.FC = () => {
               const above = sortedSubtests.filter((x) => x.to4 >= foundation);
               const below = sortedSubtests.filter((x) => x.to4 < foundation);
               const total = sortedSubtests.length;
+              const joinNames = (names: string[]) =>
+                names.length <= 1
+      ? names.join('')
+      : names.length === 2
+        ? `${names[0]} dan ${names[1]}`
+        : `${names.slice(0, -1).join(', ')}, dan ${names[names.length - 1]}`;
               return (
                 <div style={{ marginTop: 12, fontSize: 13, color: '#1e293b', lineHeight: 1.55 }}>
                   <div style={{ color: '#713f12', marginBottom: 8 }}>
-                    <strong>Kenapa semua subtes ditargetkan {foundation}?</strong> Satu subtes yang rendah menurunkan skor akhir di jurusan mana pun.
+                    <strong>Kenapa semua subtes ditargetkan mencapai {foundation}?</strong> Tujuannya agar tidak ada nilai subtes yang terlalu rendah dibandingkan yang lain. Sebab, satu nilai subtes yang rendah bisa memengaruhi skor akhir, apa pun jurusan yang dipilih. Saat ini, {below.length} dari {total} subtes nilainya masih di bawah {foundation}.
                   </div>
                   <div style={{ background: '#f2f8f7', borderLeft: '3px solid #58aebd', borderRadius: 6, padding: '8px 12px' }}>
                     <strong style={{ color: 'var(--tosca-dark)' }}>Kesimpulan:</strong>{' '}
-                    {above.length === 0
-                      ? `Belum ada subtes yang mencapai ${foundation}: ${total} dari ${total} subtes masih di bawah ${foundation}.`
-                      : below.length === 0
-                        ? `Semua ${total} subtes sudah mencapai ${foundation}.`
-                        : `${above.length} dari ${total} subtes sudah mencapai ${foundation} (${above.map((x) => shortName(x.name)).join(', ')}); ${below.length} belum (${below.map((x) => shortName(x.name)).join(', ')}).`}
+                    {below.length === 0
+                      ? `Semua ${total} subtes sudah mencapai ${foundation}. Fokus utama saat ini adalah menjaga semuanya agar tidak kembali menurun.`
+                      : `Fokus utama saat ini adalah memperbaiki ${joinNames(
+                          (below.filter((x) => gapTierOf(x.to4, foundation) === 1).length > 0
+                            ? below.filter((x) => gapTierOf(x.to4, foundation) === 1)
+                            : below.slice(0, 2)
+                          ).slice(0, 3).map((x) => shortName(x.name))
+                        )}, sambil menjaga subtes lain agar tidak kembali menurun.`}
                   </div>
                 </div>
               );
@@ -1395,7 +1413,7 @@ export const CheckpointV2Page: React.FC = () => {
                 Tahap 3
               </span>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--ink-strong)', margin: 0 }}>
-                🛠️ Action Plan: Target Latihan Soal &amp; Aktivitas Drill
+                🛠️ Action Plan: Target Drill Soal &amp; Aktivitas Drill
               </h2>
             </div>
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>Periode data drill soal: 3 bulan terakhir (Student Tower)</span>
@@ -1410,10 +1428,8 @@ export const CheckpointV2Page: React.FC = () => {
           {(() => {
             const foundation = ruleConfig.thresholds.foundationScoreTarget;
             const weak = sortedSubtests.filter((x) => x.to4 < foundation);
-            const drillPer = Math.max(
-              ruleConfig.thresholds.minDrillPerSubtest,
-              Math.floor(ruleConfig.thresholds.weeklyDrillTotal / Math.max(1, weak.length))
-            );
+            const drillTotalWeekly = drillTotalForCount(weak.length, ruleConfig.thresholds);
+            const drillTargetOf = (id: string) => drillTargetForRank(weak.findIndex((w) => w.id === id), ruleConfig.thresholds);
             const rows = sortedSubtests.map((x) => {
               const pri = prioritySubtestsV2.find((p) => p.id === x.id);
               const stat = pri
@@ -1440,34 +1456,30 @@ export const CheckpointV2Page: React.FC = () => {
               );
               return { x, stat, topics, tier, rule };
             });
-            const order: GapTier[] = [1, 2, 3, 0];
+            const order: GapTier[] = [1, 0];
             const rank = new Map<string, number>(
               order.flatMap((t) => rows.filter((r) => r.tier === t)).map((r, i) => [r.x.id, i + 1] as [string, number])
             );
             const tone = (t: GapTier) =>
               t === 1
                 ? { dot: '#d92d20', ink: 'var(--red-ink)', pill: '#fef3f2' }
-                : t === 2
-                  ? { dot: '#f79009', ink: 'var(--amber-ink)', pill: '#fffaeb' }
-                  : t === 3
-                    ? { dot: '#06aed4', ink: '#0e7090', pill: '#ecfdff' }
-                    : { dot: '#12b76a', ink: 'var(--green-ink)', pill: '#ecfdf3' };
+                : { dot: '#12b76a', ink: 'var(--green-ink)', pill: '#ecfdf3' };
             const cap: React.CSSProperties = { fontSize: 12, fontWeight: 800, letterSpacing: 0.4, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 2 };
             return (
               <div className="section-block" id="sec_tahap3_cards">
                 <div className="section-header">
-                  <h3 className="section-title" style={{ fontSize: 15 }}>1. Target Latihan &amp; Kartu Subtes menurut Besar Selisih</h3>
-                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>Sama dengan Action Plan di PDF halaman 3 · drill 3 bulan terakhir</span>
+                  <h3 className="section-title" style={{ fontSize: 15 }}>1. Target Drill &amp; Kartu Subtes</h3>
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>Sama dengan Action Plan di PDF halaman 3 · riwayat drill 3 bulan terakhir</span>
                 </div>
                 {weak.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'center', background: 'var(--teal-soft, #e6f4f2)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13 }}>
                     <div style={{ flex: 1, minWidth: 240 }}>
-                      <div style={cap}>Target latihan mingguan</div>
-                      Minimal <strong>{drillPer} soal benar per minggu</strong> untuk tiap subtes di bawah {foundation}.
+                      <div style={cap}>Target drill mingguan</div>
+                      Target per minggu: <strong>{ruleConfig.thresholds.drillRank1}, {ruleConfig.thresholds.drillRank2}, dan {ruleConfig.thresholds.drillRank3} soal benar</strong> untuk tiga subtes terendah, <strong>{ruleConfig.thresholds.minDrillPerSubtest}</strong> untuk subtes lainnya.
                     </div>
                     <div>
                       <div style={cap}>Total target</div>
-                      <strong>{drillPer * weak.length} soal benar/minggu</strong>
+                      <strong>{drillTotalWeekly} soal benar/minggu</strong>
                     </div>
                   </div>
                 )}
@@ -1484,6 +1496,7 @@ export const CheckpointV2Page: React.FC = () => {
                         </span>
                         <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>{group.length} subtes</span>
                       </div>
+                      {t === 0 && <div style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.45, marginBottom: 10 }}>{ACTION_PLAN_COPY.achievedNote}</div>}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                         {group.map(({ x, stat, topics, rule }) => (
                           <div key={x.id} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '12px 14px', background: '#ffffff' }}>
@@ -1494,30 +1507,35 @@ export const CheckpointV2Page: React.FC = () => {
                               <div style={{ flex: 1, minWidth: 200 }}>
                                 <div style={{ fontWeight: 800, color: 'var(--ink-strong)', fontSize: 14 }}>{x.name}</div>
                                 <div style={{ fontSize: 12, color: 'var(--muted)' }}>
-                                  Latihan 3 bulan: {stat && stat.questions > 0 ? `${stat.questions} soal · ${stat.sessions} sesi · ${stat.accuracy}% benar` : 'belum ada data'}
+                                  Riwayat drill 3 bulan terakhir: {stat && stat.questions > 0 ? `${stat.questions} soal, ${stat.sessions} sesi, ${stat.accuracy}% benar` : 'belum ada data'}
                                 </div>
                               </div>
                               <div style={{ width: 150 }}>
                                 <div style={{ height: 6, borderRadius: 6, background: '#e8edf2', overflow: 'hidden' }}>
-                                  <div style={{ width: `${Math.min(100, Math.round((x.to4 / foundation) * 100))}%`, height: '100%', background: t === 0 ? '#12b76a' : '#b42318' }} />
+                                  <div style={{ width: `${Math.min(100, Math.round((x.to4 / foundation) * 100))}%`, height: '100%', background: t === 0 ? '#245f5a' : '#b42318' }} />
                                 </div>
-                                <div style={{ textAlign: 'right', marginTop: 3, fontWeight: 800, color: t === 0 ? 'var(--green-ink)' : 'var(--red-ink)' }}>
+                                <div style={{ textAlign: 'right', marginTop: 3, fontWeight: 800, color: t === 0 ? '#245f5a' : 'var(--red-ink)' }}>
                                   {x.to4} <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>/ {foundation}</span>
                                 </div>
                               </div>
-                              <span style={{ fontSize: 12, fontWeight: 800, color: tn.ink, background: tn.pill, borderRadius: 4, padding: '3px 9px', whiteSpace: 'nowrap' }}>
-                                {t === 0 ? `+${x.to4 - foundation} di atas ${foundation}` : `kurang ${foundation - x.to4}`}
+                              <span style={{ fontSize: 12, fontWeight: 800, color: t === 0 ? '#245f5a' : tn.ink, background: t === 0 ? '#eef6f5' : tn.pill, borderRadius: 4, padding: '3px 9px', whiteSpace: 'nowrap' }}>
+                                {t === 0 ? ACTION_PLAN_COPY.achievedBadge(x.to4 - foundation, foundation) : `kurang ${foundation - x.to4}`}
                               </span>
                             </div>
-                            {t !== 0 && (
+                            {t === 0 ? (
+                              <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)', fontSize: 13, lineHeight: 1.45 }}>
+                                <div style={{ ...cap, color: 'var(--teal-ink, #245f5a)' }}>Target berikutnya</div>
+                                <strong style={{ fontSize: 14, color: 'var(--ink-strong)' }}>{achievedNextTarget(priorityGoalById.get(x.id), foundation)}</strong>
+                              </div>
+                            ) : (
                               <div style={{ display: 'grid', gridTemplateColumns: '5fr 7fr', marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)', fontSize: 13, lineHeight: 1.45 }}>
                                 <div style={{ paddingRight: 12 }}>
-                                  <div style={cap}>Fokus materi</div>
-                                  {topics.join(' · ')}
+                                  <div style={{ ...cap, color: 'var(--teal-ink, #245f5a)' }}>Fokus perbaikan materi</div>
+                                  <strong style={{ fontSize: 14, color: 'var(--ink-strong)' }}>{topics.join(' · ')}</strong>
                                 </div>
                                 <div style={{ borderLeft: '1px solid var(--border)', paddingLeft: 12 }}>
-                                  <div style={{ ...cap, color: 'var(--teal-ink, #245f5a)' }}>Tindak lanjut</div>
-                                  {ACTION_PLAN_COPY.followUpSpecific[x.id] ?? ACTION_PLAN_COPY.followUpDefault}
+                                  <div style={{ ...cap, color: 'var(--teal-ink, #245f5a)' }}>Target drill soal</div>
+                                  <strong style={{ fontSize: 14, color: 'var(--ink-strong)' }}>{drillTargetOf(x.id)} soal benar per minggu</strong>
                                 </div>
                               </div>
                             )}
@@ -1526,7 +1544,7 @@ export const CheckpointV2Page: React.FC = () => {
                                 <strong style={{ color: tn.ink }}>Catatan untuk SA ({rule.conditionLabel}):</strong> {rule.saTask}
                               </div>
                             )}
-                            {t === 0 && <div style={{ marginTop: 6, fontSize: 13 }}>{ACTION_PLAN_COPY.achievedNote}</div>}
+                            
                           </div>
                         ))}
                       </div>

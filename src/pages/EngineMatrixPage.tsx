@@ -167,8 +167,11 @@ const THRESHOLD_FIELDS: Record<ThresholdKey, { label: string; also?: string }> =
   absenceWarnSessions: { label: 'Sakit + Izin (≥ sesi)' },
   notesLowCoveragePct: { label: 'Cakupan Catatan Rendah (< %)' },
   notesShortChars: { label: 'Catatan Kakak Asuh Singkat (< karakter)' },
-  weeklyDrillTotal: { label: 'Target Soal Benar per Minggu (dibagi ke subtes di bawah target)' },
-  minDrillPerSubtest: { label: 'Minimal Soal Benar per Subtes per Minggu' }
+  weeklyDrillTotal: { label: 'Acuan Total Soal Benar per Minggu (bila semua subtes sudah tercapai)' },
+  drillRank1: { label: 'Soal Benar per Minggu: Subtes Nilai Terendah (urutan 1)' },
+  drillRank2: { label: 'Soal Benar per Minggu: Urutan 2' },
+  drillRank3: { label: 'Soal Benar per Minggu: Urutan 3' },
+  minDrillPerSubtest: { label: 'Soal Benar per Minggu: Subtes Lainnya (urutan 4 dst.)' }
 };
 
 const THRESHOLD_GROUPS: {
@@ -227,7 +230,7 @@ const THRESHOLD_GROUPS: {
     id: 't5',
     title: 'Tahap 5 · Rencana Aksi',
     desc: 'Target drill mingguan di rencana aksi (dashboard dan PDF halaman 3).',
-    subgroups: [{ title: 'Drill soal mingguan', note: 'total dibagi rata ke subtes di bawah target fondasi', keys: ['weeklyDrillTotal', 'minDrillPerSubtest'] }]
+    subgroups: [{ title: 'Drill soal mingguan', note: 'target per subtes menurut urutan nilai TO terendah (20 / 15 / 12, sisanya 10)', keys: ['drillRank1', 'drillRank2', 'drillRank3', 'minDrillPerSubtest', 'weeklyDrillTotal'] }]
   }
 ];
 
@@ -1564,7 +1567,7 @@ export const EngineMatrixPage: React.FC = () => {
                     </div>
                   ))}
                   <div style={{ gridColumn: '1 / -1', fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginTop: 6 }}>
-                    Rencana Aksi 1–4 dan Checklist Penutup, SATU SUMBER untuk dashboard dan PDF halaman 3 (format **tebal**; placeholder: {'{student} {sa} {parent} {branch} {target} {weakCount} {drillWeekly} {drillPerSubtest} {deepest} {nextEpisode} {episode} {avgScore}'})
+                    Rencana Aksi 1–4 dan Checklist Penutup, SATU SUMBER untuk dashboard dan PDF halaman 3 (format **tebal**; placeholder: {'{student} {sa} {parent} {branch} {target} {weakCount} {drillWeekly} {drillPerSubtest} {drillTiers} {deepest} {nextEpisode} {episode} {avgScore}'})
                   </div>
                   {(Object.keys(draftConfig.actionPlanTemplates) as (keyof EngineRuleConfig['actionPlanTemplates'])[]).map((key) => (
                     <div key={key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
