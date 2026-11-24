@@ -759,6 +759,8 @@
     .profiling-print-table--dense th { padding: 1.2mm 1.2mm; }
     /* Tabel 8 baris (bagian 2): padding vertikal lebih rapat agar halaman 1 tetap muat saat semua subtes < 600. */
     .profiling-print-table--tight td { padding-top: 1.15mm; padding-bottom: 1.15mm; }
+    /* Header tabel breakdown subtes: tosca lebih gelap supaya teks putih terbaca (kontras). */
+    .profiling-print-table--tight th { background: #2d7684; border-color: #2d7684; }
     .profiling-print-number { text-align: right; }
     .profiling-print-action-list { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; margin: 0; padding: 2.2mm 3.4mm 2.2mm 6mm; font-size: 10px; line-height: 1.44; }
     .profiling-print-action-list li { margin-bottom: 1.4mm; }
@@ -996,7 +998,8 @@
 .profiling-print-page--v2 .profiling-print-title { font-size: 20px; }
 .profiling-print-page--v2 .profiling-print-subtitle { font-size: 13px; }
 .profiling-print-page--v2 .profiling-print-pathway { font-size: 12px; }
-.profiling-print-page--v2 .profiling-print-section-title { font-size: 14.4px; }
+.profiling-print-page--v2 .profiling-print-section-title { font-size: 15.5px; background: none; border-left: 0; padding: 0; min-height: 0; margin: 0 0 1.2mm; text-transform: uppercase; letter-spacing: 0.2px; }
+.profiling-print-section-sub { font-size: 12.6px; color: #334155; line-height: 1.4; margin: 0 0 2.4mm; padding-bottom: 2mm; border-bottom: 1px solid #e2e8f0; }
 .profiling-print-page--v2 .profiling-print-table { font-size: 13px; line-height: 1.38; }
 .profiling-print-page--v2 .profiling-print-table th { font-size: 12.8px; }
 .profiling-print-page--v2 .profiling-print-action-list { font-size: 13.4px; }

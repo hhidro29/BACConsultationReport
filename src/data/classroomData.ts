@@ -246,3 +246,9 @@ export const STUDENT_CLASSROOM_DATA: Record<string, StudentClassroomData> = {
     ]
   }
 };
+
+// Siswa contoh dengan riwayat TO tidak lengkap memakai data kelas dan catatan siswa dasarnya.
+STUDENT_SA_HISTORY_NOTES.citra = STUDENT_SA_HISTORY_NOTES.nadira;
+STUDENT_SA_HISTORY_NOTES.dimas = STUDENT_SA_HISTORY_NOTES.rizky;
+STUDENT_CLASSROOM_DATA.citra = { ...STUDENT_CLASSROOM_DATA.nadira, studentId: 'citra' };
+STUDENT_CLASSROOM_DATA.dimas = { ...STUDENT_CLASSROOM_DATA.rizky, studentId: 'dimas' };

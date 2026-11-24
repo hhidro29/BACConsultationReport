@@ -52,12 +52,12 @@ export interface PriorityGoal {
 export function achievedNextTarget(goal: PriorityGoal | undefined, foundationTarget: number): string {
   if (!goal) return `Tetap di atas ${foundationTarget} di setiap TO`;
   return goal.kurang > 0
-    ? `Jaga di atas ${foundationTarget} dan kejar target skor ${goal.target} untuk pilihan ${goal.prodi}`
-    : `Jaga di atas ${foundationTarget}; skor sudah mencapai target ${goal.target} untuk pilihan ${goal.prodi}`;
+    ? `Jaga di atas ${foundationTarget} dan kejar target nilai ${goal.target} untuk pilihan ${goal.prodi}`
+    : `Jaga di atas ${foundationTarget}; nilai sudah mencapai target ${goal.target} untuk pilihan ${goal.prodi}`;
 }
 
 export const ACTION_PLAN_COPY = {
-  achievedNote: 'Subtes ini sudah mencapai 600, tetapi tetap perlu dijaga dan masih bisa dinaikkan untuk mengejar skor jurusan.',
+  achievedNote: 'Subtes ini sudah mencapai 600, tetapi tetap perlu dijaga dan masih bisa dinaikkan untuk mengejar nilai jurusan.',
   achievedBadge: (gap: number, target: number) => `+${gap} dari ${target}`,
   followUpDefault: 'Evaluasi pola kesalahan dan latih ulang jenis soal yang sering salah.',
   // Saran khusus per subtes. Dari draft kesiswaan: pu, pk, lbe, pbm, lbi_s. Rumusan saya (perlu ditinjau): lbi_a, pm, ppu.

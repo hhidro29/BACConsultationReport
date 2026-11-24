@@ -1,11 +1,14 @@
 // Student Data Master: Garuda Mahawira Sena (NISN: 0068492011)
 
+// TO terbaru pada seri Tryout Reguler saat ini (laporan Checkpoint 1 dibuat setelah Episode 4).
+export const LATEST_TO_EPISODE = 4;
+
 export interface SubtestV2 {
   id: string;
   name: string;
-  to1: number;
-  to2: number;
-  to3: number;
+  to1: number | null;
+  to2: number | null;
+  to3: number | null;
   to4: number;
   median: number | string;
   gap: number;
@@ -145,7 +148,7 @@ export const subtestsV2Data: SubtestV2[] = [
   }
 ];
 
-// 3 Target Choices for V2 & V1
+// 4 Target Choices (S1-S1-D4-D3, kombinasi sah SNBT 2026) for V2 & V1
 export const targetPrograms: ProgramChoice[] = [
   {
     priority: "Pilihan 1",
@@ -181,19 +184,35 @@ export const targetPrograms: ProgramChoice[] = [
   },
   {
     priority: "Pilihan 3",
-    prodi: "S1 Teknik Mesin",
-    univ: "Institut Teknologi Bandung (ITB)",
-    degree: "S1",
-    targetScore: 660,
-    weightedScore: 565,
-    gap: -95,
-    tightness: "4.63%",
+    prodi: "D4 Teknik Mesin",
+    univ: "Politeknik Negeri Bandung (Polban)",
+    degree: "D4",
+    targetScore: 590,
+    weightedScore: 538,
+    gap: -52,
+    tightness: "5.56%",
     status: "Butuh Peningkatan",
     supportSubjects: ["Fisika", "Matematika Tingkat Lanjut"],
     rumpun: "saintek",
     city: "Bandung",
     isOutOfTown: true,
-    participantsCount: 520
+    participantsCount: 260
+  },
+  {
+    priority: "Pilihan 4",
+    prodi: "D3 Teknik Mesin",
+    univ: "Politeknik Negeri Jakarta (PNJ)",
+    degree: "D3",
+    targetScore: 580,
+    weightedScore: 538,
+    gap: -42,
+    tightness: "5.00%",
+    status: "Butuh Peningkatan",
+    supportSubjects: ["Fisika", "Matematika Tingkat Lanjut"],
+    rumpun: "saintek",
+    city: "Depok",
+    isOutOfTown: false,
+    participantsCount: 300
   }
 ];
 
@@ -819,3 +838,70 @@ export const CHECKPOINT1_STUDENTS: Checkpoint1Student[] = [
   }
 ];
 
+
+// ---------------------------------------------------------------------------
+// Siswa contoh dengan riwayat TO tidak lengkap (turunan dari siswa lain, TO lama dikosongkan).
+// ---------------------------------------------------------------------------
+function makePartialStudent(
+  base: Checkpoint1Student,
+  keep: number,
+  meta: { id: string; name: string; tagline: string; school: string; parentName: string; nisn: string }
+): Checkpoint1Student {
+  const firstKept = 4 - keep;
+  const subtests: SubtestV2[] = base.subtests.map((s) => {
+    const slots = [s.to1, s.to2, s.to3, s.to4];
+    const masked = slots.map((v, i) => (i >= firstKept ? v : null));
+    const present = masked.filter((n): n is number => typeof n === 'number').sort((a, b) => a - b);
+    const mid = Math.floor(present.length / 2);
+    const med = present.length % 2 === 0 ? (present[mid - 1] + present[mid]) / 2 : present[mid];
+    return {
+      ...s,
+      to1: masked[0],
+      to2: masked[1],
+      to3: masked[2],
+      to4: masked[3] as number,
+      median: String(med).replace('.', ',')
+    };
+  });
+  const toScores = base.identity.toScores.slice(-keep);
+  return {
+    ...base,
+    id: meta.id,
+    name: meta.name,
+    tagline: meta.tagline,
+    identity: {
+      ...base.identity,
+      name: meta.name,
+      nisn: meta.nisn,
+      school: meta.school,
+      parentName: meta.parentName,
+      sessionType: `Konsultasi Checkpoint 1 (Pasca ${keep} TO)`,
+      toScores,
+      toAverage: Math.round(toScores.reduce((a, v) => a + v, 0) / (toScores.length || 1)),
+      toLabels: base.identity.toLabels.slice(-keep)
+    },
+    subtests
+  };
+}
+
+const baseNadira = CHECKPOINT1_STUDENTS.find((x) => x.id === 'nadira')!;
+const baseRizky = CHECKPOINT1_STUDENTS.find((x) => x.id === 'rizky')!;
+
+CHECKPOINT1_STUDENTS.push(
+  makePartialStudent(baseNadira, 1, {
+    id: 'citra',
+    name: 'Citra Larasati Wibowo',
+    tagline: 'Baru 1 TO · Belum Ada Tren',
+    school: 'SMA Negeri 3 Jakarta',
+    parentName: 'Hendra Wibowo (Ayah)',
+    nisn: '0071234501'
+  }),
+  makePartialStudent(baseRizky, 2, {
+    id: 'dimas',
+    name: 'Dimas Aryasatya',
+    tagline: 'Baru 2 TO · Tren Awal',
+    school: 'SMA Negeri 5 Surabaya',
+    parentName: 'Agus Aryasatya (Ayah)',
+    nisn: '0071234502'
+  })
+);

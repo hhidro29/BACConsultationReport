@@ -5,6 +5,7 @@ import { V2PdfModal } from '../components/V2PdfModal';
 import { RichText } from '../components/RichText';
 import {
   CHECKPOINT1_STUDENTS,
+  LATEST_TO_EPISODE,
   ProgramChoice
 } from '../data/garudaData';
 import { STUDENT_CLASSROOM_DATA, STUDENT_SA_HISTORY_NOTES } from '../data/classroomData';
@@ -31,6 +32,8 @@ import { safeGetItem, safeSetItem, loadCustomPrograms } from '../utils/safeStora
 import { buildDrillTableRows } from '../utils/drillTable';
 import { STUDENT_DRILL_DATA } from '../data/drillData';
 import { sampleLowestTopics } from '../data/topicSampleData';
+import { rankFor } from '../utils/positionSimulation';
+import { fmtTo, medianOfPresent, MIN_TO_FOR_MEDIAN, subtestScores } from '../utils/toHistory';
 import { ACTION_PLAN_COPY, drillTargetForRank, drillTotalForCount, achievedNextTarget, gapTierOf, gapTierTitle, type GapTier, type PriorityGoal } from '../utils/actionPlanCopy';
 import { buildProdiToneMap } from '../utils/prodiColors';
 import { isReportLocked, setReportLocked } from '../utils/reportLock';
@@ -197,7 +200,8 @@ export const CheckpointV2Page: React.FC = () => {
 
   // Dynamic KPI Metrics (computed strictly from student data)
   const toScoresList = studentIdentity.toScores;
-  const latestToEpisode = toScoresList.length || 4;
+  // Nomor episode TO terbaru (tetap 4 walau siswa belum mengikuti semua TO); jumlah TO siswa = toScoresList.length.
+  const latestToEpisode = LATEST_TO_EPISODE;
   const latestToScore = toScoresList.length ? toScoresList[toScoresList.length - 1] : 0;
   const totalSubtestsCount = subtestsV2Data.length;
   const sortedSubtests = [...subtestsV2Data].sort((a, b) => a.gap - b.gap || a.to4 - b.to4);
@@ -222,7 +226,8 @@ export const CheckpointV2Page: React.FC = () => {
   const belowTooltip = belowTargetSubtests.map(formatSubtestItem).join(' · ');
 
   // Render helper for TO score trends
-  const renderTrend = (curr: number, prev: number) => {
+  const renderTrend = (curr: number | null, prev: number | null) => {
+    if (curr === null || prev === null) return null;
     if (curr > prev) return <span style={{ color: 'var(--green-ink)', fontSize: 12 }}> ▲</span>;
     if (curr < prev) return <span style={{ color: 'var(--red-ink)', fontSize: 12 }}> ▼</span>;
     return null;
@@ -247,19 +252,20 @@ export const CheckpointV2Page: React.FC = () => {
   };
 
   // Dynamic Ringkasan 8 Subtes (Median 8 subtes saja)
-  const medTO1 = computeMedian(subtestsV2Data.map((s) => s.to1));
-  const medTO2 = computeMedian(subtestsV2Data.map((s) => s.to2));
-  const medTO3 = computeMedian(subtestsV2Data.map((s) => s.to3));
+  const medTO1 = medianOfPresent(subtestsV2Data.map((s) => s.to1));
+  const medTO2 = medianOfPresent(subtestsV2Data.map((s) => s.to2));
+  const medTO3 = medianOfPresent(subtestsV2Data.map((s) => s.to3));
   const medTO4 = computeMedian(subtestsV2Data.map((s) => s.to4));
-  const medOverall = computeMedian([medTO1, medTO2, medTO3, medTO4]);
+  const medSeries = [medTO1, medTO2, medTO3, medTO4].filter((n): n is number => typeof n === 'number');
+  const medOverall = toScoresList.length >= MIN_TO_FOR_MEDIAN ? computeMedian(medSeries) : null;
   const medGap = medTO4 - 600;
   const medFillPct = Math.max(0, Math.min(100, ((medTO4 - 400) / 300) * 100));
   const medStatus = getSubtestStatus(medGap);
 
   // Subtest with largest fluctuation for dynamic educational callout
   const maxFluctSub = [...subtestsV2Data].sort((a, b) => {
-    const rangeB = Math.max(b.to1, b.to2, b.to3, b.to4) - Math.min(b.to1, b.to2, b.to3, b.to4);
-    const rangeA = Math.max(a.to1, a.to2, a.to3, a.to4) - Math.min(a.to1, a.to2, a.to3, a.to4);
+    const rangeB = Math.max(...subtestScores(b)) - Math.min(...subtestScores(b));
+    const rangeA = Math.max(...subtestScores(a)) - Math.min(...subtestScores(a));
     return rangeB - rangeA;
   })[0] || subtestsV2Data[0];
 
@@ -365,7 +371,7 @@ export const CheckpointV2Page: React.FC = () => {
       subtestRows: subtestsV2Data.map((s) => ({
         id: s.id,
         name: s.name,
-        scores: [s.to1, s.to2, s.to3, s.to4],
+        scores: subtestScores(s),
         toLatest: s.to4
       })),
       attendanceRatePct: attendanceNumeric
@@ -423,8 +429,7 @@ export const CheckpointV2Page: React.FC = () => {
         programTargets: targetPrograms
           .map((p) => {
             const pacing = computeProgramPacing(p.weightedScore, p.targetScore, p.gap, ruleConfig);
-            const shortUniv = p.univ.match(/\(([^)]+)\)/)?.[1] ?? p.univ;
-            return `${shortUniv} ${pacing.isAchieved ? 'terlewati' : `≥ ${pacing.nextToTargetScore}`}`;
+            return `Pilihan ${p.priority.replace(/\D+/g, '') || p.priority} ${pacing.isAchieved ? 'terlewati' : `≥ ${pacing.nextToTargetScore}`}`;
           })
           .join(' · ')
       },
@@ -440,7 +445,7 @@ export const CheckpointV2Page: React.FC = () => {
     {
       foundationTarget: ruleConfig.thresholds.foundationScoreTarget,
       medianSubtest: maxFluctSub.name,
-      medianHistory: `${maxFluctSub.to1}→${maxFluctSub.to2}→${maxFluctSub.to3}→${maxFluctSub.to4}`,
+      medianHistory: subtestScores(maxFluctSub).join('→'),
       median: maxFluctSub.median,
       prodi: targetPrograms[0]?.prodi || 'Prodi Utama',
       nextEpisode: latestToEpisode + 1
@@ -822,53 +827,77 @@ export const CheckpointV2Page: React.FC = () => {
               </div>
             </div>
 
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: '8%', textAlign: 'center' }}>Pilihan</th>
-                    <th style={{ width: '36%' }}>Program Studi &amp; Perguruan Tinggi</th>
-                    <th style={{ width: '10%', textAlign: 'center' }}>Target Nilai</th>
-                    <th style={{ width: '10%', textAlign: 'center' }}>Skor TO {latestToEpisode}</th>
-                    <th style={{ width: '9%', textAlign: 'center' }}>Selisih</th>
-                    <th style={{ width: '13%', textAlign: 'center', background: '#245f5a', color: '#ffffff' }}>Target TO {latestToEpisode + 1}</th>
-                    <th style={{ width: '14%', textAlign: 'center' }}>Target Kenaikan Nilai di Setiap TO</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {targetPrograms.map((prog) => {
-                    const catalogMatch = matchCatalogProgram(prog);
-                    const pacing = computeProgramPacing(prog.weightedScore, prog.targetScore, prog.gap, ruleConfig);
-                    return (
-                      <tr key={`${prog.priority}_${prog.prodi}_${prog.univ}`}>
-                        <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 800, color: 'var(--tosca-dark)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {targetPrograms.map((prog) => {
+                const catalogMatch = matchCatalogProgram(prog);
+                const pacing = computeProgramPacing(prog.weightedScore, prog.targetScore, prog.gap, ruleConfig);
+                const participants = catalogMatch?.participantsCount ?? 0;
+                const quota = catalogMatch?.quota2026 ?? 0;
+                const rank = participants > 0 ? rankFor(activeStudent.id, catalogMatch?.id, prog.weightedScore, prog.targetScore, participants) : 0;
+                const fill = Math.max(0, Math.min(100, Math.round((prog.weightedScore / Math.max(1, prog.targetScore)) * 100)));
+                const gapColor = prog.gap >= 0 ? '#027a48' : '#b42318';
+                const gapBg = prog.gap >= 0 ? '#ecfdf3' : '#fef3f2';
+                const mono = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+                const cap: React.CSSProperties = { fontSize: 11, fontWeight: 800, letterSpacing: 0.5, textTransform: 'uppercase', color: '#245f5a' };
+                return (
+                  <div key={`${prog.priority}_${prog.prodi}_${prog.univ}`} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '12px 16px', background: '#ffffff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, paddingBottom: 10, borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                        <span style={{ width: 26, height: 26, borderRadius: '50%', background: prodiTone(prog.prodi.replace(/^(S1|D4|D3)\s+/, '')).text, color: '#ffffff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, flexShrink: 0 }}>
                           {prog.priority.replace(/\D+/g, '') || prog.priority}
-                        </td>
-                        <td>
-                          <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 9, background: prodiTone(prog.prodi.replace(/^(S1|D4|D3)\s+/, '')).text, marginRight: 6 }} />
-                          <strong>{prog.prodi}</strong><br />
-                          <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-                            {prog.univ}
-                            {catalogMatch ? ` · Daya tampung ${catalogMatch.quota2026} · Peminat ${catalogMatch.applicants2025.toLocaleString('id-ID')}` : ''} · Keketatan {prog.tightness}
+                        </span>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink-strong)', lineHeight: 1.25 }}>{prog.prodi}</div>
+                          <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.3 }}>{prog.univ}</div>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>
+                        {catalogMatch ? `Peminat ${catalogMatch.applicants2025.toLocaleString('id-ID')} · ` : ''}Keketatan {prog.tightness}
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.75fr) minmax(0, 1fr)', gap: 16, marginTop: 10, alignItems: 'stretch' }}>
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <span style={cap}>Nilai terbobot TO {latestToEpisode} (IRT) vs target</span>
+                          <span style={{ fontFamily: mono, fontSize: 12.5, fontWeight: 800, color: gapColor, background: gapBg, borderRadius: 4, padding: '2px 9px' }}>
+                            Selisih {prog.gap > 0 ? `+${prog.gap}` : prog.gap}
                           </span>
-                        </td>
-                        <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 800, color: 'var(--ink-strong)' }}>{prog.targetScore}</td>
-                        <td style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'var(--tosca-dark)' }}>{prog.weightedScore}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, color: getProgramGapColor(prog.gap) }}>
-                          {prog.gap > 0 ? `+${prog.gap}` : prog.gap}
-                        </td>
-                        <td style={{ textAlign: 'center', fontSize: 15, fontWeight: 800, color: 'var(--tosca-dark)', background: '#e6f4f2' }}>
-                          {pacing.isAchieved ? 'Terlewati' : `≥ ${pacing.nextToTargetScore}`}
-                        </td>
-                        <td style={{ textAlign: 'center', fontWeight: 700 }}>
-                          {pacing.isAchieved ? '—' : `+${pacing.gainPerToNextConsult} poin/TO`}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                        </div>
+                        <div style={{ marginTop: 6 }}>
+                          <strong style={{ fontSize: 24, color: 'var(--tosca-dark)', lineHeight: 1.1 }}>{prog.weightedScore}</strong>
+                          <span style={{ fontSize: 13, color: 'var(--muted)' }}> dari target jurusan <strong style={{ color: 'var(--ink-strong)' }}>{prog.targetScore}</strong></span>
+                        </div>
+                        <div style={{ height: 6, borderRadius: 6, background: '#e8edf2', overflow: 'hidden', marginTop: 6 }}>
+                          <div style={{ width: `${fill}%`, height: '100%', background: '#245f5a', borderRadius: 6 }} />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, flexWrap: 'wrap', marginTop: 8, fontSize: 13, color: 'var(--muted)' }}>
+                          <span>Peringkat TO {latestToEpisode} (prodi &amp; kampus sama)</span>
+                          {participants > 0 ? (
+                            <span>
+                              <strong style={{ color: rank > quota ? '#b42318' : '#027a48' }}>{rank}</strong> dari {participants} (daya tampung {quota})
+                            </span>
+                          ) : (
+                            <span>—</span>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ background: '#e6f4f2', borderRadius: 6, padding: '10px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <div style={cap}>Target berikutnya</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 6, paddingBottom: 6, borderBottom: '1px solid #c4dfdb' }}>
+                          <span style={{ fontSize: 13, color: '#334155' }}>Target Nilai TO {latestToEpisode + 1}</span>
+                          <strong style={{ fontSize: 20, color: 'var(--tosca-dark)' }}>{pacing.isAchieved ? 'Terlewati' : `≥ ${pacing.nextToTargetScore}`}</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 6 }}>
+                          <span style={{ fontSize: 13, color: '#334155' }}>Kenaikan per TO</span>
+                          <strong style={{ fontFamily: mono, fontSize: 13, color: 'var(--ink-strong)' }}>{pacing.isAchieved ? '—' : `+${pacing.gainPerToNextConsult} poin/TO`}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8, lineHeight: 1.45 }}>Peringkat TO: data simulasi prototipe (peserta dan daya tampung dari data prototipe, belum diverifikasi).</div>
 
             {(() => {
               const pacings = targetPrograms.map((p) => ({ p, pacing: computeProgramPacing(p.weightedScore, p.targetScore, p.gap, ruleConfig) }));
@@ -879,26 +908,11 @@ export const CheckpointV2Page: React.FC = () => {
               const achieved = pacings.filter((x) => x.pacing.isAchieved).length;
               return (
                 <div style={{ marginTop: 12, fontSize: 13, color: '#1e293b', lineHeight: 1.55 }}>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>
-                    Keketatan = daya tampung ÷ peminat. Daya tampung adalah jumlah kursi SNBT 2026. Peminat adalah jumlah pendaftar SNBT 2025. Target TO {latestToEpisode + 1} = skor TO {latestToEpisode} + kenaikan per TO.
-                  </div>
-                  {highestNext && (
-                    <ul style={{ margin: '0 0 8px', paddingLeft: 20 }}>
-                      <li>
-                        Target TO {latestToEpisode + 1} tertinggi ada di <strong>{highestNext.p.prodi} {shortUniv(highestNext.p.univ)}</strong>, yaitu minimal{' '}
-                        <strong>{highestNext.pacing.nextToTargetScore}</strong>.
-                      </li>
-                      <li>
-                        Target peningkatan nilai pada setiap TO disusun secara bertahap dan terukur, sehingga target skor yang diharapkan dapat tercapai dalam{' '}
-                        {words[eps] ?? eps} TO berikutnya.
-                      </li>
-                    </ul>
-                  )}
                   <div style={{ background: '#f2f8f7', borderLeft: '3px solid #58aebd', borderRadius: 6, padding: '8px 12px' }}>
-                    <strong style={{ color: 'var(--tosca-dark)' }}>Kesimpulan:</strong>{' '}
+                    <strong style={{ color: 'var(--tosca-dark)' }}>Kesimpulan.</strong>{' '}
                     {achieved === 0
-                      ? `Belum ada satu pun dari ${words[targetPrograms.length] ?? targetPrograms.length} pilihan jurusan yang skornya mencapai target.`
-                      : `${achieved} dari ${targetPrograms.length} pilihan jurusan skornya sudah mencapai target.`}
+                      ? `Belum ada satu pun dari ${words[targetPrograms.length] ?? targetPrograms.length} pilihan jurusan yang nilainya mencapai target.`
+                      : `${achieved} dari ${targetPrograms.length} pilihan jurusan nilainya sudah mencapai target.`}
                   </div>
                 </div>
               );
@@ -1179,9 +1193,9 @@ export const CheckpointV2Page: React.FC = () => {
                             )}
                           </div>
                         </td>
-                        <td style={{ textAlign: 'center' }}>{sub.to1}</td>
-                        <td style={{ textAlign: 'center' }}>{sub.to2}{renderTrend(sub.to2, sub.to1)}</td>
-                        <td style={{ textAlign: 'center' }}>{sub.to3}{renderTrend(sub.to3, sub.to2)}</td>
+                        <td style={{ textAlign: 'center', color: sub.to1 === null ? '#94a3b8' : undefined }}>{fmtTo(sub.to1)}</td>
+                        <td style={{ textAlign: 'center', color: sub.to2 === null ? '#94a3b8' : undefined }}>{fmtTo(sub.to2)}{renderTrend(sub.to2, sub.to1)}</td>
+                        <td style={{ textAlign: 'center', color: sub.to3 === null ? '#94a3b8' : undefined }}>{fmtTo(sub.to3)}{renderTrend(sub.to3, sub.to2)}</td>
                         <td
                           style={{
                             textAlign: 'center',
@@ -1192,7 +1206,7 @@ export const CheckpointV2Page: React.FC = () => {
                           {sub.to4}{renderTrend(sub.to4, sub.to3)}
                         </td>
                         <td style={{ textAlign: 'center', fontWeight: 700 }}>
-                          {sub.median}
+                          {subtestScores(sub).length >= MIN_TO_FOR_MEDIAN ? sub.median : '–'}
                         </td>
                         <td style={{ textAlign: 'center' }}>
                           {subPattern ? (
@@ -1208,7 +1222,7 @@ export const CheckpointV2Page: React.FC = () => {
                                 borderRadius: 9999,
                                 whiteSpace: 'nowrap'
                               }}
-                              title={`Pola skor ${sub.name}: ${sub.to1} → ${sub.to2} → ${sub.to3} → ${sub.to4}`}
+                              title={`Pola skor ${sub.name}: ${subtestScores(sub).join(' → ')}`}
                             >
                               {subPattern.label}
                             </span>
@@ -1256,15 +1270,15 @@ export const CheckpointV2Page: React.FC = () => {
                 </thead>
                 <tbody>
                   {(() => {
-                    const medPattern = classifySubtestPattern([medTO1, medTO2, medTO3, medTO4], ruleConfig);
+                    const medPattern = classifySubtestPattern(medSeries, ruleConfig);
                     return (
                       <tr>
                         <td><strong>Median 8 subtes</strong></td>
-                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{formatNumIndo(medTO1)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{formatNumIndo(medTO2)}{renderTrend(medTO2, medTO1)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{formatNumIndo(medTO3)}{renderTrend(medTO3, medTO2)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{medTO1 === null ? '–' : formatNumIndo(medTO1)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{medTO2 === null ? '–' : formatNumIndo(medTO2)}{renderTrend(medTO2, medTO1)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{medTO3 === null ? '–' : formatNumIndo(medTO3)}{renderTrend(medTO3, medTO2)}</td>
                         <td style={{ textAlign: 'center', fontWeight: 800, color: medStatus.textColor }}>{formatNumIndo(medTO4)}{renderTrend(medTO4, medTO3)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: 'var(--tosca-dark)' }}>{formatNumIndo(medOverall)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: 'var(--tosca-dark)' }}>{medOverall === null ? '–' : formatNumIndo(medOverall)}</td>
                         <td style={{ textAlign: 'center' }}>
                           <span
                             style={{
@@ -1326,10 +1340,10 @@ export const CheckpointV2Page: React.FC = () => {
               return (
                 <div style={{ marginTop: 12, fontSize: 13, color: '#1e293b', lineHeight: 1.55 }}>
                   <div style={{ color: '#713f12', marginBottom: 8 }}>
-                    <strong>Kenapa semua subtes ditargetkan mencapai {foundation}?</strong> Tujuannya agar tidak ada nilai subtes yang terlalu rendah dibandingkan yang lain. Sebab, satu nilai subtes yang rendah bisa memengaruhi skor akhir, apa pun jurusan yang dipilih. Saat ini, {below.length} dari {total} subtes nilainya masih di bawah {foundation}.
+                    <strong>Kenapa semua subtes ditargetkan mencapai {foundation}?</strong> Tujuannya agar tidak ada nilai subtes yang terlalu rendah dibandingkan yang lain. Sebab, satu nilai subtes yang rendah bisa memengaruhi nilai akhir, apa pun jurusan yang dipilih. Saat ini, {below.length} dari {total} subtes nilainya masih di bawah {foundation}.
                   </div>
                   <div style={{ background: '#f2f8f7', borderLeft: '3px solid #58aebd', borderRadius: 6, padding: '8px 12px' }}>
-                    <strong style={{ color: 'var(--tosca-dark)' }}>Kesimpulan:</strong>{' '}
+                    <strong style={{ color: 'var(--tosca-dark)' }}>Kesimpulan.</strong>{' '}
                     {below.length === 0
                       ? `Semua ${total} subtes sudah mencapai ${foundation}. Fokus utama saat ini adalah menjaga semuanya agar tidak kembali menurun.`
                       : `Fokus utama saat ini adalah memperbaiki ${joinNames(

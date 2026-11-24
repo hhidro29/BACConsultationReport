@@ -64,3 +64,7 @@ export const STUDENT_DRILL_DATA: Record<string, Record<string, SubtestDrillStat>
     ppu: { questions: 22, sessions: 4, accuracyPct: 81 }
   }
 };
+
+// Siswa contoh dengan riwayat TO tidak lengkap memakai data drill siswa dasarnya.
+STUDENT_DRILL_DATA.citra = STUDENT_DRILL_DATA.nadira;
+STUDENT_DRILL_DATA.dimas = STUDENT_DRILL_DATA.rizky;

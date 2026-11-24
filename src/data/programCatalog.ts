@@ -1,3 +1,8 @@
+// SUMBER METADATA (prototipe):
+// - quota2026 (daya tampung), applicants2025 (peminat), tightness: data prototipe, belum diverifikasi ke sumber resmi.
+// - participantsCount (peserta per prodi-kampus): data prototipe; dipakai sebagai pembanding peringkat simulasi (lihat utils/positionSimulation.ts).
+// - Peringkat TO per siswa: belum tersedia dari sumber resmi. Leaderboard Ruangguru (Data Studio, Reguler Episode 1-3) belum dipakai karena akses ekspor belum ada.
+import { subtestScores } from '../utils/toHistory';
 import { Checkpoint1Student, ProgramChoice, SubtestV2 } from './garudaData';
 import { DEFAULT_ENGINE_CONFIG } from '../utils/saGuidelineEngine';
 import { STUDENT_DRILL_DATA } from './drillData';
@@ -328,6 +333,46 @@ const RAW_PROGRAM_CATALOG: RawCatalogProgram[] = [
     applicants2025: 1620,
     tightness: '4.63%',
     participantsCount: 520,
+    supportSubjects: ['Fisika', 'Matematika Tingkat Lanjut'],
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 960, pm: 864, pu: 768, lbe: 576, pbm: 528, ppu: 500, lbi_a: 500, lbi_s: 500 }
+  },
+  {
+    id: 'polban_tm_d4',
+    prodi: 'D4 Teknik Mesin',
+    univ: 'Politeknik Negeri Bandung (Polban)',
+    shortUniv: 'Polban',
+    degree: 'D4',
+    rumpun: 'saintek',
+    clusterLabel: 'Teknik & Rekayasa',
+    city: 'Bandung',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 590,
+    quota2026: 50,
+    applicants2025: 900,
+    tightness: '5.56%',
+    participantsCount: 260,
+    supportSubjects: ['Fisika', 'Matematika Tingkat Lanjut'],
+    prioritySubtests: ['pk', 'pm', 'pu'],
+    subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
+    subtestTargets: { pk: 960, pm: 864, pu: 768, lbe: 576, pbm: 528, ppu: 500, lbi_a: 500, lbi_s: 500 }
+  },
+  {
+    id: 'pnj_tm_d3',
+    prodi: 'D3 Teknik Mesin',
+    univ: 'Politeknik Negeri Jakarta (PNJ)',
+    shortUniv: 'PNJ',
+    degree: 'D3',
+    rumpun: 'saintek',
+    clusterLabel: 'Teknik & Rekayasa',
+    city: 'Depok',
+    regionGroup: 'jabodetabek_jabar',
+    targetScore: 580,
+    quota2026: 60,
+    applicants2025: 1200,
+    tightness: '5.00%',
+    participantsCount: 300,
     supportSubjects: ['Fisika', 'Matematika Tingkat Lanjut'],
     prioritySubtests: ['pk', 'pm', 'pu'],
     subtestWeights: { pk: 0.20, pm: 0.18, pu: 0.16, lbe: 0.12, pbm: 0.11, ppu: 0.09, lbi_a: 0.08, lbi_s: 0.06 },
@@ -881,9 +926,10 @@ export function getStudentSubtestScoreMap(subtests: SubtestV2[], basis: ScoreBas
     if (basis === 'to4') {
       map[key] = s.to4;
     } else if (basis === 'avg') {
-      map[key] = (s.to1 + s.to2 + s.to3 + s.to4) / 4;
+      const present = subtestScores(s);
+      map[key] = present.reduce((acc, v) => acc + v, 0) / (present.length || 1);
     } else {
-      map[key] = computeMedian([s.to1, s.to2, s.to3, s.to4]);
+      map[key] = computeMedian(subtestScores(s));
     }
   }
   return map;

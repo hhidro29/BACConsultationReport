@@ -511,7 +511,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     plan1Pic: '{student} (dipantau bersama {sa})',
     plan3Title: 'Target Evaluasi Tryout {nextEpisode}',
     plan3Desc: 'Semua subtes minimal {target}: bawa {weakCount} subtes yang masih di bawah {target} ke {target} atau lebih.',
-    plan3ProgramSuffix: ' Skor jurusan: {programTargets}.',
+    plan3ProgramSuffix: ' Nilai jurusan: {programTargets}.',
     plan3DescAchieved:
       'Seluruh subtes sudah {target} atau lebih; target berikutnya 750 per subtes. Skor rata-rata TO UTBK Regular Episode {episode}: **{avgScore}**.',
     plan3Pic: 'Siswa & Tim Akademik Cabang',
@@ -555,7 +555,7 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
       '**Hindari drill semu:** Apresiasi konsistensi di subtes yang sudah aktif, lalu ajak mengalihkan porsi drill soal ke subtes dengan gap terbesar.\n' +
       '**Jangan menyimpulkan "malas" dari angka 0:** Data kosong hanya berarti belum tercatat di aplikasi—gali dulu kendala atau drill soal mandiri di luar sistem.',
     t3Base600Note:
-      '**Mengapa semua subtes ditargetkan {target} lebih dulu?** Satu subtes yang rendah menurunkan skor akhir di jurusan mana pun. Di Semester 1 semua subtes dikejar ke **{target}**; pembobotan jurusan hanya menjadi label subtes prioritas per jurusan, bukan target belajar yang berbeda.',
+      '**Mengapa semua subtes ditargetkan {target} lebih dulu?** Satu subtes yang rendah menurunkan nilai akhir di jurusan mana pun. Di Semester 1 semua subtes dikejar ke **{target}**; pembobotan jurusan hanya menjadi label subtes prioritas per jurusan, bukan target belajar yang berbeda.',
     t4Title: 'Mengonfirmasi Konteks Belajar di Kelas TMB',
     t4Goal: 'Pola kelas & kendala kehadiran terkonfirmasi sebelum rencana aksi',
     t4Rambu:
@@ -1830,7 +1830,7 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     { key: 'plan3Title', name: 'Rencana 3 · judul', cond: 'Selalu' },
     { key: 'plan3Desc', name: 'Rencana 3 · isi', cond: 'Ada subtes di bawah target fondasi' },
     { key: 'plan3DescAchieved', name: 'Rencana 3 · isi', cond: 'Semua subtes ≥ target fondasi' },
-    { key: 'plan3ProgramSuffix', name: 'Rencana 3 · tambahan skor target per jurusan', cond: 'Ringkasan target per jurusan tersedia' },
+    { key: 'plan3ProgramSuffix', name: 'Rencana 3 · tambahan nilai target per jurusan', cond: 'Ringkasan target per jurusan tersedia' },
     { key: 'plan3Pic', name: 'Rencana 3 · penanggung jawab (dashboard)', cond: 'Selalu' },
     { key: 'planBTitle', name: 'Plan B · judul', cond: 'Belum ada pilihan jurusan yang mencapai target acuan' },
     { key: 'planBDesc', name: 'Plan B · isi', cond: 'Belum ada pilihan jurusan yang mencapai target acuan' },
