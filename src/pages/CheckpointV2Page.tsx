@@ -34,6 +34,7 @@ import { STUDENT_DRILL_DATA } from '../data/drillData';
 import { sampleLowestTopics } from '../data/topicSampleData';
 import { rankFor } from '../utils/positionSimulation';
 import { fmtTo, medianOfPresent, MIN_TO_FOR_MEDIAN, subtestScores } from '../utils/toHistory';
+import { trendSequenceLabel } from '../utils/trendLabel';
 import { ACTION_PLAN_COPY, drillTargetForRank, drillTotalForCount, achievedNextTarget, gapTierOf, gapTierTitle, type GapTier, type PriorityGoal } from '../utils/actionPlanCopy';
 import { buildProdiToneMap } from '../utils/prodiColors';
 import { isReportLocked, setReportLocked } from '../utils/reportLock';
@@ -1131,186 +1132,90 @@ export const CheckpointV2Page: React.FC = () => {
                 Diurutkan dari jarak terdalam • Semua subtes &lt; 600 perlu perbaikan
               </span>
             </div>
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: '24%' }}>Subtes UTBK SNBT</th>
-                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 1</th>
-                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 2</th>
-                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 3</th>
-                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 4</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>Median</th>
-                    <th style={{ textAlign: 'center', width: '15.5%' }}>Pola Tren</th>
-                    <th style={{ width: '17%' }}>Visual Posisi vs Target 600</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Jarak ke target</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedSubtests.map((sub) => {
-                    const needsFix = sub.gap < 0;
-                    const rowStatus = getSubtestStatus(sub.gap);
-                    const subPattern = stage1Out.subtestPatterns[sub.id];
-
-                    return (
-                      <tr
-                        key={sub.id}
-                        style={needsFix ? { background: '#fffbfa' } : undefined}
-                      >
-                        <td>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                            <strong>{sub.name}</strong>
-                            {needsFix && (
-                              <span
-                                style={{
-                                  fontSize: 12,
-                                  fontWeight: 700,
-                                  color: 'var(--red-ink)',
-                                  background: '#fee4e2',
-                                  border: '1px solid #fecdca',
-                                  padding: '1.5px 6px',
-                                  borderRadius: 4,
-                                  whiteSpace: 'nowrap'
-                                }}
-                              >
-                                Perlu perbaikan
-                              </span>
-                            )}
-                            {(priorityProdisById.get(sub.id) ?? []).length > 0 && (
-                              <span style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                                {(priorityProdisById.get(sub.id) ?? []).map((n) => {
-                                  const tn = prodiTone(n);
-                                  return (
-                                    <span
-                                      key={n}
-                                      style={{ fontSize: 12, fontWeight: 700, color: tn.text, background: tn.bg, border: `1px solid ${tn.border}`, padding: '1px 6px', borderRadius: 4, whiteSpace: 'nowrap' }}
-                                    >
-                                      {n}
-                                    </span>
-                                  );
-                                })}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td style={{ textAlign: 'center', color: sub.to1 === null ? '#94a3b8' : undefined }}>{fmtTo(sub.to1)}</td>
-                        <td style={{ textAlign: 'center', color: sub.to2 === null ? '#94a3b8' : undefined }}>{fmtTo(sub.to2)}{renderTrend(sub.to2, sub.to1)}</td>
-                        <td style={{ textAlign: 'center', color: sub.to3 === null ? '#94a3b8' : undefined }}>{fmtTo(sub.to3)}{renderTrend(sub.to3, sub.to2)}</td>
-                        <td
-                          style={{
-                            textAlign: 'center',
-                            fontWeight: 700,
-                            color: rowStatus.textColor
-                          }}
-                        >
-                          {sub.to4}{renderTrend(sub.to4, sub.to3)}
-                        </td>
-                        <td style={{ textAlign: 'center', fontWeight: 700 }}>
-                          {subtestScores(sub).length >= MIN_TO_FOR_MEDIAN ? sub.median : '–'}
-                        </td>
-                        <td style={{ textAlign: 'center' }}>
-                          {subPattern ? (
-                            <span
-                              style={{
-                                display: 'inline-block',
-                                fontSize: 12,
-                                fontWeight: 700,
-                                color: subPattern.color,
-                                background: subPattern.bg,
-                                border: `1px solid ${subPattern.border}`,
-                                padding: '2px 7px',
-                                borderRadius: 9999,
-                                whiteSpace: 'nowrap'
-                              }}
-                              title={`Pola skor ${sub.name}: ${subtestScores(sub).join(' → ')}`}
-                            >
-                              {subPattern.label}
-                            </span>
-                          ) : (
-                            '—'
-                          )}
-                        </td>
-                        <td>
-                          <div className="v2-progress-track">
-                            <div className="v2-progress-fill" style={{ width: `${sub.fillPct}%`, background: rowStatus.color }} />
-                            <div className="v2-progress-target-line" title="Target 600" />
-                          </div>
-                        </td>
-                        <td
-                          style={{
-                            textAlign: 'center',
-                            fontWeight: 700,
-                            color: rowStatus.textColor
-                          }}
-                        >
-                          {sub.gap > 0 ? `+${sub.gap}` : sub.gap}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Ringkasan 8 Subtes Table (Median 8 Subtes Saja) */}
-            <div className="table-container" style={{ marginTop: 14 }}>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: '24%' }}>Ringkasan 8 Subtes</th>
-                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 1</th>
-                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 2</th>
-                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 3</th>
-                    <th style={{ textAlign: 'center', width: '6.5%' }}>TO 4</th>
-                    <th style={{ textAlign: 'center', width: '7.5%' }}>Median</th>
-                    <th style={{ textAlign: 'center', width: '15.5%' }}>Pola Tren</th>
-                    <th style={{ width: '17%' }}>Visual Posisi vs Target 600</th>
-                    <th style={{ textAlign: 'center', width: '10%' }}>Jarak ke target</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(() => {
-                    const medPattern = classifySubtestPattern(medSeries, ruleConfig);
-                    return (
+            {/* Tabel breakdown: bentuk sama dengan PDF halaman 2 supaya SA familiar */}
+            {(() => {
+              const toCountStudent = toScoresList.length;
+              const fmtMed = (n: number) => String(Math.round(n)); // dibulatkan, sama dengan PDF
+              const headSub: React.CSSProperties = { fontSize: 12, fontWeight: 500, marginTop: 2 };
+              const thBase: React.CSSProperties = { textAlign: 'center', background: '#2d7684', color: '#ffffff', textTransform: 'none', letterSpacing: 0 };
+              const dash = (v: number | null): React.CSSProperties => (v === null ? { color: '#94a3b8' } : {});
+              return (
+                <div className="table-container">
+                  <table className="data-table" style={{ minWidth: 760 }}>
+                    <thead>
                       <tr>
-                        <td><strong>Median 8 subtes</strong></td>
-                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{medTO1 === null ? '–' : formatNumIndo(medTO1)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{medTO2 === null ? '–' : formatNumIndo(medTO2)}{renderTrend(medTO2, medTO1)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--ink-soft)' }}>{medTO3 === null ? '–' : formatNumIndo(medTO3)}{renderTrend(medTO3, medTO2)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, color: medStatus.textColor }}>{formatNumIndo(medTO4)}{renderTrend(medTO4, medTO3)}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 14, color: 'var(--tosca-dark)' }}>{medOverall === null ? '–' : formatNumIndo(medOverall)}</td>
-                        <td style={{ textAlign: 'center' }}>
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              fontSize: 12,
-                              fontWeight: 700,
-                              color: medPattern.color,
-                              background: medPattern.bg,
-                              border: `1px solid ${medPattern.border}`,
-                              padding: '2px 7px',
-                              borderRadius: 9999,
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            {medPattern.label}
-                          </span>
-                        </td>
+                        <th style={{ ...thBase, width: '4%' }}>#</th>
+                        <th style={{ ...thBase, width: '41%', textAlign: 'left' }}>
+                          Subtes UTBK
+                          <div style={headSub}>{toCountStudent === 1 ? 'dan hasil TO terbaru' : `dan tren ${toCountStudent} TO terakhir`}</div>
+                        </th>
+                        <th style={{ ...thBase, width: '9%' }}>TO 1<div style={headSub}>30 Agu</div></th>
+                        <th style={{ ...thBase, width: '9%' }}>TO 2<div style={headSub}>14 Sep</div></th>
+                        <th style={{ ...thBase, width: '9%' }}>TO 3<div style={headSub}>28 Sep</div></th>
+                        <th style={{ ...thBase, width: '19%' }}>TO {latestToEpisode} · 30 Okt<div style={headSub}>garis hitam = {ruleConfig.thresholds.foundationScoreTarget}</div></th>
+                        <th style={{ ...thBase, width: '9%' }}>Median<div style={headSub}>{toCountStudent} TO</div></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedSubtests.map((sub, idx) => {
+                        const rowStatus = getSubtestStatus(sub.gap);
+                        const hist = subtestScores(sub);
+                        return (
+                          <tr key={sub.id}>
+                            <td style={{ textAlign: 'center', color: 'var(--muted)', fontWeight: 600 }}>{idx + 1}</td>
+                            <td>
+                              <div style={{ fontWeight: 800, color: 'var(--tosca-dark)' }}>{sub.name}</div>
+                              <div style={{ fontSize: 12, color: 'var(--muted)' }}>{hist.length >= 2 ? trendSequenceLabel(hist) : 'Belum ada tren (baru 1 TO)'}</div>
+                              {(priorityProdisById.get(sub.id) ?? []).length > 0 && (
+                                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 3 }}>
+                                  {(priorityProdisById.get(sub.id) ?? []).map((n) => {
+                                    const tn = prodiTone(n);
+                                    return (
+                                      <span key={n} style={{ fontSize: 12, fontWeight: 700, color: tn.text, background: tn.bg, border: `1px solid ${tn.border}`, padding: '1px 6px', borderRadius: 4, whiteSpace: 'nowrap' }}>{n}</span>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </td>
+                            <td style={{ textAlign: 'center', ...dash(sub.to1) }}>{fmtTo(sub.to1)}</td>
+                            <td style={{ textAlign: 'center', ...dash(sub.to2) }}>{fmtTo(sub.to2)}{renderTrend(sub.to2, sub.to1)}</td>
+                            <td style={{ textAlign: 'center', ...dash(sub.to3) }}>{fmtTo(sub.to3)}{renderTrend(sub.to3, sub.to2)}</td>
+                            <td style={{ textAlign: 'center' }}>
+                              <div style={{ fontWeight: 800, color: rowStatus.textColor }}>{sub.to4}{renderTrend(sub.to4, sub.to3)}</div>
+                              <div className="v2-progress-track" style={{ maxWidth: 120, margin: '4px auto 0' }}>
+                                <div className="v2-progress-fill" style={{ width: `${sub.fillPct}%`, background: rowStatus.color }} />
+                                <div className="v2-progress-target-line" title="Target 600" />
+                              </div>
+                            </td>
+                            <td style={{ textAlign: 'center', fontWeight: 700, ...(hist.length < MIN_TO_FOR_MEDIAN ? { color: '#94a3b8' } : {}) }}>
+                              {hist.length >= MIN_TO_FOR_MEDIAN ? fmtMed(Number(String(sub.median).replace(',', '.'))) : '–'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      <tr style={{ background: '#e6f4f2' }}>
+                        <td />
                         <td>
-                          <div className="v2-progress-track">
+                          <div style={{ fontWeight: 800, color: 'var(--tosca-dark)' }}>Median 8 subtes</div>
+                          <div style={{ fontSize: 12, color: 'var(--muted)' }}>{medSeries.length >= 2 ? trendSequenceLabel(medSeries) : 'Belum ada tren (baru 1 TO)'}</div>
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, ...dash(medTO1) }}>{medTO1 === null ? '–' : fmtMed(medTO1)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, ...dash(medTO2) }}>{medTO2 === null ? '–' : fmtMed(medTO2)}{renderTrend(medTO2, medTO1)}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, ...dash(medTO3) }}>{medTO3 === null ? '–' : fmtMed(medTO3)}{renderTrend(medTO3, medTO2)}</td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ fontWeight: 800, color: medStatus.textColor }}>{fmtMed(medTO4)}{renderTrend(medTO4, medTO3)}</div>
+                          <div className="v2-progress-track" style={{ maxWidth: 120, margin: '4px auto 0', background: '#ffffff' }}>
                             <div className="v2-progress-fill" style={{ width: `${medFillPct.toFixed(1)}%`, background: medStatus.color }} />
                             <div className="v2-progress-target-line" title="Target 600" />
                           </div>
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: 12.5, color: medStatus.textColor }}>
-                          {medGap > 0 ? `+${formatNumIndo(medGap)}` : formatNumIndo(medGap)}
-                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 800, color: 'var(--tosca-dark)', ...(medOverall === null ? { color: '#94a3b8' } : {}) }}>{medOverall === null ? '–' : fmtMed(medOverall)}</td>
                       </tr>
-                    );
-                  })()}
-                </tbody>
-              </table>
-            </div>
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
 
             {/* Legend (sama dengan PDF): merah = di bawah 600, hijau = tercapai */}
             <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 10, fontSize: 12, color: 'var(--slate-600)', flexWrap: 'wrap' }}>
@@ -1497,74 +1402,106 @@ export const CheckpointV2Page: React.FC = () => {
                     </div>
                   </div>
                 )}
-                {order.map((t) => {
-                  const group = rows.filter((r) => r.tier === t);
-                  if (group.length === 0) return null;
-                  const tn = tone(t);
-                  return (
-                    <div key={`tier-${t}`} style={{ marginBottom: 18 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 6, marginBottom: 10 }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 800, color: tn.ink }}>
-                          <span style={{ width: 9, height: 9, borderRadius: 9, background: tn.dot, display: 'inline-block' }} />
-                          {gapTierTitle(t, foundation)}
+                {(() => {
+                  const weakRows = rows.filter((r) => r.tier === 1);
+                  const achievedRows = rows.filter((r) => r.tier === 0);
+                  const GRID = '32px minmax(0, 1.15fr) 190px minmax(0, 1.1fr) 104px';
+                  const mono = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+                  const histOf = (stat: { questions: number; accuracy: number } | null) =>
+                    stat && stat.questions > 0 ? { text: `${stat.questions} soal · akurasi ${stat.accuracy}%`, none: false } : { text: 'Belum ada data', none: true };
+                  const groupHead = (color: string, dot: string, title: string, sub: string) => (
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, margin: '14px 0 8px' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 15, fontWeight: 800, color }}>
+                        <span style={{ width: 9, height: 9, borderRadius: 9, background: dot, display: 'inline-block' }} />
+                        {title}
+                      </span>
+                      <span style={{ fontSize: 12, color: 'var(--muted)' }}>{sub}</span>
+                    </div>
+                  );
+                  const badge = (id: string) => (
+                    <span style={{ width: 26, height: 26, borderRadius: '50%', background: '#245f5a', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>{rank.get(id)}</span>
+                  );
+                  const scoreCell = (to4: number, weak: boolean) => (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: 19, fontWeight: 800, color: weak ? '#b42318' : '#245f5a', lineHeight: 1.1 }}>{to4}</span>
+                        <span style={{ fontSize: 12, color: 'var(--muted)' }}>/ {foundation}</span>
+                        <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 800, color: weak ? '#b42318' : '#245f5a', background: weak ? '#fef3f2' : '#ffffff', borderRadius: 4, padding: '1px 7px' }}>
+                          {weak ? `-${foundation - to4}` : `+${to4 - foundation}`}
                         </span>
-                        <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>{group.length} subtes</span>
                       </div>
-                      {t === 0 && <div style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.45, marginBottom: 10 }}>{ACTION_PLAN_COPY.achievedNote}</div>}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        {group.map(({ x, stat, topics, rule }) => (
-                          <div key={x.id} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '12px 14px', background: '#ffffff' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                              <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#245f5a', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
-                                {rank.get(x.id)}
-                              </span>
-                              <div style={{ flex: 1, minWidth: 200 }}>
-                                <div style={{ fontWeight: 800, color: 'var(--ink-strong)', fontSize: 14 }}>{x.name}</div>
-                                <div style={{ fontSize: 12, color: 'var(--muted)' }}>
-                                  Riwayat drill 3 bulan terakhir: {stat && stat.questions > 0 ? `${stat.questions} soal, ${stat.sessions} sesi, ${stat.accuracy}% benar` : 'belum ada data'}
-                                </div>
-                              </div>
-                              <div style={{ width: 150 }}>
-                                <div style={{ height: 6, borderRadius: 6, background: '#e8edf2', overflow: 'hidden' }}>
-                                  <div style={{ width: `${Math.min(100, Math.round((x.to4 / foundation) * 100))}%`, height: '100%', background: t === 0 ? '#245f5a' : '#b42318' }} />
-                                </div>
-                                <div style={{ textAlign: 'right', marginTop: 3, fontWeight: 800, color: t === 0 ? '#245f5a' : 'var(--red-ink)' }}>
-                                  {x.to4} <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>/ {foundation}</span>
-                                </div>
-                              </div>
-                              <span style={{ fontSize: 12, fontWeight: 800, color: t === 0 ? '#245f5a' : tn.ink, background: t === 0 ? '#eef6f5' : tn.pill, borderRadius: 4, padding: '3px 9px', whiteSpace: 'nowrap' }}>
-                                {t === 0 ? ACTION_PLAN_COPY.achievedBadge(x.to4 - foundation, foundation) : `kurang ${foundation - x.to4}`}
-                              </span>
-                            </div>
-                            {t === 0 ? (
-                              <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)', fontSize: 13, lineHeight: 1.45 }}>
-                                <div style={{ ...cap, color: 'var(--teal-ink, #245f5a)' }}>Target berikutnya</div>
-                                <strong style={{ fontSize: 14, color: 'var(--ink-strong)' }}>{achievedNextTarget(priorityGoalById.get(x.id), foundation)}</strong>
-                              </div>
-                            ) : (
-                              <div style={{ display: 'grid', gridTemplateColumns: '5fr 7fr', marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)', fontSize: 13, lineHeight: 1.45 }}>
-                                <div style={{ paddingRight: 12 }}>
-                                  <div style={{ ...cap, color: 'var(--teal-ink, #245f5a)' }}>Fokus perbaikan materi</div>
-                                  <strong style={{ fontSize: 14, color: 'var(--ink-strong)' }}>{topics.join(' · ')}</strong>
-                                </div>
-                                <div style={{ borderLeft: '1px solid var(--border)', paddingLeft: 12 }}>
-                                  <div style={{ ...cap, color: 'var(--teal-ink, #245f5a)' }}>Target drill soal</div>
-                                  <strong style={{ fontSize: 14, color: 'var(--ink-strong)' }}>{drillTargetOf(x.id)} soal benar per minggu</strong>
-                                </div>
-                              </div>
-                            )}
-                            {t !== 0 && (
-                              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.45 }}>
-                                <strong style={{ color: tn.ink }}>Catatan untuk SA ({rule.conditionLabel}):</strong> {rule.saTask}
-                              </div>
-                            )}
-                            
-                          </div>
-                        ))}
+                      <div style={{ height: 6, borderRadius: 6, background: weak ? '#e8edf2' : '#ffffff', overflow: 'hidden', marginTop: 5 }}>
+                        <div style={{ width: `${Math.min(100, Math.round((to4 / foundation) * 100))}%`, height: '100%', background: weak ? '#d92d20' : '#245f5a', borderRadius: 6 }} />
                       </div>
                     </div>
                   );
-                })}
+                  return (
+                    <>
+                      {weakRows.length > 0 && (
+                        <>
+                          {groupHead('var(--red-ink)', '#d92d20', `Belum mencapai ${foundation}`, `urut dari nilai terendah · ${weakRows.length} subtes`)}
+                          <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflowX: 'auto' }}>
+                            <div style={{ minWidth: 760 }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: GRID, columnGap: 12, alignItems: 'center', background: '#2d7684', color: '#ffffff', fontSize: 13, fontWeight: 700, padding: '8px 14px', borderRadius: '8px 8px 0 0' }}>
+                                <span /><span>Subtes</span><span>Nilai TO {latestToEpisode}</span><span>Fokus perbaikan materi</span><span style={{ textAlign: 'center' }}>Target drill</span>
+                              </div>
+                              {weakRows.map(({ x, stat, topics, rule }) => {
+                                const h = histOf(stat);
+                                return (
+                                  <div key={x.id} style={{ borderTop: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: GRID, columnGap: 12, alignItems: 'center', padding: '10px 14px' }}>
+                                      {badge(x.id)}
+                                      <div>
+                                        <div style={{ fontWeight: 800, color: 'var(--tosca-dark)', fontSize: 14, lineHeight: 1.25 }}>{x.name}</div>
+                                        <div style={{ fontSize: 12, color: 'var(--muted)' }}>Riwayat drill 3 bulan terakhir</div>
+                                        <div style={{ fontSize: 13, fontWeight: 700, color: h.none ? '#b42318' : 'var(--ink-strong)' }}>{h.text}</div>
+                                      </div>
+                                      {scoreCell(x.to4, true)}
+                                      <div style={{ fontSize: 13, lineHeight: 1.4 }}>{topics.join(' · ')}</div>
+                                      <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: 26, fontWeight: 800, color: '#245f5a', lineHeight: 1 }}>{drillTargetOf(x.id)}</div>
+                                        <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.25 }}>soal benar<br />per minggu</div>
+                                      </div>
+                                    </div>
+                                    <div style={{ padding: '0 14px 10px 58px', fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.45 }}>
+                                      <strong style={{ color: 'var(--red-ink)' }}>Catatan untuk SA ({rule.conditionLabel}):</strong> {rule.saTask}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                      {achievedRows.length > 0 && (
+                        <>
+                          {groupHead('var(--green-ink)', '#12b76a', `Sudah mencapai ≥ ${foundation}`, `${achievedRows.length} subtes`)}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {achievedRows.map(({ x, stat }) => {
+                              const h = histOf(stat);
+                              return (
+                                <div key={x.id} style={{ display: 'grid', gridTemplateColumns: GRID, columnGap: 12, alignItems: 'center', background: '#e6f4f2', border: '1px solid #b9d9d5', borderRadius: 8, padding: '10px 14px', minWidth: 760 }}>
+                                  {badge(x.id)}
+                                  <div>
+                                    <div style={{ fontWeight: 800, color: 'var(--tosca-dark)', fontSize: 14, lineHeight: 1.25 }}>{x.name}</div>
+                                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>Riwayat drill 3 bulan terakhir</div>
+                                    <div style={{ fontSize: 13, fontWeight: 700, color: h.none ? '#b42318' : 'var(--ink-strong)' }}>{h.text}</div>
+                                  </div>
+                                  {scoreCell(x.to4, false)}
+                                  <div style={{ gridColumn: '4 / span 2', borderLeft: '1px solid #b9d9d5', paddingLeft: 14 }}>
+                                    <div style={{ ...cap, color: 'var(--teal-ink, #245f5a)' }}>Target berikutnya</div>
+                                    <strong style={{ fontSize: 14, color: 'var(--ink-strong)' }}>{achievedNextTarget(priorityGoalById.get(x.id), foundation)}</strong>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.45, marginTop: 8 }}>{ACTION_PLAN_COPY.achievedNote}</div>
+                        </>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             );
           })()}
