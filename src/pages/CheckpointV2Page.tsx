@@ -12,6 +12,7 @@ import { STUDENT_CLASSROOM_DATA, STUDENT_SA_HISTORY_NOTES } from '../data/classr
 import {
   validateSnbtChoices,
   derivePrioritySubtestsForChoice1,
+  deriveSubtestGoals,
   matchCatalogProgram,
   getStudentBaselinePrograms
 } from '../data/programCatalog';
@@ -102,15 +103,12 @@ export const CheckpointV2Page: React.FC = () => {
   // Label jurusan per subtes: subtes ini prioritas untuk jurusan apa (sama dengan PDF).
   const prodiTone = buildProdiToneMap(targetPrograms.map((p) => p.prodi));
   const priorityProdisById = new Map<string, string[]>();
-  const priorityGoalById = new Map<string, PriorityGoal>();
   targetPrograms.forEach((prog) => {
     derivePrioritySubtestsForChoice1(activeStudent, prog, ruleConfig.thresholds.foundationScoreTarget).forEach((p) => {
       const list = priorityProdisById.get(p.id) ?? [];
       const name = prog.prodi.replace(/^(S1|D4|D3)\s+/, '');
       if (!list.includes(name)) list.push(name);
       priorityProdisById.set(p.id, list);
-      const cur = priorityGoalById.get(p.id);
-      if (!cur || prog.targetScore > cur.target) priorityGoalById.set(p.id, { prodi: name, target: prog.targetScore, kurang: Math.max(0, -prog.gap) });
     });
   });
 
@@ -206,6 +204,8 @@ export const CheckpointV2Page: React.FC = () => {
   const latestToScore = toScoresList.length ? toScoresList[toScoresList.length - 1] : 0;
   const totalSubtestsCount = subtestsV2Data.length;
   const sortedSubtests = [...subtestsV2Data].sort((a, b) => a.gap - b.gap || a.to4 - b.to4);
+  // Target berikutnya per subtes untuk kartu "Sudah mencapai 600" (sama dengan PDF).
+  const priorityGoalById = deriveSubtestGoals(targetPrograms, sortedSubtests, ruleConfig.thresholds.foundationScoreTarget);
   const shortSubtestMap: Record<string, string> = {
     pu: 'PU',
     pk: 'PK',
@@ -375,7 +375,8 @@ export const CheckpointV2Page: React.FC = () => {
         scores: subtestScores(s),
         toLatest: s.to4
       })),
-      attendanceRatePct: attendanceNumeric
+      attendanceRatePct: attendanceNumeric,
+      studentFirstName: activeStudent.identity.name.split(' ')[0]
     },
     ruleConfig
   );
@@ -384,7 +385,8 @@ export const CheckpointV2Page: React.FC = () => {
     {
       programs: targetPrograms,
       familyAlignment: activeStudent.familyAlignment,
-      studentHomeCity: activeStudent.identity.branch.split('-')[0].trim()
+      studentHomeCity: activeStudent.identity.branch.split('-')[0].trim(),
+      studentFirstName: activeStudent.identity.name.split(' ')[0]
     },
     ruleConfig
   );
@@ -398,7 +400,10 @@ export const CheckpointV2Page: React.FC = () => {
     drillSessions: item.drillSessions,
     drillAccuracyPct: item.drillAccuracyPct
   }));
-  const stage3OverallOut = analyzeStage3Overall(stage3SubtestInputs, ruleConfig);
+  const stage3OverallOut = analyzeStage3Overall(stage3SubtestInputs, ruleConfig, {
+    studentFirstName: activeStudent.identity.name.split(' ')[0],
+    weakCount: sortedSubtests.filter((x) => x.to4 < ruleConfig.thresholds.foundationScoreTarget).length
+  });
   const stageClassroomOut = analyzeStageClassroom(
     {
       totalSessions: classroomData.totalSessions,
@@ -406,7 +411,8 @@ export const CheckpointV2Page: React.FC = () => {
       lateSessions: classroomData.lateSessions,
       sickSessions: classroomData.sickSessions,
       excusedSessions: classroomData.excusedSessions,
-      notesCount: classroomData.notesCount
+      notesCount: classroomData.notesCount,
+      studentFirstName: activeStudent.identity.name.split(' ')[0]
     },
     ruleConfig
   );
@@ -427,14 +433,13 @@ export const CheckpointV2Page: React.FC = () => {
         avgScore: toScoresList[toScoresList.length - 1] ?? 0,
         episode: latestToEpisode,
         needsPlanB: targetPrograms.length > 0 && targetPrograms.every((p) => p.gap < 0),
-        programTargets: targetPrograms
-          .map((p) => {
-            const pacing = computeProgramPacing(p.weightedScore, p.targetScore, p.gap, ruleConfig);
-            return `Pilihan ${p.priority.replace(/\D+/g, '') || p.priority} ${pacing.isAchieved ? 'terlewati' : `≥ ${pacing.nextToTargetScore}`}`;
-          })
-          .join(' · ')
+        programTargetList: targetPrograms.map((p) => {
+          const pacing = computeProgramPacing(p.weightedScore, p.targetScore, p.gap, ruleConfig);
+          return { name: `${p.prodi}, ${p.univ.replace(/\s*\([^)]*\)/g, '').trim()}`, target: pacing.isAchieved ? 'Terlewati' : `≥ ${pacing.nextToTargetScore}` };
+        })
       },
       studentName: activeStudent.identity.name,
+      studentFirstName: activeStudent.identity.name.split(' ')[0],
       saName: activeStudent.identity.saName,
       parentName: activeStudent.identity.parentName,
       nextEpisode: latestToEpisode + 1
@@ -449,6 +454,7 @@ export const CheckpointV2Page: React.FC = () => {
       medianHistory: subtestScores(maxFluctSub).join('→'),
       median: maxFluctSub.median,
       prodi: targetPrograms[0]?.prodi || 'Prodi Utama',
+      studentFirstName: activeStudent.identity.name.split(' ')[0],
       nextEpisode: latestToEpisode + 1
     },
     ruleConfig
@@ -748,6 +754,7 @@ export const CheckpointV2Page: React.FC = () => {
                 <h3 className="section-title" style={{ fontSize: 15, margin: 0 }}>
                   Evaluasi Skor TO UTBK Regular Episode {latestToEpisode} terhadap Pilihan Jurusan (menggunakan sistem skoring IRT Pembobotan)
                 </h3>
+                <span style={{ fontSize: 12, color: 'var(--muted)' }}>Sumber: data SNPMB 2026</span>
                 {(() => {
                   const snbtCheck = validateSnbtChoices(targetPrograms);
                   return (
@@ -853,13 +860,13 @@ export const CheckpointV2Page: React.FC = () => {
                         </div>
                       </div>
                       <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>
-                        {catalogMatch ? `Peminat ${catalogMatch.applicants2025.toLocaleString('id-ID')} · ` : ''}Keketatan {prog.tightness}
+                        {catalogMatch ? <>Daya tampung <strong style={{ color: 'var(--ink-strong)' }}>{quota}</strong> · Peminat <strong style={{ color: 'var(--ink-strong)' }}>{catalogMatch.applicants2025.toLocaleString('id-ID')}</strong> · </> : ''}Keketatan <strong style={{ color: 'var(--ink-strong)' }}>{prog.tightness}</strong>
                       </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.75fr) minmax(0, 1fr)', gap: 16, marginTop: 10, alignItems: 'stretch' }}>
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <span style={cap}>Nilai terbobot TO {latestToEpisode} (IRT) vs target</span>
+                          <span style={cap}>Nilai TO {latestToEpisode} (IRT) vs target</span>
                           <span style={{ fontFamily: mono, fontSize: 12.5, fontWeight: 800, color: gapColor, background: gapBg, borderRadius: 4, padding: '2px 9px' }}>
                             Selisih {prog.gap > 0 ? `+${prog.gap}` : prog.gap}
                           </span>
@@ -875,7 +882,7 @@ export const CheckpointV2Page: React.FC = () => {
                           <span>Peringkat TO {latestToEpisode} (prodi &amp; kampus sama)</span>
                           {participants > 0 ? (
                             <span>
-                              <strong style={{ color: rank > quota ? '#b42318' : '#027a48' }}>{rank}</strong> dari {participants} (daya tampung {quota})
+                              <strong style={{ color: rank > quota ? '#b42318' : '#027a48' }}>{rank}</strong> dari {participants}
                             </span>
                           ) : (
                             <span>—</span>
@@ -912,8 +919,11 @@ export const CheckpointV2Page: React.FC = () => {
                   <div style={{ background: '#f2f8f7', borderLeft: '3px solid #58aebd', borderRadius: 6, padding: '8px 12px' }}>
                     <strong style={{ color: 'var(--tosca-dark)' }}>Kesimpulan.</strong>{' '}
                     {achieved === 0
-                      ? `Belum ada satu pun dari ${words[targetPrograms.length] ?? targetPrograms.length} pilihan jurusan yang nilainya mencapai target.`
+                      ? `Belum ada satu pun dari ${words[targetPrograms.length] ?? targetPrograms.length} pilihan jurusan yang nilainya mencapai target, sehingga perlu mulai mencari rencana cadangan (Plan B).`
                       : `${achieved} dari ${targetPrograms.length} pilihan jurusan nilainya sudah mencapai target.`}
+                  </div>
+                  <div style={{ background: '#f8fafc', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 12px', marginTop: 8 }}>
+                    <strong style={{ color: 'var(--tosca-dark)' }}>Catatan.</strong> Nilai dan peringkat siswa sama-sama penting untuk dicapai.
                   </div>
                 </div>
               );
@@ -930,50 +940,30 @@ export const CheckpointV2Page: React.FC = () => {
 
           {/* Live Consultation Prompt: Tahap 1 (Analisis Jurusan, Driven by saGuidelineEngine) */}
           <div className="sa-prompt-card" id="sec_tahap1_guide" style={{ background: '#f2f8f7', border: '1px solid var(--primary-border)', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ marginBottom: 8 }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Building2 size={16} />
                 Panduan Kakak Asuh: {guideCards.t2.title}
               </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', background: 'var(--primary-light)', border: '1px solid var(--primary-border)', padding: '2px 10px', borderRadius: 9999 }}>
-                Kondisi: {stage2Out.conditionLabel}
-              </span>
-            </div>
-
-            <div style={{ fontSize: 12, color: 'var(--ink-strong)', background: '#ffffff', border: '1px solid var(--border)', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
-              <strong>Temuan Data:</strong> {stage2Out.observation}
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Panduan Kakak Asuh */}
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 PANDUAN KAKAK ASUH:
-                </div>
-                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
-                  {stage2Out.saTasks.map((task, idx) => (
-                    <li key={idx}>{task}</li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 RAMBU PROGRES HOLISTIK:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
-                    {guideCards.t2.rambu.map((r) => (<li key={r}><RichText text={r} /></li>))}
-                  </ul>
-                </div>
-
-                <div style={{ background: 'var(--primary-light)', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--primary-border)', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 4 }}>ℹ️ KONTEKS TARGET &amp; PERSAINGAN:</div>
-                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
-                    {stage2Out.guardrailNote}
-                  </p>
-                </div>
+              <div style={{ fontSize: 13, color: 'var(--ink-strong)', marginTop: 4 }}>
+                <strong>{guideCards.t2.goal}</strong>
               </div>
             </div>
+
+            <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 6, letterSpacing: 0.3 }}>YANG BISA DIBAHAS</div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.45 }}>
+                {stage2Out.saTasks.slice(0, 3).map((task, idx) => (
+                  <li key={idx}>{task}</li>
+                ))}
+              </ul>
+            </div>
+
+            {stage2Out.isWideGap && guideCards.t2.rambu.length > 0 && (
+              <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 10 }}>
+                <strong style={{ color: 'var(--red-ink)' }}>Hindari:</strong> <RichText text={guideCards.t2.rambu[0]} />
+              </div>
+            )}
           </div>
         </section>
 
@@ -1266,61 +1256,31 @@ export const CheckpointV2Page: React.FC = () => {
 
           {/* Live Consultation Prompt: Tahap 2 (Evaluasi Tryout, Driven by saGuidelineEngine) */}
           <div className="sa-prompt-card" id="sec_tahap2_guide" style={{ background: '#f2f8f7', border: '1px solid var(--primary-border)', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ marginBottom: 8 }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Info size={16} />
                 Panduan Kakak Asuh: {guideCards.t1.title}
               </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Link to="/engine" style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', textDecoration: 'none' }}>
-                  Lihat &amp; Kontrol Engine →
-                </Link>
+              <div style={{ fontSize: 13, color: 'var(--ink-strong)', marginTop: 4 }}>
+                <strong>{guideCards.t1.goal}</strong>
               </div>
             </div>
 
-            <div style={{ fontSize: 12, color: 'var(--ink-strong)', background: '#ffffff', border: '1px solid var(--border)', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
-              <strong>Temuan Data:</strong> {stage1Out.observation}
+            <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 6, letterSpacing: 0.3 }}>YANG BISA DIBAHAS</div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.45 }}>
+                {/* Maks 3 poin: temuan utama, satu catatan prioritas (kalau ada, kalau tidak: dengarkan siswa), lalu kesepakatan */}
+                {[stage1Out.observation, stage1Out.extraNotes[0] ?? stage1Out.studentTask, stage1Out.nextStep].map((line, idx) => (
+                  <li key={idx}>{line}</li>
+                ))}
+              </ul>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Panduan Kakak Asuh */}
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 PANDUAN KAKAK ASUH:
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
-                  <div>
-                    <strong style={{ color: 'var(--ink-strong)' }}>• Ke Siswa:</strong> {stage1Out.studentTask}
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--ink-strong)' }}>• Ke Orang Tua:</strong> {stage1Out.parentTask}
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--ink-strong)' }}>• Arah Tindak Lanjut:</strong> {stage1Out.nextStep}
-                  </div>
-                </div>
+            {stage1Out.isDecline && guideCards.t1.rambu.length > 0 && (
+              <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 10 }}>
+                <strong style={{ color: 'var(--red-ink)' }}>Hindari:</strong> <RichText text={guideCards.t1.rambu[0]} />
               </div>
-
-              {/* Kolom Kanan: Rambu Komunikasi & Catatan Tambahan */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 CATATAN KONDISI &amp; RAMBU:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
-                    {stage1Out.extraNotes.map((note, idx) => (
-                      <li key={idx}>{note}</li>
-                    ))}
-                    {guideCards.t1.rambu.map((r) => (<li key={r}><RichText text={r} /></li>))}
-                  </ul>
-                </div>
-
-                <div style={{ background: 'var(--primary-light)', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--primary-border)', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 4 }}>📊 KONTEKS DATA (MEDIAN PRIBADI):</div>
-                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
-                    <RichText text={guideCards.t1.medianContext} />
-                  </p>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </section>
 
@@ -1463,9 +1423,6 @@ export const CheckpointV2Page: React.FC = () => {
                                         <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.25 }}>soal benar<br />per minggu</div>
                                       </div>
                                     </div>
-                                    <div style={{ padding: '0 14px 10px 58px', fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.45 }}>
-                                      <strong style={{ color: 'var(--red-ink)' }}>Catatan untuk SA ({rule.conditionLabel}):</strong> {rule.saTask}
-                                    </div>
                                   </div>
                                 );
                               })}
@@ -1507,53 +1464,31 @@ export const CheckpointV2Page: React.FC = () => {
           })()}
 
           {/* Live Consultation Prompt: Tahap 3 (Driven by saGuidelineEngine) */}
-          <div className="sa-prompt-card" id="sec_tahap3_guide" style={{ background: 'var(--page-bg)', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--amber-ink)', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--amber-ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div className="sa-prompt-card" id="sec_tahap3_guide" style={{ background: '#f2f8f7', border: '1px solid var(--primary-border)', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+            <div style={{ marginBottom: 8 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Wrench size={16} />
                 Panduan Kakak Asuh: {guideCards.t3.title}
               </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--amber-ink)', background: '#fef0c7', padding: '2px 10px', borderRadius: 9999 }}>
-                Target Hasil: {guideCards.t3.goal}
-              </span>
+              <div style={{ fontSize: 13, color: 'var(--ink-strong)', marginTop: 4 }}>
+                <strong>{guideCards.t3.goal}</strong>
+              </div>
             </div>
 
-            {stage3OverallOut.mismatchNote && (
-              <div style={{ fontSize: 12, color: '#9a3412', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 6, padding: '8px 12px', marginBottom: 10 }}>
-                <strong>Temuan Pola Drill Soal:</strong> {stage3OverallOut.mismatchNote}
+            <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 6, letterSpacing: 0.3 }}>YANG BISA DIBAHAS</div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.45 }}>
+                {stage3OverallOut.guidePoints.map((line, idx) => (
+                  <li key={idx}>{line}</li>
+                ))}
+              </ul>
+            </div>
+
+            {stage3OverallOut.rambu && (
+              <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 10 }}>
+                <strong style={{ color: 'var(--red-ink)' }}>Hindari:</strong> {stage3OverallOut.rambu}
               </div>
             )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Panduan Kakak Asuh */}
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--amber-ink)', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 PANDUAN KAKAK ASUH:
-                </div>
-                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
-                  {stage3OverallOut.saTasks.map((task, idx) => (
-                    <li key={idx}>{task}</li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Kolom Kanan: Rambu Komunikasi & Konteks Data */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
-                    {guideCards.t3.rambu.map((r) => (<li key={r}><RichText text={r} /></li>))}
-                  </ul>
-                </div>
-
-                <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#b45309', marginBottom: 4 }}>📏 CARA BACA METRIK SESI DRILL:</div>
-                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
-                    {stage3OverallOut.guardrailNote}
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -1835,44 +1770,30 @@ export const CheckpointV2Page: React.FC = () => {
 
           {/* Live Consultation Prompt: Tahap 4 (Aktivitas Kelas & Catatan Pengajar) */}
           <div className="sa-prompt-card" id="sec_tahap4_guide" style={{ background: '#f2f8f7', border: '1px solid var(--primary-border)', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ marginBottom: 8 }}>
               <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GraduationCap size={16} />
                 Panduan Kakak Asuh: {guideCards.t4.title}
               </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tosca-dark)', background: 'var(--primary-light)', padding: '2px 10px', borderRadius: 9999 }}>
-                Target Hasil: {guideCards.t4.goal}
-              </span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 PANDUAN KAKAK ASUH:
-                </div>
-                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
-                  {stageClassroomOut.saTasks.map((task, idx) => (
-                    <li key={idx}>{task}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🧭 RAMBU KOMUNIKASI:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
-                    {guideCards.t4.rambu.map((r) => (<li key={r}><RichText text={r} /></li>))}
-                  </ul>
-                </div>
-
-                <div style={{ background: '#fffbeb', padding: '10px 12px', borderRadius: 6, border: '1px solid #fde68a', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: '#b45309', marginBottom: 4 }}>📏 BATAS BACA DATA KELAS:</div>
-                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
-                    {stageClassroomOut.guardrailNote}
-                  </p>
-                </div>
+              <div style={{ fontSize: 13, color: 'var(--ink-strong)', marginTop: 4 }}>
+                <strong>{guideCards.t4.goal}</strong>
               </div>
             </div>
+
+            <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 6, letterSpacing: 0.3 }}>YANG BISA DIBAHAS</div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.45 }}>
+                {stageClassroomOut.guidePoints.slice(0, 3).map((line, idx) => (
+                  <li key={idx}>{line}</li>
+                ))}
+              </ul>
+            </div>
+
+            {stageClassroomOut.hasLowNotes && guideCards.t4.rambu.length > 0 && (
+              <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 10 }}>
+                <strong style={{ color: 'var(--red-ink)' }}>Hindari:</strong> <RichText text={guideCards.t4.rambu[0]} />
+              </div>
+            )}
           </div>
         </section>
 
@@ -1900,37 +1821,39 @@ export const CheckpointV2Page: React.FC = () => {
               <span style={{ fontSize: 12, color: 'var(--muted)' }}>Disepakati Bersama Siswa &amp; Orang Tua Selama Sesi Konsultasi</span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {stage4Out.actionPlans.map((plan) => (
                 <div
                   key={plan.num}
                   style={{
+                    display: 'grid',
+                    gridTemplateColumns: '24px 1fr',
+                    columnGap: 12,
+                    alignItems: 'start',
                     background: 'var(--page-bg)',
                     border: '1px solid var(--border)',
                     borderLeft: `4px solid ${plan.accentColor}`,
                     borderRadius: 8,
-                    padding: '14px 16px'
+                    padding: '10px 14px'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <span style={{
-                      background: plan.accentColor,
-                      color: '#fff',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      width: 22,
-                      height: 22,
-                      borderRadius: '50%',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      {plan.num}
-                    </span>
-                    <strong style={{ fontSize: 13, color: 'var(--ink)' }}>{plan.title}</strong>
+                  <span style={{ background: plan.accentColor, color: '#fff', fontSize: 12, fontWeight: 700, width: 22, height: 22, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {plan.num}
+                  </span>
+                  <div style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
+                    <div>
+                      <strong style={{ color: 'var(--ink)' }}>{plan.title}{plan.bullets ? ': ' : '. '}</strong>
+                      <RichText text={plan.desc} />
+                    </div>
+                    {plan.bullets && (
+                      <ul style={{ margin: '3px 0 0', paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {plan.bullets.map((b) => (
+                          <li key={b.label}><strong>{b.label}:</strong> {b.text}</li>
+                        ))}
+                      </ul>
+                    )}
+                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>PIC: {plan.pic}</div>
                   </div>
-                  <p style={{ fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.55 }}><RichText text={plan.desc} /></p>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>PIC: {plan.pic}</div>
                 </div>
               ))}
             </div>
@@ -2015,48 +1938,24 @@ export const CheckpointV2Page: React.FC = () => {
           </div>
 
           {/* Live Consultation Prompt: Tahap 5 (Driven by saGuidelineEngine) */}
-          <div className="sa-prompt-card" id="sec_tahap5_guide" style={{ background: 'var(--page-bg)', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--green-ink)', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
-              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--green-ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div className="sa-prompt-card" id="sec_tahap5_guide" style={{ background: '#f2f8f7', border: '1px solid var(--primary-border)', borderLeft: '4px solid #58aebd', borderRadius: 8, padding: '14px 18px', marginTop: 24, marginBottom: 20 }}>
+            <div style={{ marginBottom: 8 }}>
+              <span className="sa-prompt-title" style={{ fontSize: 13, fontWeight: 800, color: 'var(--tosca-dark)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ShieldCheck size={16} />
                 Panduan Kakak Asuh: {guideCards.t5.title}
               </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', background: '#ecfdf3', padding: '2px 10px', borderRadius: 9999 }}>
-                Target Hasil: {guideCards.t5.goal}
-              </span>
+              <div style={{ fontSize: 13, color: 'var(--ink-strong)', marginTop: 4 }}>
+                <strong>{guideCards.t5.goal}</strong>
+              </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12 }}>
-              {/* Kolom Kiri: Panduan Kakak Asuh */}
-              <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--green-ink)', marginBottom: 8, letterSpacing: 0.3 }}>
-                  🔍 PANDUAN KAKAK ASUH:
-                </div>
-                <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
-                  {stage4Out.saTasks.map((task, idx) => (
-                    <li key={idx}>{task}</li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Kolom Kanan: Checklist Penutupan Kakak Asuh */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>📋 CHECKLIST PENUTUPAN KAKAK ASUH:</div>
-                  <ul style={{ margin: 0, paddingLeft: 14, color: 'var(--ink-soft)' }}>
-                    {stage4Out.checklist.map((item, idx) => (
-                      <li key={idx}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div style={{ background: '#ecfdf3', padding: '10px 12px', borderRadius: 6, border: '1px solid #a6f4c5', fontSize: 12, lineHeight: 1.45 }}>
-                  <div style={{ fontWeight: 800, color: 'var(--green-ink)', marginBottom: 4 }}>🔄 KESINAMBUNGAN SESI BERIKUTNYA:</div>
-                  <p style={{ margin: 0, color: 'var(--ink-soft)' }}>
-                    <RichText text={guideCards.t5.continuity} />
-                  </p>
-                </div>
-              </div>
+            <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--tosca-dark)', marginBottom: 6, letterSpacing: 0.3 }}>YANG BISA DIBAHAS</div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.45 }}>
+                {stage4Out.guidePoints.slice(0, 3).map((line, idx) => (
+                  <li key={idx}>{line}</li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>

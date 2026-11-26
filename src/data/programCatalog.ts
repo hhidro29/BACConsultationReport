@@ -1352,3 +1352,34 @@ export function derivePrioritySubtestsForChoice1(
     };
   });
 }
+
+/**
+ * Target berikutnya per subtes untuk kartu "Sudah mencapai 600": target subtes tertinggi di antara pilihan jurusan siswa
+ * (data subtestTargets per jurusan, minimal ukuran fondasi). Berlaku untuk semua subtes, bukan hanya subtes prioritas.
+ * Subtes tanpa target jurusan di atas fondasi tidak masuk daftar (kartu memakai kalimat umum).
+ */
+export function deriveSubtestGoals(
+  choices: ProgramChoice[],
+  subtests: { id: string; to4: number }[],
+  foundationMin: number = 600
+): Map<string, { prodi: string; target: number; kurang: number }> {
+  const goals = new Map<string, { prodi: string; target: number; kurang: number }>();
+  const matched = choices
+    .map((c) => ({ c, m: matchCatalogProgram(c) }))
+    .filter((x): x is { c: ProgramChoice; m: CatalogProgram } => Boolean(x.m?.subtestTargets));
+  subtests.forEach((s) => {
+    let best: { prodi: string; target: number } | null = null;
+    matched.forEach(({ c, m }) => {
+      const t = m.subtestTargets?.[s.id as SubtestKey];
+      if (typeof t !== 'number' || t <= foundationMin) return;
+      if (!best || t > best.target) {
+        best = {
+          prodi: `${c.prodi.replace(/^(S1|D4|D3)\s+/, '')}, ${c.univ.replace(/\s*\([^)]*\)/g, '').trim()}`,
+          target: t
+        };
+      }
+    });
+    if (best) goals.set(s.id, { prodi: best.prodi, target: best.target, kurang: Math.max(0, best.target - s.to4) });
+  });
+  return goals;
+}

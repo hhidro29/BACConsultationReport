@@ -9,6 +9,7 @@ import {
 } from '../data/garudaData';
 import {
   derivePrioritySubtestsForChoice1,
+  deriveSubtestGoals,
   getStudentBaselinePrograms,
   matchCatalogProgram
 } from '../data/programCatalog';
@@ -16,6 +17,7 @@ import { STUDENT_DRILL_DATA } from '../data/drillData';
 import {
   DEFAULT_ENGINE_CONFIG,
   EngineRuleConfig,
+  analyzeStage4,
   classifySubtestPattern,
   computeProgramPacing
 } from '../utils/saGuidelineEngine';
@@ -84,6 +86,15 @@ const PDF_COPY = {
   // Kalimat di bawah ini mengikuti draft tim kesiswaan (REVISI 6).
   why600:
     'Tujuannya agar tidak ada nilai subtes yang terlalu rendah dibandingkan yang lain. Sebab, satu nilai subtes yang rendah bisa memengaruhi nilai akhir, apa pun jurusan yang dipilih.',
+  // Penjelasan dua jenis skor dan asal bobot (usulan, perlu persetujuan kesiswaan dan akademik).
+  skorSubtes: 'Skor Subtes adalah nilai tiap subtes. Angkanya sama untuk semua jurusan.',
+  skorJurusan:
+    'Skor Pembobotan adalah skor subtes yang digabung dengan bobot milik tiap jurusan, sehingga satu siswa punya angka berbeda di setiap jurusan.',
+  bobotOrigin:
+    'Bobot subtes per jurusan disusun tim akademik Ruangguru berdasarkan riset, bukan ketetapan resmi kampus atau panitia SNPMB. Karena itu angka ini menjadi acuan latihan.',
+  targetNote:
+    'Target jurusan adalah skor akhir yang dituju. Target TO berikutnya adalah langkah bertahap menuju target itu.',
+  medianNote: 'Median hanya ringkasan 8 subtes, bukan target.',
   keketatanNote: [
     'Keketatan = daya tampung ÷ peminat.',
     'Daya tampung adalah jumlah kursi SNBT 2026.',
@@ -121,6 +132,8 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   );
 
   const sortedSubtests: SubtestV2[] = [...subtests].sort((a, b) => a.gap - b.gap || a.to4 - b.to4);
+  // Target berikutnya per subtes untuk kartu "Sudah mencapai 600" (semua subtes, menurut pilihan jurusan siswa).
+  const priorityGoalById = deriveSubtestGoals(activePrograms, sortedSubtests, ruleConfig.thresholds.foundationScoreTarget);
   const above600 = sortedSubtests.filter((s) => s.to4 >= 600);
   const below600 = sortedSubtests.filter((s) => s.to4 < 600);
   const to4Score = identity.toScores[identity.toScores.length - 1] ?? 0;
@@ -132,15 +145,12 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
 
   // Label jurusan per subtes: subtes ini prioritas untuk jurusan apa (dikelompokkan per prodi, tanpa "S1"/"D4").
   const priorityProdisById = new Map<string, string[]>();
-  const priorityGoalById = new Map<string, PriorityGoal>();
   activePrograms.forEach((prog) => {
     derivePrioritySubtestsForChoice1(student, prog, foundationTarget).forEach((p) => {
       const list = priorityProdisById.get(p.id) ?? [];
       const name = prog.prodi.replace(/^(S1|D4|D3)\s+/, '');
       if (!list.includes(name)) list.push(name);
       priorityProdisById.set(p.id, list);
-      const cur = priorityGoalById.get(p.id);
-      if (!cur || prog.targetScore > cur.target) priorityGoalById.set(p.id, { prodi: name, target: prog.targetScore, kurang: Math.max(0, -prog.gap) });
     });
   });
 
@@ -289,7 +299,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   const achievedPrograms = activePrograms.filter((p) => p.gap >= 0).length;
   const posisiLine =
     achievedPrograms === 0
-      ? `Belum ada satu pun dari ${toWordsEarly[activePrograms.length] ?? activePrograms.length} pilihan jurusan yang nilainya mencapai target.`
+      ? `Belum ada satu pun dari ${toWordsEarly[activePrograms.length] ?? activePrograms.length} pilihan jurusan yang nilainya mencapai target, sehingga perlu mulai mencari rencana cadangan (Plan B).`
       : `${achievedPrograms} dari ${activePrograms.length} pilihan jurusan nilainya sudah mencapai target.`;
   const focusSubs = weakSubtests.slice(0, 2);
   const aboveNames = above600.map(shortOf);
@@ -312,46 +322,34 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
   const needsPlanBNote = activePrograms.length > 0 && activePrograms.every((p) => p.gap < 0);
 
   // Rencana tindak lanjut halaman 3 (satu kalimat per butir).
-  const programTargets = activePrograms
-    .map((p) => {
-      const pacing = computeProgramPacing(p.weightedScore, p.targetScore, p.gap, ruleConfig);
-      return `Pilihan ${p.priority.replace(/\D+/g, '') || p.priority} ${pacing.isAchieved ? 'terlewati' : `≥ ${pacing.nextToTargetScore}`}`;
-    })
-    .join(' · ');
+  const programTargetList = activePrograms.map((p) => {
+    const pacing = computeProgramPacing(p.weightedScore, p.targetScore, p.gap, ruleConfig);
+    return { name: `${p.prodi}, ${p.univ.replace(/\s*\([^)]*\)/g, '').trim()}`, target: pacing.isAchieved ? 'Terlewati' : `≥ ${pacing.nextToTargetScore}` };
+  });
   const firstName = identity.name.split(' ')[0];
-  const rencanaItems: { title: string; text: string; bullets?: { label: string; text: string }[] }[] = [
+  // Satu sumber dengan dashboard: teks rencana dari engine (analyzeStage4), bisa diedit di /engine.
+  const rencanaItems = analyzeStage4(
     {
-      title: 'Latihan mingguan',
-      text:
-        weakSubtests.length > 0
-          ? `Minimal ${drillTotal} soal benar per minggu di aplikasi Ruangguru: ${ruleConfig.thresholds.drillRank1}, ${ruleConfig.thresholds.drillRank2}, dan ${ruleConfig.thresholds.drillRank3} soal benar untuk tiga subtes terendah, ${ruleConfig.thresholds.minDrillPerSubtest} untuk subtes lainnya.`
-          : 'Pertahankan konsistensi latihan mingguan di aplikasi Ruangguru.'
+      studentName: identity.name,
+      studentFirstName: firstName,
+      saName: identity.saName,
+      parentName: identity.parentName,
+      nextEpisode: latestEp + 1,
+      planData: {
+        subtests: sortedSubtests.map((x) => ({ name: x.name, to4: x.to4, gap: x.gap })),
+        branch: identity.branch,
+        avgScore: 0,
+        episode: latestEp,
+        needsPlanB: needsPlanBNote,
+        programTargetList
+      }
     },
-    {
-      title: `Target Tryout ${latestEp + 1}`,
-      text: `${weakSubtests.length > 0 ? `Semua subtes minimal ${foundationTarget}.` : `Pertahankan semua subtes di atas ${foundationTarget}.`} Nilai jurusan: ${programTargets}.`
-    },
-    ...(needsPlanBNote ? [{ title: 'Plan B', text: PDF_COPY.planB }] : []),
-    {
-      title: 'Dukungan Orang Tua',
-      text: `Dampingi proses belajar ${firstName}`,
-      bullets: [
-        { label: 'Setiap hari', text: `Berikan dukungan kepada ${firstName} agar terbiasa belajar secara mandiri di rumah dan tetap memiliki waktu istirahat yang cukup.` },
-        {
-          label: 'Setiap akhir pekan',
-          text:
-            weakSubtests.length > 0
-              ? `Luangkan waktu untuk mengevaluasi progres belajar ${firstName} melalui aplikasi Ruangguru. Dukung ${firstName} dalam mencapai target ${drillTotal} soal benar setiap minggu, sesuai pembagian target masing-masing subtes.`
-              : `Luangkan waktu untuk mengevaluasi progres belajar ${firstName} melalui aplikasi Ruangguru. Dukung ${firstName} agar tetap konsisten berlatih setiap minggu.`
-        },
-        { label: 'Jika target belum tercapai', text: `Ajak ${firstName} berdiskusi mengenai kesulitan yang dialami, berikan motivasi, dan komunikasikan perkembangannya kepada Kakak Asuh.` }
-      ] as { label: string; text: string }[]
-    }
-  ];
+    ruleConfig
+  ).actionPlans;
 
   const homeCity = identity.branch.split('-')[0].trim();
 
-  const renderSubHead = (no: string, title: string) => (
+  const renderSubHead = (no: string, title: string, right?: string) => (
     <div
       style={{
         display: 'flex',
@@ -367,6 +365,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
     >
       {no && <span style={{ color: '#58aebd' }}>{no}</span>}
       <span>{title}</span>
+      {right && <span style={{ marginLeft: 'auto', fontSize: fs(8.6), fontWeight: 600, color: '#5b6b80', whiteSpace: 'nowrap' }}>{right}</span>}
     </div>
   );
 
@@ -505,7 +504,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               <h2 className="profiling-print-section-title">
                 <span>Perbandingan Pilihan Jurusan</span>
               </h2>
-              {renderSubHead('', `Evaluasi Skor TO UTBK Regular Episode ${latestEp} terhadap Pilihan Jurusan (menggunakan sistem skoring IRT Pembobotan)`)}
+              {renderSubHead('', `Evaluasi Skor Pembobotan TO UTBK Regular Episode ${latestEp} terhadap Pilihan Jurusan`, 'Sumber: data SNPMB 2026')}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.8mm' }}>
                 {activePrograms.map((prog, idx) => {
                   const gapColor = prog.gap >= 0 ? '#027a48' : '#b42318';
@@ -530,13 +529,13 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                           </div>
                         </div>
                         <div style={{ fontSize: fs(8.2), color: '#475467', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                          {cat ? `Peminat ${cat.applicants2025.toLocaleString('id-ID')} · ` : ''}Keketatan {prog.tightness}
+                          {cat ? <>Daya tampung <strong style={{ color: '#0f172a' }}>{quota}</strong> · Peminat <strong style={{ color: '#0f172a' }}>{cat.applicants2025.toLocaleString('id-ID')}</strong> · </> : ''}Keketatan <strong style={{ color: '#0f172a' }}>{prog.tightness}</strong>
                         </div>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1.75fr 1fr', gap: '3.4mm', marginTop: '1.8mm', alignItems: 'stretch' }}>
                         <div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={capStyle}>Nilai terbobot TO {latestEp} (IRT) vs target</span>
+                            <span style={capStyle}>Nilai TO {latestEp} (IRT) vs target</span>
                             <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: fs(9.4), fontWeight: 800, color: gapColor, background: gapBg, borderRadius: 4, padding: '0.5mm 2.4mm' }}>
                               Selisih {prog.gap >= 0 ? `+${prog.gap}` : prog.gap}
                             </span>
@@ -552,7 +551,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                             <span>Peringkat TO {latestEp} (prodi &amp; kampus sama)</span>
                             {participants > 0 ? (
                               <span>
-                                <strong style={{ color: rank > quota ? '#b42318' : '#027a48', fontSize: fs(9.8) }}>{rank}</strong> dari {participants} (daya tampung {quota})
+                                <strong style={{ color: rank > quota ? '#b42318' : '#027a48', fontSize: fs(9.8) }}>{rank}</strong> dari {participants}
                               </span>
                             ) : (
                               <span>—</span>
@@ -562,7 +561,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         <div style={{ background: '#e6f4f2', borderRadius: 3, padding: '1.6mm 2.6mm', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                           <div style={{ ...capStyle, color: '#245f5a' }}>Target berikutnya</div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '1mm', paddingBottom: '1mm', borderBottom: '1px solid #c4dfdb' }}>
-                            <span style={{ fontSize: fs(9.2), color: '#334155' }}>Target Nilai TO {latestEp + 1}</span>
+                            <span style={{ fontSize: fs(9.2), color: '#334155' }}>Target TO {latestEp + 1}</span>
                             <strong style={{ fontSize: fs(13), color: '#245f5a' }}>{pacing.isAchieved ? 'Terlewati' : `≥ ${pacing.nextToTargetScore}`}</strong>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '1mm' }}>
@@ -578,6 +577,9 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
 
               <div style={{ background: '#f2f8f7', borderLeft: '3px solid #58aebd', borderRadius: 3, padding: '1.3mm 2.6mm', marginTop: '2.4mm', fontSize: fs(10), color: '#0f172a', lineHeight: 1.45 }}>
                 <strong style={{ color: '#245f5a' }}>Kesimpulan.</strong> {posisiLine}
+              </div>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 3, padding: '1.5mm 2.8mm', marginTop: '2mm', fontSize: fs(9.2), color: '#334155', lineHeight: 1.45 }}>
+                <strong style={{ color: '#245f5a' }}>Catatan.</strong> Nilai dan peringkat siswa sama-sama penting untuk dicapai.
               </div>
             </div>
 
@@ -604,7 +606,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                 <span>Breakdown per Subtes</span>
               </h2>
               <div className="profiling-print-section-sub" style={{ color: '#245f5a', fontWeight: 700, fontSize: fs(9.8) }}>
-                Kenapa semua subtes ditargetkan mencapai {foundationTarget}? {PDF_COPY.why600} <span>{countLine}</span>
+                {PDF_COPY.skorSubtes} Kenapa semua subtes ditargetkan mencapai {foundationTarget}? {PDF_COPY.why600} <span>{countLine}</span>
               </div>
               <table className="profiling-print-table profiling-print-table--tight">
                 <thead>
@@ -679,6 +681,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.2mm' }}>
                   <span style={{ width: 9, height: 9, background: '#12b76a', display: 'inline-block', borderRadius: 9 }} /> Tercapai ({foundationTarget}+)
                 </span>
+                <span style={{ color: '#475467' }}>{PDF_COPY.medianNote}</span>
                 {priorityProdisById.size > 0 && (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.4mm', color: '#475467', fontWeight: 600 }}>
                     {Array.from(new Set(activePrograms.map((p) => p.prodi.replace(/^(S1|D4|D3)\s+/, '')))).filter((n) => [...priorityProdisById.values()].some((l) => l.includes(n))).map((n) => {
@@ -775,12 +778,12 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
               <div className="profiling-print-section-sub">{toWordsEarly[rencanaItems.length] ? `${toWordsEarly[rencanaItems.length][0].toUpperCase()}${toWordsEarly[rencanaItems.length].slice(1)}` : rencanaItems.length} langkah yang disepakati untuk persiapan TO {latestEp + 1}.</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2mm' }}>
                 {rencanaItems.map((item, i) => (
-                  <div key={item.title} style={{ display: 'grid', gridTemplateColumns: '7mm 1fr', columnGap: '3mm', alignItems: 'start', background: '#f2f8f7', borderRadius: 6, padding: '2.4mm 3.4mm', breakInside: 'avoid' }}>
+                  <div key={item.num} style={{ display: 'grid', gridTemplateColumns: '7mm 1fr', columnGap: '3mm', alignItems: 'start', background: '#f2f8f7', borderRadius: 6, padding: '2.4mm 3.4mm', breakInside: 'avoid' }}>
                     <span style={{ width: '6.4mm', height: '6.4mm', borderRadius: '50%', background: '#245f5a', color: '#ffffff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: fs(9), fontWeight: 800 }}>{i + 1}</span>
                     <div style={{ fontSize: fs(10.2), color: '#1d2939', lineHeight: 1.45 }}>
                       {item.bullets ? (
                         <>
-                          <strong style={{ color: '#245f5a' }}>{item.title}: {item.text}</strong>
+                          <strong style={{ color: '#245f5a' }}>{item.title}: {item.desc}</strong>
                           <ul style={{ margin: '1mm 0 0', paddingLeft: '4.4mm' }}>
                             {item.bullets.map((b) => (
                               <li key={b.label} style={{ marginBottom: '0.8mm' }}><strong style={{ color: '#245f5a' }}>{b.label}:</strong> {b.text}</li>
@@ -789,7 +792,7 @@ export const V2PdfModal: React.FC<V2PdfModalProps> = ({
                         </>
                       ) : (
                         <>
-                          <strong style={{ color: '#245f5a' }}>{item.title}.</strong> {item.text}
+                          <strong style={{ color: '#245f5a' }}>{item.title}.</strong> {item.desc}
                         </>
                       )}
                     </div>

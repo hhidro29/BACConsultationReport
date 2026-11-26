@@ -108,6 +108,10 @@ export interface ClassroomTemplates {
   repeatedAbsence: string;
   noNotes: string;
   lowNotes: string;
+  /** Poin ke-2 bila catatan pengajar cukup dan tidak ada sesi terlewat berulang */
+  notesOk: string;
+  /** Poin ke-3 kartu panduan */
+  agreeTask: string;
   guardrailMissingNotes: string;
   guardrailAllNotes: string;
 }
@@ -139,9 +143,11 @@ export interface NotesGuidanceTemplates {
  */
 export interface GuideCardTemplates {
   t1Title: string;
+  t1Goal: string;
   t1Rambu: string;
   t1MedianContext: string;
   t2Title: string;
+  t2Goal: string;
   t2Rambu: string;
   t3Title: string;
   t3Goal: string;
@@ -158,8 +164,18 @@ export interface GuideCardTemplates {
 /** Teks Tahap 3 (audit drill keseluruhan). Placeholder: {topName} {topQ} {lowNames} {lowQ} */
 export interface Stage3OverallTemplates {
   mismatchNote: string;
-  /** Tugas SA: satu poin per baris */
+  /** Poin panduan SA (kondisi biasa): satu poin per baris, urutan: target, dengarkan, sepakati */
   tasks: string;
+  /** Poin panduan SA bila semua subtes sudah mencapai target: satu poin per baris */
+  tasksAchieved: string;
+  /** Pengganti poin ke-2 bila ada subtes di bawah target tanpa drill soal. Placeholder: {noDrillNames} */
+  taskNoDrill: string;
+  /** Pengganti poin ke-2 bila drill menumpuk di satu subtes. Placeholder: {topName} {topQ} {lowNames} {lowQ} */
+  taskMismatch: string;
+  /** Hindari bila ada subtes tanpa drill soal */
+  rambuNoDrill: string;
+  /** Hindari bila drill menumpuk di satu subtes */
+  rambuMismatch: string;
   guardrail: string;
 }
 
@@ -185,9 +201,14 @@ export interface ActionPlanTemplates {
   planBDesc: string;
   planBPic: string;
   plan4Title: string;
+  /** Kalimat pembuka rencana 4 (tebal) */
   plan4Desc: string;
-  /** Ditambahkan setelah isi rencana 4 bila masih ada subtes di bawah target */
-  plan4DrillSuffix: string;
+  plan4Daily: string;
+  /** Dipakai bila masih ada subtes di bawah target */
+  plan4Weekly: string;
+  /** Dipakai bila semua subtes sudah mencapai target */
+  plan4WeeklyAchieved: string;
+  plan4Fallback: string;
   plan4Pic: string;
   /** Checklist penutup: satu poin per baris */
   checklist: string;
@@ -215,8 +236,12 @@ export interface Stage2Templates {
   exceedTarget: string;
   lowParticipantsWarning: string;
   defaultBenchmarkNote: string;
-  /** Kalimat observasi bila data selisih tersedia. Placeholder: {max} {min} */
+  /** Semua pilihan masih di bawah target. Placeholder: {siswa} {far} (selisih terjauh) {near} (selisih terdekat) */
   observationRange: string;
+  /** Semua pilihan sudah melewati target. Placeholder: {siswa} */
+  observationAhead: string;
+  /** Sebagian pilihan sudah melewati target. Placeholder: {siswa} {far} */
+  observationMixed: string;
   /** Kalimat observasi bila data selisih kosong. */
   observationUnknown: string;
 }
@@ -240,6 +265,8 @@ export interface EngineRuleConfig {
     parentSupportTask: string;
     missingDrillTask: string;
     conflictOrLocationTask: string;
+    /** Poin ke-3 kartu panduan Tahap 5 */
+    closingTask: string;
   };
   stage3OverallTemplates: Stage3OverallTemplates;
   actionPlanTemplates: ActionPlanTemplates;
@@ -279,132 +306,134 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
   },
   patternTemplates: {
     no_data: {
-      observation: 'Belum ada nilai valid untuk membaca perkembangan skor total.',
+      observation: 'Sampaikan hasil tryout {siswa} belum tersedia, jadi perkembangan nilai belum bisa dibaca.',
       label: 'Belum ada nilai',
-      student: 'Pastikan tryout yang diikuti dan ketersediaan hasilnya.',
-      parent: 'Bahas pengalaman mengikuti tryout dan mengakses hasil, termasuk kendala jika ada.',
-      nextStep: 'Lengkapi hasil yang tersedia sebelum membahas perkembangan nilai.'
+      student: 'Tanyakan ke {siswa} tryout mana yang sudah diikuti dan apakah hasilnya bisa dibuka.',
+      parent: 'Dengarkan orang tua soal kendala mengikuti tryout atau membuka hasilnya.',
+      nextStep: 'Sepakati langkah melengkapi hasil tryout sebelum membahas perkembangan nilai.'
     },
     one_result: {
-      observation: 'Baru satu nilai tersedia ({a}). Perkembangan belum dapat disimpulkan.',
+      observation: 'Sampaikan baru satu nilai tryout {siswa} yang tersedia ({a}), jadi perkembangan belum bisa disimpulkan.',
       label: 'Baru satu nilai',
-      student: 'Bahas persiapan dan pengalaman pengerjaan pada tryout yang tercatat.',
-      parent: 'Identifikasi dukungan belajar yang tersedia serta kebutuhan siswa untuk tryout berikutnya.',
-      nextStep: 'Catat pengalaman tryout ini sebagai konteks awal; perkembangan nilai menunggu pembanding.'
+      student: 'Dengarkan cerita {siswa} soal persiapan dan cara mengerjakan tryout ini.',
+      parent: 'Dengarkan orang tua soal dukungan belajar yang ada dan yang dibutuhkan untuk tryout berikutnya.',
+      nextStep: 'Sepakati tryout ini sebagai titik awal; perkembangan dibaca setelah ada pembanding.'
     },
     initial_up: {
-      observation: 'Skor naik dari {a} menjadi {b} ({selisih}). Baru dua hasil tersedia.',
+      observation: 'Sampaikan nilai {siswa} naik dari {a} menjadi {b} ({selisih}). Baru dua tryout, jadi belum bisa disebut tren.',
       label: 'Baru 2 TO: naik',
-      student: 'Bandingkan persiapan dan pengalaman pengerjaan pada dua tryout yang tercatat.',
-      parent: 'Bahas rutinitas dan dukungan belajar di antara kedua tryout.',
-      nextStep: 'Rangkum perbedaan pengalaman siswa dan hal yang ingin dievaluasi pada tryout berikutnya.'
+      student: 'Dengarkan {siswa} membandingkan persiapan dan cara mengerjakan di dua tryout ini.',
+      parent: 'Dengarkan orang tua soal rutinitas dan dukungan belajar di antara dua tryout.',
+      nextStep: 'Sepakati hal yang ingin dievaluasi di tryout berikutnya.'
     },
     initial_down: {
-      observation: 'Skor turun dari {a} menjadi {b} ({selisih}). Baru dua hasil tersedia.',
+      observation: 'Sampaikan nilai {siswa} turun dari {a} menjadi {b} ({selisih}). Baru dua tryout, jadi belum bisa disebut tren.',
       label: 'Baru 2 TO: turun',
-      student: 'Bandingkan persiapan, pengalaman pengerjaan, dan pembahasan hasil pada kedua tryout.',
-      parent: 'Bahas rutinitas belajar di antara kedua tryout, termasuk perubahan atau kendala jika ada.',
-      nextStep: 'Catat temuan dari kedua tryout tanpa menyimpulkan penyebab penurunan atau pola berulang.'
+      student: 'Dengarkan {siswa} membandingkan persiapan, cara mengerjakan, dan pembahasan hasil di dua tryout ini.',
+      parent: 'Dengarkan orang tua soal rutinitas belajar di antara dua tryout, termasuk kendala bila ada.',
+      nextStep: 'Sepakati hal yang ingin dievaluasi di tryout berikutnya, tanpa menyimpulkan penyebab penurunan.'
     },
     initial_flat: {
-      observation: 'Dua nilai berada pada rentang sama: {a} → {b}.',
+      observation: 'Sampaikan nilai {siswa} relatif sama di dua tryout ({a} dan {b}).',
       label: 'Baru 2 TO: datar',
-      student: 'Bandingkan jenis soal, pengalaman pengerjaan, dan pengelolaan waktu pada kedua tryout.',
-      parent: 'Bahas rutinitas dan dukungan belajar di antara kedua tryout.',
-      nextStep: 'Rangkum persamaan dan perbedaan pengalaman siswa meskipun kedua nilai serupa.'
+      student: 'Dengarkan {siswa} soal jenis soal dan pengelolaan waktu di dua tryout ini.',
+      parent: 'Dengarkan orang tua soal rutinitas dan dukungan belajar di antara dua tryout.',
+      nextStep: 'Sepakati hal yang ingin dibedakan di tryout berikutnya, walau nilainya serupa.'
     },
     steady_up: {
-      observation: 'Skor naik {jumlah} kali berturut-turut, dari {a} menjadi {b} ({selisih}).',
+      observation: 'Sampaikan nilai {siswa} naik {jumlah} kali berturut-turut, dari {a} menjadi {b} ({selisih}).',
       label: 'Naik konsisten',
-      student: 'Bahas persiapan dan pengerjaan tryout selama periode ini, serta cara siswa membahas hasilnya.',
-      parent: 'Identifikasi rutinitas dan dukungan belajar yang berlangsung selama periode tersebut.',
-      nextStep: 'Rangkum cara belajar yang dinilai membantu oleh siswa serta hal yang ingin dievaluasi.'
+      student: 'Dengarkan {siswa} soal persiapan, cara mengerjakan tryout, dan cara ia membahas hasilnya.',
+      parent: 'Dengarkan orang tua soal rutinitas dan dukungan belajar selama periode ini.',
+      nextStep: 'Sepakati cara belajar yang membantu menurut {siswa} dan hal yang ingin dievaluasi.'
     },
     steady_down: {
-      observation: 'Skor turun {jumlah} kali berturut-turut, dari {a} menjadi {b} ({selisih}).',
+      observation: 'Sampaikan nilai {siswa} turun {jumlah} kali berturut-turut, dari {a} menjadi {b} ({selisih}).',
       label: 'Turun konsisten',
-      student: 'Bahas persiapan dan pengerjaan tryout selama periode ini, serta cara siswa membahas hasilnya.',
-      parent: 'Bahas kondisi dan rutinitas belajar selama periode ini, termasuk perubahan jadwal/aktivitas jika ada.',
-      nextStep: 'Sepakati tindak lanjut berdasarkan contoh pengerjaan dan penjelasan siswa, tanpa menetapkan penyebab dari tren nilai saja.'
+      student: 'Dengarkan {siswa} soal persiapan, cara mengerjakan tryout, dan cara ia membahas hasilnya.',
+      parent: 'Dengarkan orang tua soal kondisi dan rutinitas belajar selama periode ini, termasuk perubahan jadwal.',
+      nextStep: 'Sepakati tindak lanjut dari cerita {siswa} dan contoh pengerjaannya, tanpa menetapkan penyebab dari tren nilai saja.'
     },
     steady_flat: {
-      observation: 'Skor sama/stabil pada setiap perpindahan hasil ({a} → {b}).',
+      observation: 'Sampaikan nilai {siswa} stabil di setiap tryout ({a} sampai {b}).',
       label: 'Stabil / datar',
-      student: 'Bandingkan jenis soal dan cara pengerjaan antartryout, termasuk kesulitan atau perubahan yang dirasakan siswa.',
-      parent: 'Identifikasi rutinitas, dukungan yang tersedia, dan kebutuhan belajar menurut siswa serta orang tua.',
-      nextStep: 'Rangkum perkembangan dari contoh pengerjaan; nilai yang tetap belum menjelaskan penguasaan materi.'
+      student: 'Dengarkan {siswa} soal jenis soal dan cara mengerjakan antartryout, termasuk kesulitan yang dirasakan.',
+      parent: 'Dengarkan orang tua soal rutinitas dan kebutuhan belajar {siswa}.',
+      nextStep: 'Sepakati langkah dari contoh pengerjaan; nilai yang tetap belum menjelaskan penguasaan materi.'
     },
     up_with_pauses: {
-      observation: 'Skor cenderung naik ({a} → {b}), diselingi hasil yang datar.',
+      observation: 'Sampaikan nilai {siswa} cenderung naik ({a} menjadi {b}), diselingi hasil yang datar.',
       label: 'Cenderung naik',
-      student: 'Bandingkan persiapan dan pengalaman pada tryout dengan nilai meningkat dan nilai tetap.',
-      parent: 'Bahas rutinitas dan dukungan belajar selama periode tersebut.',
-      nextStep: 'Catat persamaan dan perbedaan pengalaman serta hal yang ingin ditinjau pada hasil berikutnya.'
+      student: 'Dengarkan {siswa} membandingkan persiapan di tryout yang nilainya naik dan yang tetap.',
+      parent: 'Dengarkan orang tua soal rutinitas dan dukungan belajar selama periode ini.',
+      nextStep: 'Sepakati hal yang ingin ditinjau di hasil berikutnya.'
     },
     down_with_pauses: {
-      observation: 'Skor cenderung turun ({a} → {b}), diselingi hasil yang datar.',
+      observation: 'Sampaikan nilai {siswa} cenderung turun ({a} menjadi {b}), diselingi hasil yang datar.',
       label: 'Cenderung turun',
-      student: 'Bandingkan persiapan dan pengalaman pada tryout dengan nilai menurun dan nilai tetap.',
-      parent: 'Bahas rutinitas dan kondisi belajar selama periode tersebut, termasuk kendala jika ada.',
-      nextStep: 'Sepakati fokus pembahasan berdasarkan contoh pengerjaan dan pengalaman siswa.'
+      student: 'Dengarkan {siswa} membandingkan persiapan di tryout yang nilainya turun dan yang tetap.',
+      parent: 'Dengarkan orang tua soal kondisi belajar selama periode ini, termasuk kendala bila ada.',
+      nextStep: 'Sepakati fokus pembahasan dari pengalaman {siswa} dan contoh pengerjaannya.'
     },
     recovery: {
-      observation: 'Skor terakhir kembali naik setelah sempat turun ({a} → {b}).',
+      observation: 'Sampaikan nilai terakhir {siswa} naik lagi setelah sempat turun ({a} menjadi {b}).',
       label: 'Kembali naik',
-      student: 'Bandingkan persiapan dan pengalaman pada tryout terakhir dengan tryout sebelumnya.',
-      parent: 'Bahas kondisi, rutinitas, dan dukungan belajar menjelang tryout terakhir.',
-      nextStep: 'Catat perbedaan pengalaman untuk ditinjau pada hasil berikutnya; satu kenaikan belum menunjukkan konsistensi.'
+      student: 'Dengarkan {siswa} membandingkan persiapan di tryout terakhir dengan tryout sebelumnya.',
+      parent: 'Dengarkan orang tua soal kondisi dan dukungan belajar menjelang tryout terakhir.',
+      nextStep: 'Sepakati untuk memantau hasil berikutnya; satu kenaikan belum berarti konsisten.'
     },
     reversal_down: {
-      observation: 'Skor terakhir kembali turun setelah sempat naik ({a} → {b}).',
+      observation: 'Sampaikan nilai terakhir {siswa} turun lagi setelah sempat naik ({a} menjadi {b}).',
       label: 'Menurun di akhir',
-      student: 'Bandingkan persiapan dan pengalaman pada tryout terakhir dengan tryout sebelumnya.',
-      parent: 'Bahas kondisi, rutinitas, dan dukungan belajar menjelang tryout terakhir.',
-      nextStep: 'Catat perbedaan pengalaman untuk ditinjau pada hasil berikutnya; satu penurunan belum menunjukkan konsistensi.'
+      student: 'Dengarkan {siswa} membandingkan persiapan di tryout terakhir dengan tryout sebelumnya.',
+      parent: 'Dengarkan orang tua soal kondisi dan dukungan belajar menjelang tryout terakhir.',
+      nextStep: 'Sepakati untuk memantau hasil berikutnya; satu penurunan belum berarti konsisten.'
     },
     fluctuating_up: {
-      observation: 'Skor naik-turun; nilai akhir lebih tinggi daripada awal ({a} → {b}).',
+      observation: 'Sampaikan nilai {siswa} naik-turun, tetapi nilai akhir lebih tinggi dari awal ({a} menjadi {b}).',
       label: 'Naik-turun, membaik',
-      student: 'Bandingkan persiapan dan pengalaman pada tryout dengan nilai lebih tinggi dan lebih rendah.',
-      parent: 'Bahas rutinitas dan dukungan belajar antartryout, termasuk perbedaan jika ada.',
-      nextStep: 'Rangkum persamaan dan perbedaan pengalaman di sepanjang riwayat, termasuk hal yang ingin dievaluasi.'
+      student: 'Dengarkan {siswa} membandingkan persiapan di tryout yang nilainya tinggi dan rendah.',
+      parent: 'Dengarkan orang tua soal rutinitas dan dukungan belajar antartryout.',
+      nextStep: 'Sepakati hal yang ingin dievaluasi dari perbedaan pengalaman {siswa} di tiap tryout.'
     },
     fluctuating_down: {
-      observation: 'Skor naik-turun; nilai akhir lebih rendah daripada awal ({a} → {b}).',
+      observation: 'Sampaikan nilai {siswa} naik-turun, dan nilai akhir lebih rendah dari awal ({a} menjadi {b}).',
       label: 'Naik-turun, melemah',
-      student: 'Bandingkan persiapan dan pengalaman pada tryout dengan nilai lebih rendah dan lebih tinggi.',
-      parent: 'Bahas rutinitas dan kondisi belajar antartryout, termasuk kendala jika ada.',
-      nextStep: 'Sepakati fokus tindak lanjut berdasarkan pengalaman siswa dan contoh pengerjaan.'
+      student: 'Dengarkan {siswa} membandingkan persiapan di tryout yang nilainya rendah dan tinggi.',
+      parent: 'Dengarkan orang tua soal rutinitas dan kondisi belajar antartryout, termasuk kendala bila ada.',
+      nextStep: 'Sepakati fokus tindak lanjut dari pengalaman {siswa} dan contoh pengerjaannya.'
     },
     fluctuating_flat: {
-      observation: 'Skor naik-turun, dengan nilai awal dan akhir serupa ({a} → {b}).',
+      observation: 'Sampaikan nilai {siswa} naik-turun, dengan nilai awal dan akhir serupa ({a} dan {b}).',
       label: 'Naik-turun, skor sama',
-      student: 'Bandingkan persiapan dan pengalaman pada tryout dengan nilai lebih tinggi dan lebih rendah di sepanjang riwayat.',
-      parent: 'Bahas kondisi, rutinitas, dan dukungan belajar selama periode nilai naik-turun.',
-      nextStep: 'Rangkum perbedaan pengalaman sepanjang riwayat; kesamaan nilai awal dan akhir belum menunjukkan kestabilan.'
+      student: 'Dengarkan {siswa} membandingkan persiapan di tryout yang nilainya tinggi dan rendah.',
+      parent: 'Dengarkan orang tua soal kondisi dan dukungan belajar selama periode naik-turun ini.',
+      nextStep: 'Sepakati hal yang ingin dievaluasi dari perbedaan pengalaman di tiap tryout.'
     }
   },
   stage2Templates: {
     mixedOrDifferent:
-      'Konfirmasi minat utama siswa dan harapan orang tua antarprodi yang berbeda rumpun sebelum membahas alternatif atau cadangan.',
+      'Sepakati satu jurusan utama yang benar-benar ingin dikejar {siswa}, dengan mempertimbangkan harapan orang tua.',
     aligned:
-      'Konfirmasi apakah urutan Pilihan 1–3 masih menjadi prioritas utama siswa dan keluarga.',
+      'Sepakati urutan pilihan jurusan {siswa} yang akan dikejar bersama keluarga.',
     unconfirmed:
-      'Pastikan apakah pilihan yang tercatat sudah didiskusikan bersama orang tua dan sesuai dengan minat siswa.',
+      'Sepakati bersama {siswa} dan orang tua bahwa pilihan jurusan yang tercatat sudah sesuai.',
     locationCheck:
-      'Pastikan kesepakatan batasan lokasi kampus (izin kuliah luar kota, biaya, dan preferensi wilayah keluarga).',
+      'Sepakati batas lokasi kuliah dan biaya yang sanggup ditanggung keluarga, supaya pilihan jurusan realistis.',
     wideGap:
-      'Bahas komitmen progres bertahap menuju konsultasi berikutnya untuk mengejar dan menembus target acuan. Siapkan jurusan cadangan (Plan B) bersama Kakak Asuh jika laju kenaikan per TO terasa terlalu berat, tanpa langsung mematahkan motivasi di Pilihan 1.',
+      'Sampaikan nilai {siswa} masih kurang {far} poin dari target jurusan terjauh. Sepakati kenaikan per TO yang realistis, dan jelaskan jurusan cadangan (Plan B) sebagai pengaman.',
     remainingGap:
-      'Arahkan progres 3 TO ke depan agar skor terbobot melewati Target Acuan pada konsultasi berikutnya, sambil tetap menjaga margin terhadap pesaing di prodi tujuan.',
+      'Sampaikan nilai {siswa} sudah dekat dengan target jurusan. Sepakati kenaikan per TO sampai nilai jurusan melewati target.',
     exceedTarget:
-      'Skor sudah melampaui Target Acuan. Arahkan fokus pada menjaga konsistensi dan memperlebar margin aman di atas pesaing hingga akhir rangkaian TO/UTBK (karena pesaing juga terus bertumbuh).',
+      'Sampaikan nilai {siswa} sudah melewati target jurusan. Sepakati cara menjaga konsistensi supaya selisihnya tetap aman.',
     lowParticipantsWarning:
-      'Data pembanding internal di bawah batas minimum peserta ({count} < {limit} pemilih); jangan dipakai sebagai klaim posisi aman maupun jaminan SNPMB.',
+      'Pembanding hanya {count} peserta (di bawah batas {limit}), jadi jangan dipakai untuk menyebut posisi aman atau menjamin lolos SNPMB.',
     defaultBenchmarkNote:
-      'Target Acuan adalah patokan historis internal Ruangguru, bukan garis aman yang diam. Siswa perlu melewati acuan di konsultasi berikutnya lalu memaksimalkan margin skor di atas pesaing sampai akhir rangkaian TO/UTBK.',
-    observationRange: 'Jarak skor terbobot terhadap target acuan berada pada rentang {max} s.d. {min} poin.',
-    observationUnknown: 'Data jarak skor terbobot terhadap target acuan belum tersedia.'
+      'Target ini acuan latihan internal Ruangguru, bukan jaminan lolos SNPMB.',
+    observationRange: 'Nilai {siswa} masih kurang {near} sampai {far} poin dari target jurusan.',
+    observationAhead: 'Nilai {siswa} sudah melewati target jurusan.',
+    observationMixed: 'Sebagian pilihan sudah melewati target, yang lain masih kurang {far} poin.',
+    observationUnknown: 'Selisih nilai ke target jurusan belum tersedia.'
   },
   stage3SubtestTemplates: {
     no_drill: {
@@ -452,41 +481,46 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
   },
   stage4Templates: {
     scheduleTask:
-      'Konfirmasi hari, jam, dan target drill soal mingguan yang realistis dijalankan siswa tanpa bentrok jadwal sekolah (acuan tim: minimal {drillWeekly} soal benar per minggu, yaitu {drillTiers}).',
+      'Sepakati hari dan jam drill soal {siswa} yang tidak bentrok dengan jadwal sekolah, dengan target minimal {drillWeekly} soal benar per minggu.',
     parentSupportTask:
-      'Bahas bentuk dukungan dan pemantauan belajar yang paling nyaman dilakukan orang tua di rumah.',
+      'Tanyakan ke orang tua bentuk dukungan dan pemantauan belajar yang paling nyaman dilakukan di rumah.',
     missingDrillTask:
-      'Pastikan jadwal dan topik latihan untuk subtes dengan data drill masih minim.',
+      'Sepakati jadwal dan topik latihan untuk subtes yang drill soalnya masih sedikit.',
     conflictOrLocationTask:
-      'Catat poin pilihan prodi atau batasan lokasi yang belum final agar dapat dicek ulang pada sesi berikutnya.'
+      'Catat pilihan jurusan atau batas lokasi yang belum final, agar bisa dicek ulang di sesi berikutnya.',
+    closingTask:
+      'Tulis di Catatan Kakak Asuh apa yang disepakati, siapa mengerjakan apa, dan kapan dicek. Lalu serahkan PDF laporan ke {siswa} dan orang tua.'
   },
   stage1Templates: {
     foundationAllBelow500:
-      'Seluruh subtes saat ini masih berada di bawah 500 (tahap fondasi awal). Fokuskan target jangka pendek pada 2–3 subtes terdekat sebelum membidik {target} di semua subtes.',
+      'Sampaikan semua subtes {siswa} masih di bawah 500, jadi targetnya bertahap: kejar 2–3 subtes terdekat dulu sebelum semua subtes mencapai {target}.',
     foundationAllAbove:
-      'Seluruh subtes telah mencapai batas acuan ≥ {target}. Fokus pembahasan dapat diarahkan ke pemantapan subtes berbobot prodi.',
+      'Sampaikan semua subtes {siswa} sudah mencapai {target}. Fokus berikutnya memantapkan subtes yang berbobot untuk jurusan pilihan.',
     foundationPartial:
-      'Terdapat {above} dari {total} subtes di atas {target}. Soroti kekuatan tersebut sebelum membahas subtes dengan gap terbesar.',
+      'Sampaikan {above} dari {total} subtes {siswa} sudah mencapai {target}. Apresiasi dulu kekuatan itu sebelum membahas subtes yang masih jauh.',
     foundationNone:
-      'Belum ada subtes yang menyentuh {target}. Jadikan target bertahap tiap subtes sebagai fokus awal.',
+      'Sampaikan belum ada subtes {siswa} yang mencapai {target}. Sepakati target bertahap per subtes sebagai langkah awal.',
     swing:
-      'Terdapat fluktuasi ≥ {swing} poin pada {names}. Gunakan nilai Median pribadi siswa untuk melihat performa tipikal.',
+      'Sampaikan nilai {names} naik-turun lebih dari {swing} poin, jadi baca nilai tengah (median) sebagai gambaran sehari-hari {siswa}.',
     attendance:
-      'Kehadiran kelas tercatat {pct}% (< {warn}%). Konfirmasi kendala jadwal atau kehadiran sebelum menyusun target baru.',
+      'Tanyakan ke {siswa} kendala jadwal atau kehadiran kelas (tercatat {pct}%, di bawah {warn}%) sebelum menyusun target baru.',
     latestDeltaSuffix: ' Perubahan terakhir: {delta} poin.'
   },
   classroomTemplates: {
-    noSessions: 'Belum ada sesi kelas TMB yang tercatat pada periode ini; kehadiran belum dapat dinilai.',
+    noSessions: 'Sampaikan belum ada sesi kelas TMB {siswa} yang tercatat pada periode ini, jadi kehadiran belum bisa dibaca.',
     lowAttendance:
-      'Kehadiran kelas TMB tercatat {pct}% ({present}/{total} sesi). Gali kendala jadwal, kesehatan, atau perjalanan terlebih dahulu sebelum menambah target belajar baru.',
+      'Tanyakan ke {siswa} kendala jadwal atau kehadiran kelas TMB (tercatat {pct}%, {present} dari {total} sesi) sebelum menambah target belajar baru.',
     goodAttendance:
-      'Kehadiran kelas TMB sudah baik ({pct}%, {present}/{total} sesi). Cocokkan catatan pengajar di tabel dengan subtes yang skor TO-nya masih perlu penguatan.',
+      'Sampaikan kehadiran kelas TMB {siswa} sudah baik ({pct}%, {present} dari {total} sesi). Apresiasi konsistensinya.',
     repeatedAbsence:
-      'Pastikan siswa sudah mengejar materi dari {absent} sesi tidak hadir ({sick} sakit, {excused} izin) melalui rekaman kelas.',
+      'Pastikan {siswa} mengejar materi dari {absent} sesi yang tidak hadir ({sick} sakit, {excused} izin) lewat rekaman kelas.',
     noNotes:
-      'Belum ada catatan tertulis pengajar pada periode ini; tanyakan langsung ke siswa materi kelas mana yang masih terasa sulit.',
+      'Tanyakan ke {siswa} materi kelas mana yang masih terasa sulit, karena belum ada catatan tertulis pengajar pada periode ini.',
     lowNotes:
-      'Baru {notes} dari {total} sesi ({notesPct}%) yang memiliki catatan tertulis pengajar. Jangan menyimpulkan siswa pasif dari sedikitnya catatan; validasi langsung bersama siswa.',
+      'Tanyakan ke {siswa} materi kelas mana yang masih terasa sulit, karena baru {notes} dari {total} sesi ({notesPct}%) yang punya catatan tertulis pengajar.',
+    notesOk:
+      'Bahas catatan pengajar bersama {siswa}, lalu cocokkan dengan subtes yang nilainya masih perlu penguatan.',
+    agreeTask: 'Sepakati satu hal yang akan dilakukan {siswa} agar tidak tertinggal materi kelas.',
     guardrailMissingNotes:
       'Data menampilkan rekaman asli Student Tower tanpa pemrosesan AI. Dari {total} sesi tercatat, {emptyNotes} sesi belum memiliki catatan tertulis — artinya belum diisi pengajar, bukan berarti siswa pasif.',
     guardrailAllNotes:
@@ -496,32 +530,47 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
     mismatchNote:
       'Terdeteksi ketimpangan fokus drill soal: drill soal terbanyak ada di {topName} ({topQ} soal), sedangkan {lowNames} baru ≤ {lowQ} soal.',
     tasks:
-      'Tinjau cara siswa memilih subtes saat drill soal di aplikasi dan pastikan apakah drill soal diarahkan pada subtes dengan gap terbesar.\n' +
-      'Konfirmasi apakah ada drill soal mandiri dari buku/sumber di luar aplikasi serta bagaimana siswa membahas soal yang dijawab salah.\n' +
-      'Sepakati 1–2 topik akurasi terendah yang akan diprioritaskan dalam latihan berikutnya.',
+      'Sampaikan target drill soal {siswa}: {drillWeekly} soal benar per minggu, dibagi ke {weakCount} subtes yang masih di bawah {target}.\n' +
+      'Dengarkan {siswa} soal cara ia memilih subtes saat drill dan membahas soal yang dijawab salah.\n' +
+      'Sepakati 1–2 topik dengan akurasi terendah yang diprioritaskan di latihan berikutnya.',
+    tasksAchieved:
+      'Sampaikan semua subtes {siswa} sudah mencapai {target}. Apresiasi konsistensinya.\n' +
+      'Dengarkan {siswa} soal cara ia menjaga ritme drill soal selama ini.\n' +
+      'Sepakati target berikutnya agar nilai tetap di atas {target}.',
+    taskNoDrill:
+      'Tanyakan ke {siswa} apakah ada drill soal di luar aplikasi atau kendala membuka drill soal di {noDrillNames}.',
+    taskMismatch:
+      'Sampaikan drill soal {siswa} paling banyak di {topName} ({topQ} soal), sedangkan {lowNames} baru {lowQ} soal atau kurang. Sepakati sebagian drill dialihkan ke subtes tersebut.',
+    rambuNoDrill:
+      'Menyimpulkan {siswa} malas karena data drill tercatat 0; data kosong hanya berarti belum tercatat di aplikasi.',
+    rambuMismatch:
+      'Menegur {siswa} karena drill menumpuk di satu subtes; apresiasi konsistensinya dulu, lalu arahkan ke subtes dengan nilai terendah.',
     guardrail:
       '1 sesi dapat tercatat meskipun kurang dari 10 soal. Selalu baca jumlah sesi bersama total butir soal & akurasinya, dan jangan memarahi siswa saat data aplikasi bernilai 0.'
   },
   actionPlanTemplates: {
-    plan1Title: 'Drill Soal Mingguan',
-    plan1Desc:
-      'Target minimal {drillWeekly} soal benar per minggu di aplikasi Ruangguru, dibagi ke {weakCount} subtes di bawah {target}: {drillTiers}.',
-    plan1DescAchieved:
-      'Seluruh subtes sudah mencapai {target}. Pertahankan konsistensi drill mingguan di aplikasi Ruangguru.',
+    plan1Title: 'Latihan mingguan',
+    plan1Desc: 'Minimal {drillWeekly} soal benar per minggu di aplikasi Ruangguru: {drillTiers}.',
+    plan1DescAchieved: 'Pertahankan konsistensi latihan mingguan di aplikasi Ruangguru.',
     plan1Pic: '{student} (dipantau bersama {sa})',
-    plan3Title: 'Target Evaluasi Tryout {nextEpisode}',
-    plan3Desc: 'Semua subtes minimal {target}: bawa {weakCount} subtes yang masih di bawah {target} ke {target} atau lebih.',
-    plan3ProgramSuffix: ' Nilai jurusan: {programTargets}.',
-    plan3DescAchieved:
-      'Seluruh subtes sudah {target} atau lebih; target berikutnya 750 per subtes. Skor rata-rata TO UTBK Regular Episode {episode}: **{avgScore}**.',
+    plan3Title: 'Target Tryout {nextEpisode}',
+    plan3Desc: 'Semua subtes minimal {target}.',
+    plan3ProgramSuffix: ' Nilai jurusan:',
+    plan3DescAchieved: 'Pertahankan semua subtes di atas {target}.',
     plan3Pic: 'Siswa & Tim Akademik Cabang',
-    planBTitle: 'Plan B: Jurusan Cadangan',
+    planBTitle: 'Plan B',
     planBDesc: 'Siapkan jurusan cadangan bersama Kakak Asuh bila target belum tercapai pada konsultasi berikutnya.',
     planBPic: '{sa} & Siswa',
-    plan4Title: 'Dukungan Belajar di Rumah',
-    plan4Desc:
-      'Orang tua mendampingi konsistensi jam belajar mandiri dan menjaga kondisi istirahat siswa menjelang Tryout berikutnya.',
-    plan4DrillSuffix: ' Cek progres drill {drillWeekly} soal benar per minggu di aplikasi setiap akhir pekan.',
+    plan4Title: 'Dukungan Orang Tua',
+    plan4Desc: 'Dampingi proses belajar {siswa}',
+    plan4Daily:
+      'Berikan dukungan kepada {siswa} agar terbiasa belajar secara mandiri di rumah dan tetap memiliki waktu istirahat yang cukup.',
+    plan4Weekly:
+      'Luangkan waktu untuk mengevaluasi progres belajar {siswa} melalui aplikasi Ruangguru. Dukung {siswa} dalam mencapai target {drillWeekly} soal benar setiap minggu, sesuai pembagian target masing-masing subtes.',
+    plan4WeeklyAchieved:
+      'Luangkan waktu untuk mengevaluasi progres belajar {siswa} melalui aplikasi Ruangguru. Dukung {siswa} agar tetap konsisten berlatih setiap minggu.',
+    plan4Fallback:
+      'Ajak {siswa} berdiskusi mengenai kesulitan yang dialami, berikan motivasi, dan komunikasikan perkembangannya kepada Kakak Asuh.',
     plan4Pic: '{parent}',
     checklist:
       'Ringkasan keputusan dan pengingat sesi berikutnya sudah ditulis di Catatan Kakak Asuh.\n' +
@@ -540,28 +589,27 @@ export const DEFAULT_ENGINE_CONFIG: EngineRuleConfig = {
       'Catatan masih singkat. Sudah memuat apa yang disepakati, siapa mengerjakan apa, dan kapan dicek? Tetap kunci?'
   },
   guideCardTemplates: {
-    t1Title: 'Mengulas Tren Skor & Fondasi {target}',
-    t1Rambu:
-      '**Netral terhadap skor:** Bahas pengalaman pengerjaan siswa terlebih dahulu sebelum menyimpulkan penyebab naik/turunnya nilai.',
+    t1Title: 'Hasil tryout',
+    t1Goal: 'Pada tahap ini, Kakak Asuh perlu membahas hasil tryout {siswa} bersama siswa dan orang tua, lalu menyepakati tindak lanjutnya.',
+    t1Rambu: 'Menyimpulkan penyebab naik atau turunnya nilai sebelum {siswa} bercerita soal pengalaman mengerjakan tryout.',
     t1MedianContext:
       'Median (contoh {subtest} `{history}` = **{median}**) berasal dari **riwayat pribadi siswa** untuk melihat skor tipikal saat hasil berfluktuasi, bukan ranking nasional.',
-    t2Title: 'Menyelaraskan Pilihan Jurusan & Progres Menuju UTBK',
-    t2Rambu:
-      '**CP1 → CP2 → UTBK:** Di CP1 bangun laju kenaikan; di konsultasi berikutnya arahkan melewati target acuan; di konsultasi terakhir maksimalkan margin di atas pesaing.\n' +
-      '**Makna Plan B:** Jika selisih masih lebar, siapkan jurusan cadangan sebagai pengaman portofolio tanpa mematahkan motivasi di Pilihan 1.',
-    t3Title: 'Audit Kebiasaan Drill Soal & Prioritas Materi',
-    t3Goal: 'Sepakati topik prioritas & perbaikan pola drill soal',
+    t2Title: 'Pilihan jurusan',
+    t2Goal: 'Pada tahap ini, Kakak Asuh perlu memastikan pilihan jurusan {siswa} sudah sejalan dengan keluarga dan target TO berikutnya sudah jelas.',
+    t2Rambu: 'Mematahkan semangat {siswa} di Pilihan 1 saat membahas jurusan cadangan.',
+    t3Title: 'Drill soal dan topik prioritas',
+    t3Goal: 'Pada tahap ini, Kakak Asuh perlu menyepakati bersama {siswa} target drill soal mingguan dan topik yang diprioritaskan.',
     t3Rambu:
       '**Hindari drill semu:** Apresiasi konsistensi di subtes yang sudah aktif, lalu ajak mengalihkan porsi drill soal ke subtes dengan gap terbesar.\n' +
       '**Jangan menyimpulkan "malas" dari angka 0:** Data kosong hanya berarti belum tercatat di aplikasi—gali dulu kendala atau drill soal mandiri di luar sistem.',
     t3Base600Note:
       '**Mengapa semua subtes ditargetkan {target} lebih dulu?** Satu subtes yang rendah menurunkan nilai akhir di jurusan mana pun. Di Semester 1 semua subtes dikejar ke **{target}**; pembobotan jurusan hanya menjadi label subtes prioritas per jurusan, bukan target belajar yang berbeda.',
-    t4Title: 'Mengonfirmasi Konteks Belajar di Kelas TMB',
-    t4Goal: 'Pola kelas & kendala kehadiran terkonfirmasi sebelum rencana aksi',
+    t4Title: 'Kelas dan catatan pengajar',
+    t4Goal: 'Pada tahap ini, Kakak Asuh perlu memastikan {siswa} bisa mengikuti kelas dengan baik dan membahas catatan pengajar bersama siswa.',
     t4Rambu:
-      '**Pisahkan sesi dari sifat permanen:** Sampaikan catatan per mapel/tanggal sebagai konteks belajar saat itu, bukan label kepribadian siswa.',
-    t5Title: 'Mengunci Komitmen Nyata & Penyerahan Laporan',
-    t5Goal: 'Jadwal cabang disepakati, catatan tersimpan & PDF diserahkan',
+      'Menyimpulkan {siswa} pasif di kelas hanya karena catatan pengajar sedikit; catatan kosong berarti belum diisi pengajar.',
+    t5Title: 'Rencana belajar dan penutup',
+    t5Goal: 'Pada tahap ini, Kakak Asuh perlu menyepakati rencana belajar {siswa} sampai tryout berikutnya, lalu menyimpan catatan dan menyerahkan PDF laporan.',
     t5Continuity:
       'Catatan di formulir atas berfungsi sebagai **pengingat untuk pertemuan selanjutnya** agar evaluasi progres di {nextTo} tidak mengulang pembicaraan dari awal.'
   }
@@ -581,6 +629,8 @@ export interface Stage1Input {
   subtestRows: { id: string; name: string; scores: number[]; toLatest: number }[];
   attendanceRatePct: number;
   tolerance?: number;
+  /** Nama depan siswa (placeholder {siswa}) */
+  studentFirstName?: string;
 }
 
 export interface Stage1Output {
@@ -590,6 +640,8 @@ export interface Stage1Output {
   studentTask: string;
   parentTask: string;
   nextStep: string;
+  /** true bila pola nilai menurun (memunculkan baris "Hindari" di kartu Tahap 2) */
+  isDecline: boolean;
   extraNotes: string[];
   subtestPatterns: Record<string, SubtestPatternInfo>;
   traces: RuleTrace[];
@@ -694,7 +746,8 @@ export function analyzeStage1(
 
   const tpl = config.patternTemplates[pattern];
   const s1 = config.stage1Templates;
-  const fillS1 = (t: string, vars: Record<string, string | number>) => fillTemplate(t, vars);
+  const siswa = input.studentFirstName?.trim() || 'siswa';
+  const fillS1 = (t: string, vars: Record<string, string | number>) => fillTemplate(t, { siswa, ...vars });
 
   let observation = fillS1(tpl.observation, { a, b, selisih: netPhrase, jumlah: changes.length });
   if (n >= 3 && latestDelta !== null) {
@@ -702,6 +755,11 @@ export function analyzeStage1(
   }
 
   const extraNotes: string[] = [];
+  // Urutan prioritas catatan tambahan: kehadiran, fondasi, lalu fluktuasi (kartu menampilkan dua teratas).
+  const attendanceWarn = input.attendanceRatePct < th.attendanceWarnPct;
+  if (attendanceWarn) {
+    extraNotes.push(fillS1(s1.attendance, { pct: input.attendanceRatePct, warn: th.attendanceWarnPct }));
+  }
   const aboveCount = input.subtestRows.filter((s) => s.toLatest >= th.foundationScoreTarget).length;
   const totalSub = input.subtestRows.length;
   const allBelow500 = totalSub > 0 && input.subtestRows.every((s) => s.toLatest < 500);
@@ -727,11 +785,6 @@ export function analyzeStage1(
         names: extremeSubtests.map((s) => s.name).slice(0, 2).join(', ')
       })
     );
-  }
-
-  const attendanceWarn = input.attendanceRatePct < th.attendanceWarnPct;
-  if (attendanceWarn) {
-    extraNotes.push(fillS1(s1.attendance, { pct: input.attendanceRatePct, warn: th.attendanceWarnPct }));
   }
 
   const traces: RuleTrace[] = [
@@ -791,9 +844,10 @@ export function analyzeStage1(
     pattern,
     patternLabel: tpl.label,
     observation,
-    studentTask: tpl.student,
-    parentTask: tpl.parent,
-    nextStep: tpl.nextStep,
+    studentTask: fillS1(tpl.student, {}),
+    parentTask: fillS1(tpl.parent, {}),
+    nextStep: fillS1(tpl.nextStep, {}),
+    isDecline: ['steady_down', 'initial_down', 'down_with_pauses', 'reversal_down', 'fluctuating_down'].includes(pattern),
     extraNotes,
     subtestPatterns,
     traces
@@ -871,6 +925,8 @@ export interface Stage2Input {
   programs?: Stage2ProgramItem[];
   familyAlignment: 'aligned' | 'different_major' | 'location_limit' | 'unconfirmed';
   studentHomeCity?: string;
+  /** Nama depan siswa untuk kalimat panduan (placeholder {siswa}) */
+  studentFirstName?: string;
   // Fallbacks if programs array is omitted
   hasMixedRumpun?: boolean;
   minGapToTarget?: number;
@@ -882,6 +938,8 @@ export interface Stage2Output {
   conditionLabel: string;
   /** true when program rumpun are mixed or the family chose a different major */
   isConflict: boolean;
+  /** true bila selisih nilai ke target masih lebar (memunculkan baris "Hindari" di kartu Tahap 1) */
+  isWideGap: boolean;
   observation: string;
   saTasks: string[];
   guardrailNote: string;
@@ -894,6 +952,9 @@ export function analyzeStage2(
 ): Stage2Output {
   const th = config.thresholds;
   const tpl = config.stage2Templates;
+  const siswa = input.studentFirstName?.trim() || 'siswa';
+  // {far} = selisih terjauh ke target (positif); dipakai pada kalimat selisih lebar.
+  const fillS = (t: string) => fillTemplate(t, { siswa, far: minGap !== null ? Math.abs(minGap) : 0 });
   const saTasks: string[] = [];
   const flags: string[] = [];
   const traces: RuleTrace[] = [];
@@ -934,13 +995,13 @@ export function analyzeStage2(
   const isConflict = hasMixed || input.familyAlignment === 'different_major';
   if (isConflict) {
     flags.push('Rumpun Campuran / Perbedaan Pilihan');
-    saTasks.push(tpl.mixedOrDifferent);
+    saTasks.push(fillS(tpl.mixedOrDifferent));
   } else if (input.familyAlignment === 'aligned') {
     flags.push('Pilihan Selaras');
-    saTasks.push(tpl.aligned);
+    saTasks.push(fillS(tpl.aligned));
   } else {
     flags.push('Perlu Konfirmasi Keluarga');
-    saTasks.push(tpl.unconfirmed);
+    saTasks.push(fillS(tpl.unconfirmed));
   }
 
   traces.push({
@@ -957,7 +1018,7 @@ export function analyzeStage2(
 
   const needsLocation = input.familyAlignment === 'location_limit' || hasOutOfTown || hasMixed;
   if (needsLocation) {
-    saTasks.push(tpl.locationCheck);
+    saTasks.push(fillS(tpl.locationCheck));
   }
   traces.push({
     ruleId: 's2_location',
@@ -973,12 +1034,12 @@ export function analyzeStage2(
     // no gap data: make no claim about the target
   } else if (isWideGap) {
     flags.push('Gap Masih Lebar');
-    saTasks.push(tpl.wideGap);
+    saTasks.push(fillS(tpl.wideGap));
   } else if ((minGap as number) < 0) {
-    saTasks.push(tpl.remainingGap);
+    saTasks.push(fillS(tpl.remainingGap));
   } else {
     flags.push('Melampaui Target Acuan');
-    saTasks.push(tpl.exceedTarget);
+    saTasks.push(fillS(tpl.exceedTarget));
   }
   traces.push({
     ruleId: 's2_gap',
@@ -1021,10 +1082,15 @@ export function analyzeStage2(
   return {
     conditionLabel: flags.join(' · '),
     isConflict,
+    isWideGap,
     observation:
-      minGap !== null && maxGap !== null
-        ? fillTemplate(tpl.observationRange, { max: maxGap, min: minGap })
-        : tpl.observationUnknown,
+      minGap === null || maxGap === null
+        ? tpl.observationUnknown
+        : minGap >= 0
+        ? fillTemplate(tpl.observationAhead, { siswa })
+        : maxGap >= 0
+        ? fillTemplate(tpl.observationMixed, { far: Math.abs(minGap) })
+        : fillTemplate(tpl.observationRange, { siswa, far: Math.abs(minGap), near: Math.abs(maxGap) }),
     saTasks,
     guardrailNote,
     traces
@@ -1137,13 +1203,18 @@ export interface Stage3OverallOutput {
   hasDrillMismatch: boolean;
   mismatchNote: string | null;
   saTasks: string[];
+  /** Maksimal 3 poin untuk kartu panduan: temuan/target, dengarkan atau tanyakan, sepakati */
+  guidePoints: string[];
+  /** Hindari: hanya terisi bila ada subtes tanpa drill soal atau drill menumpuk */
+  rambu: string | null;
   guardrailNote: string;
   traces: RuleTrace[];
 }
 
 export function analyzeStage3Overall(
   subtests: Stage3SubtestInput[],
-  config: EngineRuleConfig = DEFAULT_ENGINE_CONFIG
+  config: EngineRuleConfig = DEFAULT_ENGINE_CONFIG,
+  ctx: { studentFirstName?: string; weakCount?: number } = {}
 ): Stage3OverallOutput {
   const th = config.thresholds;
   const sortedByQuestions = [...subtests].sort((a, b) => b.drillQuestions - a.drillQuestions);
@@ -1170,6 +1241,34 @@ export function analyzeStage3Overall(
 
   const saTasks = splitLines(t3.tasks);
 
+  const weak = subtests.filter((x) => x.gapTo600 < 0);
+  const noDrill = weak.filter((x) => x.drillQuestions === 0);
+  // subtests hanya berisi subtes prioritas; jumlah subtes di bawah target seluruhnya bisa dikirim lewat ctx
+  const weakTotal = ctx.weakCount ?? weak.length;
+  const vars = {
+    siswa: ctx.studentFirstName?.trim() || 'siswa',
+    target: th.foundationScoreTarget,
+    weakCount: weakTotal,
+    drillWeekly: drillTotalForCount(weakTotal, th),
+    noDrillNames: noDrill.slice(0, 2).map((x) => x.name).join(' dan '),
+    topName: highestDrill?.name ?? '',
+    topQ: highestDrill?.drillQuestions ?? 0,
+    lowNames: zeroOrLowInPriority.map((x) => x.name).join(' dan '),
+    lowQ: th.drillMismatchLowQ
+  };
+  const base = splitLines(weakTotal === 0 ? t3.tasksAchieved : t3.tasks).map((l) => fillTemplate(l, vars));
+  let guidePoints = base.slice(0, 3);
+  let rambu: string | null = null;
+  if (weakTotal > 0 && guidePoints.length >= 3) {
+    if (noDrill.length > 0) {
+      guidePoints = [base[0], fillTemplate(t3.taskNoDrill, vars), base[2]];
+      rambu = fillTemplate(t3.rambuNoDrill, vars);
+    } else if (hasMismatch) {
+      guidePoints = [base[0], fillTemplate(t3.taskMismatch, vars), base[2]];
+      rambu = fillTemplate(t3.rambuMismatch, vars);
+    }
+  }
+
   const traces: RuleTrace[] = [
     {
       ruleId: 's3_mismatch',
@@ -1186,6 +1285,8 @@ export function analyzeStage3Overall(
     hasDrillMismatch: hasMismatch,
     mismatchNote,
     saTasks,
+    guidePoints,
+    rambu,
     guardrailNote: t3.guardrail,
     traces
   };
@@ -1197,6 +1298,8 @@ export interface ActionPlanItem {
   desc: string;
   pic: string;
   accentColor: string;
+  /** Poin rinci di bawah deskripsi (rencana dukungan orang tua) */
+  bullets?: { label: string; text: string }[];
 }
 
 export interface Stage4Input {
@@ -1213,18 +1316,22 @@ export interface Stage4Input {
     episode: number;
     /** True bila belum ada pilihan jurusan yang mencapai target acuan (menampilkan butir Plan B) */
     needsPlanB?: boolean;
-    /** Ringkasan target TO berikutnya per jurusan, misalnya "UGM ≥ 588 · UI ≥ 585" (sama dengan PDF) */
-    programTargets?: string;
+    /** Target TO berikutnya per jurusan: nama jurusan + kampus lengkap dan targetnya, misalnya "≥ 588" atau "Terlewati" */
+    programTargetList?: { name: string; target: string }[];
   };
   studentName?: string;
   saName?: string;
   parentName?: string;
+  /** Nama depan siswa untuk kalimat panduan */
+  studentFirstName?: string;
   /** Nomor TO berikutnya; bawaan episode + 1 */
   nextEpisode?: number;
 }
 
 export interface Stage4Output {
   saTasks: string[];
+  /** Maksimal 3 poin untuk kartu panduan Tahap 5: jadwal drill, dukungan orang tua atau catatan prioritas, penutup */
+  guidePoints: string[];
   checklist: string[];
   actionPlans: ActionPlanItem[];
   traces: RuleTrace[];
@@ -1283,6 +1390,7 @@ export function analyzeStage4(
     student: studentInput?.studentName || 'Siswa',
     sa: studentInput?.saName || 'Kakak Asuh',
     parent: studentInput?.parentName || 'Orang Tua / Wali Siswa',
+    siswa: studentInput?.studentFirstName?.trim() || 'siswa',
     branch: pd?.branch ?? '',
     target: th4.foundationScoreTarget,
     weakCount,
@@ -1293,16 +1401,22 @@ export function analyzeStage4(
     nextEpisode: studentInput?.nextEpisode ?? episode + 1,
     episode,
     avgScore: pd?.avgScore ?? 0,
-    programTargets: pd?.programTargets ?? ''
+    programTargets: (pd?.programTargetList ?? []).map((x) => `${x.name} ${x.target}`).join('; ')
   };
   const fill = (t: string) => fillTemplate(t, planVars);
   // Tugas SA memakai angka drill dari konfigurasi; bila semua subtes sudah tercapai, pakai acuan bawaan agar tidak tertulis 0.
   const taskVars = {
     ...planVars,
+    siswa: studentInput?.studentFirstName?.trim() || 'siswa',
     drillWeekly: weakCount > 0 ? drillWeekly : th4.weeklyDrillTotal,
     drillPerSubtest: weakCount > 0 ? drillPerSubtest : th4.minDrillPerSubtest
   };
   const saTasks = saTasksRaw.map((t) => fillTemplate(t, taskVars));
+  const guidePoints = [
+    fillTemplate(tpl.scheduleTask, taskVars),
+    fillTemplate(isConflict ? tpl.conflictOrLocationTask : isMissingDrill ? tpl.missingDrillTask : tpl.parentSupportTask, taskVars),
+    fillTemplate(tpl.closingTask, taskVars)
+  ];
 
   const actionPlans: ActionPlanItem[] = [
     {
@@ -1315,9 +1429,10 @@ export function analyzeStage4(
     {
       num: 3,
       title: fill(ap.plan3Title),
-      desc: fill((allAchieved ? ap.plan3DescAchieved : ap.plan3Desc) + (pd?.programTargets ? ap.plan3ProgramSuffix : '')),
+      desc: fill((allAchieved ? ap.plan3DescAchieved : ap.plan3Desc) + ((pd?.programTargetList?.length ?? 0) > 0 ? ap.plan3ProgramSuffix : '')),
       pic: fill(ap.plan3Pic),
-      accentColor: '#b54708'
+      accentColor: '#b54708',
+      bullets: (pd?.programTargetList ?? []).map((x) => ({ label: x.name, text: x.target }))
     },
     ...(pd?.needsPlanB
       ? [
@@ -1333,9 +1448,14 @@ export function analyzeStage4(
     {
       num: 4,
       title: fill(ap.plan4Title),
-      desc: fill(ap.plan4Desc + (weakCount > 0 ? ap.plan4DrillSuffix : '')),
+      desc: fill(ap.plan4Desc),
       pic: fill(ap.plan4Pic),
-      accentColor: '#027a48'
+      accentColor: '#027a48',
+      bullets: [
+        { label: 'Setiap hari', text: fill(ap.plan4Daily) },
+        { label: 'Setiap akhir pekan', text: fill(weakCount > 0 ? ap.plan4Weekly : ap.plan4WeeklyAchieved) },
+        { label: 'Jika target belum tercapai', text: fill(ap.plan4Fallback) }
+      ]
     }
   ];
 
@@ -1360,7 +1480,7 @@ export function analyzeStage4(
     }
   ];
 
-  return { saTasks, checklist, actionPlans, traces };
+  return { saTasks, guidePoints, checklist, actionPlans, traces };
 }
 
 export interface StageClassroomInput {
@@ -1370,10 +1490,16 @@ export interface StageClassroomInput {
   sickSessions: number;
   excusedSessions: number;
   notesCount: number;
+  /** Nama depan siswa */
+  studentFirstName?: string;
 }
 
 export interface StageClassroomOutput {
   saTasks: string[];
+  /** Maksimal 3 poin untuk kartu panduan: kehadiran, sesi terlewat atau catatan, kesepakatan */
+  guidePoints: string[];
+  /** True bila catatan pengajar kosong atau sedikit (memicu baris Hindari) */
+  hasLowNotes: boolean;
   guardrailNote: string;
   traces: RuleTrace[];
 }
@@ -1393,6 +1519,7 @@ export function analyzeStageClassroom(
 
   const ct = config.classroomTemplates;
   const classVars = {
+    siswa: input.studentFirstName?.trim() || 'siswa',
     pct: pctLabel,
     present: input.presentSessions,
     total,
@@ -1431,6 +1558,9 @@ export function analyzeStageClassroom(
 
   const guardrailNote = fillC(emptyNotesCount > 0 ? ct.guardrailMissingNotes : ct.guardrailAllNotes);
 
+  const notesLine = input.notesCount === 0 ? ct.noNotes : lowNotesCoverage ? ct.lowNotes : ct.notesOk;
+  const guidePoints = [saTasks[0], fillC(hasRepeatedAbsence ? ct.repeatedAbsence : notesLine), fillC(ct.agreeTask)];
+
   const traces: RuleTrace[] = [
     {
       ruleId: 's4c_attendance',
@@ -1459,7 +1589,7 @@ export function analyzeStageClassroom(
     }
   ];
 
-  return { saTasks, guardrailNote, traces };
+  return { saTasks, guidePoints, hasLowNotes: lowNotesCoverage, guardrailNote, traces };
 }
 
 export interface NotesGuidanceInput {
@@ -1513,13 +1643,15 @@ export interface GuideCardsInput {
   median: number | string;
   /** Nama prodi Pilihan 1 */
   prodi: string;
+  /** Nama depan siswa (placeholder {siswa}) */
+  studentFirstName?: string;
   /** Nomor TO berikutnya */
   nextEpisode: number;
 }
 
 export interface GuideCardsOutput {
-  t1: { title: string; rambu: string[]; medianContext: string };
-  t2: { title: string; rambu: string[] };
+  t1: { title: string; goal: string; rambu: string[]; medianContext: string };
+  t2: { title: string; goal: string; rambu: string[] };
   t3: { title: string; goal: string; rambu: string[]; base600Note: string };
   t4: { title: string; goal: string; rambu: string[] };
   t5: { title: string; goal: string; continuity: string };
@@ -1537,13 +1669,14 @@ export function analyzeGuideCards(
     history: input.medianHistory,
     median: input.median,
     prodi: input.prodi,
+    siswa: input.studentFirstName?.trim() || 'siswa',
     nextTo: `TO ${input.nextEpisode}`
   };
   const f = (t: string) => fillTemplate(t, vars);
   const fl = (t: string) => splitLines(t).map(f);
   return {
-    t1: { title: f(g.t1Title), rambu: fl(g.t1Rambu), medianContext: f(g.t1MedianContext) },
-    t2: { title: f(g.t2Title), rambu: fl(g.t2Rambu) },
+    t1: { title: f(g.t1Title), goal: f(g.t1Goal), rambu: fl(g.t1Rambu), medianContext: f(g.t1MedianContext) },
+    t2: { title: f(g.t2Title), goal: f(g.t2Goal), rambu: fl(g.t2Rambu) },
     t3: { title: f(g.t3Title), goal: f(g.t3Goal), rambu: fl(g.t3Rambu), base600Note: f(g.t3Base600Note) },
     t4: { title: f(g.t4Title), goal: f(g.t4Goal), rambu: fl(g.t4Rambu) },
     t5: { title: f(g.t5Title), goal: f(g.t5Goal), continuity: f(g.t5Continuity) }
@@ -1662,7 +1795,9 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     { key: 'exceedTarget', name: 'Skor Melampaui Target Acuan (≥ 0)', cond: 'minGap ≥ 0 (Siswa Achieve)' },
     { key: 'lowParticipantsWarning', name: 'Pembanding Peserta Terlalu Sedikit', cond: `minParticipants < ${th.minBenchmarkParticipants}` },
     { key: 'defaultBenchmarkNote', name: 'Guardrail Standar Target & Persaingan', cond: 'Selalu tampil sebagai konteks acuan non-SNPMB' },
-    { key: 'observationRange', name: 'Kalimat Observasi Selisih (data tersedia)', cond: 'Data selisih minimal satu prodi tersedia. Placeholder: {max} {min}' },
+    { key: 'observationRange', name: 'Kalimat Observasi Selisih (semua pilihan masih di bawah target)', cond: 'maxGap < 0. Placeholder: {siswa} {near} {far}' },
+    { key: 'observationAhead', name: 'Kalimat Observasi Selisih (semua pilihan melewati target)', cond: 'minGap ≥ 0. Placeholder: {siswa}' },
+    { key: 'observationMixed', name: 'Kalimat Observasi Selisih (sebagian melewati target)', cond: 'minGap < 0 ≤ maxGap. Placeholder: {far}' },
     { key: 'observationUnknown', name: 'Kalimat Observasi Selisih (data kosong)', cond: 'Data selisih tidak tersedia' }
   ];
   stage2Meta.forEach((m) => {
@@ -1731,8 +1866,17 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     'Daftar tugas SA',
     splitLines(config.stage3OverallTemplates.tasks).map((l) => `• ${l}`).join('\n'),
     '-',
-    'Satu poin per baris'
+    'Satu poin per baris (target, dengarkan, sepakati). Placeholder: {siswa} {drillWeekly} {weakCount} {target}'
   ]);
+  [
+    ['s3_overall_achieved', 'Poin bila semua subtes sudah mencapai target', 'Semua subtes ≥ target', splitLines(config.stage3OverallTemplates.tasksAchieved).map((l) => `• ${l}`).join('\n')],
+    ['s3_overall_nodrill', 'Poin ke-2 bila ada subtes tanpa drill soal', 'Subtes di bawah target dengan 0 soal', config.stage3OverallTemplates.taskNoDrill],
+    ['s3_overall_mismatch_task', 'Poin ke-2 bila drill menumpuk', 'Deteksi ketimpangan drill', config.stage3OverallTemplates.taskMismatch],
+    ['s3_overall_rambu_nodrill', 'Hindari bila ada subtes tanpa drill soal', 'Subtes di bawah target dengan 0 soal', config.stage3OverallTemplates.rambuNoDrill],
+    ['s3_overall_rambu_mismatch', 'Hindari bila drill menumpuk', 'Deteksi ketimpangan drill', config.stage3OverallTemplates.rambuMismatch]
+  ].forEach(([id, name, cond, text]) => {
+    rows.push(['Tahap 3 (Audit Drill Overall)', id, name, cond, name, text, '-', '-']);
+  });
 
   // 5. Stage 4 (Classroom) & Stage 5 (Action Plan & Locking)
   rows.push([
@@ -1749,7 +1893,8 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     { key: 'scheduleTask', name: 'Penguncian Jadwal Drill', cond: 'Selalu tampil di Tahap 5' },
     { key: 'parentSupportTask', name: 'Dukungan Belajar Orang Tua', cond: 'Selalu tampil di Tahap 5' },
     { key: 'missingDrillTask', name: 'Tindak Lanjut Subtes Minim Drill', cond: `Ada subtes prioritas dengan drill ≤ ${th.drillMismatchLowQ}` },
-    { key: 'conflictOrLocationTask', name: 'Review Konflik Prodi / Lokasi', cond: 'isConflict || location_limit || different_major' }
+    { key: 'conflictOrLocationTask', name: 'Review Konflik Prodi / Lokasi', cond: 'isConflict || location_limit || different_major' },
+    { key: 'closingTask', name: 'Poin penutup: catatan dan PDF', cond: 'Selalu tampil di Tahap 5' }
   ];
   stage4Meta.forEach((m) => {
     rows.push([
@@ -1805,6 +1950,8 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     { key: 'repeatedAbsence', name: 'Sesi terlewat banyak', cond: `sakit+izin ≥ ${th.absenceWarnSessions}` },
     { key: 'noNotes', name: 'Belum ada catatan pengajar', cond: 'catatan = 0' },
     { key: 'lowNotes', name: 'Cakupan catatan rendah', cond: `0 < cakupan catatan < ${th.notesLowCoveragePct}%` },
+    { key: 'notesOk', name: 'Catatan pengajar cukup (poin ke-2)', cond: `cakupan catatan ≥ ${th.notesLowCoveragePct}%, sesi terlewat < ${th.absenceWarnSessions}` },
+    { key: 'agreeTask', name: 'Poin kesepakatan (poin ke-3)', cond: 'Selalu tampil di Tahap 4' },
     { key: 'guardrailMissingNotes', name: 'Catatan acuan: ada sesi tanpa catatan', cond: 'sesi tanpa catatan > 0' },
     { key: 'guardrailAllNotes', name: 'Catatan acuan: semua sesi punya catatan', cond: 'sesi tanpa catatan = 0' }
   ];
@@ -1817,7 +1964,7 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
       m.name,
       config.classroomTemplates[m.key],
       '-',
-      'Placeholder: {pct} {present} {total} {absent} {sick} {excused} {notes} {notesPct} {emptyNotes}'
+      'Placeholder: {siswa} {pct} {present} {total} {absent} {sick} {excused} {notes} {notesPct} {emptyNotes}'
     ]);
   });
 
@@ -1837,7 +1984,10 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
     { key: 'planBPic', name: 'Plan B · penanggung jawab (dashboard)', cond: 'Belum ada pilihan jurusan yang mencapai target acuan' },
     { key: 'plan4Title', name: 'Rencana 4 · judul', cond: 'Selalu' },
     { key: 'plan4Desc', name: 'Rencana 4 · isi', cond: 'Selalu' },
-    { key: 'plan4DrillSuffix', name: 'Rencana 4 · tambahan cek progres drill', cond: 'Ada subtes di bawah target fondasi' },
+    { key: 'plan4Daily', name: 'Rencana 4 · poin setiap hari', cond: 'Selalu' },
+    { key: 'plan4Weekly', name: 'Rencana 4 · poin setiap akhir pekan', cond: 'Ada subtes di bawah target fondasi' },
+    { key: 'plan4WeeklyAchieved', name: 'Rencana 4 · poin setiap akhir pekan', cond: 'Semua subtes ≥ target fondasi' },
+    { key: 'plan4Fallback', name: 'Rencana 4 · poin bila target belum tercapai', cond: 'Selalu' },
     { key: 'plan4Pic', name: 'Rencana 4 · penanggung jawab (dashboard)', cond: 'Selalu' },
     { key: 'checklist', name: 'Checklist penutup (satu poin per baris)', cond: 'Selalu' }
   ];
@@ -1886,20 +2036,20 @@ export function generateEngineCsv(config: EngineRuleConfig = DEFAULT_ENGINE_CONF
   // 8. Teks tetap kartu "Panduan Kakak Asuh" per tahap
   const gcMeta: { key: keyof GuideCardTemplates; stage: string; name: string }[] = [
     { key: 't1Title', stage: 'Tahap 2', name: 'Judul kartu' },
-    { key: 't1Rambu', stage: 'Tahap 2', name: 'Rambu komunikasi (satu poin per baris)' },
+    { key: 't1Goal', stage: 'Tahap 2', name: 'Tugas Kakak Asuh di tahap ini (satu kalimat)' },
+    { key: 't1Rambu', stage: 'Tahap 2', name: 'Hindari (satu baris)' },
     { key: 't1MedianContext', stage: 'Tahap 2', name: 'Konteks data median' },
     { key: 't2Title', stage: 'Tahap 1', name: 'Judul kartu' },
-    { key: 't2Rambu', stage: 'Tahap 1', name: 'Rambu progres holistik (satu poin per baris)' },
+    { key: 't2Goal', stage: 'Tahap 1', name: 'Tugas Kakak Asuh di tahap ini (satu kalimat)' },
+    { key: 't2Rambu', stage: 'Tahap 1', name: 'Hindari (satu baris, tampil bila selisih nilai masih lebar)' },
     { key: 't3Title', stage: 'Tahap 3', name: 'Judul kartu' },
-    { key: 't3Goal', stage: 'Tahap 3', name: 'Target hasil' },
-    { key: 't3Rambu', stage: 'Tahap 3', name: 'Rambu komunikasi (satu poin per baris)' },
+    { key: 't3Goal', stage: 'Tahap 3', name: 'Tugas Kakak Asuh di tahap ini (satu kalimat)' },
     { key: 't3Base600Note', stage: 'Tahap 3', name: 'Catatan alasan target dasar' },
     { key: 't4Title', stage: 'Tahap 4', name: 'Judul kartu' },
-    { key: 't4Goal', stage: 'Tahap 4', name: 'Target hasil' },
-    { key: 't4Rambu', stage: 'Tahap 4', name: 'Rambu komunikasi (satu poin per baris)' },
+    { key: 't4Goal', stage: 'Tahap 4', name: 'Tugas Kakak Asuh di tahap ini (satu kalimat)' },
+    { key: 't4Rambu', stage: 'Tahap 4', name: 'Hindari (satu baris, tampil bila catatan pengajar kosong atau sedikit)' },
     { key: 't5Title', stage: 'Tahap 5', name: 'Judul kartu' },
-    { key: 't5Goal', stage: 'Tahap 5', name: 'Target hasil' },
-    { key: 't5Continuity', stage: 'Tahap 5', name: 'Kesinambungan sesi berikutnya' }
+    { key: 't5Goal', stage: 'Tahap 5', name: 'Tugas Kakak Asuh di tahap ini (satu kalimat)' }
   ];
   gcMeta.forEach((m) => {
     const raw = config.guideCardTemplates[m.key];

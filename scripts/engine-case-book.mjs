@@ -29,7 +29,8 @@ try {
 
 const cfg = E.DEFAULT_ENGINE_CONFIG;
 const TH = cfg.thresholds;
-const TPL2 = cfg.stage2Templates;
+// Tanpa nama siswa pada skenario, placeholder {siswa} terisi "siswa" oleh engine.
+const TPL2 = Object.fromEntries(Object.entries(cfg.stage2Templates).map(([k, v]) => [k, String(v).split('{siswa}').join('siswa').split('{far}')[0]]));
 const TPL4 = cfg.stage4Templates;
 
 // ---- util ----
@@ -67,12 +68,12 @@ function runS1(test, scores, rowsIn, attendance, expectPattern) {
   }
   const notes = out.extraNotes;
   const covers = [`T1 pola: ${out.pattern}`];
-  if (notes.some((n) => n.startsWith('Seluruh subtes saat ini masih'))) covers.push('T1 fondasi: semua < 500');
-  if (notes.some((n) => n.startsWith('Seluruh subtes telah mencapai'))) covers.push('T1 fondasi: semua >= target');
-  if (notes.some((n) => n.startsWith('Terdapat ') && n.includes('di atas'))) covers.push('T1 fondasi: sebagian >= target');
-  if (notes.some((n) => n.startsWith('Belum ada subtes yang menyentuh'))) covers.push('T1 fondasi: belum ada >= target');
-  if (notes.some((n) => n.includes('fluktuasi'))) covers.push('T1 fluktuasi subtes');
-  if (notes.some((n) => n.startsWith('Kehadiran kelas tercatat'))) covers.push('T1 kehadiran rendah');
+  if (notes.some((n) => n.startsWith('Sampaikan semua subtes siswa masih di bawah 500'))) covers.push('T1 fondasi: semua < 500');
+  if (notes.some((n) => n.startsWith('Sampaikan semua subtes siswa sudah mencapai'))) covers.push('T1 fondasi: semua >= target');
+  if (notes.some((n) => /^Sampaikan \d+ dari \d+ subtes siswa sudah mencapai/.test(n))) covers.push('T1 fondasi: sebagian >= target');
+  if (notes.some((n) => n.startsWith('Sampaikan belum ada subtes siswa'))) covers.push('T1 fondasi: belum ada >= target');
+  if (notes.some((n) => n.includes('naik-turun lebih dari'))) covers.push('T1 fluktuasi subtes');
+  if (notes.some((n) => n.startsWith('Tanyakan ke siswa kendala jadwal'))) covers.push('T1 kehadiran rendah');
   add(
     'T1 Evaluasi TO',
     test,
@@ -139,14 +140,15 @@ const prog = (gap, extra = {}) => ({
 function runS2(test, input, describe) {
   const out = E.analyzeStage2({ studentHomeCity: 'Depok', ...input }, cfg);
   const t = out.saTasks;
+  const has = (tpl) => t.some((x) => x.startsWith(tpl));
   const covers = [];
-  if (t.includes(TPL2.mixedOrDifferent)) covers.push('T2 keselarasan: konflik/campuran');
-  else if (t.includes(TPL2.aligned)) covers.push('T2 keselarasan: selaras');
-  else if (t.includes(TPL2.unconfirmed)) covers.push('T2 keselarasan: belum konfirmasi');
-  if (t.includes(TPL2.locationCheck)) covers.push('T2 cek lokasi');
-  if (t.includes(TPL2.wideGap)) covers.push('T2 gap: lebar');
-  else if (t.includes(TPL2.remainingGap)) covers.push('T2 gap: moderat');
-  else if (t.includes(TPL2.exceedTarget)) covers.push('T2 gap: melampaui');
+  if (has(TPL2.mixedOrDifferent)) covers.push('T2 keselarasan: konflik/campuran');
+  else if (has(TPL2.aligned)) covers.push('T2 keselarasan: selaras');
+  else if (has(TPL2.unconfirmed)) covers.push('T2 keselarasan: belum konfirmasi');
+  if (has(TPL2.locationCheck)) covers.push('T2 cek lokasi');
+  if (has(TPL2.wideGap)) covers.push('T2 gap: lebar');
+  else if (has(TPL2.remainingGap)) covers.push('T2 gap: moderat');
+  else if (has(TPL2.exceedTarget)) covers.push('T2 gap: melampaui');
   else covers.push('T2 gap: tidak diketahui');
   covers.push(out.guardrailNote === TPL2.defaultBenchmarkNote ? 'T2 pembanding: cukup' : 'T2 pembanding: sedikit');
   add(
@@ -238,7 +240,7 @@ function runS3Overall(test, subs) {
     'T3 Audit Drill Keseluruhan',
     test,
     input.map((s) => `${s.name}: selisih ${sgn(s.gapTo600)}, ${s.drillQuestions} soal`).join('; '),
-    [`Temuan ketimpangan: ${out.mismatchNote ?? '(tidak ada)'}`, ...out.saTasks.map((x) => `Tugas SA: ${x}`), `Catatan acuan: ${out.guardrailNote}`],
+    [...out.guidePoints.map((x) => `Poin panduan: ${x}`), `Hindari: ${out.rambu ?? '(tidak tampil)'}`],
     out.traces,
     [out.hasDrillMismatch ? 'T3 ketimpangan: ya' : 'T3 ketimpangan: tidak']
   );
@@ -246,6 +248,9 @@ function runS3Overall(test, subs) {
 runS3Overall('Ketimpangan terdeteksi', [['PU', -20, TH.drillMismatchHighQ], ['PK', TH.drillActiveHighGap - 30, TH.drillMismatchLowQ]]);
 runS3Overall(`Drill terbanyak ${TH.drillMismatchHighQ - 1} soal (di bawah batas)`, [['PU', -20, TH.drillMismatchHighQ - 1], ['PK', TH.drillActiveHighGap - 30, TH.drillMismatchLowQ]]);
 runS3Overall(`Subtes prioritas ${TH.drillMismatchLowQ + 1} soal (di atas batas)`, [['PU', -20, TH.drillMismatchHighQ], ['PK', TH.drillActiveHighGap - 30, TH.drillMismatchLowQ + 1]]);
+runS3Overall('Ada subtes di bawah target tanpa drill soal', [['PU', -20, 12], ['PK', -50, 0]]);
+runS3Overall('Semua subtes sudah mencapai target', [['PU', 10, 12], ['PK', 25, 8]]);
+runS3Overall('Subtes di bawah target dengan drill cukup merata', [['PU', -20, 12], ['PK', -50, 10]]);
 runS3Overall(`Selisih ${TH.drillActiveHighGap + 1} (belum masuk subtes prioritas)`, [['PU', -20, TH.drillMismatchHighQ], ['PK', TH.drillActiveHighGap + 1, 0]]);
 
 // =====================================================================
@@ -256,17 +261,17 @@ function runClass(test, total, present, sick, excused, notes) {
   const covers = [];
   const t = out.saTasks.join(' ');
   if (total === 0) covers.push('T4 kelas: belum ada sesi');
-  else if (t.includes('Gali kendala jadwal, kesehatan')) covers.push('T4 kelas: kehadiran rendah');
+  else if (t.includes('kendala jadwal atau kehadiran kelas TMB')) covers.push('T4 kelas: kehadiran rendah');
   else covers.push('T4 kelas: kehadiran baik');
   if (t.includes('mengejar materi')) covers.push('T4 kelas: sesi terlewat >= 5');
-  if (t.includes('Belum ada catatan tertulis pengajar')) covers.push('T4 kelas: catatan 0');
-  else if (t.includes('Jangan menyimpulkan siswa pasif')) covers.push('T4 kelas: catatan < 25%');
+  if (t.includes('belum ada catatan tertulis pengajar')) covers.push('T4 kelas: catatan 0');
+  else if (t.includes('yang punya catatan tertulis pengajar')) covers.push('T4 kelas: catatan < 25%');
   covers.push(out.guardrailNote.startsWith('Seluruh') ? 'T4 kelas: semua sesi punya catatan' : 'T4 kelas: ada sesi tanpa catatan');
   add(
     'T4 Kelas TMB & Catatan',
     test,
     `${total} sesi; hadir ${present}; sakit ${sick}; izin ${excused}; catatan ${notes}`,
-    [...out.saTasks.map((x) => `Tugas SA: ${x}`), `Catatan acuan: ${out.guardrailNote}`],
+    [...out.guidePoints.map((x) => `Poin panduan: ${x}`), `Hindari: ${out.hasLowNotes ? 'tampil' : '(tidak tampil)'}`],
     out.traces,
     covers
   );
@@ -305,7 +310,7 @@ function runS5(test, flags, subtests, episode = 4) {
     test,
     `Konflik/lokasi: ${flags.conflict ? 'ya' : 'tidak'}; subtes minim drill: ${flags.missing ? 'ya' : 'tidak'}; skor TO4 per subtes: ${subtests.map((x) => `${x.name} ${x.to4}`).join(', ')}; episode ${episode}`,
     [
-      ...out.saTasks.map((x) => `Tugas SA: ${x}`),
+      ...out.guidePoints.map((x) => `Poin panduan: ${x}`),
       ...out.actionPlans.map((a) => `Rencana ${a.num} — ${a.title}: ${a.desc} [PIC dashboard: ${a.pic}]`)
     ],
     out.traces,
@@ -380,14 +385,12 @@ function runGuideCards(test, input) {
       ...out.t2.rambu.map((r) => `T2 rambu: ${r}`),
       `T3 judul: ${out.t3.title}`,
       `T3 target hasil: ${out.t3.goal}`,
-      ...out.t3.rambu.map((r) => `T3 rambu: ${r}`),
       `T3 catatan target dasar: ${out.t3.base600Note}`,
       `T4 judul: ${out.t4.title}`,
       `T4 target hasil: ${out.t4.goal}`,
       ...out.t4.rambu.map((r) => `T4 rambu: ${r}`),
       `T5 judul: ${out.t5.title}`,
       `T5 target hasil: ${out.t5.goal}`,
-      `T5 kesinambungan: ${out.t5.continuity}`
     ],
     [],
     ['Kartu panduan: semua teks']

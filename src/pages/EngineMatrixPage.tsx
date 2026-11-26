@@ -251,34 +251,38 @@ const CLASSROOM_FIELD_TITLES: Record<keyof EngineRuleConfig['classroomTemplates'
   repeatedAbsence: 'Sakit + izin mencapai ambang',
   noNotes: 'Belum ada catatan pengajar',
   lowNotes: 'Cakupan catatan pengajar rendah',
+  notesOk: 'Catatan pengajar cukup (poin ke-2)',
+  agreeTask: 'Poin kesepakatan (poin ke-3)',
   guardrailMissingNotes: 'Catatan acuan: ada sesi tanpa catatan',
   guardrailAllNotes: 'Catatan acuan: semua sesi punya catatan'
 };
 
 const GUIDE_CARD_FIELD_GROUPS: { title: string; keys: (keyof EngineRuleConfig['guideCardTemplates'])[] }[] = [
-  { title: 'Kartu Tahap 1 · Analisis Jurusan', keys: ['t2Title', 't2Rambu'] },
-  { title: 'Kartu Tahap 2 · Evaluasi Tryout', keys: ['t1Title', 't1Rambu', 't1MedianContext'] },
-  { title: 'Kartu Tahap 3 · Subtes & Drill Soal', keys: ['t3Title', 't3Goal', 't3Rambu', 't3Base600Note'] },
+  { title: 'Kartu Tahap 1 · Analisis Jurusan', keys: ['t2Title', 't2Goal', 't2Rambu'] },
+  { title: 'Kartu Tahap 2 · Evaluasi Tryout', keys: ['t1Title', 't1Goal', 't1Rambu'] },
+  { title: 'Kartu Tahap 3 · Subtes & Drill Soal', keys: ['t3Title', 't3Goal', 't3Base600Note'] },
   { title: 'Kartu Tahap 4 · Kelas TMB & Catatan', keys: ['t4Title', 't4Goal', 't4Rambu'] },
-  { title: 'Kartu Tahap 5 · Rencana Aksi', keys: ['t5Title', 't5Goal', 't5Continuity'] }
+  { title: 'Kartu Tahap 5 · Rencana Aksi', keys: ['t5Title', 't5Goal'] }
 ];
 
 const GUIDE_CARD_FIELD_TITLES: Record<keyof EngineRuleConfig['guideCardTemplates'], string> = {
   t1Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
-  t1Rambu: 'Rambu komunikasi (satu poin per baris)',
+  t1Goal: 'Tugas Kakak Asuh di tahap ini (satu kalimat)',
+  t1Rambu: 'Hindari (satu baris)',
   t1MedianContext: 'Konteks data median',
   t2Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
-  t2Rambu: 'Rambu progres holistik (satu poin per baris)',
+  t2Goal: 'Tugas Kakak Asuh di tahap ini (satu kalimat)',
+  t2Rambu: 'Hindari (satu baris, tampil bila selisih nilai masih lebar)',
   t3Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
-  t3Goal: 'Target hasil',
-  t3Rambu: 'Rambu komunikasi (satu poin per baris)',
+  t3Goal: 'Tugas Kakak Asuh di tahap ini (satu kalimat)',
+  t3Rambu: 'Tidak dipakai lagi',
   t3Base600Note: 'Catatan alasan target dasar (di atas kartu subtes)',
   t4Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
-  t4Goal: 'Target hasil',
-  t4Rambu: 'Rambu komunikasi (satu poin per baris)',
+  t4Goal: 'Tugas Kakak Asuh di tahap ini (satu kalimat)',
+  t4Rambu: 'Hindari (satu baris, tampil bila catatan pengajar kosong atau sedikit)',
   t5Title: 'Judul kartu (setelah "Panduan Kakak Asuh:")',
-  t5Goal: 'Target hasil',
-  t5Continuity: 'Kesinambungan sesi berikutnya'
+  t5Goal: 'Tugas Kakak Asuh di tahap ini (satu kalimat)',
+  t5Continuity: 'Tidak dipakai lagi'
 };
 
 const NOTES_GUIDANCE_FIELD_TITLES: Record<keyof EngineRuleConfig['notesGuidanceTemplates'], string> = {
@@ -307,8 +311,11 @@ const ACTION_PLAN_FIELD_TITLES: Record<keyof EngineRuleConfig['actionPlanTemplat
   planBDesc: 'Plan B · Isi',
   planBPic: 'Plan B · Penanggung jawab (hanya dashboard)',
   plan4Title: 'Rencana 4 · Judul',
-  plan4Desc: 'Rencana 4 · Isi',
-  plan4DrillSuffix: 'Rencana 4 · Tambahan cek progres drill',
+  plan4Desc: 'Rencana 4 · Kalimat pembuka (tebal)',
+  plan4Daily: 'Rencana 4 · Poin setiap hari',
+  plan4Weekly: 'Rencana 4 · Poin setiap akhir pekan (ada subtes di bawah target)',
+  plan4WeeklyAchieved: 'Rencana 4 · Poin setiap akhir pekan (semua subtes tercapai)',
+  plan4Fallback: 'Rencana 4 · Poin bila target belum tercapai',
   plan4Pic: 'Rencana 4 · Penanggung jawab (hanya dashboard)',
   checklist: 'Checklist Penutup (satu poin per baris)'
 };
@@ -1359,12 +1366,14 @@ export const EngineMatrixPage: React.FC = () => {
                       { key: 'aligned', title: 'Jika Pilihan Siswa & Keluarga Selaras' },
                       { key: 'unconfirmed', title: 'Jika Pilihan Belum Terkonfirmasi Keluarga' },
                       { key: 'locationCheck', title: 'Tugas Tambahan Pengecekan Izin Lokasi' },
-                      { key: 'wideGap', title: 'Jika Gap Terbobot Masih Lebar' },
+                      { key: 'wideGap', title: 'Jika Gap Terbobot Masih Lebar ({siswa}, {far})' },
                       { key: 'remainingGap', title: 'Jika Gap Moderat (< 0)' },
                       { key: 'exceedTarget', title: 'Jika Skor Melampaui Target Acuan (≥ 0)' },
                       { key: 'lowParticipantsWarning', title: 'Peringatan Pembanding < Batas ({count}, {limit})' },
                       { key: 'defaultBenchmarkNote', title: 'Catatan Acuan Standar (selalu tampil jika pembanding cukup)' },
-                      { key: 'observationRange', title: 'Kalimat Observasi Selisih, data tersedia ({max}, {min})' },
+                      { key: 'observationRange', title: 'Kalimat Observasi Selisih, semua pilihan di bawah target ({siswa}, {near}, {far})' },
+                      { key: 'observationAhead', title: 'Kalimat Observasi Selisih, semua pilihan melewati target ({siswa})' },
+                      { key: 'observationMixed', title: 'Kalimat Observasi Selisih, sebagian melewati target ({far})' },
                       { key: 'observationUnknown', title: 'Kalimat Observasi Selisih, data kosong' }
                     ] as const
                   ).map((item) => (
@@ -1463,12 +1472,17 @@ export const EngineMatrixPage: React.FC = () => {
                     </div>
                   ))}
                   <div style={{ gridColumn: '1 / -1', fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginTop: 6 }}>
-                    Audit Drill Keseluruhan (placeholder: {'{topName} {topQ} {lowNames} {lowQ}'})
+                    Panduan Drill Keseluruhan (placeholder: {'{siswa} {drillWeekly} {weakCount} {target} {noDrillNames} {topName} {topQ} {lowNames} {lowQ}'})
                   </div>
                   {(
                     [
                       { key: 'mismatchNote', title: 'Temuan Ketimpangan Drill', rows: 3, hint: '' },
-                      { key: 'tasks', title: 'Tugas SA', rows: 6, hint: 'Satu poin per baris. Tiap baris tampil sebagai satu poin tugas.' },
+                      { key: 'tasks', title: 'Poin panduan (kondisi biasa)', rows: 4, hint: 'Tiga baris: Sampaikan target, Dengarkan, Sepakati. Maks 3 poin.' },
+                      { key: 'tasksAchieved', title: 'Poin panduan (semua subtes sudah mencapai target)', rows: 4, hint: 'Tiga baris.' },
+                      { key: 'taskNoDrill', title: 'Pengganti poin ke-2: ada subtes tanpa drill soal', rows: 2, hint: '' },
+                      { key: 'taskMismatch', title: 'Pengganti poin ke-2: drill menumpuk di satu subtes', rows: 3, hint: '' },
+                      { key: 'rambuNoDrill', title: 'Hindari: ada subtes tanpa drill soal', rows: 2, hint: '' },
+                      { key: 'rambuMismatch', title: 'Hindari: drill menumpuk di satu subtes', rows: 2, hint: '' },
                       { key: 'guardrail', title: 'Catatan Acuan Drill', rows: 3, hint: '' }
                     ] as const
                   ).map((item) => (
@@ -1498,10 +1512,11 @@ export const EngineMatrixPage: React.FC = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   {(
                     [
-                      { key: 'scheduleTask', title: 'Tugas Konfirmasi Jadwal Siswa' },
-                      { key: 'parentSupportTask', title: 'Tugas Konfirmasi Dukungan Orang Tua' },
-                      { key: 'missingDrillTask', title: 'Tugas Tambahan Jika Ada Drill Minim' },
-                      { key: 'conflictOrLocationTask', title: 'Tugas Tambahan Jika Ada Konflik Prodi/Lokasi' }
+                      { key: 'scheduleTask', title: 'Poin 1: jadwal dan target drill ({siswa} {drillWeekly})' },
+                      { key: 'parentSupportTask', title: 'Poin 2 (kondisi biasa): dukungan orang tua' },
+                      { key: 'missingDrillTask', title: 'Pengganti poin 2: ada drill minim' },
+                      { key: 'conflictOrLocationTask', title: 'Pengganti poin 2: ada konflik prodi/lokasi (prioritas lebih tinggi)' },
+                      { key: 'closingTask', title: 'Poin penutup: catatan dan PDF (poin ke-3)' }
                     ] as const
                   ).map((item) => (
                     <div key={item.key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
@@ -1523,7 +1538,7 @@ export const EngineMatrixPage: React.FC = () => {
                     </div>
                   ))}
                   <div style={{ gridColumn: '1 / -1', fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginTop: 6 }}>
-                    Kelas TMB & Catatan Pengajar (placeholder: {'{pct} {present} {total} {absent} {sick} {excused} {notes} {notesPct} {emptyNotes}'})
+                    Kelas TMB & Catatan Pengajar (placeholder: {'{siswa} {pct} {present} {total} {absent} {sick} {excused} {notes} {notesPct} {emptyNotes}'})
                   </div>
                   {(Object.keys(draftConfig.classroomTemplates) as (keyof EngineRuleConfig['classroomTemplates'])[]).map((key) => (
                     <div key={key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
@@ -1567,20 +1582,15 @@ export const EngineMatrixPage: React.FC = () => {
                     </div>
                   ))}
                   <div style={{ gridColumn: '1 / -1', fontSize: 12.5, fontWeight: 800, color: 'var(--ink-strong)', marginTop: 6 }}>
-                    Rencana Aksi 1–4 dan Checklist Penutup, SATU SUMBER untuk dashboard dan PDF halaman 3 (format **tebal**; placeholder: {'{student} {sa} {parent} {branch} {target} {weakCount} {drillWeekly} {drillPerSubtest} {drillTiers} {deepest} {nextEpisode} {episode} {avgScore}'})
+                    Rencana Aksi 1–4 dan Checklist Penutup, SATU SUMBER untuk dashboard dan PDF halaman 3 (format **tebal**; placeholder: {'{student} {siswa} {sa} {parent} {branch} {target} {weakCount} {drillWeekly} {drillPerSubtest} {drillTiers} {deepest} {nextEpisode} {episode} {avgScore}'})
                   </div>
-                  {(Object.keys(draftConfig.actionPlanTemplates) as (keyof EngineRuleConfig['actionPlanTemplates'])[]).map((key) => (
+                  {(Object.keys(draftConfig.actionPlanTemplates) as (keyof EngineRuleConfig['actionPlanTemplates'])[]).filter((key) => key !== 'checklist').map((key) => (
                     <div key={key} style={{ background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
                       <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--green-ink)', display: 'block', marginBottom: 4 }}>
                         {ACTION_PLAN_FIELD_TITLES[key]}
                       </label>
-                      {key === 'checklist' && (
-                        <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>
-                          Satu poin per baris. Tiap baris tampil sebagai satu butir checklist.
-                        </div>
-                      )}
                       <textarea
-                        rows={key === 'checklist' ? 5 : 3}
+                        rows={3}
                         value={draftConfig.actionPlanTemplates[key]}
                         onChange={(e) => {
                           const v = e.target.value;
